@@ -77,3 +77,13 @@ Standalone checks: type checking, 125 unit tests, desktop/mobile full setup jour
 The journeys confirmed editable summary, source-before-preferences disclosure, adjusted draft approval, visible preparation, speech-unavailable text fallback, reload without autoplay, and no microphone/lease before Start conversation. Deliberate permission denial after Start created one microphone request and no lease. The production audio transport and paid-provider quality require real preflight. No paid calls were made.
 
 Thinking Orbs is pinned at de85557ca220332586d070d8788c0e1d6e877a0d with its MIT notice retained. The public export contains the Vue canvas wrapper, not React. Main private history, credentials, hosting bindings and learner records are excluded. Existing standalone hosting protection remains unchanged.
+
+## Per-topic timing and voice turns — 2026-10-05
+
+Implemented shared pacing for 5–15-minute topic blocks with 3/5-minute breaks, explicit pause/resume, a persisted owner clock and revision checks. Time does not complete learning gates. A take reserved before expiry may finish; new work waits for its break. Refresh anchoring avoids subtracting elapsed time twice. The optional realtime path checks the same clock before opening and stops at a block boundary.
+
+Voice turns are now the default. Saved responses remain readable through a disclosure while audio is prepared; playback events and validated provider timestamps drive visible captions. Actual transcription/activity/reply/save phases are owner-scoped safe metadata. Audio failure keeps the saved reply and a manual replay path. No forced minimum delay or simulated reasoning was added.
+
+Final unit runs: Flowst 213 passed, one live-provider test skipped; standalone 132 passed. Initial parallel checks hit two 5-second document extraction timeouts; targeted reruns and the final single-worker suite passed. A fixture provenance field and a corrupted test label were corrected. An old waiting-label assertion was aligned with the visible waiting state. Both hosts retain their existing authentication/ownership boundaries. Paid voice/model checks have not been performed in this task.
+
+Production builds, browser results and publication are appended only after completion below.

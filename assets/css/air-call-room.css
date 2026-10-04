@@ -777,3 +777,8 @@
 }
 
 .study-goal summary .misu-handoff { display: flex; align-items: center; gap: 6px; letter-spacing: normal; text-transform: none; }
+
+/* Keep the primary voice controls visible; short viewports scroll the whole stage. */
+.recorded-mode .call-stage { overflow-y: auto; overscroll-behavior: contain; }
+.recorded-mode .call-presence { flex: 1 1 auto; min-height: 220px; }
+.recorded-mode .call-control-area { flex: 0 0 auto; max-height: none; overflow: visible; }

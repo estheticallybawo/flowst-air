@@ -12,3 +12,5 @@ Read [core beliefs](core-beliefs.md), then select the relevant design.
 | [Misu-led setup](misu-led-setup.md) | Implemented in Flowst and shared slice | Fixture browser and persistence checks; live provider preflight remains separate |
 
 See [verification](../references/verification.md). Updating a specification does not verify a capability.
+
+| [Topic pacing and synchronized voice](topic-pacing-and-voice.md) | Implemented | See task-specific verification; paid speech remains pending |

@@ -1,30 +1,29 @@
 # Publishing Flowst Airs
 
-Status 2026-10-04: independent checkout, fresh uncommitted history, no remote, CLI installed but signed out. No publication occurred during documentation preparation.
+Status 2026-10-05: independent checkout at `C:/Users/DELL/Desktop/flowst-air`, public remote `estheticallybawo/flowst-air`, default branch `codex/bring-your-source`. Preserve the private Flowst history. Actual validation is recorded in [verification](verification.md).
 
-Suggested name: flowst-air-bring-your-source. The local folder and package are flowst-air-bring-your-source. package.json private controls npm publication, not GitHub visibility.
+The product is Flowst Airs. The folder is flowst-air; the package retains flowst-air-bring-your-source. package.json private controls npm publication, not GitHub visibility.
 
 ## Prepare
 
-Use only this independent checkout, preserving the original private Flowst repo/history. Run npm run docs:check and npm run repo:check. Review the manifest, sources/assets, fixtures and claims. Exclude credentials, learner records, dependencies, compiled output and deployment bindings. Disclose existing Amina foundation; identify Kai/memory as target work and fixtures as fixtures.
+Use only this independent checkout, preserving the original private Flowst repo/history. Run npm run docs:check and npm run repo:check. Review the manifest, sources/assets, fixtures and claims. Exclude credentials, learner records, dependencies, compiled output and deployment bindings. Disclose existing Amina foundation; distinguish implemented Kai/memory observations from future longitudinal work and label fixtures as fixtures.
 
 Sign in under the intended owner. Never commit tokens or put them in command arguments. Runtime checks remain required for runtime changes; documentation alone does not require another build.
 
 ## Publish after review and publication instruction
 
-Run from this standalone checkout. These commands create a new public remote and push reviewed files; preparation tools do not run them.
+Run from this standalone checkout. These commands update the existing public remote after review; preparation tools do not publish.
 
 ```powershell
-Set-Location 'C:\Users\DELL\Desktop\flowst-tutoring\flowst-air-bring-your-source'
-gh auth login
+Set-Location 'C:\Users\DELL\Desktop\flowst-air'
 gh auth status
 npm run docs:check
 npm run repo:check
 git add --pathspec-from-file=docs/generated/public-paths.txt
 git diff --cached --stat
 git diff --cached
-git commit -m "Initial Flowst Airs source-learning proof of concept"
-gh repo create flowst-air-bring-your-source --public --source=. --remote=origin --push
+git commit -m "Update verified Flowst Airs slice"
+git push origin HEAD:codex/bring-your-source
 ```
 
 Publishing the initial codex/bring-your-source branch is valid; verify the remote default branch. A later main rename is a separate decision. If the name exists or an organization owns it, choose the exact owner/name first. No force-push or original-repo visibility conversion.

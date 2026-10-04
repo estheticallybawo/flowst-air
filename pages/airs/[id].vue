@@ -103,6 +103,7 @@ const paced=computed(()=>Boolean(study.value?.plan.pacing));
 const pacingBlocked=computed(()=>paced.value && pacing.current.value?.phase!=='PRACTICE');
 const deferredReplyId=ref(''),captionTurnId=ref(''),spokenText=ref('');
 const speechPackets=new Map<string,TimedStudySpeech>();
+async function pausePractice(){live.stop();stopMicrophone();await pacing.change('PAUSE')}
 async function resumePractice(){if(!paced.value || await pacing.change('RESUME')){if(recordedPracticeMode.value && !introductionTurn.value)await beginLesson()}}
 
 const initialLoading = ref(true);
@@ -226,8 +227,9 @@ let playback: HTMLAudioElement | undefined;
 let playbackPrimed = false;
 let playbackRequest = 0;
 const speechUrls = new Map<string, string>();
-watch(()=>[pacing.current.value?.phase,recorderStatus.value,busy.value,playingTurnId.value,preparingSpeechTurnId.value,deferredReplyId.value,microphoneRequesting.value],async()=>{
- if(pacing.current.value?.phase==='BREAK_DUE' && recorderStatus.value==='IDLE' && !busy.value && !playingTurnId.value && !preparingSpeechTurnId.value && !deferredReplyId.value && !microphoneRequesting.value && !live.running.value && !pacing.busy.value){stopMicrophone();await pacing.change('BREAK')}
+watch(()=>[pacing.current.value?.phase,recorderStatus.value,busy.value,playingTurnId.value,preparingSpeechTurnId.value,deferredReplyId.value,microphoneRequesting.value,live.running.value],async()=>{
+ if(pacing.current.value?.phase==='BREAK_DUE' && recorderStatus.value==='IDLE' && !busy.value && !playingTurnId.value && !preparingSpeechTurnId.value && !deferredReplyId.value && !microphoneRequesting.value && !pacing.busy.value){
+ if(live.running.value)live.stop();stopMicrophone();await pacing.change('BREAK')}
 });
 const activeObjective = computed(() =>
   study.value?.plan.objectives.find(
@@ -442,6 +444,7 @@ const conversationActivity = computed(() => {
       label: "Voice playback paused",
       detail: "Tap Listen on Amina’s reply to hear it.",
     };
+  if(paced.value && ['BREAK','PAUSED'].includes(pacing.current.value?.phase || ''))return{phase:'ready',label:pacing.current.value?.phase==='BREAK' ? 'Take a break' : 'Practice is paused',detail:'Microphone off. Resume when you are ready and the timer allows it.'};
   if (!readyToPractice.value)
     return {
       phase: "ready",
@@ -450,7 +453,7 @@ const conversationActivity = computed(() => {
     };
   return {
     phase: "ready",
-    label: "Ready for your turn",
+    label: "Amina is waiting for your turn",
     detail: "Tap the microphone to explain this objective out loud.",
   };
 });
@@ -607,6 +610,7 @@ async function prepareHandoff(automaticWelcome = false) {
       .querySelector<HTMLElement>(".prepared-handoff")
       ?.focus({ preventScroll: true });
     if (!handoffReady.value) throw new Error("Welcome unavailable");
+    handoffBusy.value=false;
     if (automaticWelcome && welcomeId) await playSpeech(welcomeId, true);
   } catch {
     if (!disposed)
@@ -756,13 +760,15 @@ async function sendControl(
   busy.value = true;
   error.value = "";
   try {
-    const response = await auth.authorizedFetch<{ agentTurn?: { id: string } }>(
+    const response = await auth.authorizedFetch<{ agentTurn?: StudyTurn }>(
       `/api/study/conversations/${id.value}/control`,
       { method: "POST", body: { action } },
     );
     deferredReplyId.value=response.agentTurn?.id || "";
+    if(response.agentTurn && study.value && !study.value.turns.some(turn=>turn.id===response.agentTurn!.id))study.value.turns.push(response.agentTurn);
+    const playbackWork=response.agentTurn?.id ? playSpeech(response.agentTurn.id,true) : Promise.resolve();
     await load();
-    if (response.agentTurn?.id) await playSpeech(response.agentTurn.id, true);
+    await playbackWork;
   } catch (cause: any) {
     error.value = learnerStudyError(
       cause,
@@ -1014,6 +1020,7 @@ async function sendRecording() {
   recordingId = undefined;
   recorderStatus.value = "IDLE";clearTimeout(voiceProgressPoll);
   deferredReplyId.value=response.agentTurn?.id || "";
+  const playbackWork=response.agentTurn?.id ? playSpeech(response.agentTurn.id,true) : Promise.resolve();
   const savedTurns = [response.userTurn, response.agentTurn].filter(
     (turn): turn is StudyTurn => Boolean(turn),
   );
@@ -1035,7 +1042,7 @@ async function sendRecording() {
     error.value =
       "Your answer was saved, but the latest chat could not load. Your transcript is here; refresh to see Misu’s latest review.";
   }
-  if (response.agentTurn?.id) await playSpeech(response.agentTurn.id, true);
+  await playbackWork;
 }
 
 function stopCurrentPlayback() {
@@ -1103,7 +1110,7 @@ async function playSpeech(turnId: string, automatic = false) {
       if(request!==playbackRequest || disposed)return;
       const data=Uint8Array.from(atob(packet.audioBase64),character=>character.charCodeAt(0));
       url=URL.createObjectURL(new Blob([data],{type:packet.mimeType}));
-      packet.alignment=validSpeechAlignment(packet.alignment);speechPackets.set(turnId,packet);
+      packet.alignment=validSpeechAlignment(packet.alignment);packet.audioBase64='';speechPackets.set(turnId,packet);
       speechUrls.set(turnId, url);
       void load().catch(() => undefined);
     }
@@ -1706,7 +1713,8 @@ async function remove() {
               <p v-if="conversationSeconds > 0">
                 {{ conversationClock }} conversation time this visit.
               </p>
-              <small
+              <small v-if="preferences.pacing">Each topic has its own practice clock and break. Pausing preserves time; this does not extend the voice allowance.</small>
+              <small v-else
                 >The conversation timer pauses between calls. Your study budget
                 also includes reading and reflection; it does not extend the
                 pilot voice allowance.</small
@@ -2046,9 +2054,10 @@ async function remove() {
               <p v-if="pacing.current.value?.phase==='BREAK'">Microphone off. {{pacing.remaining.value>0 ? 'Your next practice block will be ready after this break.' : 'Your break is finished. Continue when you are ready.'}}</p>
               <p v-if="pacing.current.value?.phase==='BREAK_DUE'">Finish sending or discard your current take. Then we’ll pause for your break.</p>
               <p v-if="pacing.error.value" role="alert">{{pacing.error.value}}</p>
+              <button v-if="pacing.current.value?.phase==='BREAK_DUE' && pacing.error.value && recorderStatus==='IDLE' && !busy && !playingTurnId && !preparingSpeechTurnId" :disabled="pacing.busy.value" @click="pacing.change('BREAK')">Retry starting break</button>
               <button v-if="pacing.current.value?.phase==='PAUSED' || pacing.current.value?.phase==='BREAK' && pacing.remaining.value===0" :disabled="pacing.busy.value" @click="resumePractice">Resume practice</button>
-              <button v-if="pacing.current.value?.phase==='PRACTICE' && recorderStatus==='IDLE' && !busy && !playingTurnId && !preparingSpeechTurnId" :disabled="pacing.busy.value" @click="pacing.change('PAUSE')">Pause practice</button>
-              <small>The timer pauses practice; it does not mark a topic complete. Use Misu’s saved review to advance topics.</small>
+              <button v-if="pacing.current.value?.phase==='PRACTICE' && recorderStatus==='IDLE' && !busy && !playingTurnId && !preparingSpeechTurnId" :disabled="pacing.busy.value" @click="pausePractice">Pause practice</button>
+              <details class="pacing-explanation"><summary>About timing</summary><p>The timer pauses practice; it does not mark a topic complete. Use Misu’s saved review to advance topics.</p></details>
             </section>
             <div
               class="call-actions"
@@ -2190,7 +2199,7 @@ async function remove() {
                   </button>
                 </div>
                 <div v-else-if="!live.running.value" class="record-controls">
-                  <div class="record-context">
+                  <div v-if="recorderStatus!=='IDLE' || voiceFailureTurnId" class="record-context">
                     <strong v-if="voiceFailureTurnId"
                       >Voice conversation is paused</strong
                     >
@@ -2311,7 +2320,7 @@ async function remove() {
 </template>
 
 <style scoped>
-.practice-pacing{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:16px 0;border-bottom:1px solid #d6e3dc;margin-bottom:16px}.practice-pacing p,.practice-pacing small{grid-column:1/-1;max-width:60ch}.pacing-clock{font-variant-numeric:tabular-nums;font-size:1.25rem}.practice-pacing button{min-height:44px}
+.practice-pacing{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px 12px;align-items:center;padding:4px 0 8px;border-bottom:1px solid #d6e3dc;margin-bottom:8px;text-align:left}.practice-pacing strong{font-size:.85rem;line-height:1.4}.practice-pacing p,.pacing-explanation{grid-column:1/-1;max-width:60ch}.pacing-clock{font-variant-numeric:tabular-nums;font-size:1rem}.practice-pacing button{min-height:44px;padding:8px 12px;border:1px solid #d6e3dc;border-radius:999px;background:transparent;font-size:.8rem;cursor:pointer}.practice-pacing button:focus-visible,.pacing-explanation summary:focus-visible{outline:3px solid #315d82;outline-offset:3px}.pacing-explanation summary{width:fit-content;font-size:.75rem;color:#464a53;cursor:pointer}.pacing-explanation p{font-size:.8rem;line-height:1.5;margin:8px 0}.practice-pacing button:hover{background:#eef3fb}
 
 .setup-room-nav {
   display: flex;

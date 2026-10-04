@@ -15,7 +15,7 @@ npm ci
 npm run demo
 ```
 
-Open `http://127.0.0.1:4322/airs`. Share your context with Misu, edit and confirm her understanding, then choose **Link or transcript** and a labelled fixture. Review the source, choose your goal and time, review or adjust the plan, and approve it. Misu prepares the handoff; Amina welcomes you with the microphone off. Only **Start conversation** requests microphone access. Demo sources and their plans are deterministic, local samples; live voice is not simulated. Mock authentication and fixture mode are disabled in production. Local records are in memory and disappear on restart.
+Open `http://127.0.0.1:4322/airs`. Share your context with Misu, edit and confirm her understanding, then choose **Link or transcript** and a labelled fixture. Review the source, choose your goal, 5–15 minutes per topic and a 3- or 5-minute break, review or adjust the plan, and approve it. Misu prepares the handoff; Amina welcomes you with the microphone off. **Start conversation** opens practice; **Start recording** explicitly requests microphone access. Voice turns are the default. Amina’s captions follow actual playback, with full saved text available. Demo sources and their plans are deterministic, local samples; live voice is not simulated. Mock authentication and fixture mode are disabled in production. Local records are in memory and disappear on restart.
 
 Canonical study routes are `/airs`, `/airs/new`, `/airs/library` and `/airs/:id`. Existing `/air` routes remain compatible. Existing `/amira` bookmarks redirect while preserving the destination, query and hash.
 
@@ -30,6 +30,8 @@ Video source transcription uses a separate restricted ElevenLabs key, `scribe_v2
 Before enabling platform claims, verify a permitted YouTube and TikTok example end to end on the deployed account. Metadata parsing is deliberately conservative: changed, blocked, unlisted, private, live, or unverifiable videos fall back to supplied transcripts. No platform cookies, login bypass, or media-downloading tool is included.
 
 ## What is read and stored
+
+Use [the voice-turn preflight](docs/references/voice-turn-preflight.md) for real microphone, captions and pacing checks.
 
 Use [the deployed video checklist](DEPLOYED_VIDEO_CHECKLIST.md) to run the real provider and voice checks yourself after deployment.
 

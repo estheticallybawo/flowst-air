@@ -25,3 +25,9 @@ On the plan screen, identify Misu’s avatar and planner role. Open “What this
 ### Prepared entry
 
 Enter from app.useflowst.com after Flowst sign-in. Misu asks for one self-description, shows an editable understanding, then requests the source. Confirm source, goal and time before drafting. Briefly adjust and approve the plan. Show the visible handoff before Amina appears; approval does not open the microphone. The independent repository uses the same shared setup with its own host boundary.
+
+### Topic pacing and voice turns
+
+Choose five minutes per topic and a three-minute break. Show that the plan total is the sum of practice blocks, not a five-minute whole conversation. Start when ready, then record, review and send a short explanation. Show transcription/reply preparation, audio preparation, captions during actual speech and the waiting state. If audio is blocked, use Replay and name the actual fallback.
+
+Show Pause and Resume preserving remaining time. At the block boundary, finish or discard the current take, show microphone-off recovery, then explicitly resume after the break. Do not fast-forward a real demo clock or label a fixture's silent WAV as real Amina speech. A saved recommendation and learning evidence, not the timer, determine topic progression. Preflight live model/voice in the owner's account before recording the demo.

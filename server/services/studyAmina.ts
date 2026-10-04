@@ -207,6 +207,7 @@ export async function buildAminaLiveContext(ownerId: string, id: string) {
  const conversation = await getStudyConversation(ownerId, id);
  assertStudyConversationActive(conversation);
  if (conversation.plan.status !== 'APPROVED' || !conversation.plan.functionRefs?.length) throw createError({ statusCode: 409, statusMessage: 'Approve your session plan before starting a call.' });
+ await assertStudyPacingOpen(conversation);
  const packet = compileMisuStudyPacket(conversation);
  const chunks = await getStudyChunks(ownerId, id);
  const allowed = new Set(conversation.plan.objectives.find(objective => objective.id === packet.objective.id)?.sources.map(source => source.id) || []);
