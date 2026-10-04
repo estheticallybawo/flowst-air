@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {
-  DEFAULT_STUDY_PREFERENCES,
+  NEW_STUDY_PREFERENCES,
   STUDY_PURPOSE_LABELS,
   type StudyPreferences,
 } from "~/shared/study";
@@ -26,7 +26,7 @@ const preview = ref<{
   sections: Array<{ label: string; text: string }>;
   omissions: string[];
 } | null>(null);
-const preferences = ref<StudyPreferences>({ ...DEFAULT_STUDY_PREFERENCES }),
+const preferences = ref<StudyPreferences>({ ...NEW_STUDY_PREFERENCES, pacing:{...NEW_STUDY_PREFERENCES.pacing!} }),
   busy = ref(false),
   sourceBusy = ref(false),
   sourceLabel = ref(""),
@@ -48,9 +48,9 @@ const usable = computed(
 );
 const valid = computed(
   () =>
-    Number.isInteger(preferences.value.timeBudgetMinutes) &&
-    preferences.value.timeBudgetMinutes >= 5 &&
-    preferences.value.timeBudgetMinutes <= 120 &&
+    Number.isInteger(preferences.value.pacing!.practiceMinutes) &&
+    preferences.value.pacing!.practiceMinutes >= 5 &&
+    preferences.value.pacing!.practiceMinutes <= 15 &&
     (preferences.value.purpose !== "OTHER" ||
       Boolean(preferences.value.context.trim())),
 );
@@ -356,16 +356,17 @@ async function createPlan() {
                 </option>
               </select></label
             ><label class="field"
-              >How much time do you have?<input
-                v-model.number="preferences.timeBudgetMinutes"
+              >Practice time per topic<input
+                v-model.number="preferences.pacing!.practiceMinutes"
                 type="number"
                 min="5"
-                max="120"
+                max="15"
                 inputmode="numeric"
               /><small
-                >5–120 minutes available. Activity times are estimates.</small
+                >5–15 minutes for each topic, followed by your chosen break.</small
               ></label
             >
+            <label class="field">Break length<select v-model.number="preferences.pacing!.breakMinutes"><option :value="3">3 minutes</option><option :value="5">5 minutes</option></select></label>
             <details :open="preferences.purpose === 'OTHER'">
               <summary>Adjust scope or add a focus</summary>
               <label class="field"

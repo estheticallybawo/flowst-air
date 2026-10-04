@@ -58,8 +58,9 @@ export async function deleteAirsConversationMemory(ownerId:string,id:string,even
  const storage=studyStorageResources(event),pk='AIRS_CONTEXT#'+ownerId,prefix='REVIEW#'+id+'#'
  const latest=await readAirsArtifact<KaiReview>(ownerId,'LATEST_REVIEW',event)
  if(storage.mock) {
-  for(const key of local.keys()) if(key.startsWith(pk+prefix)) local.delete(key)
+  for(const key of local.keys()) if(key.startsWith(pk+prefix) || key.startsWith(pk+'VOICE_TURN#'+id+'#')) local.delete(key)
   local.delete(pk+'PLAN_OPERATION#'+id)
+  local.delete(pk+'PACING#'+id)
   if(latest?.conversationId===id) local.delete(pk+'LATEST_REVIEW')
  } else {
   let cursor:Record<string,unknown>|undefined
@@ -69,6 +70,10 @@ export async function deleteAirsConversationMemory(ownerId:string,id:string,even
    cursor=result.LastEvaluatedKey
   } while(cursor)
   await storage.db.send(new DeleteCommand({TableName:storage.table,Key:{pk,sk:'PLAN_OPERATION#'+id}}))
+  await storage.db.send(new DeleteCommand({TableName:storage.table,Key:{pk,sk:'PACING#'+id}}))
+  let voiceCursor:Record<string,unknown>|undefined
+  do {const records=await storage.db.send(new QueryCommand({TableName:storage.table,KeyConditionExpression:'pk = :pk AND begins_with(sk,:prefix)',ExpressionAttributeValues:{':pk':pk,':prefix':'VOICE_TURN#'+id+'#'},ExclusiveStartKey:voiceCursor,ConsistentRead:true}));for(const item of records.Items || [])await storage.db.send(new DeleteCommand({TableName:storage.table,Key:{pk,sk:item.sk}}));voiceCursor=records.LastEvaluatedKey}while(voiceCursor)
+
   if(latest?.conversationId===id) await storage.db.send(new DeleteCommand({TableName:storage.table,Key:{pk,sk:'LATEST_REVIEW'},ConditionExpression:'#v.conversationId = :id',ExpressionAttributeNames:{'#v':'value'},ExpressionAttributeValues:{':id':id}}))
  }
 }

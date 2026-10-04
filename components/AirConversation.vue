@@ -3,6 +3,9 @@ import { Play, Square, UserRound } from "lucide-vue-next";
 import type { StudyTurn } from "~/shared/study";
 const props = defineProps<{
   turns: StudyTurn[];
+  pendingTextId?:string;
+  captionId?:string;
+  captionText?:string;
   liveRunning: boolean;
   playingId: string;
   preparingId: string;
@@ -66,7 +69,11 @@ watch(
           }}</time
           ><span class="saved-indicator">Saved</span>
         </header>
-        <p class="saved-bubble">{{ turn.text }}</p>
+        <template v-if="pendingTextId===turn.id || captionId===turn.id">
+          <p v-if="captionId===turn.id" class="saved-bubble">{{ captionText || 'Playback starting…' }}</p>
+          <p v-else role="status">Reply saved. Preparing audio…</p>
+          <details><summary>Read the full saved reply</summary><p class="saved-bubble">{{turn.text}}</p></details>
+        </template><p v-else class="saved-bubble">{{ turn.text }}</p>
         <div v-if="turn.role === 'AMIRA'" class="turn-support">
           <details v-if="turn.sources.length || turn.provenance">
             <summary>Sources</summary>

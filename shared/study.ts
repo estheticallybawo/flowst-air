@@ -11,10 +11,13 @@ export interface StudyPreferences {
   /** The learner's available time, not a promised completion time. */
   timeBudgetMinutes: number
   context: string
+  /** Present only on new plans; legacy timeBudgetMinutes retains its whole-session meaning. */
+  pacing?: { mode: 'TOPIC_BLOCKS'; practiceMinutes: number; breakMinutes: 3 | 5 }
 }
 export const DEFAULT_STUDY_PREFERENCES: StudyPreferences = {
   purpose: 'UNDERSTAND', scope: 'FOCUSED', timeBudgetMinutes: 15, context: '',
 }
+export const NEW_STUDY_PREFERENCES: StudyPreferences = { ...DEFAULT_STUDY_PREFERENCES, pacing: { mode: 'TOPIC_BLOCKS', practiceMinutes: 5, breakMinutes: 3 } }
 export const STUDY_PURPOSE_LABELS: Record<StudyPurpose, string> = {
   UNDERSTAND: 'Understand this resource', EXAM: 'Prepare for an exam', INTERVIEW: 'Prepare for an interview',
   CONTENT_CREATION: 'Create content from this resource', OTHER: 'Something else',
@@ -64,6 +67,8 @@ export interface StudyObjective {
 }
 
 export interface StudyPlan {
+  pacing?: StudyPreferences['pacing']
+  estimatedBreakMinutes?: number
   operation?: AirsOperation
   contextSnapshot?: ContextSnapshot
   rationale?: string

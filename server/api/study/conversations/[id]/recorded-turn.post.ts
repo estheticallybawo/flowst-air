@@ -1,3 +1,5 @@
+import {writeAirsArtifact} from '../../../../services/airsContext'
+import {assertStudyPacingOpen} from '../../../../services/studyPacing'
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { requireIdentity } from "../../../../utils/auth";
@@ -80,8 +82,11 @@ export default defineEventHandler(async (event) => {
     });
   }
   const claim = reservation.claim;
+  const progress=async(phase:string)=>{try{await writeAirsArtifact(identity.userId,'VOICE_TURN#'+id+'#'+recordingId,{recordingId,phase,updatedAt:new Date().toISOString()},event)}catch{/* Optional status metadata cannot invalidate a saved take or repeat provider work. */}};
   let prepared: Awaited<ReturnType<typeof prepareAminaTurn>> | undefined;
   try {
+    await assertStudyPacingOpen(conversation,event,recordingId)
+    await progress(claim.transcript ? 'CHOOSING_ACTIVITY' : 'TRANSCRIBING')
     const text =
       claim.transcript ||
       (await transcribeStudyPcm(
@@ -110,7 +115,9 @@ export default defineEventHandler(async (event) => {
         text,
         event,
       );
-    prepared = await prepareAminaTurn(identity.userId, id, text, event);
+    await progress('CHOOSING_ACTIVITY')
+    prepared = await prepareAminaTurn(identity.userId, id, text, event, false, recordingId);
+    await progress('DRAFTING_REPLY')
     let reply = "";
     for await (const chunk of streamAminaText(
       prepared.system,
@@ -128,6 +135,7 @@ export default defineEventHandler(async (event) => {
       event,
       claim,
     );
+    await progress('SAVED')
     setHeader(event, "Cache-Control", "private, no-store");
     return { userTurn: prepared.userTurn, agentTurn };
   } catch (error) {
@@ -141,9 +149,11 @@ export default defineEventHandler(async (event) => {
       event,
     ).catch(() => undefined);
     if (completed) {
+      await progress('SAVED')
       setHeader(event, "Cache-Control", "private, no-store");
       return completed;
     }
+    await progress('FAILED')
     if (prepared)
       await failAminaTurn(identity.userId, id, prepared, error, event);
     await failRecordedStudyTurn(identity.userId, id, claim, event).catch(

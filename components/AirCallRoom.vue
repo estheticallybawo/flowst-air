@@ -18,6 +18,7 @@ const props = defineProps<{
   loading?: boolean;
   recordedMode?: boolean;
   studyMinutes?: number;
+  pacingLabel?:string;
   conversationClock?: string;
 }>();
 defineEmits<{ closePlan: []; closeConversation: [] }>();
@@ -59,7 +60,7 @@ const shortStatus = computed(() =>
         </summary>
         <p>{{ goal }}</p>
         <small v-if="studyMinutes"
-          >{{ studyMinutes }} minutes available<span v-if="conversationClock">
+          >{{ pacingLabel || `${studyMinutes} minutes available` }}<span v-if="conversationClock">
             · {{ conversationClock }} conversation time this visit</span
           ></small
         ><small
@@ -90,16 +91,16 @@ const shortStatus = computed(() =>
         >
           <AgentOrb
             v-if="
-              liveRunning &&
+              (recordedMode && ['processing','speaking','listening'].includes(activity.phase)) || liveRunning &&
               (liveStatus === 'SPEAKING' ||
                 (liveStatus === 'LISTENING' && !muted && microphoneActive) ||
                 liveStatus === 'CONNECTING')
             "
             :busy="true"
             :state="
-              liveStatus === 'SPEAKING'
+              activity.phase === 'speaking' || liveStatus === 'SPEAKING'
                 ? 'composing'
-                : liveStatus === 'LISTENING'
+                : activity.phase === 'listening' || liveStatus === 'LISTENING'
                   ? 'listening'
                   : 'connecting'
             "
@@ -131,12 +132,12 @@ const shortStatus = computed(() =>
       </div>
       <div class="stage-caption-slot">
         <div
-          v-if="!conversationOpen && liveRunning && captionsVisible && caption"
+          v-if="!conversationOpen && captionsVisible && caption"
           class="stage-caption"
         >
           <small>{{
             captionSaved
-              ? "Saved transcript"
+              ? recordedMode ? "Spoken captions · saved reply" : "Saved transcript"
               : "Live caption · not confirmed saved"
           }}</small>
           <p>{{ caption }}</p>
