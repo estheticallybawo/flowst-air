@@ -67,3 +67,4 @@ Persisted `AMIRA`/`MIRO` role IDs and existing `AMIRA_*` recovery codes are comp
 Start with [AGENTS.md](AGENTS.md), [ARCHITECTURE.md](ARCHITECTURE.md) and [docs/](docs/index.md). DESIGN.md, FRONTEND.md, PLANS.md and PRODUCT_SENSE.md route readers to detail. Design/implementation/verification status remain distinct. Run npm run docs:generate, npm run docs:check and npm run repo:check after relevant changes.
 
 See [public-repository preparation](docs/references/public-repository.md). Fresh checkout remains unpublished; publication is a separate reviewed action. The product aim extends beyond the one-session proof of concept; Kai and longitudinal views remain target work.
+# flowst-air
