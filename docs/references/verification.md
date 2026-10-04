@@ -75,4 +75,8 @@ Mounted-route verification: Flowst /airs now hosts the independent Airs workspac
 
 ## Public repository preparation — 2026-10-04
 
-The owner created estheticallybawo/flowst-airs as an empty public repository. GitHub API inspection confirms public visibility and push permission. The reviewed independent root commit is 11aa278; the parent Flowst history is excluded. Repository links now use the confirmed name. These documentation changes do not change runtime behavior. Deployment access and live provider checks remain pending as recorded above.
+The owner created estheticallybawo/flowst-air as an empty public repository. GitHub API inspection confirms public visibility and push permission. The reviewed independent root commit is 11aa278; the parent Flowst history is excluded. Repository links now use the confirmed name. These documentation changes do not change runtime behavior. Deployment access and live provider checks remain pending as recorded above.
+
+## Public publication — 2026-10-04
+
+The owner updated token permissions and the initial push succeeded. GitHub reports the canonical repository as estheticallybawo/flowst-air, public, with codex/bring-your-source as its default branch. Remote commit 8a1b562 matched the local reviewed history. The parent Flowst repository remains private and was not pushed. This publication does not resolve the production hosting login wall or verify live provider journeys.

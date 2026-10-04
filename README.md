@@ -66,7 +66,7 @@ Persisted `AMIRA`/`MIRO` role IDs and existing `AMIRA_*` recovery codes are comp
 
 Start with [AGENTS.md](AGENTS.md), [ARCHITECTURE.md](ARCHITECTURE.md) and [docs/](docs/index.md). DESIGN.md, FRONTEND.md, PLANS.md and PRODUCT_SENSE.md route readers to detail. Design/implementation/verification status remain distinct. Run npm run docs:generate, npm run docs:check and npm run repo:check after relevant changes.
 
-Submission repository: [estheticallybawo/flowst-airs](https://github.com/estheticallybawo/flowst-airs), prepared from independently reviewed files with fresh standalone history. See [public-repository preparation](docs/references/public-repository.md). The product aim extends beyond the one-session proof of concept; Kai and longitudinal views remain target work.
+Submission repository: [estheticallybawo/flowst-air](https://github.com/estheticallybawo/flowst-air), prepared from independently reviewed files with fresh standalone history. See [public-repository preparation](docs/references/public-repository.md). The product aim extends beyond the one-session proof of concept; Kai and longitudinal views remain target work.
 
 ## Demonstrate through Flowst
 

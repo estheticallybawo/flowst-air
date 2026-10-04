@@ -1,8 +1,8 @@
 # Publishing Flowst Airs
 
-Status 2026-10-04: the owner created the public [estheticallybawo/flowst-airs](https://github.com/estheticallybawo/flowst-airs) repository. This independent checkout has fresh history and is prepared for its initial push. Hosting bindings and environment files remain excluded.
+Status 2026-10-04: the owner created the public [estheticallybawo/flowst-air](https://github.com/estheticallybawo/flowst-air) repository. The reviewed standalone history is published on the default codex/bring-your-source branch. GitHub reports the canonical repository name as flowst-air; the product remains Flowst Airs. Hosting bindings and environment files remain excluded.
 
-Confirmed GitHub name: flowst-airs. The local folder and package are flowst-airs-bring-your-source. package.json private controls npm publication, not GitHub visibility.
+Confirmed canonical GitHub name: flowst-air. The local folder and package are flowst-airs-bring-your-source. package.json private controls npm publication, not GitHub visibility.
 
 ## Prepare
 
@@ -24,7 +24,7 @@ git add --pathspec-from-file=docs/generated/public-paths.txt
 git diff --cached --stat
 git diff --cached
 git commit -m "Initial Flowst Airs source-learning proof of concept"
-git remote add origin https://github.com/estheticallybawo/flowst-airs.git
+git remote add origin https://github.com/estheticallybawo/flowst-air.git
 git push -u origin codex/bring-your-source
 ```
 
