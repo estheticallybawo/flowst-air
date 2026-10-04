@@ -1,8 +1,8 @@
 # Publishing Flowst Airs
 
-Status 2026-10-04: independent checkout with fresh history. The intended public owner is estheticallybawo; the submission repository is flowst-airs-bring-your-source. GitHub CLI authentication was verified before publication preparation. Hosting bindings and environment files remain excluded.
+Status 2026-10-04: the owner created the public [estheticallybawo/flowst-airs](https://github.com/estheticallybawo/flowst-airs) repository. This independent checkout has fresh history and is prepared for its initial push. Hosting bindings and environment files remain excluded.
 
-Suggested name: flowst-airs-bring-your-source. The local folder and package are flowst-airs-bring-your-source. package.json private controls npm publication, not GitHub visibility.
+Confirmed GitHub name: flowst-airs. The local folder and package are flowst-airs-bring-your-source. package.json private controls npm publication, not GitHub visibility.
 
 ## Prepare
 
@@ -12,7 +12,7 @@ Sign in under the intended owner. Never commit tokens or put them in command arg
 
 ## Publish after review and publication instruction
 
-Run from this standalone checkout. These commands create a new public remote and push reviewed files; preparation tools do not run them.
+Run from this standalone checkout. These commands connect the owner-created public repository and push reviewed files; preparation tools do not run them.
 
 ```powershell
 Set-Location 'C:\Users\DELL\Desktop\flowst-tutoring\flowst-airs-bring-your-source'
@@ -24,7 +24,8 @@ git add --pathspec-from-file=docs/generated/public-paths.txt
 git diff --cached --stat
 git diff --cached
 git commit -m "Initial Flowst Airs source-learning proof of concept"
-gh repo create flowst-airs-bring-your-source --public --source=. --remote=origin --push
+git remote add origin https://github.com/estheticallybawo/flowst-airs.git
+git push -u origin codex/bring-your-source
 ```
 
 Publishing the initial codex/bring-your-source branch is valid; verify the remote default branch. A later main rename is a separate decision. If the name exists or an organization owns it, choose the exact owner/name first. No force-push or original-repo visibility conversion.
