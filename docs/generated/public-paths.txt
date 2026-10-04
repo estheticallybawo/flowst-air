@@ -81,6 +81,7 @@
 :(literal)docs/references/provider-reference.md
 :(literal)docs/references/public-repository.md
 :(literal)docs/references/verification.md
+:(literal)docs/references/voice-turn-preflight.md
 :(literal)mcp/codex-config.example.toml
 :(literal)mcp/github-study.ts
 :(literal)middleware/air-only.ts

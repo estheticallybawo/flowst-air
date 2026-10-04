@@ -90,8 +90,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 8138,
-      "sha256": "1c1bcaa111ad1e2d2c6bae211e384e7f1b51263be6999c449726ed48d6fc4852"
+      "bytes": 8260,
+      "sha256": "455f5c8e9a1db56c89abb8f57dd9e746434fcc78b1c53d4a4d45e74406af902d"
     },
     {
       "path": "VALIDATION.md",
@@ -105,8 +105,8 @@
     },
     {
       "path": "assets/css/air-call-room.css",
-      "bytes": 15815,
-      "sha256": "2c1319d9a5e0c79c45ea5ca351af44ece2b3b982f01d2292cac8b6192befa8a1"
+      "bytes": 16142,
+      "sha256": "93cb819b0107b481d606d8d09a7294a7c613a815536c92326d900b8d8843c672"
     },
     {
       "path": "assets/css/air.css",
@@ -340,8 +340,8 @@
     },
     {
       "path": "docs/generated/public-paths.txt",
-      "bytes": 11725,
-      "sha256": "77c3b7ef0c94d8e294334990948c6870dade33da2c475eb20328a69f80fc5619"
+      "bytes": 11775,
+      "sha256": "e0fc9533e250fbae05ea76e65abe66e84fd88848d7a8ea9b8cfd0e10b9d57046"
     },
     {
       "path": "docs/index.md",
@@ -410,8 +410,13 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 14575,
-      "sha256": "a94e412b766bf6ae869a3cc14b87fde800ff949ad907496aabf86af40e1afa3f"
+      "bytes": 16551,
+      "sha256": "6880762f8eb245fb9652ac8cfbebd0f1cd304f52b19ef91dfcb19ae2b54696f3"
+    },
+    {
+      "path": "docs/references/voice-turn-preflight.md",
+      "bytes": 2542,
+      "sha256": "55f75af3034ce71fe4db45c9cca19f35c6ee72fabb6bbb5780bf823f92801dbc"
     },
     {
       "path": "mcp/codex-config.example.toml",
@@ -455,8 +460,8 @@
     },
     {
       "path": "pages/airs/[id].vue",
-      "bytes": 117239,
-      "sha256": "b7e97b8241ffe5bec60b634c4dfa1e287201314102a9b595b23702b7ad573657"
+      "bytes": 117292,
+      "sha256": "2904a924878a9061dff0765bd0141a0d825ee674e5789a4aed915452670ea82e"
     },
     {
       "path": "pages/airs/about.vue",
@@ -620,8 +625,8 @@
     },
     {
       "path": "scripts/check-flowst-parity.mjs",
-      "bytes": 2480,
-      "sha256": "da83eb823c20b5f92ae90217b74e291e214cd45d16ce65f84560be30f7ea331a"
+      "bytes": 2511,
+      "sha256": "4cfe9dcf561c3e1ac999361c39c68756a99c67d55aab4f46788803fff298acf0"
     },
     {
       "path": "scripts/check-public-export.mjs",
@@ -1389,5 +1394,5 @@
       "sha256": "e0a3895d66cd71bb2a2339ff44fdd4de0991858415f05a7537d57a3388ad1dba"
     }
   ],
-  "updatedAt": "2026-10-04T23:22:49.984474+00:00"
+  "updatedAt": "2026-10-04T23:36:41.184442+00:00"
 }
