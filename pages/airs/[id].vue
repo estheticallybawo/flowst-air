@@ -1097,10 +1097,12 @@ async function playSpeech(turnId: string, automatic = false) {
   playback?.pause();
   playingTurnId.value = "";
   deferredReplyId.value=turnId;
+  captionTurnId.value="";spokenText.value="";
   preparingSpeechTurnId.value = turnId;
   audioPromptTurnId.value = "";
   let url = speechUrls.get(turnId);
   if (!url && !canStudy.value) {
+    deferredReplyId.value="";
     preparingSpeechTurnId.value = "";
     return;
   }

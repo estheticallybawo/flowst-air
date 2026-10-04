@@ -410,8 +410,8 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 16551,
-      "sha256": "6880762f8eb245fb9652ac8cfbebd0f1cd304f52b19ef91dfcb19ae2b54696f3"
+      "bytes": 16870,
+      "sha256": "a8c06e1bba87fe65396a1ee042bb9e3edb466499f99196de990f231caa88a660"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
@@ -460,8 +460,8 @@
     },
     {
       "path": "pages/airs/[id].vue",
-      "bytes": 117292,
-      "sha256": "2904a924878a9061dff0765bd0141a0d825ee674e5789a4aed915452670ea82e"
+      "bytes": 117368,
+      "sha256": "6a60ee855754eeaa6d66143047e33a3864ad7756e25fb035d5aa05585ea133ff"
     },
     {
       "path": "pages/airs/about.vue",
@@ -1394,5 +1394,5 @@
       "sha256": "e0a3895d66cd71bb2a2339ff44fdd4de0991858415f05a7537d57a3388ad1dba"
     }
   ],
-  "updatedAt": "2026-10-04T23:36:41.184442+00:00"
+  "updatedAt": "2026-10-04T23:45:44.045791+00:00"
 }
