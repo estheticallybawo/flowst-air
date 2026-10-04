@@ -1,0 +1,12 @@
+node_modules/
+.nuxt*/
+.output/
+.env*
+!.env.example
+.vercel/
+.aws/
+*.log
+test-results/
+playwright-report/
+coverage/
+*.tsbuildinfo
