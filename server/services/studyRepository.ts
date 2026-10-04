@@ -425,7 +425,7 @@ export async function listStudyConversations(ownerId: string, event?: H3Event) {
   return records.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(record => ({ id: record.id, document: record.document, mode: record.mode, planStatus: record.plan?.status || 'PENDING', abandonedAt: record.abandonedAt, updatedAt: record.updatedAt }))
 }
 
-export async function saveStudyPlan(ownerId: string, id: string, plan: StudyPlan, expectedRevision: number, event?: H3Event, documentTitle?: string) {
+export async function saveStudyPlan(ownerId: string, id: string, plan: StudyPlan, expectedRevision: number, event?: H3Event, documentTitle?: string, preferences?: StudyPreferences) {
   const current = await getStudyConversation(ownerId, id, event)
   assertStudyConversationActive(current)
   if (current.revision !== expectedRevision) throw createError({ statusCode: 409, statusMessage: 'This study chat changed. Reload and try again.' })
@@ -439,13 +439,13 @@ export async function saveStudyPlan(ownerId: string, id: string, plan: StudyPlan
     assertStudyConversationActive(publicRecord(record, []))
     if (record.revision !== expectedRevision) throw createError({ statusCode: 409, statusMessage: 'This study chat changed. Reload and try again.' })
     mockRecords.set(id, { ...record, document: documentTitle ? { ...record.document, title: documentTitle } : record.document,
-      plan, revision: expectedRevision + 1, updatedAt })
+      plan, preferences: preferences || record.preferences, revision: expectedRevision + 1, updatedAt })
     if (updateGate) mockPilotUploads.set(ownerId, { ...gate!, completed: Boolean(completed) })
   } else {
     const record = (await db.send(new GetCommand({ TableName: table, Key: { pk: `STUDY#${id}`, sk: 'META' }, ConsistentRead: true }))).Item as StudyRecord
     try {
       const saved = { TableName: table, Item: { ...record, document: documentTitle ? { ...record.document, title: documentTitle } : record.document,
-        plan, revision: expectedRevision + 1, updatedAt }, ConditionExpression: 'ownerId = :owner AND revision = :revision AND attribute_not_exists(abandonedAt)', ExpressionAttributeValues: { ':owner': ownerId, ':revision': expectedRevision } }
+        plan, preferences: preferences || record.preferences, revision: expectedRevision + 1, updatedAt }, ConditionExpression: 'ownerId = :owner AND revision = :revision AND attribute_not_exists(abandonedAt)', ExpressionAttributeValues: { ':owner': ownerId, ':revision': expectedRevision } }
       if (updateGate) await db.send(new TransactWriteCommand({ TransactItems: [ { Put: saved }, { Update: { TableName: table, Key: pilotMarker(ownerId),
         UpdateExpression: 'SET completed = :completed', ConditionExpression: 'ownerId = :owner AND conversationId = :id',
         ExpressionAttributeValues: { ':completed': Boolean(completed), ':owner': ownerId, ':id': id } } } ] }))
@@ -456,7 +456,7 @@ export async function saveStudyPlan(ownerId: string, id: string, plan: StudyPlan
     }
   }
   return { ...current, document: documentTitle ? { ...current.document, title: documentTitle } : current.document,
-    plan, progression: deriveStudyProgression({ plan, mode: current.mode, practice: current.practice }),
+    plan, preferences: preferences || current.preferences, progression: deriveStudyProgression({ plan, mode: current.mode, practice: current.practice }),
     revision: expectedRevision + 1, updatedAt }
 }
 

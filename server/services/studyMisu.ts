@@ -1,5 +1,7 @@
+import { randomUUID } from 'node:crypto'
+import type { AirsOperation } from '../../shared/airsOrchestration'
 import { planWithAirsFunctions } from './airsPlanning'
-import { getAirsContext, reserveGuestAllowance } from './airsContext'
+import { getAirsContext, reserveGuestAllowance, writeAirsArtifact } from './airsContext'
 import { createError } from 'h3'
 import { BedrockRuntimeClient, ConverseCommand } from '@aws-sdk/client-bedrock-runtime'
 import type { H3Event } from 'h3'
@@ -137,17 +139,24 @@ async function documentInventory(chunks: StudyChunk[], event?: H3Event) {
   return summaries.join('\n')
 }
 
-export async function generateMisuPlan(ownerId: string, id: string, regenerate = false, event?: H3Event): Promise<StudyConversation> {
+export async function generateMisuPlan(ownerId: string, id: string, regenerate = false, event?: H3Event, adjustment = '', selectedPreferences?: StudyPreferences): Promise<StudyConversation> {
   const conversation = await getStudyConversation(ownerId, id, event)
   assertStudyConversationActive(conversation)
   if (conversation.plan.status === 'APPROVED') throw createError({ statusCode: 409, statusMessage: 'This plan is already approved. Start a new chat to make a new plan.' })
   if (conversation.plan.status === 'DRAFT' && !regenerate) return conversation
   const recent = conversation.plan.generationStartedAt && Date.now() - Date.parse(conversation.plan.generationStartedAt) < 300_000
-  if (conversation.plan.status === 'PENDING' && recent && !regenerate) return conversation
+  if (conversation.plan.status === 'PENDING' && recent) return conversation
   const pending: StudyPlan = { ...conversation.plan, status: 'PENDING', generationStartedAt: new Date().toISOString(), error: undefined, recommendation: undefined }
+  const preferences = validateStudyPreferences(selectedPreferences || conversation.preferences || { ...DEFAULT_STUDY_PREFERENCES })
   const claimed = await saveStudyPlan(ownerId, id, pending, conversation.revision, event)
+  let operation: AirsOperation = {id:randomUUID(),revision:String(claimed.revision),phase:'READING_SOURCE',completed:[],status:'PROCESSING',startedAt:pending.generationStartedAt!}
+  const operationKey='PLAN_OPERATION#'+id
+  async function progress(phase:string,status:AirsOperation['status']='PROCESSING') {
+    operation={...operation,phase,status,completed:status==='FAILED' ? operation.completed : [...new Set([...operation.completed,operation.phase])].filter(item=>item!==phase)}
+    await writeAirsArtifact(ownerId,operationKey,{revision:operation.id,operation},event,operation.id)
+  }
   try {
-    const preferences = conversation.preferences || { ...DEFAULT_STUDY_PREFERENCES }
+    await writeAirsArtifact(ownerId,operationKey,{revision:operation.id,operation},event)
     // Each pilot call reserves up to 60 seconds before connecting. An objective
     // needs a saved attempt and an explicit checkpoint between calls.
     const maximumObjectives = standaloneStudyObjectiveCapacity(conversation, event)
@@ -157,19 +166,26 @@ export async function generateMisuPlan(ownerId: string, id: string, regenerate =
     const fixture = config.studySourceFixtureMode === true && config.flowstAuthMode === 'mock' && process.env.NODE_ENV !== 'production' && conversation.document.provenance?.fixture === true
     if(!fixture)await reserveGuestAllowance(ownerId,'MODEL',event)
     const inventory = fixture ? '' : await documentInventory(chunks, event)
+    await progress('PREPARING_GOALS')
     const request = buildMisuPlanningRequest(preferences, inventory, maximumObjectives)
+    if(adjustment) request.input += '\nLearner requested adjustment (untrusted data):\n'+adjustment
     const contextSnapshot=await getAirsContext(ownerId,event)
     const result = fixture ? JSON.stringify({ title: 'Demonstration: Retrieval and Transfer', objectives: (preferences.scope === 'BROAD' ? ['Explain retrieval practice', 'Describe spaced practice', 'Apply retrieval in an interview'] : ['Explain retrieval practice']).map(title => ({ title, outcome: `The learner can ${title.toLowerCase()} using the supplied demonstration passage.`, sourceIds: [chunks[0]!.id], estimatedMinutes: 1, planningNote: 'This demonstration objective uses the included retrieval-practice passage to practise explanation or application. Review its source reference before starting.' })) }) : JSON.stringify(await planWithAirsFunctions(ownerId,request.system,request.input,event))
+    await progress('CHECKING_REFERENCES')
     const parsed = parseJson(result) as any
     const objectives = validateMisuObjectives(parsed, chunks, preferences, maximumObjectives)
     const title = validateMisuStudyTitle(parsed, objectives)
-    return saveStudyPlan(ownerId, id, { status: 'DRAFT', version: conversation.plan.version + 1, objectives,
+    const saved = await saveStudyPlan(ownerId, id, { status: 'DRAFT', version: conversation.plan.version + 1, objectives,
       estimatedTotalMinutes: objectives.reduce((sum, objective) => sum + (objective.estimatedMinutes || 0), 0),
       contextSnapshot:parsed.contextSnapshot || contextSnapshot, rationale: parsed.rationale || 'Scripted fixture: explanation and application using the reviewed source.', conversationStrategy: parsed.conversationStrategy || 'Brief introduction, guided attempt, teach-back and application.', evaluationCriteria: parsed.evaluationCriteria || [{id:'ACCURACY',description:'Explain the reviewed idea accurately.'},{id:'CLARITY',description:'Organize the explanation for the chosen audience.'},{id:'TRANSFER',description:'Use the idea in a fresh situation.'}], toolTrace: parsed.toolTrace || [], memoryReviewId:parsed.memoryReviewId,
-      functionRefs: DEFAULT_STUDY_FUNCTION_REFS.map(ref => ({ ...ref })) }, claimed.revision, event, title)
+      functionRefs: DEFAULT_STUDY_FUNCTION_REFS.map(ref => ({ ...ref })) }, claimed.revision, event, title, preferences)
+    await progress('PLAN_READY','COMPLETE')
+    return {...saved,plan:{...saved.plan,operation}}
   } catch (error) {
     const message = (error as { statusMessage?: string })?.statusMessage || 'Misu could not prepare this document. Try again.'
-    await saveStudyPlan(ownerId, id, { ...pending, status: 'FAILED', generationStartedAt: undefined, error: message }, claimed.revision, event).catch(() => undefined)
+    await progress(operation.phase,'FAILED').catch(()=>undefined)
+    const recovered = conversation.plan.status==='DRAFT' ? {...conversation.plan,error:message} : {...pending,status:'FAILED' as const,generationStartedAt:undefined,error:message}
+    await saveStudyPlan(ownerId,id,recovered,claimed.revision,event).catch(()=>undefined)
     throw error
   }
 }

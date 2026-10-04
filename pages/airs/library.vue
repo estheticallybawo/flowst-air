@@ -1,4 +1,4 @@
 <script setup lang="ts">
 definePageMeta({})
 </script>
-<template><AirsSetup /></template>
+<template><AirLibraryView library-only /></template>

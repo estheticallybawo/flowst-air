@@ -1,6 +1,6 @@
 # Flowst Airs — Bring Your Source
 
-Air is an independent-learning slice of Flowst focused on retention, understanding and verbal development over time, including explaining AI-assisted code. Bring one document, public repository, readable page, or supported video transcript. Review the included material, approve Misu's plan, explain the idea aloud, and apply it in a new situation.
+Airs is an independent-learning slice of Flowst focused on retention, understanding and verbal development over time, including explaining AI-assisted code. Bring one document, public repository, readable page, or supported video transcript. Review the included material, approve Misu's plan, explain the idea aloud, and apply it in a new situation.
 
 Built with Nuxt/Vue, Groq, ElevenLabs, Cognito, DynamoDB, and S3. The source connector normalizes attributed text; it never gives Misu unrestricted platform access. A development-only MCP uses the same read-only GitHub adapter.
 
@@ -15,9 +15,9 @@ npm ci
 npm run demo
 ```
 
-Open `http://127.0.0.1:4322` and select **Open local demo**, then **Link or transcript** and a labelled fixture. Review the passages and create a session plan. Demo sources and their plans are deterministic, local samples; live voice is not simulated. Mock authentication and fixture mode are disabled in production. Local records are in memory and disappear on restart.
+Open `http://127.0.0.1:4322/airs`. Share your context with Misu, edit and confirm her understanding, then choose **Link or transcript** and a labelled fixture. Review the source, choose your goal and time, review or adjust the plan, and approve it. Misu prepares the handoff; Amina welcomes you with the microphone off. Only **Start conversation** requests microphone access. Demo sources and their plans are deterministic, local samples; live voice is not simulated. Mock authentication and fixture mode are disabled in production. Local records are in memory and disappear on restart.
 
-Canonical study routes are `/air`, `/air/new` and `/air/:id`. Existing `/amira` bookmarks redirect while preserving the destination, query and hash.
+Canonical study routes are `/airs`, `/airs/new`, `/airs/library` and `/airs/:id`. Existing `/air` routes remain compatible. Existing `/amira` bookmarks redirect while preserving the destination, query and hash.
 
 ## Configure live operation
 

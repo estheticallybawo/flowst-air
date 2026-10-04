@@ -1,8 +1,10 @@
+import { randomUUID } from 'node:crypto'
+import { z } from 'zod'
 import { createError } from 'h3'
 import { GetCommand, PutCommand, QueryCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb'
 import type { H3Event } from 'h3'
 import { studyStorageResources, getStudyConversation } from './studyRepository'
-import { learnerContextSchema, type ContextSnapshot, type KaiReview } from '../../shared/airsOrchestration'
+import { contextDescription, learnerContextSchema, type ContextSnapshot, type KaiReview } from '../../shared/airsOrchestration'
 const local = new Map<string, unknown>()
 export async function readAirsArtifact<T>(ownerId: string, key: string, event?: H3Event): Promise<T | undefined> {
   const storage = studyStorageResources(event)
@@ -10,21 +12,41 @@ export async function readAirsArtifact<T>(ownerId: string, key: string, event?: 
   if (storage.mock) return structuredClone(local.get(pk + key)) as T | undefined
   return (await storage.db.send(new GetCommand({TableName: storage.table, Key: {pk, sk:key}, ConsistentRead:true}))).Item?.value as T | undefined
 }
-export async function writeAirsArtifact(ownerId: string, key: string, value: unknown, event?: H3Event) {
+export async function writeAirsArtifact(ownerId: string, key: string, value: unknown, event?: H3Event, expectedRevision?: string, expectedOperation?: string) {
   const storage = studyStorageResources(event)
   const pk = 'AIRS_CONTEXT#' + ownerId
   if (JSON.stringify(value).length > 40000) throw createError({statusCode:413,statusMessage:'This learning record is too large.'})
-  if (storage.mock) local.set(pk + key, structuredClone(value))
-  else await storage.db.send(new PutCommand({TableName:storage.table,Item:{pk,sk:key,value,entityType:'AirsContext',expiresAt:ownerId.startsWith('guest-') ? Math.floor(Date.now()/1000)+86400 : undefined}}))
+  if (storage.mock) {
+    const old = local.get(pk + key) as ContextSnapshot | undefined
+    if (expectedRevision !== undefined && (old?.revision || '') !== expectedRevision || expectedOperation !== undefined && (old?.operation?.id || '') !== expectedOperation) throw createError({statusCode:409,statusMessage:'Your context changed. Reload before continuing.'})
+    local.set(pk + key, structuredClone(value))
+  } else {
+    const conditions: string[] = [], names: Record<string,string> = {}, values: Record<string,unknown> = {}
+    if (expectedRevision !== undefined) { names['#v']='value'; names['#r']='revision'; values[':r']=expectedRevision; conditions.push(expectedRevision ? '#v.#r = :r' : '(attribute_not_exists(#v.#r) OR #v.#r = :r)') }
+    if (expectedOperation !== undefined) { names['#v']='value'; names['#o']='operation'; names['#i']='id'; values[':o']=expectedOperation; conditions.push(expectedOperation ? '#v.#o.#i = :o' : '(attribute_not_exists(#v.#o.#i) OR #v.#o.#i = :o)') }
+    try { await storage.db.send(new PutCommand({TableName:storage.table,Item:{pk,sk:key,value,entityType:'AirsContext',expiresAt:ownerId.startsWith('guest-') ? Math.floor(Date.now()/1000)+86400 : undefined},...(conditions.length ? {ConditionExpression:conditions.join(' AND '),ExpressionAttributeNames:names,ExpressionAttributeValues:values} : {})})) }
+    catch(error){if((error as Error).name==='ConditionalCheckFailedException')throw createError({statusCode:409,statusMessage:'Your context changed. Reload before continuing.'});throw error}
+  }
 }
 export async function getAirsContext(ownerId: string, event?: H3Event) {
-  return await readAirsArtifact<ContextSnapshot>(ownerId,'PROFILE',event) || {background:'',goals:'',audience:'',origin:'LEARNER_CONFIRMED' as const,recordedAt:''}
+  const context:ContextSnapshot=await readAirsArtifact<ContextSnapshot>(ownerId,'PROFILE',event) || {background:'',goals:'',audience:'',origin:'LEARNER_CONFIRMED' as const,recordedAt:''}
+  return context
 }
 export async function saveAirsContext(ownerId: string, input: unknown, event?: H3Event) {
-  const parsed=learnerContextSchema.safeParse(input)
-  if (!parsed.success) throw createError({statusCode:400,statusMessage:'Use the three bounded context fields.'})
-  const context={...parsed.data,origin:'LEARNER_CONFIRMED' as const,recordedAt:new Date().toISOString()}
-  await writeAirsArtifact(ownerId,'PROFILE',context,event); return context
+  const current = await getAirsContext(ownerId,event)
+  const confirmation = z.object({revision:z.string().max(100),summary:z.string().trim().min(1).max(700),confirmSummary:z.literal(true)}).strict().safeParse(input)
+  if (confirmation.success) {
+    if(confirmation.data.revision !== (current.revision || '') || current.summaryStatus==='PROCESSING') throw createError({statusCode:409,statusMessage:'Your context changed or is still being prepared. Reload it.'})
+    const confirmed: ContextSnapshot = {...current,summary:confirmation.data.summary,summaryStatus:'CONFIRMED',summaryConfirmedAt:new Date().toISOString()}
+    await writeAirsArtifact(ownerId,'PROFILE',confirmed,event,confirmation.data.revision);return confirmed
+  }
+  const modern = z.object({selfDescription:z.string().min(1).max(2000).refine(value=>Boolean(value.trim())),revision:z.string().max(100)}).strict().safeParse(input)
+  const legacy = learnerContextSchema.safeParse(input)
+  if (!modern.success && !legacy.success) throw createError({statusCode:400,statusMessage:'Share up to 2,000 characters about yourself.'})
+  const expected = modern.success ? modern.data.revision : current.revision || ''
+  const fields = modern.success ? {background:'',goals:'',audience:'',selfDescription:modern.data.selfDescription} : legacy.data!
+  const context: ContextSnapshot = {...fields,origin:'LEARNER_CONFIRMED',recordedAt:new Date().toISOString(),revision:randomUUID(),summaryStatus:'NONE'}
+  await writeAirsArtifact(ownerId,'PROFILE',context,event,expected);return context
 }
 export async function relevantAirsMemory(ownerId: string, event?: H3Event) {
   const review=await readAirsArtifact<KaiReview>(ownerId,'LATEST_REVIEW',event)
@@ -37,6 +59,7 @@ export async function deleteAirsConversationMemory(ownerId:string,id:string,even
  const latest=await readAirsArtifact<KaiReview>(ownerId,'LATEST_REVIEW',event)
  if(storage.mock) {
   for(const key of local.keys()) if(key.startsWith(pk+prefix)) local.delete(key)
+  local.delete(pk+'PLAN_OPERATION#'+id)
   if(latest?.conversationId===id) local.delete(pk+'LATEST_REVIEW')
  } else {
   let cursor:Record<string,unknown>|undefined
@@ -45,6 +68,7 @@ export async function deleteAirsConversationMemory(ownerId:string,id:string,even
    for(const item of result.Items || []) await storage.db.send(new DeleteCommand({TableName:storage.table,Key:{pk,sk:item.sk}}))
    cursor=result.LastEvaluatedKey
   } while(cursor)
+  await storage.db.send(new DeleteCommand({TableName:storage.table,Key:{pk,sk:'PLAN_OPERATION#'+id}}))
   if(latest?.conversationId===id) await storage.db.send(new DeleteCommand({TableName:storage.table,Key:{pk,sk:'LATEST_REVIEW'},ConditionExpression:'#v.conversationId = :id',ExpressionAttributeNames:{'#v':'value'},ExpressionAttributeValues:{':id':id}}))
  }
 }

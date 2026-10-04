@@ -1,4 +1,4 @@
-import type { ContextSnapshot } from './airsOrchestration'
+import type { ContextSnapshot, AirsOperation } from './airsOrchestration'
 import type { StudyFunctionRef } from './studyPedagogy'
 import type { StudyLocation, StudyMaterialKind, StudyProvenance } from './studyMaterial'
 
@@ -64,6 +64,7 @@ export interface StudyObjective {
 }
 
 export interface StudyPlan {
+  operation?: AirsOperation
   contextSnapshot?: ContextSnapshot
   rationale?: string
   conversationStrategy?: string

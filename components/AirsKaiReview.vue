@@ -1,9 +1,138 @@
 <script setup lang="ts">
-import type { KaiReview } from '~/shared/airsOrchestration'
-const props=defineProps<{conversationId:string;canReview:boolean}>()
-const auth=useAuth(),review=ref<KaiReview|null>(null),busy=ref(false),error=ref('')
-async function generate(){busy.value=true;error.value='';try{review.value=await auth.authorizedFetch<KaiReview>('/api/study/conversations/'+props.conversationId+'/review',{method:'POST'})}catch{error.value='Kai could not prepare feedback. Finish a saved attempt or retry.'}finally{busy.value=false}}
-async function choose(status:'ACCEPTED'|'DISMISSED'){if(!review.value)return;busy.value=true;try{review.value=await auth.authorizedFetch<KaiReview>('/api/study/conversations/'+props.conversationId+'/next-practice',{method:'POST',body:{reviewId:review.value.id,status}})}catch{error.value='The exercise choice was not saved. Retry.'}finally{busy.value=false}}
+import type { KaiReview } from "~/shared/airsOrchestration";
+const props = defineProps<{ conversationId: string; canReview: boolean }>();
+const auth = useAuth(),
+  review = ref<KaiReview | null>(null),
+  busy = ref(false),
+  reviewing = ref(false),
+  error = ref("");
+async function generate() {
+  busy.value = true;
+  reviewing.value = true;
+  error.value = "";
+  try {
+    review.value = await auth.authorizedFetch<KaiReview>(
+      "/api/study/conversations/" + props.conversationId + "/review",
+      { method: "POST" },
+    );
+  } catch {
+    error.value =
+      "Kai could not prepare feedback. Finish a saved attempt or retry.";
+  } finally {
+    busy.value = false;
+    reviewing.value = false;
+  }
+}
+async function choose(status: "ACCEPTED" | "DISMISSED") {
+  if (!review.value) return;
+  busy.value = true;
+  try {
+    review.value = await auth.authorizedFetch<KaiReview>(
+      "/api/study/conversations/" + props.conversationId + "/next-practice",
+      { method: "POST", body: { reviewId: review.value.id, status } },
+    );
+  } catch {
+    error.value = "The exercise choice was not saved. Retry.";
+  } finally {
+    busy.value = false;
+  }
+}
 </script>
-<template><section class="kai-review" aria-label="Kai evidence review"><header><AgentAvatar agent="KAI" /><h2>Kai · Your practice feedback</h2></header><p>Feedback is based on saved attempts and approved goals. It does not measure overall intelligence or establish mastery.</p><button :disabled="!canReview || busy" @click="generate">{{busy?'Preparing…':'Review my saved practice'}}</button><p role="status">{{error}}</p><template v-if="review"><article v-for="(observation,index) in review.observations" :key="index"><h3>{{observation.criterionId.toLowerCase()}}</h3><p>{{observation.text}}</p><details><summary>Recorded evidence</summary><p v-for="evidenceId in observation.evidenceIds" :key="evidenceId">{{review.evidence?.find(item=>item.id===evidenceId)?.attempt || "Saved attempt"}}</p></details></article><h3>Not assessed</h3><ul><li v-for="item in review.notAssessed" :key="item">{{item}}</li></ul><h3>Suggested next practice</h3><p>{{review.nextPractice.goal}}</p><p>{{review.nextPractice.exercise}}</p><button :disabled="busy" @click="choose('ACCEPTED')">Save next practice</button><button :disabled="busy" @click="choose('DISMISSED')">Dismiss suggestion</button><p role="status">Next exercise: {{review.nextPracticeStatus.toLowerCase()}}. This does not start a new session.</p></template></section></template>
-<style scoped>.kai-review{padding:20px;margin:16px 0;border:1px solid #dbdee5;border-radius:16px;background:#fff}header{display:flex;gap:12px;align-items:center}h2{font-size:1.1rem}h3{text-transform:capitalize;font-size:.95rem}p,li{font-size:.85rem;line-height:1.6;overflow-wrap:anywhere}button{padding:12px;margin:4px;border:1px solid #bfc6d2;border-radius:8px}button:disabled{opacity:.5}article{padding:12px 0;border-bottom:1px solid #dbdee5}</style>
+<template>
+  <section class="kai-review" aria-label="Kai evidence review">
+    <AgentActivity
+      agent="KAI"
+      state="weaving"
+      :busy="reviewing"
+      :label="
+        reviewing
+          ? 'I’m reviewing your saved evidence.'
+          : busy
+            ? 'Saving your next practice choice.'
+            : 'Your practice feedback'
+      "
+    />
+    <p>
+      Feedback is based on saved attempts and approved goals. It does not
+      measure overall intelligence or establish mastery.
+    </p>
+    <button :disabled="!canReview || busy" @click="generate">
+      {{ busy ? "Preparing…" : "Review my saved practice" }}
+    </button>
+    <p role="status">{{ error }}</p>
+    <template v-if="review"
+      ><article
+        v-for="(observation, index) in review.observations"
+        :key="index"
+      >
+        <h3>{{ observation.criterionId.toLowerCase() }}</h3>
+        <p>{{ observation.text }}</p>
+        <details>
+          <summary>Recorded evidence</summary>
+          <p v-for="evidenceId in observation.evidenceIds" :key="evidenceId">
+            {{
+              review.evidence?.find((item) => item.id === evidenceId)
+                ?.attempt || "Saved attempt"
+            }}
+          </p>
+        </details>
+      </article>
+      <h3>Not assessed</h3>
+      <ul>
+        <li v-for="item in review.notAssessed" :key="item">{{ item }}</li>
+      </ul>
+      <h3>Suggested next practice</h3>
+      <p>{{ review.nextPractice.goal }}</p>
+      <p>{{ review.nextPractice.exercise }}</p>
+      <button :disabled="busy" @click="choose('ACCEPTED')">
+        Save next practice</button
+      ><button :disabled="busy" @click="choose('DISMISSED')">
+        Dismiss suggestion
+      </button>
+      <p role="status">
+        Next exercise: {{ review.nextPracticeStatus.toLowerCase() }}. This does
+        not start a new session.
+      </p></template
+    >
+  </section>
+</template>
+<style scoped>
+.kai-review {
+  padding: 20px;
+  margin: 16px 0;
+  border: 1px solid #dbdee5;
+  border-radius: 16px;
+  background: #fff;
+}
+header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+h2 {
+  font-size: 1.1rem;
+}
+h3 {
+  text-transform: capitalize;
+  font-size: 0.95rem;
+}
+p,
+li {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+button {
+  padding: 12px;
+  margin: 4px;
+  border: 1px solid #bfc6d2;
+  border-radius: 8px;
+}
+button:disabled {
+  opacity: 0.5;
+}
+article {
+  padding: 12px 0;
+  border-bottom: 1px solid #dbdee5;
+}
+</style>

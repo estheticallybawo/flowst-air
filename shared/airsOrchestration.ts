@@ -3,9 +3,21 @@ export const learnerContextSchema = z.object({
   background: z.string().trim().max(400).default(''),
   goals: z.string().trim().max(400).default(''),
   audience: z.string().trim().max(200).default(''),
+  selfDescription: z.string().max(2000).optional(),
 }).strict()
 export type LearnerContext = z.infer<typeof learnerContextSchema>
-export interface ContextSnapshot extends LearnerContext { origin: 'LEARNER_CONFIRMED'; recordedAt: string }
+export interface AirsOperation {
+ id: string; revision: string; phase: string; completed: string[]
+ status: 'PROCESSING' | 'COMPLETE' | 'FAILED'; startedAt: string
+}
+export interface ContextSnapshot extends LearnerContext {
+ origin: 'LEARNER_CONFIRMED'; recordedAt: string; revision?: string
+ summary?: string; summaryStatus?: 'NONE' | 'PROCESSING' | 'READY' | 'CONFIRMED' | 'FAILED'
+ summaryConfirmedAt?: string; summaryOrigin?: 'MODEL' | 'FIXTURE'; operation?: AirsOperation
+}
+export function contextDescription(context: LearnerContext) {
+ return context.selfDescription ?? [context.background, context.goals, context.audience].filter(Boolean).join('\n')
+}
 export const evaluationCriteriaSchema = z.array(z.object({
   id: z.enum(['ACCURACY', 'CLARITY', 'RELEVANCE', 'REASONING', 'TRANSFER']),
   description: z.string().min(1).max(250),
@@ -17,7 +29,7 @@ export const kaiReviewSchema = z.object({
 }).strict()
 export type KaiReview = z.infer<typeof kaiReviewSchema> & { evidence?: Array<{id:string;attempt:string}>; id: string; conversationId: string; planVersion: number; basedOnTurnId: string; createdAt: string; nextPracticeStatus: 'PROPOSED' | 'ACCEPTED' | 'DISMISSED' }
 export const AIRS_TOOL_ALLOWLIST = {
-  MISU: ['get_learner_context','get_relevant_learning_evidence','get_source_inventory','get_practice_strategies','propose_session_plan'],
+  MISU: ['get_learner_context','get_relevant_learning_evidence','get_source_inventory','get_practice_strategies','propose_session_plan','propose_context_summary'],
   AMINA: ['get_approved_practice_context','read_source_passage','select_practice_activity'],
   KAI: ['get_approved_evaluation_context','get_session_evidence','propose_evidence_review'],
 } as const

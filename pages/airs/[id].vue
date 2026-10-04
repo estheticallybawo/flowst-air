@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ alias: '/amira/:id' })
+definePageMeta({});
 import {
   ArrowLeft,
   Clapperboard,
@@ -73,11 +73,15 @@ function warnBeforeUnload(event: BeforeUnloadEvent) {
     event.returnValue = "";
   }
 }
-const standaloneAir = ['air', 'amira'].includes(useRuntimeConfig().public.appSurface);
+const standaloneAir = ["air", "amira"].includes(
+  useRuntimeConfig().public.appSurface,
+);
 const studyAccess = ref<AirAccess | null>(null);
 const accessError = ref("");
 const canStudy = computed(
-  () => !study.value?.abandonedAt && (!standaloneAir || studyAccess.value?.allowedActions.PRACTISE === true),
+  () =>
+    !study.value?.abandonedAt &&
+    (!standaloneAir || studyAccess.value?.allowedActions.PRACTISE === true),
 );
 async function refreshStudyAccess() {
   studyAccess.value = null;
@@ -172,6 +176,19 @@ const busy = ref(false);
 const planBusy = ref(false);
 const planPreparing = ref(false);
 const planReviewing = ref(false);
+const handoffBusy = ref(false),
+  handoffReady = ref(false),
+  handoffError = ref(""),
+  conversationStarted = ref(false);
+const adjustingPlan = ref(false),
+  adjustment = ref("");
+const adjustedPreferences = ref({ ...DEFAULT_STUDY_PREFERENCES });
+const planPhaseLabels: Record<string, string> = {
+  READING_SOURCE: "I’m reading the included material.",
+  PREPARING_GOALS: "I’m preparing your practice goals.",
+  CHECKING_REFERENCES: "I’m checking the plan’s source references.",
+  PLAN_READY: "Your draft is ready to review.",
+};
 const recorderStatus = ref<"IDLE" | "RECORDING" | "REVIEW" | "SENDING">("IDLE");
 const microphoneLevel = ref(0);
 const recordingSeconds = ref(0);
@@ -205,7 +222,9 @@ onMounted(() => {
 });
 const sessionActive = computed(
   () =>
-    !study.value?.abandonedAt && study.value?.plan.status === "APPROVED" &&
+    !study.value?.abandonedAt &&
+    study.value?.plan.status === "APPROVED" &&
+    conversationStarted.value &&
     Boolean(study.value.plan.functionRefs?.length),
 );
 const latestReply = computed(() =>
@@ -501,7 +520,9 @@ function schedulePlanPoll() {
       await load();
       if (study.value?.plan.status === "PENDING") {
         const started = Date.parse(study.value.plan.generationStartedAt || "");
-        if (!started || Date.now() - started > 300_000) await preparePlan();
+        if (!started || Date.now() - started > 300_000)
+          error.value =
+            "Plan preparation has not completed. Check again or retry explicitly.";
         else schedulePlanPoll();
       }
     } catch (cause: any) {
@@ -513,18 +534,31 @@ function schedulePlanPoll() {
   }, 2500);
 }
 
-async function preparePlan(regenerate = false) {
+async function preparePlan(regenerate = false, adjust = false) {
   if (!canStudy.value || disposed || live.running.value) return;
   if (planBusy.value) return;
   planBusy.value = true;
   planPreparing.value = true;
   error.value = "";
+  schedulePlanPoll();
   try {
     const prepared = await auth.authorizedFetch<StudyConversation>(
       `/api/study/conversations/${id.value}/plan`,
-      { method: "POST", body: { regenerate } },
+      {
+        method: "POST",
+        body: {
+          regenerate,
+          ...(adjust
+            ? {
+                adjustment: adjustment.value,
+                preferences: adjustedPreferences.value,
+              }
+            : {}),
+        },
+      },
     );
     study.value = prepared;
+    if (prepared.plan.status === "DRAFT") adjustingPlan.value = false;
     if (prepared.plan.status === "PENDING") schedulePlanPoll();
   } catch (cause: any) {
     error.value = learnerStudyError(
@@ -538,21 +572,41 @@ async function preparePlan(regenerate = false) {
   }
 }
 
+async function prepareHandoff(automaticWelcome = false) {
+  if (disposed || handoffBusy.value || !canStudy.value) return;
+  handoffBusy.value = true;
+  handoffReady.value = false;
+  handoffError.value = "";
+  try {
+    const welcomeId = await ensureWelcome();
+    if (disposed) return;
+    handoffReady.value = Boolean(welcomeTurn.value);
+    await nextTick();
+    document
+      .querySelector<HTMLElement>(".prepared-handoff")
+      ?.focus({ preventScroll: true });
+    if (!handoffReady.value) throw new Error("Welcome unavailable");
+    if (automaticWelcome && welcomeId) await playSpeech(welcomeId, true);
+  } catch {
+    if (!disposed)
+      handoffError.value =
+        "Your approval is saved. Amina’s welcome could not be prepared. Retry when you’re ready.";
+  } finally {
+    handoffBusy.value = false;
+  }
+}
 async function approvePlan() {
-  if (!canStudy.value) return;
-  if (!study.value || planBusy.value) return;
-  if (recordedPracticeMode.value) primePlayback();
+  if (!canStudy.value || !study.value || planBusy.value) return;
+  primePlayback();
   planBusy.value = true;
+  handoffBusy.value = true;
+  handoffError.value = "";
   error.value = "";
   try {
     study.value = await auth.authorizedFetch<StudyConversation>(
       `/api/study/conversations/${id.value}/plan/approve`,
       { method: "POST", body: { version: study.value.plan.version } },
     );
-    if (recordedPracticeMode.value) {
-      const welcomeId = await ensureWelcome();
-      if (welcomeId) await playSpeech(welcomeId, true);
-    }
   } catch (cause: any) {
     error.value = learnerStudyError(
       cause,
@@ -560,9 +614,18 @@ async function approvePlan() {
     );
   } finally {
     planBusy.value = false;
+    handoffBusy.value = false;
   }
-  if (!recordedPracticeMode.value && study.value?.plan.status === "APPROVED")
-    await startLiveCall();
+  if (study.value?.plan.status === "APPROVED") await prepareHandoff(true);
+}
+async function startConversation() {
+  if (!handoffReady.value || handoffBusy.value || disposed) return;
+  stopCurrentPlayback();
+  voiceFailureTurnId.value = "";
+  audioPromptTurnId.value = "";
+  conversationStarted.value = true;
+  if (recordedPracticeMode.value) await beginLesson();
+  else await startLiveCall();
 }
 
 async function confirmNext() {
@@ -612,10 +675,15 @@ onMounted(async () => {
   try {
     if (standaloneAir) await refreshStudyAccess();
     await load();
-    if (!recordedPracticeMode.value && !study.value?.abandonedAt) void live.checkAvailability();
-    if (recordedPracticeMode.value && study.value?.plan.status === "APPROVED") {
-      const welcomeId = await ensureWelcome();
-      if (welcomeId) await playSpeech(welcomeId, true);
+    if (!recordedPracticeMode.value && !study.value?.abandonedAt)
+      void live.checkAvailability();
+    if (study.value?.plan.status === "APPROVED") {
+      conversationStarted.value = study.value.turns.some(
+        (turn) =>
+          turn.kind === "INTRO" ||
+          (turn.role === "USER" && turn.text !== STUDY_LIVE_START_MESSAGE),
+      );
+      if (!conversationStarted.value) await prepareHandoff(false);
     }
     if (study.value?.plan.status === "PENDING") {
       if (!study.value.plan.generationStartedAt) await preparePlan();
@@ -1125,7 +1193,18 @@ async function remove() {
       <NuxtLink to="/airs" class="air-text-link">Back to library</NuxtLink>
     </div>
     <div v-else class="study-page" :class="{ 'session-active': sessionActive }">
-      <AirSourceProvenance v-if="study.document.provenance && !sessionActive" :provenance="study.document.provenance" />
+      <nav v-if="!sessionActive" class="setup-room-nav">
+        <NuxtLink to="/airs/library">Saved sessions</NuxtLink
+        ><span>{{ study.document.title || study.document.name }}</span
+        ><button @click="leaveSession">Leave session</button>
+      </nav>
+      <details
+        v-if="study.document.provenance && !sessionActive"
+        class="setup-source-details"
+      >
+        <summary>Source you reviewed</summary>
+        <AirSourceProvenance :provenance="study.document.provenance" />
+      </details>
       <AirSessionNavigation
         v-if="sessionActive"
         context-only
@@ -1164,14 +1243,14 @@ async function remove() {
           >Review account access</NuxtLink
         >
       </section>
-      <header v-if="!sessionActive" class="study-header">
-        <NuxtLink to="/airs" class="back">
+      <header v-if="!sessionActive && study.abandonedAt" class="study-header">
+        <NuxtLink to="/airs/library" class="back">
           <ArrowLeft :size="17" /> All study chats
         </NuxtLink>
         <div class="study-title">
           <AgentAvatar agent="AMIRA" />
           <div>
-            <span>Your Flowst Air study room · {{ study.document.kind }}</span>
+            <span>Your Flowst Airs study room · {{ study.document.kind }}</span>
             <h1>{{ study.document.title || study.document.name }}</h1>
             <small
               v-if="
@@ -1210,31 +1289,60 @@ async function remove() {
         </div>
       </header>
 
-      <section v-if="study.abandonedAt" class="air-panel" aria-label="Abandoned study">
-        <p class="air-eyebrow">Abandoned study</p><h2>Your saved material is still available</h2>
-        <p>You ended this study plan to make room for a replacement. Its saved conversation remains readable; abandoning it did not complete its objectives.</p>
-        <NuxtLink class="air-button" to="/airs/new">Start a replacement study</NuxtLink>
-        <AirConversation :turns="visibleTurns" :allow-playback="false" :live-running="false" :can-study="false" :cached-ids="[]" playing-id="" preparing-id="" audio-prompt-id="" />
+      <section
+        v-if="study.abandonedAt"
+        class="air-panel"
+        aria-label="Abandoned study"
+      >
+        <p class="air-eyebrow">Abandoned study</p>
+        <h2>Your saved material is still available</h2>
+        <p>
+          You ended this study plan to make room for a replacement. Its saved
+          conversation remains readable; abandoning it did not complete its
+          objectives.
+        </p>
+        <NuxtLink class="air-button" to="/airs/new"
+          >Start a replacement study</NuxtLink
+        >
+        <AirConversation
+          :turns="visibleTurns"
+          :allow-playback="false"
+          :live-running="false"
+          :can-study="false"
+          :cached-ids="[]"
+          playing-id=""
+          preparing-id=""
+          audio-prompt-id=""
+        />
       </section>
       <section
         v-if="!study.abandonedAt && study.plan.status !== 'APPROVED'"
         class="plan-review"
         aria-label="Your session plan"
       >
-        <MisuPlanGuide :plan="study.plan" :preferences="preferences" :preparing="planPreparing" :saving-approval="planBusy && !planPreparing" />
+        <MisuPlanGuide
+          :plan="study.plan"
+          :preferences="preferences"
+          :preparing="planPreparing"
+          :saving-approval="planBusy && !planPreparing"
+        />
         <AirSkeleton
           v-if="planPreparing || study.plan.status === 'PENDING'"
           variant="plan"
           label="Misu is preparing your session plan"
         />
         <p v-else-if="study.plan.status === 'FAILED'">
-          {{ learnerStudyError({ data: { statusMessage: study.plan.error } }, "Your plan could not be prepared. Try again below.") }}
+          {{
+            learnerStudyError(
+              { data: { statusMessage: study.plan.error } },
+              "Your plan could not be prepared. Try again below.",
+            )
+          }}
         </p>
         <template v-else>
-          <p> 
+          <p>
             Review the objectives, source locations, and teaching approach.
-            Start when you're ready, or regenerate the objectives to review
-            another plan.
+            Approve when you're ready, or ask me to adjust the plan.
           </p>
           <details
             v-if="study.plan.functionRefs?.length"
@@ -1281,7 +1389,10 @@ async function remove() {
                 >About {{ objective.estimatedMinutes }} min</small
               >
               <p>{{ objective.outcome }}</p>
-              <p v-if="objective.planningNote" class="planning-note"><strong>Misu’s plan explanation:</strong> {{ objective.planningNote }}</p>
+              <p v-if="objective.planningNote" class="planning-note">
+                <strong>Misu’s plan explanation:</strong>
+                {{ objective.planningNote }}
+              </p>
               <AirCitation
                 v-for="source in objective.sources"
                 :key="source.id"
@@ -1298,10 +1409,62 @@ async function remove() {
           v-if="study.plan.status === 'DRAFT' && !recordedPracticeMode"
           class="plan-call-note"
         >
-          Start session opens a voice call and asks for microphone access. Each
-          pilot call reserves 60 seconds, including unused time.
+          Approving prepares your session with Amina. Your microphone stays off
+          until you choose Start conversation. Each pilot call reserves 60
+          seconds, including unused time.
           <NuxtLink to="/airs/about">Microphone &amp; privacy</NuxtLink>
         </p>
+        <section
+          v-if="adjustingPlan"
+          class="plan-adjustment"
+          aria-label="Adjust your plan"
+        >
+          <label
+            >What would you like me to change?<textarea
+              v-model="adjustment"
+              maxlength="600"
+              rows="3"
+            />
+          </label>
+          <label
+            >Practice goal<select v-model="adjustedPreferences.purpose">
+              <option
+                v-for="(label, value) in STUDY_PURPOSE_LABELS"
+                :key="value"
+                :value="value"
+              >
+                {{ label }}
+              </option>
+            </select></label
+          >
+          <label
+            >Available minutes<input
+              v-model.number="adjustedPreferences.timeBudgetMinutes"
+              type="number"
+              min="5"
+              max="120"
+          /></label>
+          <details>
+            <summary>Scope and focus</summary>
+            <label
+              >Coverage<select v-model="adjustedPreferences.scope">
+                <option value="FOCUSED">One useful goal</option>
+                <option value="BROAD">The main ideas</option>
+              </select></label
+            ><label
+              >Session focus<textarea
+                v-model="adjustedPreferences.context"
+                maxlength="600"
+                rows="2"
+              />
+            </label>
+          </details>
+          <button :disabled="planBusy" @click="preparePlan(true, true)">
+            Draft adjusted plan</button
+          ><button :disabled="planBusy" @click="adjustingPlan = false">
+            Keep current draft
+          </button>
+        </section>
         <div class="plan-actions">
           <button
             v-if="study.plan.status === 'DRAFT'"
@@ -1309,7 +1472,7 @@ async function remove() {
             :disabled="planBusy || !canStudy"
             @click="approvePlan"
           >
-            {{ planBusy ? "Working…" : "Start session" }}
+            {{ planBusy ? "Saving approval…" : "Approve plan" }}
           </button>
           <button
             v-if="
@@ -1318,10 +1481,15 @@ async function remove() {
             type="button"
             class="secondary"
             :disabled="planBusy || !canStudy"
-            @click="preparePlan(true)"
+            @click="
+              study.plan.status === 'FAILED'
+                ? preparePlan(true)
+                : ((adjustedPreferences = { ...preferences }),
+                  (adjustingPlan = true))
+            "
           >
             <span v-if="study.plan.status === 'FAILED'">Retry plan</span>
-            <span v-else>Regenerate plan</span>
+            <span v-else>Adjust plan</span>
           </button>
         </div>
       </section>
@@ -1366,9 +1534,79 @@ async function remove() {
         </p>
         <NuxtLink class="air-button" to="/airs">Return to library</NuxtLink>
       </section>
+      <section
+        v-if="
+          !study.abandonedAt &&
+          study.plan.status === 'APPROVED' &&
+          !conversationStarted
+        "
+        class="prepared-handoff"
+        tabindex="-1"
+        aria-label="Preparing your conversation"
+      >
+        <AgentActivity
+          v-if="!handoffReady"
+          agent="MISU"
+          state="connecting"
+          :busy="handoffBusy"
+          :label="
+            handoffError
+              ? 'Your approval is saved. Amina’s preparation needs a retry.'
+              : 'I’m preparing your session with Amina. I’ll share your context, source and approved plan.'
+          "
+        />
+        <AgentActivity
+          agent="AMIRA"
+          :state="playingTurnId ? 'composing' : 'working'"
+          :busy="handoffBusy || !!preparingSpeechTurnId || !!playingTurnId"
+          :label="
+            handoffReady
+              ? playingTurnId
+                ? 'Speaking your welcome. Microphone off.'
+                : preparingSpeechTurnId
+                  ? 'Welcome saved. Preparing spoken welcome. Microphone off.'
+                  : 'Your welcome is ready. Microphone off.'
+              : handoffError
+                ? 'Your welcome isn’t ready yet. Microphone off.'
+                : 'Preparing your first practice. Microphone off.'
+          "
+        />
+        <p v-if="handoffError" role="alert">{{ handoffError }}</p>
+        <button
+          v-if="handoffError"
+          :disabled="handoffBusy"
+          @click="prepareHandoff(true)"
+        >
+          Retry preparation
+        </button>
+        <template v-if="handoffReady"
+          ><h2>Hi, I’m Amina.</h2>
+          <p>{{ welcomeTurn?.text }}</p>
+          <p v-if="voiceFailureTurnId || audioPromptTurnId">
+            Spoken playback is unavailable. You can read the welcome and start
+            when ready.
+          </p>
+          <div class="handoff-actions">
+            <button
+              :disabled="handoffBusy || !canStudy"
+              @click="startConversation"
+            >
+              Start conversation</button
+            ><button
+              :disabled="!!preparingSpeechTurnId"
+              @click="welcomeTurn && playSpeech(welcomeTurn.id)"
+            >
+              {{ playingTurnId ? "Stop welcome" : "Replay welcome" }}</button
+            ><button @click="leaveSession">Not now</button>
+          </div></template
+        >
+      </section>
       <template
         v-if="
-          !study.abandonedAt && study.plan.status === 'APPROVED' && study.plan.functionRefs?.length
+          conversationStarted &&
+          !study.abandonedAt &&
+          study.plan.status === 'APPROVED' &&
+          study.plan.functionRefs?.length
         "
       >
         <AirCallRoom
@@ -1404,7 +1642,14 @@ async function remove() {
         >
           <template #plan>
             <MisuPlanGuide :plan="study.plan" :preferences="preferences" />
-            <AirsKaiReview :conversation-id="id" :can-review="Boolean(hasCurrentEvidence) && !study.practice.awaitingAnswer && !live.running.value" />
+            <AirsKaiReview
+              :conversation-id="id"
+              :can-review="
+                Boolean(hasCurrentEvidence) &&
+                !study.practice.awaitingAnswer &&
+                !live.running.value
+              "
+            />
             <div class="study-brief" aria-label="Your study preferences">
               <strong>{{ purposeLabel }}</strong>
               <p>
@@ -1460,7 +1705,11 @@ async function remove() {
                   />
                 </div>
               </div>
-              <div v-if="recordedPracticeMode" class="lesson-path" aria-label="Study stages">
+              <div
+                v-if="recordedPracticeMode"
+                class="lesson-path"
+                aria-label="Study stages"
+              >
                 <strong>Your study path</strong>
                 <ol>
                   <li
@@ -1526,25 +1775,62 @@ async function remove() {
                 class="progress-recommendation"
                 v-if="study.plan.recommendation"
               >
-                <strong>{{
-                  study.plan.recommendation.action === "ADVANCE"
-                    ? "Suggested next step"
-                    : study.plan.recommendation.action === "COMPLETE"
-                      ? study.plan.courseCompletedAt
-                        ? "Objectives completed"
-                        : "Suggested completion"
-                      : "Try the idea again"
-                }} </strong>
-                <div class="misu-review-heading"><AgentAvatar agent="MIRO" size="compact" /><span>Misu · Learning planner</span></div>
+                <strong
+                  >{{
+                    study.plan.recommendation.action === "ADVANCE"
+                      ? "Suggested next step"
+                      : study.plan.recommendation.action === "COMPLETE"
+                        ? study.plan.courseCompletedAt
+                          ? "Objectives completed"
+                          : "Suggested completion"
+                        : "Try the idea again"
+                  }}
+                </strong>
+                <div class="misu-review-heading">
+                  <AgentAvatar agent="MIRO" size="compact" /><span
+                    >Misu · Learning planner</span
+                  >
+                </div>
                 <p>{{ study.plan.recommendation.reason }}</p>
-                <small>Review checkpoint: {{ study.plan.recommendation.basedOnAttemptCount }} saved {{ study.plan.recommendation.basedOnAttemptCount === 1 ? 'attempt' : 'attempts' }} in this chat. Misu reviews recent attempts on this objective. This is a suggestion, not a mastery assessment. You choose whether to continue.</small>
-                <details class="learning-guidance" v-if="study.practice.attempts.length">
+                <small
+                  >Review checkpoint:
+                  {{ study.plan.recommendation.basedOnAttemptCount }} saved
+                  {{
+                    study.plan.recommendation.basedOnAttemptCount === 1
+                      ? "attempt"
+                      : "attempts"
+                  }}
+                  in this chat. Misu reviews recent attempts on this objective.
+                  This is a suggestion, not a mastery assessment. You choose
+                  whether to continue.</small
+                >
+                <details
+                  class="learning-guidance"
+                  v-if="study.practice.attempts.length"
+                >
                   <summary>Inspect saved attempts used in this review</summary>
-                  <template v-for="attempt in study.practice.attempts.slice(0, study.plan.recommendation.basedOnAttemptCount).filter(item => item.objectiveId === study?.plan.activeObjectiveId).slice(-5)" :key="attempt.evidenceId || attempt.answer">
+                  <template
+                    v-for="attempt in study.practice.attempts
+                      .slice(0, study.plan.recommendation.basedOnAttemptCount)
+                      .filter(
+                        (item) =>
+                          item.objectiveId === study?.plan.activeObjectiveId,
+                      )
+                      .slice(-5)"
+                    :key="attempt.evidenceId || attempt.answer"
+                  >
                     <p><strong>Question:</strong> {{ attempt.question }}</p>
-                    <p><strong>Your explanation:</strong> {{ attempt.answer }}</p>
-                    <p><strong>Amina’s feedback:</strong> {{ attempt.feedback }}</p>
-                    <AirCitation v-for="source in attempt.sources" :key="source.id" :source="source" />
+                    <p>
+                      <strong>Your explanation:</strong> {{ attempt.answer }}
+                    </p>
+                    <p>
+                      <strong>Amina’s feedback:</strong> {{ attempt.feedback }}
+                    </p>
+                    <AirCitation
+                      v-for="source in attempt.sources"
+                      :key="source.id"
+                      :source="source"
+                    />
                   </template>
                 </details>
                 <button
@@ -1557,7 +1843,11 @@ async function remove() {
                   :disabled="planBusy || live.running.value"
                   @click="confirmNext"
                 >
-                  {{ study.plan.recommendation.action === 'COMPLETE' ? 'Confirm objectives complete' : 'Continue to next objective' }}
+                  {{
+                    study.plan.recommendation.action === "COMPLETE"
+                      ? "Confirm objectives complete"
+                      : "Continue to next objective"
+                  }}
                 </button>
               </div>
               <div
@@ -1566,8 +1856,15 @@ async function remove() {
               >
                 <strong>Progress review unavailable</strong>
                 <p>
-                  {{ learnerStudyError({ data: { statusMessage: study.plan.recommendationError } }, "Your feedback could not be reviewed yet. Try again.") }}
-               </p>
+                  {{
+                    learnerStudyError(
+                      {
+                        data: { statusMessage: study.plan.recommendationError },
+                      },
+                      "Your feedback could not be reviewed yet. Try again.",
+                    )
+                  }}
+                </p>
                 <button
                   type="button"
                   :disabled="planBusy || live.running.value"
@@ -1580,8 +1877,14 @@ async function remove() {
                 v-if="!recordedPracticeMode && !study.plan.courseCompletedAt"
                 class="progress-recommendation"
               >
-                <div class="misu-review-heading"><AgentAvatar agent="MIRO" size="compact" /><strong>Misu · Review this objective</strong></div>
-                <p v-if="planReviewing" role="status">Misu is reviewing your saved explanation and Amina’s feedback.</p>
+                <div class="misu-review-heading">
+                  <AgentAvatar agent="MIRO" size="compact" /><strong
+                    >Misu · Review this objective</strong
+                  >
+                </div>
+                <p v-if="planReviewing" role="status">
+                  Misu is reviewing your saved explanation and Amina’s feedback.
+                </p>
                 <p v-if="live.running.value">
                   End the call when you are ready to review your saved
                   explanation.
@@ -1740,7 +2043,7 @@ async function remove() {
                   "
                   @click="startLiveCall"
                 >
-                  Start live call</button
+                  Start conversation</button
                 ><small v-if="live.availability.value?.enabled"
                   >60-second pilot call. Starting reserves 60 seconds of your
                   document’s voice allowance, even if you end early.
@@ -1957,6 +2260,80 @@ async function remove() {
 </template>
 
 <style scoped>
+.setup-room-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.85rem;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.setup-room-nav span {
+  max-width: 45ch;
+  overflow-wrap: anywhere;
+}
+.setup-room-nav button {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.setup-source-details {
+  margin: 16px 0;
+}
+.setup-source-details summary {
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.prepared-handoff {
+  max-width: 680px;
+  margin: 32px auto;
+  padding: 28px;
+  border: 1px solid #d9e1dd;
+  border-radius: 16px;
+  background: #fff;
+  line-height: 1.7;
+}
+.handoff-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.prepared-handoff button,
+.plan-adjustment button {
+  min-height: 44px;
+  padding: 12px 18px;
+  border: 1px solid #173d32;
+  border-radius: 10px;
+  background: #173d32;
+  color: white;
+  cursor: pointer;
+}
+.plan-adjustment {
+  padding: 20px 0;
+}
+.plan-adjustment label {
+  display: block;
+  margin: 14px 0;
+}
+.plan-adjustment input,
+.plan-adjustment select,
+.plan-adjustment textarea {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #adbab5;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font: inherit;
+}
+.prepared-handoff button:focus-visible {
+  outline: 3px solid #608977;
+  outline-offset: 3px;
+}
+
 .study-page {
   padding-bottom: 40px;
   --air-orange: #d9673c;
@@ -3675,7 +4052,12 @@ async function remove() {
 </style>
 
 <style scoped>
-.misu-review-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.misu-review-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
 .study-brief {
   margin: 14px 0;
   padding: 16px;

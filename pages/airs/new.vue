@@ -1,4 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ alias: '/amira/new', middleware: ["air-only"] });
+definePageMeta({})
 </script>
-<template><AirLibraryView upload-only /></template>
+<template><AirsSetup /></template>

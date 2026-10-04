@@ -8,7 +8,7 @@ import { DEFAULT_STUDY_FUNCTION_REFS } from '../server/domain/neuromap/studyFunc
 
 beforeEach(() => {
   vi.clearAllMocks()
-  vi.stubGlobal('useRuntimeConfig', () => ({ public: { appSurface: 'air' }, studyAwsVoiceTrialMaxSeconds: 300 }))
+  vi.stubGlobal('useRuntimeConfig', () => ({ public: { appSurface: 'amira' }, studyAwsVoiceTrialMaxSeconds: 300 }))
   vi.stubGlobal('getRouterParam', () => 'study')
   vi.stubGlobal('readBody', async () => ({ version: 1 }))
   vi.stubGlobal('createError', (options: any) => Object.assign(new Error(options.statusMessage), options))
@@ -27,4 +27,17 @@ test('full Flowst retains its existing six-objective approval behavior', async (
   vi.stubGlobal('useRuntimeConfig', () => ({ public: { appSurface: 'flowst' }, studyAwsVoiceTrialMaxSeconds: 300 }))
   await expect((approve as any)({})).resolves.toEqual({})
   expect(mocks.save).toHaveBeenCalledWith('owner', 'study', expect.objectContaining({ status: 'APPROVED' }), 1, {})
+})
+
+test('repeated approval returns the same owned version without another write',async()=>{
+ const saved={id:'study',ownerId:'owner',plan:{status:'APPROVED',version:1,approvedBy:'owner'}}
+ mocks.conversation.mockResolvedValue(saved)
+ await expect((approve as any)({})).resolves.toEqual(saved)
+ expect(mocks.save).not.toHaveBeenCalled()
+})
+
+test('approval cannot adopt another owner’s saved approval',async()=>{
+ mocks.conversation.mockResolvedValue({id:'study',ownerId:'owner',plan:{status:'APPROVED',version:1,approvedBy:'other',objectives:[]}})
+ await expect((approve as any)({})).rejects.toMatchObject({statusCode:409})
+ expect(mocks.save).not.toHaveBeenCalled()
 })

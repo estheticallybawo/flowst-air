@@ -51,7 +51,9 @@ const shortStatus = computed(() =>
       <details class="study-goal">
         <summary>
           <span
-            ><small class="misu-handoff"><AgentAvatar agent="MIRO" size="compact" /> Planned by Misu</small
+            ><small class="misu-handoff"
+              ><AgentAvatar agent="MIRO" size="compact" /> Planned by
+              Misu</small
             ><strong>{{ objective || goal }}</strong></span
           ><ChevronRight :size="18" />
         </summary>
@@ -60,7 +62,10 @@ const shortStatus = computed(() =>
           >{{ studyMinutes }} minutes available<span v-if="conversationClock">
             · {{ conversationClock }} conversation time this visit</span
           ></small
-        ><small>Your plan is approved. Amina guides your practice; Misu’s plan is available in the plan panel.</small>
+        ><small
+          >Your plan is approved. Amina guides your practice; Misu’s plan is
+          available in the plan panel.</small
+        >
       </details>
       <AirSkeleton
         v-if="loading"
@@ -83,6 +88,22 @@ const shortStatus = computed(() =>
           aria-label="Current study activity"
           aria-live="polite"
         >
+          <AgentOrb
+            v-if="
+              liveRunning &&
+              (liveStatus === 'SPEAKING' ||
+                (liveStatus === 'LISTENING' && !muted && microphoneActive) ||
+                liveStatus === 'CONNECTING')
+            "
+            :busy="true"
+            :state="
+              liveStatus === 'SPEAKING'
+                ? 'composing'
+                : liveStatus === 'LISTENING'
+                  ? 'listening'
+                  : 'connecting'
+            "
+          />
           <h2>{{ shortStatus }}</h2>
           <p>
             <Mic2 v-if="microphoneActive" :size="15" /><MicOff

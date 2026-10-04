@@ -20,4 +20,8 @@ Disclose the existing deployed foundation and identify what was built for this s
 
 ### Show Misu’s contribution
 
-On the plan screen, identify Misu’s avatar and planner role. Open “What this plan is based on”; show the chosen goal, scope, time and source grounding. Read the objective’s proposed plan explanation alongside its citation, then approve the plan. Show “Planned by Misu” in Amina’s voice room. Recommendations expose the saved attempts used in the review; they remain suggestions the learner can accept or decline. Fixture explanations are scripted demonstrations, not live inference evidence.
+On the plan screen, identify Misu’s avatar and planner role. Open “What this plan is based on”; show the chosen goal, scope, time and source grounding. Read the objective’s proposed plan explanation alongside its citation, then approve the plan. Show Misu preparing the handoff, Amina’s welcome and the microphone-off status. Choose Start conversation only when ready. Show “Planned by Misu” in Amina’s voice room. Recommendations expose the saved attempts used in the review; they remain suggestions the learner can accept or decline. Fixture explanations are scripted demonstrations, not live inference evidence.
+
+### Prepared entry
+
+Enter from app.useflowst.com after Flowst sign-in. Misu asks for one self-description, shows an editable understanding, then requests the source. Confirm source, goal and time before drafting. Briefly adjust and approve the plan. Show the visible handoff before Amina appears; approval does not open the microphone. The independent repository uses the same shared setup with its own host boundary.

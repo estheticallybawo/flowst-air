@@ -3,7 +3,7 @@ import type { FlowstAgentId } from '~/shared/agents'
 import { FLOWST_AGENTS } from '~/shared/agents'
 
 const props = withDefaults(defineProps<{
-  agent: FlowstAgentId
+  agent: FlowstAgentId | 'MISU'
   size?: 'compact' | 'standard' | 'large'
   labelled?: boolean
   portrait?: boolean
@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<{
 })
 
 const failed = ref(false)
-const identity = computed(() => FLOWST_AGENTS[props.agent])
+const identity = computed(() => FLOWST_AGENTS[props.agent === 'MISU' ? 'MIRO' : props.agent])
 const accessibleLabel = computed(() => props.labelled ? undefined : identity.value.name)
 const imageSource = computed(() => props.portrait ? identity.value.portrait : identity.value.avatar)
 </script>

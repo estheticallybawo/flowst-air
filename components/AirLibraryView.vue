@@ -18,11 +18,17 @@ import {
 import { learnerStudyError } from "~/shared/studyPresentation";
 import type { SourceDraft } from "~/shared/studyMaterial";
 
-const props = withDefaults(defineProps<{ uploadOnly?: boolean }>(), {
-  uploadOnly: false,
-});
+const props = withDefaults(
+  defineProps<{ uploadOnly?: boolean; libraryOnly?: boolean }>(),
+  {
+    uploadOnly: false,
+    libraryOnly: false,
+  },
+);
 const auth = useAuth();
-const standaloneAir = ['air', 'amira'].includes(useRuntimeConfig().public.appSurface);
+const standaloneAir = ["air", "amira"].includes(
+  useRuntimeConfig().public.appSurface,
+);
 useHead({
   title: "Flowst Airs · Bring Your Source",
 });
@@ -51,9 +57,14 @@ const eligibility = ref<{
   completionRequired?: boolean;
 } | null>(null);
 const file = ref<File | null>(null);
-const sourceMode = ref<'document' | 'link'>(useRoute().query.source ? 'link' : 'document');
+const sourceMode = ref<"document" | "link">(
+  useRoute().query.source ? "link" : "document",
+);
 const readySource = ref<SourceDraft | null>(null);
-watch(sourceMode, () => { readySource.value = null; error.value = ''; });
+watch(sourceMode, () => {
+  readySource.value = null;
+  error.value = "";
+});
 const preferences = ref<StudyPreferences>({ ...DEFAULT_STUDY_PREFERENCES });
 const purposes = Object.entries(STUDY_PURPOSE_LABELS) as [
   StudyPurpose,
@@ -133,9 +144,10 @@ onMounted(() => {
 
 async function upload() {
   if (
-    (sourceMode.value === 'document' ? !file.value : !readySource.value) ||
+    (sourceMode.value === "document" ? !file.value : !readySource.value) ||
     busy.value ||
-    (sourceMode.value === 'document' && (fileTooLarge.value || fileUnsupported.value)) ||
+    (sourceMode.value === "document" &&
+      (fileTooLarge.value || fileUnsupported.value)) ||
     !validTime.value ||
     !validContext.value ||
     (standaloneAir &&
@@ -145,10 +157,21 @@ async function upload() {
   busy.value = true;
   error.value = "";
   try {
-    if (sourceMode.value === 'link' && readySource.value) {
-      const created = await auth.authorizedFetch<{ id: string }>('/api/study/conversations/from-source', {
-        method: 'POST', body: { sourceId: readySource.value.id, confirmSource: true, preferences: { ...preferences.value, context: preferences.value.context.trim() } },
-      });
+    if (sourceMode.value === "link" && readySource.value) {
+      const created = await auth.authorizedFetch<{ id: string }>(
+        "/api/study/conversations/from-source",
+        {
+          method: "POST",
+          body: {
+            sourceId: readySource.value.id,
+            confirmSource: true,
+            preferences: {
+              ...preferences.value,
+              context: preferences.value.context.trim(),
+            },
+          },
+        },
+      );
       await navigateTo(`/airs/${created.id}`);
       return;
     }
@@ -245,13 +268,32 @@ async function replaceCurrentDocument() {
 </script>
 
 <style scoped>
-.source-choice{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:1rem;border:0;padding:0;margin:.5rem 0}.source-choice legend{font-weight:600;margin-bottom:.6rem}.source-choice label{display:flex;align-items:center;gap:.45rem}.source-picker{grid-column:1/-1}
+.source-choice {
+  grid-column: 1/-1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border: 0;
+  padding: 0;
+  margin: 0.5rem 0;
+}
+.source-choice legend {
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+}
+.source-choice label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.source-picker {
+  grid-column: 1/-1;
+}
 </style>
 
 <template>
   <AirStudyShell>
     <div class="air-library">
-      <AirsContextCard />
       <header v-if="!props.uploadOnly" class="intro">
         <div class="intro-copy">
           <div class="identity">
@@ -288,252 +330,288 @@ async function replaceCurrentDocument() {
           source-backed plan will use your goal and available time.
         </p>
       </header>
-      <p v-if="standaloneAir && accessError" class="air-error" role="alert">
-        {{ accessError }} <button @click="refreshAccess">Try again</button>
-      </p>
-      <section
-        v-else-if="standaloneAir && access?.tier === 'RESTRICTED'"
-        class="air-panel"
-      >
-        <h2>Study access is currently unavailable</h2>
-        <p>You can still read or delete your saved material.</p>
-        <NuxtLink class="air-text-link" to="/airs/settings"
-          >Review account access</NuxtLink
-        >
-      </section>
-      <p
-        v-else-if="standaloneAir && eligibilityError"
-        class="air-error"
-        role="alert"
-      >
-        {{ eligibilityError }}
-        <button @click="loadEligibility">Try again</button>
-      </p>
-      <AirSkeleton
-        v-else-if="checkingUploadAccess"
-        :variant="props.uploadOnly ? 'upload' : 'access'"
-        label="Checking study access and upload availability"
-      />
-      <p
-        v-else-if="standaloneAir && !access"
-        class="air-error"
-        role="alert"
-      >
-        Your study access could not be confirmed.
-        <button @click="refreshAccess">Try again</button>
-      </p>
-      <AirSkeleton
-        v-else-if="abandoning"
-        variant="access"
-        label="Abandoning the current plan and refreshing upload access"
-      />
-      <AirSkeleton
-        v-else-if="busy"
-        variant="upload"
-        with-preferences
-        :label="sourceMode === 'document' ? 'Uploading your document and requesting a session plan' : 'Saving your reviewed source and requesting a session plan'"
-      />
-      <section
-        v-else-if="
-          !standaloneAir || (props.uploadOnly && eligibility?.canUpload)
-        "
-        class="upload-card"
-        aria-labelledby="upload-heading"
-      >
-        <div class="upload-symbol"><FileUp :size="26" /></div>
-        <div>
-          <h2 id="upload-heading">Start a study chat</h2>
-          <p v-if="sourceMode === 'document'">
-            PDF, Word, or PowerPoint · text-based · up to
-            {{ standaloneAir ? "4 MB" : "20 MB" }}.
-          </p>
-        </div>
-        <fieldset class="source-choice">
-          <legend>Bring your source</legend>
-          <label><input v-model="sourceMode" type="radio" value="document" /> Document</label>
-          <label><input v-model="sourceMode" type="radio" value="link" /> Link or transcript</label>
-        </fieldset>
-        <AirSourcePicker v-if="sourceMode === 'link'" @ready="readySource = $event" />
-        <label
-          v-if="sourceMode === 'document'"
-          class="file-picker"
-          @dragover.prevent
-          @drop.prevent="pickDroppedFile"
-        >
-          <span>{{ file?.name || "Choose or drop a document" }}</span>
-          <input
-            type="file"
-            accept=".pdf,.docx,.pptx"
-            @change="
-              file = ($event.target as HTMLInputElement).files?.[0] || null
-            "
-          />
-        </label>
+      <template v-if="!props.libraryOnly">
+        <p v-if="standaloneAir && accessError" class="air-error" role="alert">
+          {{ accessError }} <button @click="refreshAccess">Try again</button>
+        </p>
         <section
-          v-if="sourceMode === 'link' ? !!readySource : (file && !fileTooLarge && !fileUnsupported)"
-          class="study-preferences"
-          aria-labelledby="preferences-heading"
+          v-else-if="standaloneAir && access?.tier === 'RESTRICTED'"
+          class="air-panel"
         >
-          <div class="preferences-intro">
-            <h3 id="preferences-heading">Make it useful for you</h3>
-            <p>
-              Your choices are saved with this session and used to prepare the
-              plan. {{ sourceMode === 'document' ? 'Nothing is uploaded until you choose Create session plan.' : 'Create session plan confirms the source you reviewed above.' }}
+          <h2>Study access is currently unavailable</h2>
+          <p>You can still read or delete your saved material.</p>
+          <NuxtLink class="air-text-link" to="/airs/settings"
+            >Review account access</NuxtLink
+          >
+        </section>
+        <p
+          v-else-if="standaloneAir && eligibilityError"
+          class="air-error"
+          role="alert"
+        >
+          {{ eligibilityError }}
+          <button @click="loadEligibility">Try again</button>
+        </p>
+        <AirSkeleton
+          v-else-if="checkingUploadAccess"
+          :variant="props.uploadOnly ? 'upload' : 'access'"
+          label="Checking study access and upload availability"
+        />
+        <p v-else-if="standaloneAir && !access" class="air-error" role="alert">
+          Your study access could not be confirmed.
+          <button @click="refreshAccess">Try again</button>
+        </p>
+        <AirSkeleton
+          v-else-if="abandoning"
+          variant="access"
+          label="Abandoning the current plan and refreshing upload access"
+        />
+        <AirSkeleton
+          v-else-if="busy"
+          variant="upload"
+          with-preferences
+          :label="
+            sourceMode === 'document'
+              ? 'Uploading your document and requesting a session plan'
+              : 'Saving your reviewed source and requesting a session plan'
+          "
+        />
+        <section
+          v-else-if="
+            !standaloneAir || (props.uploadOnly && eligibility?.canUpload)
+          "
+          class="upload-card"
+          aria-labelledby="upload-heading"
+        >
+          <div class="upload-symbol"><FileUp :size="26" /></div>
+          <div>
+            <h2 id="upload-heading">Start a study chat</h2>
+            <p v-if="sourceMode === 'document'">
+              PDF, Word, or PowerPoint · text-based · up to
+              {{ standaloneAir ? "4 MB" : "20 MB" }}.
             </p>
           </div>
-          <label class="preference-field"
-            ><span>What is this session for?</span
-            ><select v-model="preferences.purpose">
-              <option
-                v-for="[purpose, label] in purposes"
-                :key="purpose"
-                :value="purpose"
-              >
-                {{ label }}
-              </option>
-            </select></label
-          >
-          <label class="preference-field"
-            ><span>How much time do you have?</span>
-            <div class="minutes-input">
-              <input
-                v-model.number="preferences.timeBudgetMinutes"
-                type="number"
-                min="5"
-                max="120"
-                step="1"
-                inputmode="numeric"
-                aria-describedby="time-choice-help"
-              /><span>minutes</span>
-            </div>
-            <small id="time-choice-help"
-              >5–120 minutes. A planning estimate, not a fixed finish
-              time.</small
-            ></label
-          >
-          <fieldset class="scope-field">
-            <legend>How much would you like to cover?</legend>
-            <div class="scope-options">
-              <label class="scope-option"
-                ><input
-                  v-model="preferences.scope"
-                  type="radio"
-                  value="FOCUSED"
-                /><span
-                  ><strong>Focused</strong><small>One useful goal</small></span
-                ></label
-              ><label class="scope-option"
-                ><input
-                  v-model="preferences.scope"
-                  type="radio"
-                  value="BROAD"
-                /><span
-                  ><strong>Broad</strong><small>The main ideas</small></span
-                ></label
-              >
-            </div>
+          <fieldset class="source-choice">
+            <legend>Bring your source</legend>
+            <label
+              ><input v-model="sourceMode" type="radio" value="document" />
+              Document</label
+            >
+            <label
+              ><input v-model="sourceMode" type="radio" value="link" /> Link or
+              transcript</label
+            >
           </fieldset>
-          <label class="preference-field preference-brief"
-            ><span
-              >{{
-                preferences.purpose === "OTHER"
-                  ? "What would you like to work toward?"
-                  : "Anything to keep in focus?"
-              }}
-              <small>{{
-                preferences.purpose === "OTHER" ? "(required)" : "(optional)"
-              }}</small></span
-            ><textarea
-              v-model="preferences.context"
-              rows="2"
-              maxlength="600"
-              :required="preferences.purpose === 'OTHER'"
-              placeholder="For example: a junior AI interview, focusing on how to explain the main concepts."
+          <AirSourcePicker
+            v-if="sourceMode === 'link'"
+            @ready="readySource = $event"
+          />
+          <label
+            v-if="sourceMode === 'document'"
+            class="file-picker"
+            @dragover.prevent
+            @drop.prevent="pickDroppedFile"
+          >
+            <span>{{ file?.name || "Choose or drop a document" }}</span>
+            <input
+              type="file"
+              accept=".pdf,.docx,.pptx"
+              @change="
+                file = ($event.target as HTMLInputElement).files?.[0] || null
+              "
             />
           </label>
-          <p v-if="!validTime" class="preference-error" role="alert">
-            Choose a whole number of minutes between 5 and 120.
-          </p>
-          <p v-if="!validContext" class="preference-error" role="alert">
-            Add a brief goal so Misu can propose a relevant plan.
-          </p>
-        </section>
-        <button
-          class="start-button"
-          type="button"
-          :disabled="
-            (sourceMode === 'document' ? (!file || fileTooLarge || fileUnsupported) : !readySource) ||
-            !validTime ||
-            !validContext ||
-            busy ||
-            (standaloneAir && !access?.allowedActions.UPLOAD)
-          "
-          @click="upload"
-        >
-          {{ busy ? (sourceMode === 'document' ? "Uploading and reading…" : "Saving reviewed source…") : "Create session plan" }}
-        </button>
-      </section>
-      <p v-else-if="!eligibility" class="air-error" role="alert">
-        Your upload availability could not be confirmed.
-        <button @click="loadEligibility">Try again</button>
-      </p>
-      <section
-        v-else-if="!eligibility.canUpload"
-        class="upload-locked"
-        aria-label="Current session needs completion"
-      >
-        <div class="upload-symbol"><BookOpenText :size="26" /></div>
-        <div>
-          <h2>
-            {{
-              eligibility.existingConversationId
-                ? "Continue your current session"
-                : "Your previous plan is unfinished"
-            }}
-          </h2>
-          <p>
-            {{
-              eligibility.reason ||
-              "Finish the agreed objectives in your current session, or explicitly abandon its plan before starting another document."
-            }}
-          </p>
-        </div>
-        <div class="upload-locked-actions">
-          <NuxtLink
-            v-if="eligibility.existingConversationId"
-            :to="`/airs/${eligibility.existingConversationId}`"
-            >Continue with Amina</NuxtLink
-          ><button
+          <section
             v-if="
-              eligibility.activeConversationId ||
-              eligibility.existingConversationId
+              sourceMode === 'link'
+                ? !!readySource
+                : file && !fileTooLarge && !fileUnsupported
             "
-            type="button"
-            :disabled="abandoning"
-            @click="replaceCurrentDocument"
+            class="study-preferences"
+            aria-labelledby="preferences-heading"
           >
-            Replace study document
+            <div class="preferences-intro">
+              <h3 id="preferences-heading">Make it useful for you</h3>
+              <p>
+                Your choices are saved with this session and used to prepare the
+                plan.
+                {{
+                  sourceMode === "document"
+                    ? "Nothing is uploaded until you choose Create session plan."
+                    : "Create session plan confirms the source you reviewed above."
+                }}
+              </p>
+            </div>
+            <label class="preference-field"
+              ><span>What is this session for?</span
+              ><select v-model="preferences.purpose">
+                <option
+                  v-for="[purpose, label] in purposes"
+                  :key="purpose"
+                  :value="purpose"
+                >
+                  {{ label }}
+                </option>
+              </select></label
+            >
+            <label class="preference-field"
+              ><span>How much time do you have?</span>
+              <div class="minutes-input">
+                <input
+                  v-model.number="preferences.timeBudgetMinutes"
+                  type="number"
+                  min="5"
+                  max="120"
+                  step="1"
+                  inputmode="numeric"
+                  aria-describedby="time-choice-help"
+                /><span>minutes</span>
+              </div>
+              <small id="time-choice-help"
+                >5–120 minutes. A planning estimate, not a fixed finish
+                time.</small
+              ></label
+            >
+            <fieldset class="scope-field">
+              <legend>How much would you like to cover?</legend>
+              <div class="scope-options">
+                <label class="scope-option"
+                  ><input
+                    v-model="preferences.scope"
+                    type="radio"
+                    value="FOCUSED"
+                  /><span
+                    ><strong>Focused</strong
+                    ><small>One useful goal</small></span
+                  ></label
+                ><label class="scope-option"
+                  ><input
+                    v-model="preferences.scope"
+                    type="radio"
+                    value="BROAD"
+                  /><span
+                    ><strong>Broad</strong><small>The main ideas</small></span
+                  ></label
+                >
+              </div>
+            </fieldset>
+            <label class="preference-field preference-brief"
+              ><span
+                >{{
+                  preferences.purpose === "OTHER"
+                    ? "What would you like to work toward?"
+                    : "Anything to keep in focus?"
+                }}
+                <small>{{
+                  preferences.purpose === "OTHER" ? "(required)" : "(optional)"
+                }}</small></span
+              ><textarea
+                v-model="preferences.context"
+                rows="2"
+                maxlength="600"
+                :required="preferences.purpose === 'OTHER'"
+                placeholder="For example: a junior AI interview, focusing on how to explain the main concepts."
+              />
+            </label>
+            <p v-if="!validTime" class="preference-error" role="alert">
+              Choose a whole number of minutes between 5 and 120.
+            </p>
+            <p v-if="!validContext" class="preference-error" role="alert">
+              Add a brief goal so Misu can propose a relevant plan.
+            </p>
+          </section>
+          <button
+            class="start-button"
+            type="button"
+            :disabled="
+              (sourceMode === 'document'
+                ? !file || fileTooLarge || fileUnsupported
+                : !readySource) ||
+              !validTime ||
+              !validContext ||
+              busy ||
+              (standaloneAir && !access?.allowedActions.UPLOAD)
+            "
+            @click="upload"
+          >
+            {{
+              busy
+                ? sourceMode === "document"
+                  ? "Uploading and reading…"
+                  : "Saving reviewed source…"
+                : "Create session plan"
+            }}
           </button>
-        </div>
-      </section>
-      <div v-else class="air-library-start">
-        <NuxtLink class="air-button" to="/airs/new"
-          >Start a new session</NuxtLink
+        </section>
+        <p v-else-if="!eligibility" class="air-error" role="alert">
+          Your upload availability could not be confirmed.
+          <button @click="loadEligibility">Try again</button>
+        </p>
+        <section
+          v-else-if="!eligibility.canUpload"
+          class="upload-locked"
+          aria-label="Current session needs completion"
         >
-        <p>One resource. A plan you can review. Room to practise.</p>
-      </div>
-      <p v-if="sourceMode === 'document' && fileTooLarge" class="error" role="alert">
-        <CircleAlert :size="17" /> This file is over the
-        {{ standaloneAir ? "4 MB" : "20 MB" }} limit. Choose a smaller
-        document.
-      </p>
-      <p v-if="sourceMode === 'document' && fileUnsupported" class="error" role="alert">
-        Choose a text-based PDF, DOCX, or PPTX document.
-      </p>
-      <p v-if="error" class="error" role="alert">
-        <CircleAlert :size="17" /> {{ error }}
-      </p>
-
+          <div class="upload-symbol"><BookOpenText :size="26" /></div>
+          <div>
+            <h2>
+              {{
+                eligibility.existingConversationId
+                  ? "Continue your current session"
+                  : "Your previous plan is unfinished"
+              }}
+            </h2>
+            <p>
+              {{
+                eligibility.reason ||
+                "Finish the agreed objectives in your current session, or explicitly abandon its plan before starting another document."
+              }}
+            </p>
+          </div>
+          <div class="upload-locked-actions">
+            <NuxtLink
+              v-if="eligibility.existingConversationId"
+              :to="`/airs/${eligibility.existingConversationId}`"
+              >Continue with Amina</NuxtLink
+            ><button
+              v-if="
+                eligibility.activeConversationId ||
+                eligibility.existingConversationId
+              "
+              type="button"
+              :disabled="abandoning"
+              @click="replaceCurrentDocument"
+            >
+              Replace study document
+            </button>
+          </div>
+        </section>
+        <div v-else class="air-library-start">
+          <NuxtLink class="air-button" to="/airs/new"
+            >Start a new session</NuxtLink
+          >
+          <p>One resource. A plan you can review. Room to practise.</p>
+        </div>
+        <p
+          v-if="sourceMode === 'document' && fileTooLarge"
+          class="error"
+          role="alert"
+        >
+          <CircleAlert :size="17" /> This file is over the
+          {{ standaloneAir ? "4 MB" : "20 MB" }} limit. Choose a smaller
+          document.
+        </p>
+        <p
+          v-if="sourceMode === 'document' && fileUnsupported"
+          class="error"
+          role="alert"
+        >
+          Choose a text-based PDF, DOCX, or PPTX document.
+        </p>
+        <p v-if="error" class="error" role="alert">
+          <CircleAlert :size="17" /> {{ error }}
+        </p>
+      </template>
       <section
         v-if="!props.uploadOnly"
         id="library"
@@ -570,7 +648,15 @@ async function replaceCurrentDocument() {
               >{{ item.document.kind }} ·
               {{ item.document.sectionCount }} sections ·
               {{
-                item.abandonedAt ? "Read-only · Ended early" : item.planStatus === "APPROVED" ? "Saved plan" : item.planStatus === "FAILED" ? "Plan needs retry" : item.planStatus === "PENDING" ? "Plan pending" : "Plan review"
+                item.abandonedAt
+                  ? "Read-only · Ended early"
+                  : item.planStatus === "APPROVED"
+                    ? "Saved plan"
+                    : item.planStatus === "FAILED"
+                      ? "Plan needs retry"
+                      : item.planStatus === "PENDING"
+                        ? "Plan pending"
+                        : "Plan review"
               }}</span
             >
             <h3>{{ item.document.title || item.document.name }}</h3>
@@ -584,8 +670,16 @@ async function replaceCurrentDocument() {
             >
             <p>{{ item.document.excerpt }}</p>
             <div class="chat-actions">
-              <NuxtLink :to="`/airs/${item.id}`" :aria-label="item.abandonedAt ? `View saved conversation for ${item.document.name}` : undefined"
-                ><MessageCircle :size="16" /> {{ item.abandonedAt ? 'View saved' : 'Continue' }} <Mic2 v-if="!item.abandonedAt" :size="15"
+              <NuxtLink
+                :to="`/airs/${item.id}`"
+                :aria-label="
+                  item.abandonedAt
+                    ? `View saved conversation for ${item.document.name}`
+                    : undefined
+                "
+                ><MessageCircle :size="16" />
+                {{ item.abandonedAt ? "View saved" : "Continue" }}
+                <Mic2 v-if="!item.abandonedAt" :size="15"
               /></NuxtLink>
               <button
                 type="button"

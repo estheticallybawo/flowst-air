@@ -1,6 +1,6 @@
 # Working on Flowst Airs
 
-Air is the product; Misu proposes instruction, Amina conducts verbal practice, Kai interprets saved evidence in a separate review. NeuroMap supplies policy. The backend owns authorization, authoritative state and validated writes.
+Airs is the product; Misu proposes instruction, Amina conducts verbal practice, Kai interprets saved evidence in a separate review. NeuroMap supplies policy. The backend owns authorization, authoritative state and validated writes.
 
 ## Read next
 

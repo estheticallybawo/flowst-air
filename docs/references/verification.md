@@ -64,3 +64,16 @@ Standalone: 115 unit tests passed in 16 files. Flowst: 193 passed, one live test
 Final checks: standalone type checking passed; 118 tests passed in 17 files. Flowst type checking passed; 196 tests passed with one live test skipped in 47 files. Both production builds passed, and both existing Vercel projects deployed. Native Flowst and no-login standalone source-review/Misu-plan journeys passed on desktop and mobile. The final live adapters forward source passages separately from teaching instructions; provider smoke tests remain owner preflight.
 
 The existing standalone production hosting login wall still prevents signed-out judge access. Automatic approval review rejected changing that exact production-domain security setting; scoped owner approval is pending. No protection bypass was attempted. The application-level guest key was configured as a server-side hosting secret and is excluded from this export.
+
+
+## Misu-led setup and prepared handoff - 2026-10-04
+
+Implemented in Flowst and extracted into this standalone slice. Flowst retains its account authentication; standalone retains signed guest ownership. The shared parity check now covers 33 modules/components (host adapters intentionally differ).
+
+Final Flowst checks: type checking and production build passed; 206 unit tests passed, one live-provider test skipped. Desktop/mobile prepared-handoff journeys passed (2). Cloud deployment is Ready at app.useflowst.com; signed-out /airs redirects to Flowst sign-in and the context API returns 401. Authenticated production learning remains owner preflight; local fixtures are not evidence of production model/voice quality.
+
+Standalone checks: type checking, 125 unit tests, desktop/mobile full setup journeys (2), source adapter/access checks (8), documentation checks and production build passed. Source checks exercised GitHub/web/video fixtures through draft review, planning, approval and isolation, plus supported PDF preview without creating a plan. Initial browser startup timed out at the visible loading skeleton; a bounded cold-compilation wait fixed the test. An initial PDF-preview test incorrectly supplied unsupported TXT and correctly received 415; it was corrected to use an existing supported PDF format. No supported formats were changed.
+
+The journeys confirmed editable summary, source-before-preferences disclosure, adjusted draft approval, visible preparation, speech-unavailable text fallback, reload without autoplay, and no microphone/lease before Start conversation. Deliberate permission denial after Start created one microphone request and no lease. The production audio transport and paid-provider quality require real preflight. No paid calls were made.
+
+Thinking Orbs is pinned at de85557ca220332586d070d8788c0e1d6e877a0d with its MIT notice retained. The public export contains the Vue canvas wrapper, not React. Main private history, credentials, hosting bindings and learner records are excluded. Existing standalone hosting protection remains unchanged.

@@ -1,70 +1,34 @@
-import { test, expect } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
-
-test('review a source, resume its draft, approve its attributed plan, and preserve access gates', async ({ page }, testInfo) => {
-  test.setTimeout(180_000)
-  // Explicit abandonment below releases the existing gate between viewport runs.
-  await page.goto('/')
-  await expect(page).toHaveTitle('Flowst Air · Bring Your Source')
-  await expect(page.getByRole('link', { name: 'Flowst Air home' }).first()).toContainText('Air')
-  await expect(page.getByText('Amina · Verbal learning partner', { exact: true })).toBeVisible()
-  await page.goto('/amira/about?from=bookmark#main-content')
-  await expect(page).toHaveURL(/\/air\/about\?from=bookmark#main-content$/)
-  await expect(page.getByRole('heading', { name: 'About Flowst Air' })).toBeVisible()
-  const owner = 'member'
-  await page.request.post('/api/auth/dev-session', { data: { scenario: owner } })
-  let studyId: string | undefined
-  try {
-  await page.goto('/amira/new')
-  await expect(page).toHaveURL(/\/air\/new$/)
-  await expect(page.getByRole('navigation', { name: 'Flowst Air navigation' })).toBeVisible()
-  await page.getByLabel('Link or transcript', { exact: true }).check()
-  await page.getByRole('button', { name: 'Try video fixture' }).click()
-  await expect(page.getByText('Demonstration speech transcript', { exact: true })).toBeVisible()
-  await expect(page.getByText('Demonstration fixture — no external source was imported.')).toBeVisible()
-  await expect(page).toHaveURL(/\/air\/new\?source=[a-f0-9-]{36}$/)
-  await page.reload()
-  await expect(page.getByText('Source ready for your review', { exact: false })).toBeVisible()
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  await page.screenshot({ path: testInfo.outputPath('source-review.png'), fullPage: true })
-  await page.getByRole('button', { name: 'Create session plan', exact: true }).click()
-  await expect(page).toHaveURL(/\/air\/[a-f0-9-]{36}$/, { timeout: 90_000 })
-  await expect(page.getByText('Demonstration: Retrieval and Transfer', { exact: false }).first()).toBeVisible({ timeout: 90000 })
-  await expect(page.getByRole('complementary', { name: 'Source attribution' })).toContainText('Demonstration fixture')
-  const planner = page.getByRole('region', { name: 'Misu learning planner' })
-  await expect(planner).toBeVisible()
-  await expect(planner.getByText('Misu · Learning planner', { exact: true })).toBeVisible()
-  const avatar = planner.locator('img')
-  await expect(avatar).toHaveAttribute('src', '/optimized/v1/mascots/miro-avatar.webp')
-  await expect.poll(() => avatar.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
-  await planner.getByText('What this plan is based on', { exact: true }).click()
-  await expect(planner).toContainText('Focused scope')
-  await expect(planner).toContainText('Source grounding')
-  await expect(page.getByText('Misu’s plan explanation:', { exact: false })).toBeVisible()
-  await page.screenshot({ path: testInfo.outputPath('misu-plan.png'), fullPage: true })
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  const id = page.url().split('/').pop()!
-  studyId = id
-  const saved = await (await page.request.get(`/api/study/conversations/${id}`, { headers: { authorization: `Bearer mock:${owner}` } })).json()
-  const approved = await page.request.post(`/api/study/conversations/${id}/plan/approve`, { headers: { authorization: `Bearer mock:${owner}` }, data: { version: saved.plan.version } })
-  expect(approved.status()).toBe(200)
-  expect((await approved.json()).plan.status).toBe('APPROVED')
-  await page.reload()
-  await expect(page.getByText('Planned by Misu', { exact: true })).toBeVisible()
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-  const canonicalAccess = await page.request.get('/api/air/access', { headers: { authorization: `Bearer mock:${owner}` } })
-  const legacyAccess = await page.request.get('/api/amira/access', { headers: { authorization: `Bearer mock:${owner}` } })
-  expect(canonicalAccess.status()).toBe(200)
-  expect(legacyAccess.status()).toBe(200)
-  expect(await legacyAccess.json()).toEqual(await canonicalAccess.json())
-  const access = await page.request.post('/api/study/sources/inspect', { headers: { authorization: `Bearer mock:${owner}` }, data: { url: '', fixture: 'WEB' } })
-  expect(access.status()).toBe(409)
-  const other = await page.request.get(`/api/study/conversations/${id}`, { headers: { authorization: 'Bearer mock:other' } })
-  expect(other.status()).toBe(404)
-  await page.screenshot({ path: testInfo.outputPath('source-plan.png'), fullPage: true })
-  } finally {
-    if (studyId) await page.request.post(`/api/study/conversations/${studyId}/abandon`, { headers: { authorization: `Bearer mock:${owner}` }, data: { confirmAbandon: true } })
-  }
+import {test,expect} from '@playwright/test'
+import {PDFDocument} from 'pdf-lib'
+const preferences={purpose:'INTERVIEW',scope:'FOCUSED',timeBudgetMinutes:15,context:'Explain the material clearly'}
+for(const fixture of ['GITHUB','WEB','VIDEO']) test(fixture+' review retains attribution, approval and owner isolation',async({request})=>{
+ const owner='source-'+fixture.toLowerCase(),headers={authorization:'Bearer mock:'+owner}
+ const inspected=await request.post('/api/study/sources/inspect',{headers,data:{url:'',fixture}})
+ expect(inspected.status()).toBe(200)
+ const draft=await inspected.json()
+ expect(draft.status).toBe('READY');expect(draft.fixture).toBe(true)
+ const reviewed=await request.get('/api/study/sources/'+draft.id,{headers})
+ expect(reviewed.status()).toBe(200)
+ const created=await request.post('/api/study/conversations/from-source',{headers,data:{sourceId:draft.id,preferences,confirmSource:true}})
+ expect(created.status()).toBe(200)
+ const conversation=await created.json(),id=conversation.id
+ try {
+ const planned=await request.post('/api/study/conversations/'+id+'/plan',{headers,data:{}})
+ expect(planned.status()).toBe(200)
+ const current=await (await request.get('/api/study/conversations/'+id,{headers})).json()
+ expect(current.document.provenance.fixture).toBe(true)
+ expect(current.plan.status).toBe('DRAFT')
+ const approval=await request.post('/api/study/conversations/'+id+'/plan/approve',{headers,data:{version:current.plan.version}})
+ expect(approval.status()).toBe(200)
+ const other=await request.get('/api/study/conversations/'+id,{headers:{authorization:'Bearer mock:other'}})
+ expect(other.status()).toBe(404)
+ const gated=await request.post('/api/study/sources/inspect',{headers,data:{url:'',fixture:'WEB'}})
+ expect(gated.status()).toBe(409)
+ } finally {await request.post('/api/study/conversations/'+id+'/abandon',{headers,data:{confirmAbandon:true}})}
+})
+test('document preview is bounded and does not create a plan',async({request})=>{
+ const pdf=await PDFDocument.create();pdf.addPage().drawText('Retrieval practice means recalling before checking your notes.');const data=Buffer.from(await pdf.save())
+ const response=await request.post('/api/study/sources/document-preview',{headers:{authorization:'Bearer mock:document-preview'},multipart:{file:{name:'notes.pdf',mimeType:'application/pdf',buffer:data}}})
+ expect(response.status()).toBe(200)
+ const preview=await response.json();expect(preview.sections.length).toBeGreaterThan(0);expect(preview.plan).toBeUndefined()
 })

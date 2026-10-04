@@ -9,4 +9,6 @@ Read [core beliefs](core-beliefs.md), then select the relevant design.
 | [Trust and interface contract](../../DESIGN.md) | Working UX contract | Source/Misu review checked desktop/mobile; other states need task-specific checks |
 | [Frontend map](../../FRONTEND.md) | Code navigation reference | Current code; Flowst Airs product identity with compatible legacy links |
 
+| [Misu-led setup](misu-led-setup.md) | Implemented in Flowst and shared slice | Fixture browser and persistence checks; live provider preflight remains separate |
+
 See [verification](../references/verification.md). Updating a specification does not verify a capability.

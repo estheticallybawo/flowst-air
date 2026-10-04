@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id") || "";
   const { version } = schema.parse(await readBody(event));
   const conversation = await getStudyConversation(identity.userId, id, event);
+  if(conversation.plan.status==='APPROVED' && conversation.plan.version===version && conversation.plan.approvedBy===identity.userId)return conversation;
   if (
     conversation.plan.status !== "DRAFT" ||
     conversation.plan.version !== version ||

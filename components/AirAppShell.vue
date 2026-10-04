@@ -16,7 +16,7 @@ const accountMenu = ref<HTMLDetailsElement>();
 const navigation = [
   { label: "Home", to: "/airs", icon: Home },
   { label: "New session", to: "/airs/new", icon: Plus },
-  { label: "Library", to: "/airs#library", icon: BookOpen },
+  { label: "Library", to: "/airs/library", icon: BookOpen },
   { label: "Settings", to: "/airs/settings", icon: Settings },
 ];
 const displayName = computed(
@@ -65,13 +65,16 @@ async function signOut() {
           width="26"
           height="24"
           alt=""
-        /><span>Flowst</span
-        ><span class="call-brand-air">Airs</span></NuxtLink
+        /><span>Flowst</span><span class="call-brand-air">Airs</span></NuxtLink
       ><AirBrand v-else />
       <div v-if="props.session" class="call-navigation">
         <slot name="session-navigation" />
       </div>
-      <nav v-else class="air-top-navigation" aria-label="Flowst Airs navigation">
+      <nav
+        v-else
+        class="air-top-navigation"
+        aria-label="Flowst Airs navigation"
+      >
         <NuxtLink
           v-for="item in navigation"
           :key="item.to"

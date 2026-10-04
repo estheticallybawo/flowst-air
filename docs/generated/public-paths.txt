@@ -23,7 +23,9 @@
 :(literal)assets/css/air.css
 :(literal)assets/css/flowst-app.css
 :(literal)assets/css/main.css
+:(literal)components/AgentActivity.vue
 :(literal)components/AgentAvatar.vue
+:(literal)components/AgentOrb.vue
 :(literal)components/AirAppShell.vue
 :(literal)components/AirBrand.vue
 :(literal)components/AirCallRoom.vue
@@ -41,6 +43,7 @@
 :(literal)components/AirVoiceMeter.vue
 :(literal)components/AirsContextCard.vue
 :(literal)components/AirsKaiReview.vue
+:(literal)components/AirsSetup.vue
 :(literal)components/AuthShell.vue
 :(literal)components/MisuPlanGuide.vue
 :(literal)components/PasswordField.vue
@@ -52,6 +55,7 @@
 :(literal)docs/design-docs/core-beliefs.md
 :(literal)docs/design-docs/flowst-air-system-design.md
 :(literal)docs/design-docs/index.md
+:(literal)docs/design-docs/misu-led-setup.md
 :(literal)docs/design-docs/source-ingestion.md
 :(literal)docs/exec-plans/active/flowst-air-orchestration.md
 :(literal)docs/exec-plans/completed/flowst-air-identity.md
@@ -86,6 +90,7 @@
 :(literal)pages/airs/[id].vue
 :(literal)pages/airs/about.vue
 :(literal)pages/airs/index.vue
+:(literal)pages/airs/library.vue
 :(literal)pages/airs/new.vue
 :(literal)pages/airs/pricing.vue
 :(literal)pages/airs/settings.vue
@@ -135,6 +140,7 @@
 :(literal)server/api/me.get.ts
 :(literal)server/api/study/context.get.ts
 :(literal)server/api/study/context.put.ts
+:(literal)server/api/study/context/summary.post.ts
 :(literal)server/api/study/conversations/[id].delete.ts
 :(literal)server/api/study/conversations/[id].get.ts
 :(literal)server/api/study/conversations/[id]/abandon.post.ts
@@ -164,6 +170,7 @@
 :(literal)server/api/study/sources/[id].get.ts
 :(literal)server/api/study/sources/[id]/prepare.post.ts
 :(literal)server/api/study/sources/capabilities.get.ts
+:(literal)server/api/study/sources/document-preview.post.ts
 :(literal)server/api/study/sources/inspect.post.ts
 :(literal)server/api/study/sources/transcription-webhook.post.ts
 :(literal)server/api/study/upload-eligibility.get.ts
@@ -176,6 +183,7 @@
 :(literal)server/services/airsAgentRunner.ts
 :(literal)server/services/airsAminaFunctions.ts
 :(literal)server/services/airsContext.ts
+:(literal)server/services/airsContextSummary.ts
 :(literal)server/services/airsKai.ts
 :(literal)server/services/airsPlanning.ts
 :(literal)server/services/aminaRealtime.ts
@@ -225,6 +233,7 @@
 :(literal)tests/airs-feedback.test.ts
 :(literal)tests/airs-orchestration.test.ts
 :(literal)tests/airs-quota.test.ts
+:(literal)tests/airs-setup.test.ts
 :(literal)tests/amina-live-client.test.ts
 :(literal)tests/amina-live-model.test.ts
 :(literal)tests/amina-plan-approval.test.ts
@@ -241,5 +250,20 @@
 :(literal)tests/study-sources.test.ts
 :(literal)tests/study-upload-limit.test.ts
 :(literal)tsconfig.json
+:(literal)vendor/thinking-orbs/LICENSE
+:(literal)vendor/thinking-orbs/README.md
+:(literal)vendor/thinking-orbs/engine/braid.ts
+:(literal)vendor/thinking-orbs/engine/core.ts
+:(literal)vendor/thinking-orbs/engine/index.ts
+:(literal)vendor/thinking-orbs/engine/lattice.ts
+:(literal)vendor/thinking-orbs/engine/morph.ts
+:(literal)vendor/thinking-orbs/engine/orbits.ts
+:(literal)vendor/thinking-orbs/engine/profiles.ts
+:(literal)vendor/thinking-orbs/engine/registry.ts
+:(literal)vendor/thinking-orbs/engine/ribbon.ts
+:(literal)vendor/thinking-orbs/engine/types.ts
+:(literal)vendor/thinking-orbs/engine/web.ts
+:(literal)vendor/thinking-orbs/presets.ts
+:(literal)vendor/thinking-orbs/types.ts
 :(literal)vercel.json
 :(literal)vitest.config.ts
