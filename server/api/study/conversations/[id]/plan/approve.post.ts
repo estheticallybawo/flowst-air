@@ -5,7 +5,7 @@ import {
   saveStudyPlan,
 } from "../../../../../services/studyRepository";
 import { DEFAULT_STUDY_FUNCTION_REFS } from "../../../../../domain/neuromap/studyFunctions";
-import { standaloneStudyObjectiveCapacity } from "../../../../../services/studyMiro";
+import { standaloneStudyObjectiveCapacity } from "../../../../../services/studyMisu";
 
 const schema = z.object({ version: z.number().int().positive() });
 

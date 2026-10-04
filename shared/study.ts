@@ -1,3 +1,4 @@
+import type { ContextSnapshot } from './airsOrchestration'
 import type { StudyFunctionRef } from './studyPedagogy'
 import type { StudyLocation, StudyMaterialKind, StudyProvenance } from './studyMaterial'
 
@@ -63,6 +64,12 @@ export interface StudyObjective {
 }
 
 export interface StudyPlan {
+  contextSnapshot?: ContextSnapshot
+  rationale?: string
+  conversationStrategy?: string
+  evaluationCriteria?: Array<{id:'ACCURACY'|'CLARITY'|'RELEVANCE'|'REASONING'|'TRANSFER';description:string}>
+  toolTrace?: Array<{tool:string;status:'CONFIRMED'}>
+  memoryReviewId?: string
   status: 'PENDING' | 'DRAFT' | 'APPROVED' | 'FAILED'
   version: number
   functionRefs?: StudyFunctionRef[]

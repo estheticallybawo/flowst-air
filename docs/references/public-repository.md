@@ -1,4 +1,4 @@
-# Publishing Flowst Air
+# Publishing Flowst Airs
 
 Status 2026-10-04: independent checkout, fresh uncommitted history, no remote, CLI installed but signed out. No publication occurred during documentation preparation.
 
@@ -23,7 +23,7 @@ npm run repo:check
 git add --pathspec-from-file=docs/generated/public-paths.txt
 git diff --cached --stat
 git diff --cached
-git commit -m "Initial Flowst Air source-learning proof of concept"
+git commit -m "Initial Flowst Airs source-learning proof of concept"
 gh repo create flowst-air-bring-your-source --public --source=. --remote=origin --push
 ```
 
@@ -36,3 +36,5 @@ The generated path list stages only manifest entries plus the manifest itself. D
 Verify public GitHub access signed out and fixture instructions from a clean checkout. Add the accessible demo URL when deployment access is confirmed. Public code does not fix deployment protection or signed callbacks. The fixture path needs no provider keys.
 
 Primary references: [GitHub local-code guide](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github), [CLI create](https://cli.github.com/manual/gh_repo_create).
+
+The active owner-confirmed checkout is Desktop/flowst-air. Context-aware work preserves that independent snapshot and reconciles it with the previously published standalone history. Only reviewed export files are staged; the private Flowst repository is excluded. Canonical public repository: [estheticallybawo/flowst-air](https://github.com/estheticallybawo/flowst-air).

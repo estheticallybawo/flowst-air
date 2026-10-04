@@ -1,6 +1,6 @@
-# Working on Flowst Air
+# Working on Flowst Airs
 
-Air is the product; Misu proposes instruction, Amina conducts verbal practice, Kai is the proposed separate interpreter. NeuroMap supplies policy. The backend owns authorization, authoritative state and validated writes.
+Air is the product; Misu proposes instruction, Amina conducts verbal practice, Kai interprets saved evidence in a separate review. NeuroMap supplies policy. The backend owns authorization, authoritative state and validated writes.
 
 ## Read next
 
@@ -15,7 +15,7 @@ Preserve source → review → proposed plan → learner approval → practice �
 
 Preserve ownership, entitlements, active-study gates, voice leases, approval and deletion safeguards. Source transcription reserves separate usage; never automatically repeat ambiguous paid dispatch. Keep secrets server-side and outside the MCP environment. GitHub MCP has exactly four read-only tools, no mutations or arbitrary shell/filesystem/HTTP access.
 
-Distinguish implemented behavior, fixtures, live checks and proposals. Do not show Kai as active or claim longitudinal improvement before services/evidence exist. Preserve legacy routes, identifiers and stored conversations during rebranding.
+Distinguish implemented behavior, fixtures, live checks and proposals. Kai reviews require real saved evidence. Do not claim longitudinal improvement from a single session. Preserve legacy routes, identifiers and stored conversations during rebranding.
 
 For runtime changes, run appropriate checks and required type/test/browser checks for source changes; see [procedures](docs/references/development-and-verification.md). For documentation changes, regenerate affected code-derived references and run npm run docs:check. Keep plans and evidence truthful.
 

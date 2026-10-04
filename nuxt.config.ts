@@ -14,11 +14,11 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'en' },
-      title: 'Flowst Air',
+      title: 'Flowst Airs',
       meta: [
-        { name: 'description', content: 'Bring your source. Understand, explain aloud, and apply its ideas with Flowst Air.' },
+        { name: 'description', content: 'Bring your source. Understand, explain aloud, and apply its ideas with Flowst Airs.' },
         { name: 'theme-color', content: '#f7faff' },
-        { property: 'og:title', content: 'Flowst Air' },
+        { property: 'og:title', content: 'Flowst Airs' },
         { property: 'og:description', content: 'Bring your source. Find your voice.' },
       ],
       link: [
@@ -30,6 +30,9 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
+    airsGuestSecret: process.env.AIRS_GUEST_SECRET || '',
+    airsGuestDailyModelLimit: Number(process.env.AIRS_GUEST_DAILY_MODEL_LIMIT || 30),
+    airsGuestDailyVoiceLimit: Number(process.env.AIRS_GUEST_DAILY_VOICE_LIMIT || 10),
     studyGithubToken: airEnv('AIR_GITHUB_READ_TOKEN', 'AMINA_GITHUB_READ_TOKEN') || '',
     studySourceFixtureMode: airEnv('AIR_SOURCE_FIXTURE_MODE', 'AMINA_SOURCE_FIXTURE_MODE') === 'true',
     studyVideoEnabled: airEnv('AIR_VIDEO_ENABLED', 'AMINA_VIDEO_ENABLED') === 'true',
@@ -89,7 +92,8 @@ export default defineNuxtConfig({
     public: {
       studySourceFixtureMode: airEnv('AIR_SOURCE_FIXTURE_MODE', 'AMINA_SOURCE_FIXTURE_MODE') === 'true' && process.env.FLOWST_AUTH_MODE === 'mock' && process.env.NODE_ENV !== 'production',
       appSurface: 'air',
-      authRequired: process.env.NUXT_PUBLIC_AUTH_REQUIRED !== 'false',
+      airsGuestEnabled: process.env.AIRS_GUEST_ENABLED !== 'false',
+      authRequired: false,
       apiBaseUrl: '/api',
       schoolId: process.env.NUXT_PUBLIC_SCHOOL_ID || 'school-aster',
       demoMode: process.env.NUXT_PUBLIC_DEMO_MODE !== 'false',
@@ -101,7 +105,7 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Flowst Air',
+      name: 'Flowst Airs',
       short_name: 'Air',
       description: 'Source-grounded learning and spoken practice.',
       theme_color: '#fffaf3',

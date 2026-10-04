@@ -1,3 +1,4 @@
+import { reserveGuestAllowance } from '../../../../../services/airsContext'
 import { requireIdentity } from "../../../../../utils/auth";
 import { assertAirStudyAccess } from "../../../../../services/airAccess";
 import {
@@ -13,6 +14,7 @@ import { awsVoiceTrialCheck } from "../../../../../services/studyAwsSpeech";
 
 export default defineEventHandler(async (event) => {
   const identity = await requireIdentity(event);
+  await reserveGuestAllowance(identity.userId,"VOICE",event);
   const id = getRouterParam(event, "id") || "";
   await assertAirStudyAccess(identity.userId, "PRACTISE", event);
   const { conversation } = await buildAminaLiveContext(identity.userId, id);

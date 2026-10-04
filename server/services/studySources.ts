@@ -69,6 +69,7 @@ export async function inspectStudySource(ownerId: string, input: unknown, event?
 }
 
 export async function prepareStudySource(ownerId: string, id: string, input: unknown, event?: H3Event) {
+  if(ownerId.startsWith('guest-')) { const draft=await ownedDraft(ownerId,id,event); if(draft.draft.kind==='VIDEO' && !draft.draft.extraction && useRuntimeConfig(event).studySourceFixtureMode!==true) throw new SourceError(403,'Paid video transcription is unavailable in the guest demo. Supply a transcript instead.') }
   const parsed = z.object({ paths: z.array(z.string().max(500)).max(12).optional(), confirmTranscription: z.literal(true).optional() }).strict().safeParse(input)
   if (!parsed.success) throw new SourceError(400, 'Choose eligible files or confirm transcript creation.')
   await assertStudyUploadAvailable(ownerId, event)

@@ -1,4 +1,4 @@
-# Flowst Air responsibility migration
+# Flowst Airs responsibility migration
 
 Status: active product roadmap; runtime additions proposed, not executing as a documentation side effect.
 
@@ -11,7 +11,7 @@ Current feedback/progression paths combine responsibilities and separate Kai int
 - [x] Separate product/system/agent documentation.
 - [x] Surface Misu's planning identity, explanations and saved review evidence.
 - [x] Organize progressive-disclosure documentation and execution records.
-- [x] Rebrand product header/onboarding, canonical routes, folder/package/configuration to Flowst Air while keeping Amina identity and legacy compatibility.
+- [x] Rebrand product header/onboarding, canonical routes, folder/package/configuration to Flowst Airs while keeping Amina identity and legacy compatibility.
 - [ ] Version strict instruction/evidence/feedback packets and migrations.
 - [ ] Capture actual support events and validated source/turn references.
 - [ ] Separate Kai interpretation from Amina conversation/Misu progression proposals.

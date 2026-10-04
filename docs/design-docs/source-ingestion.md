@@ -1,6 +1,6 @@
-# Flowst Air slice — implemented source and learning architecture
+# Flowst Airs slice — implemented source and learning architecture
 
-This describes the current implementation. [Flowst Air system design](flowst-air-system-design.md) separates product ownership, backend responsibilities, NeuroMap and the Misu/Amina/Kai roles, and identifies target capabilities still pending. Amina is the verbal learning agent, not the name of every architectural service.
+This describes the current implementation. [Flowst Airs system design](flowst-air-system-design.md) separates product ownership, backend responsibilities, NeuroMap and the Misu/Amina/Kai roles, and identifies target capabilities still pending. Amina is the verbal learning agent, not the name of every architectural service.
 
 ```mermaid
 flowchart TD

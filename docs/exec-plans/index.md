@@ -6,4 +6,4 @@
 
 Follow [plan conventions](../../PLANS.md). Completion refers to the stated scope, not future aspirations.
 
-- [Completed Flowst Air identity migration](completed/flowst-air-identity.md).
+- [Completed Flowst Airs identity migration](completed/flowst-air-identity.md).

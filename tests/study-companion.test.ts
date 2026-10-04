@@ -7,7 +7,7 @@ import { awsVoiceTrialCheck } from '../server/services/studyAwsSpeech'
 import { retrieveStudyPassages } from '../server/services/studyRetrieval'
 import { failAminaTurn, finishAminaTurn, nextPracticeState, prepareAminaTurn } from '../server/services/studyAmina'
 import { compileAirStudyPacket, DEFAULT_STUDY_FUNCTION_REFS } from '../server/domain/neuromap/studyFunctions'
-import { studyBedrockError, validateMiroObjectives, validateMiroStudyTitle } from '../server/services/studyMiro'
+import { studyBedrockError, validateMisuObjectives, validateMisuStudyTitle } from '../server/services/studyMisu'
 import { assertStudyVoiceAgentReady, signStudyVoiceToken, verifyStudyVoiceToken } from '../server/services/studyVoice'
 import { studySpeechFailure } from '../server/services/studySpeech'
 import type { StudyConversation } from '../shared/study'
@@ -109,13 +109,13 @@ describe('Amina document study', () => {
     const created = await createStudyConversation('miro-owner', 'biology.pdf', 'application/pdf', Buffer.from('fake'), extraction)
     const chunks = await getStudyChunks('miro-owner', created.id)
     const candidate = { objectives: ['Describe photosynthesis', 'Explain chlorophyll', 'Trace glucose storage'].map(title => ({ title, outcome: `The learner can ${title.toLowerCase()}.`, sourceIds: [chunks[0]!.id] })) }
-    expect(() => validateMiroObjectives({ objectives: [{ ...candidate.objectives[0], sourceIds: ['invented'] }, ...candidate.objectives.slice(1)] }, chunks)).toThrow()
+    expect(() => validateMisuObjectives({ objectives: [{ ...candidate.objectives[0], sourceIds: ['invented'] }, ...candidate.objectives.slice(1)] }, chunks)).toThrow()
     await expect(prepareAminaTurn('miro-owner', created.id, 'Start')).rejects.toMatchObject({ statusCode: 409 })
-    const objectives = validateMiroObjectives(candidate, chunks)
-    expect(validateMiroStudyTitle({ title: 'How Plants Turn Light Into Energy' }, objectives)).toBe('How Plants Turn Light Into Energy')
-    expect(validateMiroStudyTitle({ title: 'biology.pdf' }, objectives)).toBe('Describe photosynthesis')
-    expect(validateMiroStudyTitle({ title: '<script>alert(1)</script>' }, objectives)).toBe('Describe photosynthesis')
-    expect(validateMiroStudyTitle({ title: 'Quantum Rocket Navigation' }, objectives)).toBe('Describe photosynthesis')
+    const objectives = validateMisuObjectives(candidate, chunks)
+    expect(validateMisuStudyTitle({ title: 'How Plants Turn Light Into Energy' }, objectives)).toBe('How Plants Turn Light Into Energy')
+    expect(validateMisuStudyTitle({ title: 'biology.pdf' }, objectives)).toBe('Describe photosynthesis')
+    expect(validateMisuStudyTitle({ title: '<script>alert(1)</script>' }, objectives)).toBe('Describe photosynthesis')
+    expect(validateMisuStudyTitle({ title: 'Quantum Rocket Navigation' }, objectives)).toBe('Describe photosynthesis')
     const draft = await saveStudyPlan('miro-owner', created.id, { status: 'DRAFT', version: 1, objectives,
       functionRefs: DEFAULT_STUDY_FUNCTION_REFS.map(ref => ({ ...ref })) }, created.revision, undefined, 'How Plants Turn Light Into Energy')
     expect(draft.document).toMatchObject({ name: 'biology.pdf', title: 'How Plants Turn Light Into Energy' })

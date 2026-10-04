@@ -16,7 +16,7 @@ defineEmits<{ leave: []; plan: []; conversation: [] }>();
     </button>
     <h1 :title="title">{{ title }}</h1>
   </div>
-  <nav v-else class="session-navigation" aria-label="Flowst Air session navigation">
+  <nav v-else class="session-navigation" aria-label="Flowst Airs session navigation">
     <button
       v-if="!controlsOnly"
       type="button"

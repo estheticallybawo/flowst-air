@@ -24,8 +24,8 @@ export const FLOWST_AGENTS: Record<FlowstAgentId, FlowstAgentIdentity> = {
     role: 'Learning planner',
     color: '#8f86ff',
     availability: 'AVAILABLE',
-    avatar: '/optimized/v1/mascots/miro-avatar.webp',
-    portrait: '/optimized/v1/mascots/miro/portrait.webp',
+    avatar: '/optimized/v1/mascots/misu-avatar.webp',
+    portrait: '/optimized/v1/mascots/misu/portrait.webp',
   },
   KYLA: {
     id: 'KYLA',

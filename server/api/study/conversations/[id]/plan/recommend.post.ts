@@ -1,9 +1,9 @@
 import { requireIdentity } from "../../../../../utils/auth";
-import { refreshMiroRecommendation } from "../../../../../services/studyMiro";
+import { refreshMisuRecommendation } from "../../../../../services/studyMisu";
 
 export default defineEventHandler(async (event) => {
   const identity = await requireIdentity(event);
-  return refreshMiroRecommendation(
+  return refreshMisuRecommendation(
     identity.userId,
     getRouterParam(event, "id") || "",
     event,

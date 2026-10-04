@@ -1,10 +1,10 @@
-# Flowst Air product identity
+# Flowst Airs product identity
 
 Status: local implementation completed on 2026-10-04; deployment/publication separate.
 
 ## Result
 
-The independent checkout and npm package are flowst-air-bring-your-source. Flowst Air/Air owns wordmarks, public/account/session navigation, titles, metadata, PWA identity, source services, styles, access modules, configuration examples, MCP identity and the reusable source-review skill. Amina remains the verbal learning agent; Misu remains the planner. Kai is not advertised as implemented.
+The independent checkout and npm package are flowst-air-bring-your-source. Flowst Airs/Air owns wordmarks, public/account/session navigation, titles, metadata, PWA identity, source services, styles, access modules, configuration examples, MCP identity and the reusable source-review skill. Amina remains the verbal learning agent; Misu remains the planner. Kai is not advertised as implemented.
 
 Canonical /air routes coexist with authenticated redirects from /amira bookmarks. The old access API delegates to the same handler. Legacy deployment keys remain explicit aliases with AIR_* precedence. Stored agent-role IDs and recovery codes remain compatible. Original Flowst checkout was untouched; no remote or commit was created.
 

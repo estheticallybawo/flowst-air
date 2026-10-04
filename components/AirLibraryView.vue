@@ -24,7 +24,7 @@ const props = withDefaults(defineProps<{ uploadOnly?: boolean }>(), {
 const auth = useAuth();
 const standaloneAir = ['air', 'amira'].includes(useRuntimeConfig().public.appSurface);
 useHead({
-  title: standaloneAir ? "Study space · Flowst Air" : "Study with Amina · Flowst",
+  title: "Flowst Airs · Bring Your Source",
 });
 const {
   access,
@@ -149,7 +149,7 @@ async function upload() {
       const created = await auth.authorizedFetch<{ id: string }>('/api/study/conversations/from-source', {
         method: 'POST', body: { sourceId: readySource.value.id, confirmSource: true, preferences: { ...preferences.value, context: preferences.value.context.trim() } },
       });
-      await navigateTo(`/air/${created.id}`);
+      await navigateTo(`/airs/${created.id}`);
       return;
     }
     const form = new FormData();
@@ -165,11 +165,11 @@ async function upload() {
       "/api/study/conversations",
       { method: "POST", body: form },
     );
-    await navigateTo(`/air/${created.id}`);
+    await navigateTo(`/airs/${created.id}`);
   } catch (cause: any) {
     error.value = learnerStudyError(
       cause,
-      "Flowst Air could not read that file. Try another text-based document.",
+      "Flowst Airs could not read that file. Try another text-based document.",
     );
     if ([403, 409].includes(cause?.statusCode || cause?.status)) {
       void loadEligibility();
@@ -251,11 +251,12 @@ async function replaceCurrentDocument() {
 <template>
   <AirStudyShell>
     <div class="air-library">
+      <AirsContextCard />
       <header v-if="!props.uploadOnly" class="intro">
         <div class="intro-copy">
           <div class="identity">
             <AgentAvatar agent="AMIRA" /><span
-              >Flowst Air · Your study space</span
+              >Flowst Airs · Your study space</span
             >
           </div>
           <h1>Bring the notes.<br /><em>Own the idea.</em></h1>
@@ -296,7 +297,7 @@ async function replaceCurrentDocument() {
       >
         <h2>Study access is currently unavailable</h2>
         <p>You can still read or delete your saved material.</p>
-        <NuxtLink class="air-text-link" to="/air/settings"
+        <NuxtLink class="air-text-link" to="/airs/settings"
           >Review account access</NuxtLink
         >
       </section>
@@ -500,7 +501,7 @@ async function replaceCurrentDocument() {
         <div class="upload-locked-actions">
           <NuxtLink
             v-if="eligibility.existingConversationId"
-            :to="`/air/${eligibility.existingConversationId}`"
+            :to="`/airs/${eligibility.existingConversationId}`"
             >Continue with Amina</NuxtLink
           ><button
             v-if="
@@ -516,7 +517,7 @@ async function replaceCurrentDocument() {
         </div>
       </section>
       <div v-else class="air-library-start">
-        <NuxtLink class="air-button" to="/air/new"
+        <NuxtLink class="air-button" to="/airs/new"
           >Start a new session</NuxtLink
         >
         <p>One resource. A plan you can review. Room to practise.</p>
@@ -583,7 +584,7 @@ async function replaceCurrentDocument() {
             >
             <p>{{ item.document.excerpt }}</p>
             <div class="chat-actions">
-              <NuxtLink :to="`/air/${item.id}`" :aria-label="item.abandonedAt ? `View saved conversation for ${item.document.name}` : undefined"
+              <NuxtLink :to="`/airs/${item.id}`" :aria-label="item.abandonedAt ? `View saved conversation for ${item.document.name}` : undefined"
                 ><MessageCircle :size="16" /> {{ item.abandonedAt ? 'View saved' : 'Continue' }} <Mic2 v-if="!item.abandonedAt" :size="15"
               /></NuxtLink>
               <button

@@ -1,10 +1,10 @@
-# Flowst Air — Bring Your Source
+# Flowst Airs — Bring Your Source
 
 Air is an independent-learning slice of Flowst focused on retention, understanding and verbal development over time, including explaining AI-assisted code. Bring one document, public repository, readable page, or supported video transcript. Review the included material, approve Misu's plan, explain the idea aloud, and apply it in a new situation.
 
 Built with Nuxt/Vue, Groq, ElevenLabs, Cognito, DynamoDB, and S3. The source connector normalizes attributed text; it never gives Misu unrestricted platform access. A development-only MCP uses the same read-only GitHub adapter.
 
-Flowst Air is the product; Misu plans, Amina conducts verbal practice, and Kai’s separate evidence interpretation is a target addition. The interface, routes, package and source-service configuration use Flowst Air. Amina remains the verbal learning agent. See [product intent](docs/product-specs/product-brief.md), [the knowledge base](docs/index.md) and [system responsibilities](docs/design-docs/flowst-air-system-design.md) for the full separation and implementation status.
+Flowst Airs is the product; Misu plans, Amina conducts verbal practice, and Kai provides a separate evidence-linked review. The interface, routes, package and source-service configuration use Flowst Airs. Amina remains the verbal learning agent. See [product intent](docs/product-specs/product-brief.md), [the knowledge base](docs/index.md) and [system responsibilities](docs/design-docs/flowst-air-system-design.md) for the full separation and implementation status.
 
 ## Run a local demonstration
 
@@ -37,7 +37,7 @@ Use [the deployed video checklist](DEPLOYED_VIDEO_CHECKLIST.md) to run the real 
 - Video learning uses speech transcript text. Visuals, diagrams, and on-screen text are not inspected. AI transcripts may contain errors.
 - Supplied TXT/SRT/VTT text is labelled as supplied, not verified against the video. Plain text gets no invented timestamps.
 - Drafts expire after 30 minutes. Access ends immediately; physical draft cleanup uses DynamoDB TTL and may occur later. Confirmed snapshots and learning records remain until deleted.
-- Cancelling a draft does not guarantee cancellation of provider work. Deleting Flowst Air records does not delete the source or independent provider records.
+- Cancelling a draft does not guarantee cancellation of provider work. Deleting Flowst Airs records does not delete the source or independent provider records.
 - Source text reaches the configured planning/tutoring provider; video links reach the transcription provider. This is not an on-device-only app.
 
 ## MCP and verification
@@ -66,5 +66,13 @@ Persisted `AMIRA`/`MIRO` role IDs and existing `AMIRA_*` recovery codes are comp
 
 Start with [AGENTS.md](AGENTS.md), [ARCHITECTURE.md](ARCHITECTURE.md) and [docs/](docs/index.md). DESIGN.md, FRONTEND.md, PLANS.md and PRODUCT_SENSE.md route readers to detail. Design/implementation/verification status remain distinct. Run npm run docs:generate, npm run docs:check and npm run repo:check after relevant changes.
 
-See [public-repository preparation](docs/references/public-repository.md). Fresh checkout remains unpublished; publication is a separate reviewed action. The product aim extends beyond the one-session proof of concept; Kai and longitudinal views remain target work.
+See [public-repository preparation](docs/references/public-repository.md). The independently reviewed slice is published at estheticallybawo/flowst-air. The product aim extends beyond the one-session proof of concept; longitudinal views remain target work.
 # flowst-air
+
+## Context-aware career conversation
+
+Open /airs/new. Standalone requires no registration: Airs creates a private, expiring guest session. Save your background, goals and audience. Bring a source, review learning and evaluation goals, and approve practice with Amina. Kai reviews saved attempts and proposes a next exercise. Observations do not establish intelligence, mastery or longitudinal improvement.
+
+Production requires a random server-only AIRS_GUEST_SECRET of at least 32 characters plus configured storage and model/speech providers. Do not reuse provider keys as this secret. Paid video transcription is unavailable for guests; provide a transcript instead. Local fixtures need no provider secrets. Flowst uses its existing sign-in and native Airs routes.
+
+Run npx playwright test --config playwright.airs.config.ts for the guest journey. Public submission: [estheticallybawo/flowst-air](https://github.com/estheticallybawo/flowst-air). The product remains Flowst Airs.

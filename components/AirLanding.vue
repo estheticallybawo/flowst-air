@@ -15,20 +15,20 @@ defineProps<{ authenticated: boolean }>();
   <AirPublicShell>
     <section class="air-hero">
       <div class="air-hero-copy">
-        <p class="air-eyebrow">Flowst Air · Bring Your Source</p>
+        <p class="air-eyebrow">Flowst Airs · Bring Your Source</p>
         <h1>Bring your source.<br />Talk it through.</h1>
         <p>
-          Bring a source to Flowst Air. Review Misu’s plan, explore ideas with Amina, practise
+          Bring a source to Flowst Airs. Review Misu’s plan, explore ideas with Amina, practise
           explaining it aloud, and apply it to the conversations that matter to you.
         </p>
         <div class="air-action-row">
           <NuxtLink
             class="air-button"
-            :to="authenticated ? '/air' : '/auth/register'"
-            >{{ authenticated ? "Open my study space" : "Get started free" }}
+            :to="authenticated ? '/airs' : '/airs/new'"
+            >{{ authenticated ? "Open my study space" : "Start practicing" }}
             <ArrowRight :size="18" /></NuxtLink
           ><a class="air-button air-button-secondary" href="#how-it-works"
-            >How Flowst Air works</a
+            >How Flowst Airs works</a
           >
         </div>
         <small>No payment required to get started</small>
@@ -110,7 +110,7 @@ defineProps<{ authenticated: boolean }>();
       <div class="air-comparison-intro">
         <p class="air-eyebrow">The Flowst approach</p>
         <h2 id="air-difference">An answer makes sense.<br />Can you make it your own?</h2>
-        <p>Flowst Air is built around a learning conversation: questions, your reasoning, and feedback you can use. The aim is understanding you can express, confidence to speak, and a say in what happens next.</p>
+        <p>Flowst Airs is built around a learning conversation: questions, your reasoning, and feedback you can use. The aim is understanding you can express, confidence to speak, and a say in what happens next.</p>
       </div>
       <div class="air-comparison-grid">
         <article aria-labelledby="air-answer-heading">
@@ -127,7 +127,7 @@ defineProps<{ authenticated: boolean }>();
         </article>
         <article class="air-comparison-featured" aria-labelledby="air-practice-heading">
           <div class="air-comparison-art air-practice-art" aria-hidden="true"><img src="/mascots/amina.png" alt="" width="768" height="1024" loading="lazy" /><span>Your turn to explain.</span></div>
-          <p class="air-comparison-label">Practice with Flowst Air</p>
+          <p class="air-comparison-label">Practice with Flowst Airs</p>
           <h3 id="air-practice-heading">You talk through the idea.</h3>
           <p>Your material and chosen goal guide the conversation. Amina is instructed to make room for your explanation, then help you examine and refine it.</p>
           <ul class="air-comparison-points">
@@ -136,7 +136,7 @@ defineProps<{ authenticated: boolean }>();
             <li><Check :size="18" aria-hidden="true" /><span>Talk through examples connected to your agreed objective.</span></li>
             <li><Check :size="18" aria-hidden="true" /><span>Ask for help, challenge a response, and choose when to move on.</span></li>
           </ul>
-          <NuxtLink :to="authenticated ? '/air/new' : '/auth/register'">Start with your learning goal <ArrowRight :size="15" /></NuxtLink>
+          <NuxtLink :to="authenticated ? '/airs/new' : '/airs/new'">Start with your learning goal <ArrowRight :size="15" /></NuxtLink>
         </article>
       </div>
       
@@ -147,7 +147,7 @@ defineProps<{ authenticated: boolean }>();
           <p>Flowst draws on learning-science research on <a href="https://onlinelibrary.wiley.com/doi/10.1207/s15516709cog1803_3" target="_blank" rel="noopener noreferrer">self-explanation</a> and <a href="https://learninglab.psych.purdue.edu/downloads/2011/2011_Karpicke_Blunt_Science.pdf" target="_blank" rel="noopener noreferrer">retrieval practice.</a> These studies inform the design for self evaluation of understanding during learning</p>
         </details>
     
-        <small>Amina is Flowst Air’s AI verbal learning partner. The learning design draws on <a href="https://www.queensu.ca/ctl/resources/instructors/instructional-strategies/inquiry-based-learning" target="_blank" rel="noopener noreferrer">inquiry-based learning</a> principles.</small>
+        <small>Amina is Flowst Airs’s AI verbal learning partner. The learning design draws on <a href="https://www.queensu.ca/ctl/resources/instructors/instructional-strategies/inquiry-based-learning" target="_blank" rel="noopener noreferrer">inquiry-based learning</a> principles.</small>
       </div>
     </section>
   </AirPublicShell>

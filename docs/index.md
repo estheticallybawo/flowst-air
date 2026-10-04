@@ -1,4 +1,4 @@
-# Flowst Air knowledge base
+# Flowst Airs knowledge base
 
 Start small: [AGENTS.md](../AGENTS.md) supplies rules; [ARCHITECTURE.md](../ARCHITECTURE.md) maps the system. Read only the detail needed for the task.
 

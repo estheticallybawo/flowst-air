@@ -5,7 +5,7 @@ import {
   getStudyConversation,
 } from "../../../../services/studyRepository";
 import type { StudyTurn } from "../../../../../shared/study";
-import { compileMiroStudyPacket } from "../../../../services/studyMiro";
+import { compileMisuStudyPacket } from "../../../../services/studyMisu";
 
 export default defineEventHandler(async (event) => {
   const identity = await requireIdentity(event);
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
       statusCode: 409,
       statusMessage: "Approve Misu’s plan before meeting Amina.",
     });
-  compileMiroStudyPacket(conversation);
+  compileMisuStudyPacket(conversation);
   const existing = conversation.turns.find((turn) => turn.kind === "WELCOME");
   if (existing) return { turn: existing };
   const objective = conversation.plan.objectives.find(

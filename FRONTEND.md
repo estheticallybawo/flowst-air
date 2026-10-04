@@ -4,7 +4,7 @@ Status: current Nuxt/Vue; product visual rebranding proposed.
 
 - [Library/upload](components/AirLibraryView.vue): source, purpose/time/scope and eligibility.
 - [Source picker](components/AirSourcePicker.vue): drafts, review and omissions.
-- [Study route](pages/air/[id].vue): plan approval, practice and lifecycle gates.
+- [Study route](pages/airs/[id].vue): plan approval, practice and lifecycle gates.
 - [Misu panel](components/MisuPlanGuide.vue): avatar, real plan states and saved basis.
 - [Call room](components/AirCallRoom.vue): voice controls, captions and planner handoff.
 - [Identity](shared/agents.ts): public names and compatible IDs.

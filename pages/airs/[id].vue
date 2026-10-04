@@ -61,7 +61,7 @@ function prepareExit() {
   return true;
 }
 async function leaveSession() {
-  await navigateTo("/air");
+  await navigateTo("/airs");
 }
 onBeforeRouteLeave(() => prepareExit());
 function warnBeforeUnload(event: BeforeUnloadEvent) {
@@ -1070,7 +1070,7 @@ async function remove() {
     await auth.authorizedFetch(`/api/study/conversations/${id.value}`, {
       method: "DELETE",
     });
-    await navigateTo("/air");
+    await navigateTo("/airs");
   } catch (cause: any) {
     error.value = learnerStudyError(
       cause,
@@ -1122,7 +1122,7 @@ async function remove() {
       >
         Retry
       </button>
-      <NuxtLink to="/air" class="air-text-link">Back to library</NuxtLink>
+      <NuxtLink to="/airs" class="air-text-link">Back to library</NuxtLink>
     </div>
     <div v-else class="study-page" :class="{ 'session-active': sessionActive }">
       <AirSourceProvenance v-if="study.document.provenance && !sessionActive" :provenance="study.document.provenance" />
@@ -1160,12 +1160,12 @@ async function remove() {
       >
         <h2>Study access is currently unavailable</h2>
         <p>Your saved material remains readable and can be deleted.</p>
-        <NuxtLink class="air-text-link" to="/air/settings"
+        <NuxtLink class="air-text-link" to="/airs/settings"
           >Review account access</NuxtLink
         >
       </section>
       <header v-if="!sessionActive" class="study-header">
-        <NuxtLink to="/air" class="back">
+        <NuxtLink to="/airs" class="back">
           <ArrowLeft :size="17" /> All study chats
         </NuxtLink>
         <div class="study-title">
@@ -1213,7 +1213,7 @@ async function remove() {
       <section v-if="study.abandonedAt" class="air-panel" aria-label="Abandoned study">
         <p class="air-eyebrow">Abandoned study</p><h2>Your saved material is still available</h2>
         <p>You ended this study plan to make room for a replacement. Its saved conversation remains readable; abandoning it did not complete its objectives.</p>
-        <NuxtLink class="air-button" to="/air/new">Start a replacement study</NuxtLink>
+        <NuxtLink class="air-button" to="/airs/new">Start a replacement study</NuxtLink>
         <AirConversation :turns="visibleTurns" :allow-playback="false" :live-running="false" :can-study="false" :cached-ids="[]" playing-id="" preparing-id="" audio-prompt-id="" />
       </section>
       <section
@@ -1300,7 +1300,7 @@ async function remove() {
         >
           Start session opens a voice call and asks for microphone access. Each
           pilot call reserves 60 seconds, including unused time.
-          <NuxtLink to="/air/about">Microphone &amp; privacy</NuxtLink>
+          <NuxtLink to="/airs/about">Microphone &amp; privacy</NuxtLink>
         </p>
         <div class="plan-actions">
           <button
@@ -1336,7 +1336,7 @@ async function remove() {
           This older chat cannot continue with the current study approach.
           Return to your study library to review your options.
         </p>
-        <NuxtLink to="/air">Return to study library</NuxtLink>
+        <NuxtLink to="/airs">Return to study library</NuxtLink>
       </section>
 
       <section
@@ -1364,7 +1364,7 @@ async function remove() {
           Revisit an explanation, try recalling an idea without your notes, or
           return to your library for another resource.
         </p>
-        <NuxtLink class="air-button" to="/air">Return to library</NuxtLink>
+        <NuxtLink class="air-button" to="/airs">Return to library</NuxtLink>
       </section>
       <template
         v-if="
@@ -1404,6 +1404,7 @@ async function remove() {
         >
           <template #plan>
             <MisuPlanGuide :plan="study.plan" :preferences="preferences" />
+            <AirsKaiReview :conversation-id="id" :can-review="Boolean(hasCurrentEvidence) && !study.practice.awaitingAnswer && !live.running.value" />
             <div class="study-brief" aria-label="Your study preferences">
               <strong>{{ purposeLabel }}</strong>
               <p>
@@ -1612,7 +1613,7 @@ async function remove() {
                   You can upload another resource or explicitly choose optional
                   practice. Completion is not a mastery score.
                 </p>
-                <NuxtLink v-if="standaloneAir" to="/air/new"
+                <NuxtLink v-if="standaloneAir" to="/airs/new"
                   >Upload another resource</NuxtLink
                 >
               </div>
@@ -1743,7 +1744,7 @@ async function remove() {
                 ><small v-if="live.availability.value?.enabled"
                   >60-second pilot call. Starting reserves 60 seconds of your
                   document’s voice allowance, even if you end early.
-                  <NuxtLink to="/air/about"
+                  <NuxtLink to="/airs/about"
                     >Microphone &amp; privacy</NuxtLink
                   ></small
                 >

@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createStudyConversation, deleteStudyConversation, getStudyUploadEligibility, getStudyConversation, getStudyChunks, listStudyConversations, saveStudyPlan, abandonStudyDocument, acquireStudyLiveLease, releaseStudyLiveLease } from '../server/services/studyRepository'
 import { prepareAminaTurn, finishAminaTurn, buildAminaLiveContext } from '../server/services/studyAmina'
-import { generateMiroPlan, refreshMiroRecommendation } from '../server/services/studyMiro'
+import { generateMisuPlan, refreshMisuRecommendation } from '../server/services/studyMisu'
 import { DEFAULT_STUDY_FUNCTION_REFS } from '../server/domain/neuromap/studyFunctions'
 import { STUDY_LIVE_START_MESSAGE } from '../shared/studyLive'
 
@@ -77,8 +77,8 @@ describe('Amina active-document completion gate', () => {
     expect(saved.abandonedAt).toBe(new Date().toISOString())
     expect((await listStudyConversations('gate-abandoned'))[0]).toMatchObject({ id: first.id, abandonedAt: saved.abandonedAt })
     for (const request of [() => prepareAminaTurn('gate-abandoned', first.id, 'Teach me', undefined, true),
-      () => buildAminaLiveContext('gate-abandoned', first.id), () => generateMiroPlan('gate-abandoned', first.id),
-      () => refreshMiroRecommendation('gate-abandoned', first.id), () => acquireStudyLiveLease('gate-abandoned', first.id),
+      () => buildAminaLiveContext('gate-abandoned', first.id), () => generateMisuPlan('gate-abandoned', first.id),
+      () => refreshMisuRecommendation('gate-abandoned', first.id), () => acquireStudyLiveLease('gate-abandoned', first.id),
       () => saveStudyPlan('gate-abandoned', first.id, saved.plan, saved.revision)])
       await expect(request()).rejects.toMatchObject({ statusCode: 409, data: { code: 'AMIRA_STUDY_ABANDONED' } })
     await upload('gate-abandoned')

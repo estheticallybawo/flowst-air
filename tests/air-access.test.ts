@@ -14,8 +14,8 @@ afterEach(() => vi.unstubAllGlobals())
 function config(enabled = true, surface = 'air') { vi.stubGlobal('useRuntimeConfig', () => ({ airStudyAccessEnabled: enabled, public: { appSurface: surface }, studyAwsVoiceTrialMaxSeconds: 300, studyAwsVoiceTrialMaxCharacters: 6000 })) }
 
 test('public Flowst Air entry is separate from private study and account screens', () => {
-  for (const path of ['/', '/air/pricing/', '/air/about', '/auth/register']) expect(isAirPublicPage(path)).toBe(true)
-  for (const path of ['/air', '/air/new', '/air/settings', '/air/study']) expect(isAirPublicPage(path)).toBe(false)
+  for (const path of ['/', '/airs/pricing/', '/airs/about', '/auth/register']) expect(isAirPublicPage(path)).toBe(true)
+  for (const path of ['/airs', '/airs/new', '/airs/settings', '/airs/study']) expect(isAirPublicPage(path)).toBe(false)
 })
 test('costly operations are covered while reading and deletion remain available', () => {
   for (const suffix of ['plan', 'plan/recommend', 'welcome', 'control', 'recorded-turn', 'speech']) expect(airActionForRequest('POST', `/api/study/conversations/study/${suffix}`)).not.toBeNull()
@@ -45,18 +45,18 @@ test('an abandoned document is read-only and cannot start costly usage', async (
   expect((await getAirAccess('owner', undefined, 'study')).allowedActions).toMatchObject({ PLAN: false, PRACTISE: false, SPEECH: false })
   for (const action of ['PLAN', 'PRACTISE', 'SPEECH'] as const) {
     vi.mocked(getStudyConversation).mockResolvedValueOnce(record as any)
-    await expect(assertAirStudyAccess('owner', action, undefined, 'study')).rejects.toMatchObject({ statusCode: 409, data: { code: 'AMIRA_STUDY_ABANDONED', nextAction: '/air/new' } })
+    await expect(assertAirStudyAccess('owner', action, undefined, 'study')).rejects.toMatchObject({ statusCode: 409, data: { code: 'AMIRA_STUDY_ABANDONED', nextAction: '/airs/new' } })
   }
 })
 test('authentication return paths reject foreign origins and lookalike product prefixes', () => {
-  for (const value of ['//outside.example', '/air-extra', '/home', '/\\outside.example', 'https://outside.example', '/air/../../home']) expect(airReturnPath(value)).toBe('/air')
-  expect(airReturnPath('/air/study?view=plan#sources')).toBe('/air/study?view=plan#sources')
+  for (const value of ['//outside.example', '/air-extra', '/home', '/\\outside.example', 'https://outside.example', '/airs/../../home']) expect(airReturnPath(value)).toBe('/airs')
+  expect(airReturnPath('/airs/study?view=plan#sources')).toBe('/airs/study?view=plan#sources')
 })
 
 test('legacy bookmarks normalize without widening authentication or API permissions', async () => {
-  expect(airReturnPath('/amira/study?view=plan#sources')).toBe('/air/study?view=plan#sources')
-  for (const value of ['/amira-extra', '/amira/../../home', '//outside.example/amira', '/amira\\outside.example']) expect(airReturnPath(value)).toBe('/air')
-  expect(canonicalAirPath('/amira/new?source=draft#review')).toBe('/air/new?source=draft#review')
+  expect(airReturnPath('/amira/study?view=plan#sources')).toBe('/airs/study?view=plan#sources')
+  for (const value of ['/amira-extra', '/amira/../../home', '//outside.example/amira', '/amira\\outside.example']) expect(airReturnPath(value)).toBe('/airs')
+  expect(canonicalAirPath('/amira/new?source=draft#review')).toBe('/airs/new?source=draft#review')
   expect(canonicalAirPath('/amira-extra')).toBe('/amira-extra')
   expect(isAirStandalone('amira')).toBe(true)
   expect(isAirStandaloneApi('/api/amira/access')).toBe(true)

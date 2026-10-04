@@ -145,7 +145,7 @@ export function useAuth() {
       if (import.meta.client) {
         const route = useRoute()
         const redirect = route.fullPath.startsWith('/auth/')
-          ? (['air', 'amira'].includes(config.public.appSurface) ? '/air' : '/home')
+          ? (['air', 'amira'].includes(config.public.appSurface) ? '/airs' : '/home')
           : route.fullPath
         await navigateTo({ path: '/auth/sign-in', query: { redirect, reason: 'session-expired' } })
       }

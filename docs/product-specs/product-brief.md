@@ -1,4 +1,4 @@
-# Flowst Air — Bring Your Source
+# Flowst Airs — Bring Your Source
 
 Status: creator-aligned product direction; implementation and verification are separate.
 
@@ -6,7 +6,7 @@ Status: creator-aligned product direction; implementation and verification are s
 
 Independent learners can spend substantial time consuming resources without a clear way to examine what they retain, understand or can explain afterward. Completing an online course does not establish that its ideas can be used later. Coding assistants make another need visible: people need to understand their repositories and explain the decisions and mechanisms underneath products they build.
 
-Flowst Air is an independent-learning slice of the parent Flowst product. It serves young independent learners, including recent graduates preparing for practical work and career-defining conversations. Its architecture combines learning science and engineering to offer bounded AI-native learning experiences.
+Flowst Airs is an independent-learning slice of the parent Flowst product. It serves young independent learners, including recent graduates preparing for practical work and career-defining conversations. Its architecture combines learning science and engineering to offer bounded AI-native learning experiences.
 
 ## Intended outcome
 
@@ -18,7 +18,7 @@ Bring Your Source is the entry journey into that larger aim. One-session complet
 
 The learner brings a source and chooses a goal, available time and scope. Misu proposes a grounded plan for approval. Air compiles validated NeuroMap instructions. Amina conducts inquiry and spoken practice through manageable questions, requested hints, teach-back and application. Kai interprets recorded evidence at appropriate checkpoints and session end, presents contextual feedback and suggests practice needs. Misu can use those observations to propose subsequent study, with the learner controlling meaningful changes.
 
-Flowst Air is the product. Misu plans and proposes instructional choices. Amina is the verbal learning partner. Kai is the evidence interpreter. NeuroMap defines policy; the backend owns permissions, state, validated handoffs and persistence. See [system responsibilities](../design-docs/flowst-air-system-design.md).
+Flowst Airs is the product. Misu plans and proposes instructional choices. Amina is the verbal learning partner. Kai is the evidence interpreter. NeuroMap defines policy; the backend owns permissions, state, validated handoffs and persistence. See [system responsibilities](../design-docs/flowst-air-system-design.md).
 
 ## Working proof of concept
 

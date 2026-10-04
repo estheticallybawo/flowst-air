@@ -170,7 +170,7 @@ export async function abandonStudyDocument(ownerId: string, id: string, event?: 
 export function assertStudyConversationActive(conversation: StudyConversation) {
   if (conversation.abandonedAt) throw createError({ statusCode: 409,
     statusMessage: 'This study plan was ended early. Your saved conversation is available to read or delete; upload a replacement to study again.',
-    data: { code: 'AMIRA_STUDY_ABANDONED', conversationId: conversation.id, nextAction: '/air/new', upgradeAvailable: false } })
+    data: { code: 'AMIRA_STUDY_ABANDONED', conversationId: conversation.id, nextAction: '/airs/new', upgradeAvailable: false } })
 }
 
 function recordedTurnKey(id: string, recordingId: string) {

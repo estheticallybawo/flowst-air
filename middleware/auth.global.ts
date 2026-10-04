@@ -12,7 +12,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (standaloneAir && canonicalAirPath(to.fullPath) !== to.fullPath)
     return navigateTo(canonicalAirPath(to.fullPath), { replace: true, redirectCode: 302 });
   if (standaloneAir && !isAirStandalonePage(to.path))
-    return navigateTo("/air");
+    return navigateTo("/airs");
+  if (config.public.airsGuestEnabled) { await useAuth().ensureSession(); return; }
   if (!config.public.authRequired) return;
   const welcomeRoute = to.path === "/";
   const authRoute = to.path.startsWith("/auth/");

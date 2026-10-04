@@ -1,3 +1,4 @@
+import { reserveGuestAllowance } from '../../../../services/airsContext'
 export default defineEventHandler(() => {
   throw createError({
     statusCode: 410,

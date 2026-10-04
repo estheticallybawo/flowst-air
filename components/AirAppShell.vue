@@ -14,10 +14,10 @@ const signingOut = ref(false);
 const logoutError = ref("");
 const accountMenu = ref<HTMLDetailsElement>();
 const navigation = [
-  { label: "Home", to: "/air", icon: Home },
-  { label: "New session", to: "/air/new", icon: Plus },
-  { label: "Library", to: "/air#library", icon: BookOpen },
-  { label: "Settings", to: "/air/settings", icon: Settings },
+  { label: "Home", to: "/airs", icon: Home },
+  { label: "New session", to: "/airs/new", icon: Plus },
+  { label: "Library", to: "/airs#library", icon: BookOpen },
+  { label: "Settings", to: "/airs/settings", icon: Settings },
 ];
 const displayName = computed(
   () => auth.me.value?.profile.displayName || "Your account",
@@ -25,7 +25,7 @@ const displayName = computed(
 function active(to: string) {
   return (
     route.fullPath === to ||
-    (to === "/air" && route.path === "/air" && !route.hash)
+    (to === "/airs" && route.path === "/airs" && !route.hash)
   );
 }
 function closeMenu(event: PointerEvent) {
@@ -59,19 +59,19 @@ async function signOut() {
         v-if="props.session"
         to="/"
         class="call-brand"
-        aria-label="Flowst Air home"
+        aria-label="Flowst Airs home"
         ><img
           src="/brand/flowst-mark-blue.png"
           width="26"
           height="24"
           alt=""
         /><span>Flowst</span
-        ><span class="call-brand-air">Air</span></NuxtLink
+        ><span class="call-brand-air">Airs</span></NuxtLink
       ><AirBrand v-else />
       <div v-if="props.session" class="call-navigation">
         <slot name="session-navigation" />
       </div>
-      <nav v-else class="air-top-navigation" aria-label="Flowst Air navigation">
+      <nav v-else class="air-top-navigation" aria-label="Flowst Airs navigation">
         <NuxtLink
           v-for="item in navigation"
           :key="item.to"
@@ -97,7 +97,7 @@ async function signOut() {
         <div class="air-account-menu">
           <strong>{{ displayName }}</strong
           ><small>{{ auth.me.value?.profile.email }}</small
-          ><NuxtLink to="/air/settings">Account &amp; access</NuxtLink
+          ><NuxtLink to="/airs/settings">Account &amp; access</NuxtLink
           ><button type="button" :disabled="signingOut" @click="signOut">
             <LogOut :size="16" /> {{ signingOut ? "Signing out…" : "Sign out" }}
           </button>

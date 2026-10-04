@@ -5,7 +5,7 @@ const demoError = ref('')
 async function startSourceDemo() {
   try {
     await $fetch('/api/auth/dev-session', { method: 'POST', body: { scenario: 'member' } })
-    await navigateTo('/air/new', { external: true })
+    await navigateTo('/airs/new', { external: true })
   } catch { demoError.value = 'The local demo session could not start. Check that fixture mode and mock authentication are enabled.' }
 }
 useHead({ bodyAttrs: { class: standaloneAir ? 'air-surface' : '' } })

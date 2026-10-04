@@ -319,7 +319,7 @@ export function useAminaLiveCall(
       mic = stream;
       context = new AudioContext();
       await context.resume();
-      await context.audioWorklet.addModule("/air-voice-capture.js");
+      await context.audioWorklet.addModule("/airs-voice-capture.js");
       if (request !== epoch) return;
       const source = context.createMediaStreamSource(stream);
       capture = new AudioWorkletNode(context, "air-capture");

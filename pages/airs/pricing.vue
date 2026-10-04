@@ -44,7 +44,7 @@ useHead({ title: "Access & plans · Flowst Air" });
             may.
           </p>
         </details>
-        <NuxtLink class="air-button" to="/air"
+        <NuxtLink class="air-button" to="/airs"
           >Open my study space</NuxtLink
         >
       </section>
@@ -55,7 +55,7 @@ useHead({ title: "Access & plans · Flowst Air" });
           to purchase in this pilot.
         </p>
       </section>
-      <NuxtLink class="air-text-link" to="/air/about"
+      <NuxtLink class="air-text-link" to="/airs/about"
         >Understand how your material and microphone are used</NuxtLink
       >
     </div>

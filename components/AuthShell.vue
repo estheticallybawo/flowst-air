@@ -22,7 +22,7 @@ const standaloneAir = true
         <h2>{{ title }}</h2>
         <p class="auth-description">{{ description }}</p>
         <slot />
-        <p v-if="standaloneAir" class="form-note"> 18+ <NuxtLink class="auth-link" to="/air/about">Privacy &amp; microphone information</NuxtLink></p>
+        <p v-if="standaloneAir" class="form-note"> 18+ <NuxtLink class="auth-link" to="/airs/about">Privacy &amp; microphone information</NuxtLink></p>
       </section>
     </section>
   </main>

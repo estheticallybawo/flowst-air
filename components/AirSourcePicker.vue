@@ -21,7 +21,7 @@ let disposed = false
 async function publish(value: SourceDraft | null) {
   if (disposed) return
   // Complete draft-link navigation before showing ready content that can be reloaded.
-  if (import.meta.client && route.path === '/air/new' && route.query.source !== value?.id) {
+  if (import.meta.client && route.path === '/airs/new' && route.query.source !== value?.id) {
     try { await router.replace({ query: { ...route.query, source: value?.id } }) }
     catch { error.value = 'The source draft exists, but this page could not save its link. Keep this page open or inspect again after reloading.' }
   }

@@ -1,6 +1,6 @@
-# Capstone specification — Flowst Air source-learning slice
+# Capstone specification — Flowst Airs source-learning slice
 
-The product is Flowst Air. This slice implements its source journey through Misu and Amina on the existing standalone Amina foundation. Kai’s separate interpretation service and full cross-session orchestration remain target additions, not claims in the acceptance criteria below. See [system responsibilities](../design-docs/flowst-air-system-design.md).
+The product is Flowst Airs. This slice implements its source journey through Misu and Amina on the existing standalone Amina foundation. Kai’s separate interpretation service and full cross-session orchestration remain target additions, not claims in the acceptance criteria below. See [system responsibilities](../design-docs/flowst-air-system-design.md).
 
 ## Acceptance criteria
 

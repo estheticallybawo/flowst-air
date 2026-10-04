@@ -1,8 +1,8 @@
 # New-user onboarding
 
-Status: source/planning foundation and Flowst Air identity implemented; separate Kai surface proposed.
+Status: source/planning foundation and Flowst Airs identity implemented; separate Kai surface proposed.
 
-1. Explain Flowst Air's source-learning goal, AI roles, supported material, microphone choices and data handling. Product navigation and metadata use Flowst Air; Amina is named as the verbal learning partner.
+1. Explain Flowst Airs's source-learning goal, AI roles, supported material, microphone choices and data handling. Product navigation and metadata use Flowst Airs; Amina is named as the verbal learning partner.
 2. Inspect one bounded source; show actual processing, coverage, omissions and attribution. Speech transcripts exclude unseen visuals.
 3. Ask for purpose, time and scope. These are choices, not inferred fixed learner types.
 4. Confirm source review before Misu's proposal. Show avatar, actual preparation state, objectives, citations and concise proposed explanation.

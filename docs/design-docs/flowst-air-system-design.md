@@ -1,23 +1,23 @@
-# Flowst Air — product, system and agent responsibilities
+# Flowst Airs — product, system and agent responsibilities
 
 Version: 0.2 responsibility clarification, 2026-10-04.
-Status: target system design with an explicit implementation boundary. This document clarifies the supplied Flowst Air v0.1 design; it does not claim that every proposed capability has shipped.
+Status: target system design with an explicit implementation boundary. This document clarifies the supplied Flowst Airs v0.1 design; it does not claim that every proposed capability has shipped.
 
 ## Product identity
 
-**Flowst** is the parent brand. **Flowst Air** is the independent learning product. **Bring Your Source** is a learning journey within that product. **Misu, Amina and Kai** are specialist agents within the journey. **NeuroMap** supplies its versioned learning policy.
+**Flowst** is the parent brand. **Flowst Airs** is the independent learning product. **Bring Your Source** is a learning journey within that product. **Misu, Amina and Kai** are specialist agents within the journey. **NeuroMap** supplies its versioned learning policy.
 
 Amina is the verbal learning partner. Her name should not also stand for the product, source service, database, orchestration runtime, permission system or learning science architecture.
 
 Product promise: bring material, understand it, explain it in your own words, and practise using the idea in a different situation. Feedback describes contextual evidence and uncertainty; completing an activity does not prove mastery or durable learning.
 
-The product uses Flowst Air in navigation, metadata, docs and package naming. Canonical study routes use /air, and source-service configuration uses AIR_* keys. Existing /amira links redirect to /air; old deployment keys are read as migration aliases. Persisted AMIRA and MIRO agent IDs remain compatible with existing records. The existing deployed Amina foundation remains distinguishable from new submission work.
+The product uses Flowst Airs in navigation, metadata, docs and package naming. Canonical study routes use /air, and source-service configuration uses AIR_* keys. Existing /amira links redirect to /air; old deployment keys are read as migration aliases. Persisted AMIRA and MIRO agent IDs remain compatible with existing records. The existing deployed Amina foundation remains distinguishable from new submission work.
 
 ## Responsibilities at a glance
 
 | Layer | Owns | Does not own |
 | --- | --- | --- |
-| Flowst Air product | Overall promise, learner journey, accessibility, learner controls and coherent presentation | A single agent personality or a claim that a model knows the learner's ability |
+| Flowst Airs product | Overall promise, learner journey, accessibility, learner controls and coherent presentation | A single agent personality or a claim that a model knows the learner's ability |
 | Air backend/runtime | Identity, permissions, source processing, authoritative state, validated handoffs, persistence, quotas, provider jobs, failure recovery and audit traces | Instructional decisions made without approved policy or learner control |
 | NeuroMap | Published mechanisms, strategies, interaction functions, evidence requirements, support rules and phase definitions | Authentication, billing, source fetching or learner diagnoses |
 | Misu | Proposes objectives and instructional activities, selects permitted learning functions, proposes meaningful next steps and explains those proposals | Direct database writes, permission grants, paid-job dispatch, unilateral objective completion or Kai's evidence interpretation |
@@ -33,7 +33,7 @@ The UI is the learner's interface to Air, not a direct route to model permission
 
 ```mermaid
 flowchart TD
-  U[Learner in Flowst Air] --> B[Air backend and session runtime]
+  U[Learner in Flowst Airs] --> B[Air backend and session runtime]
   B --> S[Bounded source service]
   S --> R[Attributed snapshot and learner review]
   R --> M[Misu: proposed learning plan]
@@ -42,7 +42,7 @@ flowchart TD
   P --> C[Validated instruction packet]
   C --> A[Amina: verbal practice]
   A --> E[Saved interaction and evidence]
-  E --> K[Kai: evidence interpretation - proposed]
+  E --> K[Kai: evidence-linked review]
   K --> F[Validated contextual feedback]
   F --> M
   M --> Q[Learner chooses the meaningful next step]
@@ -78,7 +78,7 @@ Minor permitted rephrases and hints can occur within the active contract. A new 
 
 Air manages microphone consent, live/recorded voice lifecycle, transcription, captions, reconnecting and usage. ElevenLabs supplies speech capabilities; Groq or the configured AWS Bedrock path supplies model inference. Providers are adapters, not owners of pedagogy or application state.
 
-Amina follows the approved packet, asks one manageable question, listens to the attempt, offers permitted support and supports explanation/application. Immediate instructional clarification can remain conversational; Kai's structured feedback is the separate evidence interpretation step in the target design.
+Amina follows the approved packet, asks one manageable question, listens to the attempt, offers permitted support and supports explanation/application. Immediate instructional clarification can remain conversational; Kai's structured feedback is the separate evidence interpretation step implemented for saved Airs attempts.
 
 ### 5. Evidence and feedback
 
@@ -118,7 +118,7 @@ Model outputs are proposals. The runtime validates them; server handlers perform
 
 ## What the learner should see
 
-The product header should identify Flowst Air. Agent identity appears at the moment of contribution:
+The product header should identify Flowst Airs. Agent identity appears at the moment of contribution:
 
 - Misu: plan preparation, plan explanation and proposed next activity.
 - Amina: listening, speaking, guided explanation and application.
@@ -136,6 +136,6 @@ Source processing, permissions, storage and quota messages belong to the product
 | Kai | No separate learner-facing Kai evidence interpreter yet | Validated feedback service and evidence-review surface |
 | NeuroMap | Published explicit-instruction and teach-back contracts with three current stages | Four policy layers, richer interaction catalog and seven activity phases |
 | Memory | Source, conversation, preferences and execution/evidence records | Learner-controlled cross-session learning and verbal-development views |
-| Brand | Flowst Air headers, metadata, onboarding, /air routes and AIR_* configuration; Amina remains the verbal agent | Confirm the deployed environment and public URL after release |
+| Brand | Flowst Airs headers, metadata, onboarding, /air routes and AIR_* configuration; Amina remains the verbal agent | Confirm the deployed environment and public URL after release |
 
 Full Air orchestration requires separating the current combined conversation/feedback path and Misu progress review. A brand change alone is not that refactor. Preserve stored conversations, citations, approval and voice safeguards during the migration.

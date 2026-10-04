@@ -3,7 +3,7 @@ import path from 'node:path'
 import crypto from 'node:crypto'
 import ts from 'typescript'
 const root = path.resolve(import.meta.dirname, '..')
-const inputs = ['server/services/studyRepository.ts', 'server/services/sources/store.ts']
+const inputs = ['server/services/studyRepository.ts', 'server/services/sources/store.ts', 'server/services/airsContext.ts']
 const rows = [], fingerprints = []
 const cell = value => '<code>' + value.replace(/\s+/g, ' ').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('|', '&#124;') + '</code>'
 for (const file of inputs) {

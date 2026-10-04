@@ -1,6 +1,6 @@
-# Flowst Air identity and compatibility
+# Flowst Airs identity and compatibility
 
-The standalone product is **Flowst Air**, shortened to **Air** where space is limited. Bring Your Source is its entry journey. Misu plans; Amina guides verbal practice; Kai's separate evidence interpretation remains proposed. Agent names are not product brand names.
+The standalone product is **Flowst Airs**, shortened to **Air** where space is limited. Bring Your Source is its entry journey. Misu plans; Amina guides verbal practice; Kai's separate evidence interpretation remains proposed. Agent names are not product brand names.
 
 ## Current naming
 

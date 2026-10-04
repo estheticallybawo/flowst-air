@@ -1,3 +1,4 @@
+import { getGuestSession, verifyGuestToken, guestStudyPath } from './airsGuest'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 import type { H3Event } from 'h3'
 import type { AuthIdentity } from '../../shared/auth'
@@ -21,12 +22,16 @@ const mockIdentity = (token: string): AuthIdentity | null => {
 }
 
 export async function authenticateRequest(event: H3Event): Promise<AuthIdentity | null> {
-  return authenticateAccessToken(bearerToken(event), event)
+  const path=getRequestURL(event).pathname
+  const token=bearerToken(event)
+  if(guestStudyPath(path)) { const identity=token ? verifyGuestToken(token,event) : getGuestSession(event)?.identity; if(identity) return identity }
+  return authenticateAccessToken(token, event)
 }
 
 /** Also verifies the first authenticated WebSocket message; no token in the URL. */
 export async function authenticateAccessToken(token: string, event?: H3Event): Promise<AuthIdentity | null> {
   if (!token) return null
+  if(event && guestStudyPath(getRequestURL(event).pathname)){ const guest=verifyGuestToken(token,event); if(guest) return guest }
   const config = useRuntimeConfig(event)
 
   if (config.flowstAuthMode === 'mock' && process.env.NODE_ENV !== 'production') {
