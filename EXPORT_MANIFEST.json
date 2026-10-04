@@ -70,8 +70,8 @@
     },
     {
       "path": "LICENSE",
-      "bytes": 1096,
-      "sha256": "dc361e2a4855c34f967569f88df92ab4a31f8b92111b999dc3a916032d1e7cd4"
+      "bytes": 1075,
+      "sha256": "d3a5423976b7da694769a344d4fb0e7c346d3b543a5cdae1f34f808fa8d2696a"
     },
     {
       "path": "PLANS.md",
@@ -1260,8 +1260,8 @@
     },
     {
       "path": "vendor/thinking-orbs/LICENSE",
-      "bytes": 1091,
-      "sha256": "e00e080e1d7557906b7029093038d6b5d8ac43e973f857f5688c4c7f123e3fba"
+      "bytes": 1070,
+      "sha256": "915a283980628a0ca9e7b423ebafc6f3a0fa1e630ff17d34e59034808d92011c"
     },
     {
       "path": "vendor/thinking-orbs/README.md",
@@ -1270,18 +1270,18 @@
     },
     {
       "path": "vendor/thinking-orbs/engine/braid.ts",
-      "bytes": 2002,
-      "sha256": "963fc9b777ab751339c141190e634ab98afe111d9d5537cf23beeb73e449ac50"
+      "bytes": 1952,
+      "sha256": "a0d09442a9162dfa2f16fafb8dc435b88edb0bc9e7011ea6bc558be586ae938b"
     },
     {
       "path": "vendor/thinking-orbs/engine/core.ts",
-      "bytes": 5719,
-      "sha256": "c1ba22c1729f32e776c075288f65a0d98f5ee07a597b4e16934b064bda794b68"
+      "bytes": 5554,
+      "sha256": "7776ef7bbd57c0f3f862126b9247669d11e9df5233d76573bc0b2b0da38ba6db"
     },
     {
       "path": "vendor/thinking-orbs/engine/index.ts",
-      "bytes": 1503,
-      "sha256": "7c852079f29448242b37ada8e2617e8139ca9639e0462d1894c2dca2c15a1329"
+      "bytes": 1476,
+      "sha256": "8d3004c6cb6bb8a7923a6c6c600294e697269bbecda688b565d51afc3e6a4275"
     },
     {
       "path": "vendor/thinking-orbs/engine/lattice.ts",
@@ -1295,28 +1295,28 @@
     },
     {
       "path": "vendor/thinking-orbs/engine/orbits.ts",
-      "bytes": 2636,
-      "sha256": "3c658755adaa9892b6a901863f09c0cb61a1ee9c76eecc4a19324f57a68e7f3e"
+      "bytes": 2556,
+      "sha256": "27f974f2d9e0e1614055882673217b4db230bf8e4b88dc5ac21b298a924dfb65"
     },
     {
       "path": "vendor/thinking-orbs/engine/profiles.ts",
-      "bytes": 4058,
-      "sha256": "1e88a4f7ad35495785d4b9eca75131f4c4ae2ae7ac6936b073f9f26e581b3cbc"
+      "bytes": 3896,
+      "sha256": "e1a5ca49a5e6ac80b56d77073cb28f1ea36742bee7be3a13ccaba7d3731d360b"
     },
     {
       "path": "vendor/thinking-orbs/engine/registry.ts",
-      "bytes": 1435,
-      "sha256": "c643c9259c6e4cd7e87e362f039ae0950e9ea8e51b6c29a19e757ea950e3f0b7"
+      "bytes": 1397,
+      "sha256": "fb36d8815f598e69535bb86af576260c375bf1dcf4d54c0d6a31e68f42a13c49"
     },
     {
       "path": "vendor/thinking-orbs/engine/ribbon.ts",
-      "bytes": 4163,
-      "sha256": "379e3019cd6c3a2285648375e5d0b719e25a1fe590495cc14a8197aa4d111d86"
+      "bytes": 4070,
+      "sha256": "a79cc262b42f3f12f5d4a108e7cf9710938d5fb1f6166c9fa789f02d4e0679c4"
     },
     {
       "path": "vendor/thinking-orbs/engine/types.ts",
-      "bytes": 876,
-      "sha256": "e9374c43d8b22c362f53c4511f4105ec16566ef08dad6faab32da5a187fdf2c7"
+      "bytes": 850,
+      "sha256": "33dc880d34da6c68adf0d03e484f42f43e97783b764991f21b8a6e386c2d7972"
     },
     {
       "path": "vendor/thinking-orbs/engine/web.ts",
@@ -1325,8 +1325,8 @@
     },
     {
       "path": "vendor/thinking-orbs/presets.ts",
-      "bytes": 3422,
-      "sha256": "f8cb9f7116647923b93ffc5ace86193aaccbb879350abeb44bc518ad8a824920"
+      "bytes": 3317,
+      "sha256": "b6263cbfbd232db1319e3a598bc1969ef12f0131eb877b583567ddc1661d19f1"
     },
     {
       "path": "vendor/thinking-orbs/types.ts",
