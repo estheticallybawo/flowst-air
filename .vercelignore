@@ -1,0 +1,11 @@
+.env*
+.aws/
+.git/
+.vercel/
+node_modules/
+.nuxt*/
+.output/
+test-results/
+playwright-report/
+*.log
+EXPORT_MANIFEST.json

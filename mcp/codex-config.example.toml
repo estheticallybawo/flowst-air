@@ -1,0 +1,7 @@
+# Run Codex from the exported project directory. For other working directories,
+# replace the launcher argument with its absolute path. Do not add application secrets.
+[mcp_servers.flowst_airs_github_source]
+command = "node"
+args = ["scripts/start-github-study-mcp.mjs"]
+default_tools_approval_mode = "writes"
+enabled_tools = ["get_repository", "get_source_revision", "list_study_files", "read_study_file"]

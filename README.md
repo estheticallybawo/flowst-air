@@ -1,0 +1,77 @@
+# Flowst Airs — Bring Your Source
+
+Airs is an independent-learning slice of Flowst focused on retention, understanding and verbal development over time, including explaining AI-assisted code. Bring one document, public repository, readable page, or supported video transcript. Review the included material, approve Misu's plan, explain the idea aloud, and apply it in a new situation.
+
+Built with Nuxt/Vue, Groq, ElevenLabs, Cognito, DynamoDB, and S3. The source connector normalizes attributed text; it never gives Misu unrestricted platform access. A development-only MCP uses the same read-only GitHub adapter.
+
+Flowst Airs is the product; Misu plans, Amina conducts verbal practice, and Kai’s separate evidence interpretation is a target addition. The interface, routes, package and source-service configuration use Flowst Airs. Amina remains the verbal learning agent. See [product intent](docs/product-specs/product-brief.md), [the knowledge base](docs/index.md) and [system responsibilities](docs/design-docs/flowst-airs-system-design.md) for the full separation and implementation status.
+
+## Run a local demonstration
+
+Use Node 22.12+ (Node 24 recommended):
+
+```sh
+npm ci
+npm run demo
+```
+
+Open `http://127.0.0.1:4322` and select **Open local demo**, then **Link or transcript** and a labelled fixture. Review the passages and create a session plan. Demo sources and their plans are deterministic, local samples; live voice is not simulated. Mock authentication and fixture mode are disabled in production. Local records are in memory and disappear on restart.
+
+Canonical study routes are `/airs`, `/airs/new` and `/airs/:id`. Existing `/amira` bookmarks redirect while preserving the destination, query and hash.
+
+## Configure live operation
+
+Use `.env.example` to create your own local environment. Product configuration uses `AIRS_*` keys; those take precedence over explicitly supported legacy `AMINA_*`/`AMIRA_*` deployment aliases. Configure Cognito, a DynamoDB table with partition/sort keys `pk`/`sk`, `GSI2` (`gsi2pk`/`gsi2sk`), TTL on `expiresAt`, and an S3 bucket. Grant the backend access only to its own resources. Keep keys server-side. Configure Groq and the existing ElevenLabs conversation agent/custom LLM callback for voice.
+
+GitHub reads public repositories without authentication by default. `AIRS_GITHUB_READ_TOKEN` is optional and must be dedicated to public read access. A private repository is rejected even if that credential could access it.
+
+Video source transcription uses a separate restricted ElevenLabs key, `scribe_v2`, a webhook configured for transcription completion, and HMAC verification. Set `AIRS_VIDEO_WEBHOOK_ID`, `AIRS_VIDEO_WEBHOOK_SECRET`, `AIRS_VIDEO_API_KEY`, `AIRS_VIDEO_USD_PER_MINUTE` (the applicable rate for your account), and `AIRS_VIDEO_MONTHLY_BUDGET_USD`, then enable `AIRS_VIDEO_ENABLED`. Configure a provider-side key credit limit as an independent ceiling. The app's conservative estimated reservations are not a substitute for the provider's billing ledger. Failed and uncertain submissions retain their reservation.
+
+Before enabling platform claims, verify a permitted YouTube and TikTok example end to end on the deployed account. Metadata parsing is deliberately conservative: changed, blocked, unlisted, private, live, or unverifiable videos fall back to supplied transcripts. No platform cookies, login bypass, or media-downloading tool is included.
+
+## What is read and stored
+
+Use [the deployed video checklist](DEPLOYED_VIDEO_CHECKLIST.md) to run the real provider and voice checks yourself after deployment.
+
+- One source per session. GitHub uses selected files pinned to a commit; websites use one readable HTML page.
+- Video learning uses speech transcript text. Visuals, diagrams, and on-screen text are not inspected. AI transcripts may contain errors.
+- Supplied TXT/SRT/VTT text is labelled as supplied, not verified against the video. Plain text gets no invented timestamps.
+- Drafts expire after 30 minutes. Access ends immediately; physical draft cleanup uses DynamoDB TTL and may occur later. Confirmed snapshots and learning records remain until deleted.
+- Cancelling a draft does not guarantee cancellation of provider work. Deleting Flowst Airs records does not delete the source or independent provider records.
+- Source text reaches the configured planning/tutoring provider; video links reach the transcription provider. This is not an on-device-only app.
+
+## MCP and verification
+
+See `mcp/codex-config.example.toml`. Run Codex from this project or use an absolute launcher path. The stdio launcher strips application secrets and does not load `.env.local`. Its four tools are `get_repository`, `get_source_revision`, `list_study_files`, and `read_study_file`. Tool annotations describe behavior; fixed endpoints, validated arguments, bounded responses, and restricted credentials enforce it.
+
+```sh
+npm run typecheck
+npm test
+npm run test:sources:e2e
+npm run mcp:review
+npm run build
+```
+
+The MCP review makes real read-only requests against `octocat/Hello-World` and compares a pinned file hash with the production reader. It does not write to GitHub or register a global MCP server.
+
+## Built with Codex
+
+Codex assisted planning, repository inspection, implementation, test creation, and public-export preparation. The implementation separates retrieved data from system instructions, preserves snapshot attribution, and prevents automatic repetition of an uncertain paid request. See `VALIDATION.md` for checks actually run, results, and unresolved provider/deployment checks. Do not describe unperformed checks as passed.
+
+This submission builds on an existing Amina deployment. See `PRODUCT_BRIEF.md`, `CAPSTONE_SPEC.md`, and `DEMO_SCRIPT.md` for the new slice and demonstration boundaries. MIT licensed; preserve source attribution and any imported repository notices.
+
+Persisted `AMIRA`/`MIRO` role IDs and existing `AMIRA_*` recovery codes are compatibility contracts, not product branding. Agent-facing modules use Amina; product shells and access modules use Airs.
+
+## Documentation and public repository
+
+Start with [AGENTS.md](AGENTS.md), [ARCHITECTURE.md](ARCHITECTURE.md) and [docs/](docs/index.md). DESIGN.md, FRONTEND.md, PLANS.md and PRODUCT_SENSE.md route readers to detail. Design/implementation/verification status remain distinct. Run npm run docs:generate, npm run docs:check and npm run repo:check after relevant changes.
+
+See [public-repository preparation](docs/references/public-repository.md). Fresh checkout remains unpublished; publication is a separate reviewed action. The product aim extends beyond the one-session proof of concept; Kai and longitudinal views remain target work.
+
+## Demonstrate through Flowst
+
+Flowst opens this independent product in the same window at /airs/new?entry=flowst. Airs offers Back to Flowst using only the operator-configured NUXT_PUBLIC_FLOWST_HOME_URL. Configure Flowst’s NUXT_PUBLIC_FLOWST_AIRS_URL with this verified HTTPS deployment. No bearer token, source or learner record is passed in the link, and shared sign-in is not implemented by this handoff. The return control honors active media exit safeguards. The public repo remains independently runnable with npm run demo. See [public demo deployment](docs/references/public-demo-deployment.md).
+
+Public demonstration entry: [Flowst](https://app.useflowst.com). The standalone Airs production build is deployed to the existing Amina hosting project. Its Vercel login wall is still pending an approved production-domain access change; live voice, real video transcription and the authenticated public end-to-end journey remain unverified.
+
+The intended judge experience stays at https://app.useflowst.com/airs. Flowst mounts the separately deployed Airs workspace inside that route with microphone permission delegation. A source- and origin-validated message handshake checks the Airs media exit guard before changing Flowst routes. The standalone repository remains independent and needs no parent checkout to run. Its hosting origin is a runtime detail, not the demonstration entry URL.

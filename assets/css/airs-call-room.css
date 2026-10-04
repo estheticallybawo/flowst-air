@@ -1,0 +1,779 @@
+.airs-call-room {
+  --call-ink: #0d0f14;
+  --call-muted: #464a53;
+  --call-line: #dbdee5;
+  --call-canvas: #f7faff;
+  --call-primary: #2e2f30;
+  --call-peach: #f5c58e;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  color: var(--call-ink);
+  font-family: "Albert Sans", sans-serif;
+  gap: 24px;
+  padding: 24px 12px 8px;
+}
+.airs-call-room.conversation-open {
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+}
+.call-stage {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.study-goal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: min(280px, 70%);
+  border: 1px solid var(--call-line);
+  border-radius: 16px;
+  background: rgba(247, 250, 255, 0.95);
+}
+.study-goal summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+.study-goal summary::-webkit-details-marker {
+  display: none;
+}
+.study-goal summary span {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.study-goal small {
+  font-size: 0.7rem;
+  line-height: 1.6;
+  color: var(--call-muted);
+}
+.study-goal summary small {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.study-goal strong {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.study-goal summary svg {
+  flex: none;
+  transition: transform 0.2s;
+}
+.study-goal[open] summary svg {
+  transform: rotate(90deg);
+}
+.study-goal > p {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 16px 10px;
+  overflow-wrap: anywhere;
+}
+.study-goal > small {
+  display: block;
+  padding: 0 16px 16px;
+}
+.call-presence {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 72px;
+  gap: 12px;
+}
+.call-portrait {
+  width: min(34dvh, 320px);
+  aspect-ratio: 1;
+  flex: none;
+  border-radius: 50%;
+  border: 6px solid #fff;
+  outline: 1px solid rgba(245, 197, 142, 0.5);
+  box-shadow: 0 0 0 14px rgba(245, 197, 142, 0.1);
+  overflow: hidden;
+}
+.call-portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.call-state {
+  text-align: center;
+  width: 100%;
+  padding: 0 16px;
+}
+.call-state h2 {
+  margin: 0 0 10px;
+  font-family: "Unbounded", sans-serif;
+  font-size: clamp(1.3rem, 2.1vw, 2rem);
+  line-height: 1.4;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+.call-state p {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  color: var(--call-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.call-state .call-detail {
+  display: block;
+  margin: 12px auto 0;
+  max-width: 48ch;
+  font-size: 0.85rem;
+}
+.call-control-area {
+  flex: none;
+  text-align: center;
+  padding: 12px 0;
+  max-height: none;
+  overflow: visible;
+}
+.call-limit {
+  display: block;
+  color: var(--call-muted);
+  font-size: 0.75rem;
+  margin-top: 12px;
+}
+.call-conversation {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding-left: 24px;
+  border-left: 1px solid var(--call-line);
+}
+.call-conversation > header,
+.call-plan > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.call-conversation h2,
+.call-plan h2 {
+  font-family: "Unbounded", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: -0.035em;
+  margin: 0;
+}
+.call-conversation > header button,
+.call-plan > header button {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  background: transparent;
+  color: var(--call-muted);
+  border-radius: 50%;
+}
+.call-conversation > header button:hover,
+.call-plan > header button:hover {
+  background: #eef3fb;
+}
+.latest-caption,
+.stage-caption {
+  flex: none;
+  border: 1px solid var(--call-line);
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-top: 8px;
+  max-height: 120px;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.45);
+}
+.latest-caption small,
+.stage-caption small {
+  color: var(--call-muted);
+  font-size: 0.72rem;
+}
+.latest-caption p,
+.stage-caption p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 8px 0 0;
+  overflow-wrap: anywhere;
+}
+.call-plan {
+  position: absolute;
+  z-index: 4;
+  right: 0;
+  top: 12px;
+  bottom: 4px;
+  width: min(440px, 100%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--call-line);
+  border-radius: 20px;
+  padding: 20px;
+  background: #fff;
+  box-shadow: -12px 10px 40px rgba(48, 69, 98, 0.08);
+}
+.airs-call-room :deep(.mode-panel) {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.airs-call-room :deep(.active-objective) {
+  background: #eef3fb;
+  color: var(--call-ink);
+}
+.airs-call-room :deep(.delete) {
+  min-height: 44px;
+  margin-top: 16px;
+}
+.airs-call-room :deep(.call-actions) {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: 0;
+  color: var(--call-ink);
+  width: 100%;
+  padding: 0 8px;
+}
+.airs-call-room :deep(.live-call-controls) {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+}
+.airs-call-room :deep(.live-call-controls button) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 76px;
+  min-height: 76px;
+  border: 1px solid var(--call-line);
+  border-radius: 24px;
+  padding: 12px;
+  color: var(--call-ink);
+  background: rgba(255, 255, 255, 0.65);
+  font-size: 0.8rem;
+}
+.airs-call-room :deep(.live-call-controls .end-live-call) {
+  background: #b63425;
+  color: #fff;
+  border-color: #b63425;
+}
+.airs-call-room :deep(.live-call-controls button[aria-pressed="true"]) {
+  border-color: #315d82;
+  background: #eaf1fc;
+}
+.airs-call-room :deep(.live-call-entry) {
+  text-align: center;
+  width: 100%;
+}
+.airs-call-room :deep(.live-call-entry > button) {
+  min-height: 48px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: var(--call-primary);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.airs-call-room :deep(.live-call-entry small) {
+  display: block;
+  color: var(--call-muted);
+  font-size: 0.75rem;
+  margin: 8px auto 0;
+  line-height: 1.6;
+  max-width: 48ch;
+}
+.airs-call-room :deep(.live-call-entry p) {
+  font-size: 0.8rem;
+  color: #9b2929;
+  line-height: 1.6;
+}
+.airs-call-room :deep(.live-call-entry p button),
+.airs-call-room :deep(.live-call-entry p a) {
+  color: #315d82;
+  background: transparent;
+  text-decoration: underline;
+  min-height: 40px;
+}
+.airs-call-room :deep(.recorded-practice) {
+  width: 100%;
+  max-width: 440px;
+}
+.airs-call-room :deep(.recorded-practice > summary) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  cursor: pointer;
+  color: var(--call-muted);
+  text-decoration: underline;
+  font-size: 0.8rem;
+}
+.airs-call-room :deep(.record-controls) {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 0;
+}
+.airs-call-room :deep(.record-context) {
+  text-align: center;
+}
+.airs-call-room :deep(.record-context strong) {
+  color: var(--call-ink);
+  font-size: 0.85rem;
+}
+.airs-call-room :deep(.record-context span) {
+  color: var(--call-muted);
+  font-size: 0.75rem;
+}
+.airs-call-room :deep(.record-actions) {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.airs-call-room :deep(.record-button) {
+  width: 52px;
+  height: 52px;
+  background: var(--call-primary);
+  color: #fff;
+  box-shadow: none;
+}
+.airs-call-room :deep(.record-button.recording) {
+  background: #b63425;
+}
+.airs-call-room :deep(.send-recording) {
+  background: var(--call-primary);
+  color: #fff;
+}
+.airs-call-room :deep(.rerecord) {
+  color: var(--call-ink);
+  background: #eef3fb;
+}
+.airs-call-room :deep(.ready-panel) {
+  padding: 8px;
+  background: transparent;
+  border: 0;
+}
+.airs-call-room :deep(.ready-panel p) {
+  color: var(--call-muted);
+}
+.airs-call-room :deep(.ready-panel button) {
+  background: var(--call-primary);
+  color: #fff;
+}
+.airs-call-room :deep(.room-playback) {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  color: var(--call-muted);
+  background: transparent;
+  font-size: 0.75rem;
+}
+.airs-call-room :deep(.error) {
+  font-size: 0.8rem;
+  margin: 0;
+}
+.airs-call-room :deep(.voice-meter) {
+  margin: 0;
+  height: 20px;
+}
+.airs-call-room :deep(.voice-meter span) {
+  background: #996124;
+  height: 18px;
+  width: 3px;
+}
+:is(button, summary):focus-visible,
+.airs-call-room :deep(button:focus-visible) {
+  outline: 3px solid #315d82;
+  outline-offset: 3px;
+}
+.airs-call-room :deep(button) {
+  transition:
+    background 0.18s,
+    transform 0.18s;
+}
+.airs-call-room :deep(button:active) {
+  transform: scale(0.98);
+}
+.airs-call-room :deep(button:disabled) {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+@media (max-width: 1050px) {
+  .airs-call-room {
+    gap: 16px;
+    padding: 18px 4px 4px;
+  }
+  .call-conversation {
+    padding-left: 16px;
+  }
+  .call-conversation h2 {
+    font-size: 1.05rem;
+  }
+  .study-goal {
+    width: min(260px, 85%);
+  }
+  .call-state h2 {
+    font-size: 1.4rem;
+  }
+  .call-portrait {
+    width: min(30dvh, 260px);
+  }
+}
+@media (max-width: 767px) {
+  .airs-call-room,
+  .airs-call-room.conversation-open {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 10px 0 0;
+    gap: 0;
+  }
+  .study-goal {
+    width: min(270px, 100%);
+  }
+  .study-goal summary {
+    padding: 10px 12px;
+    min-height: 56px;
+  }
+  .study-goal strong {
+    font-size: 0.8rem;
+  }
+  .call-presence {
+    padding-top: 70px;
+    gap: 10px;
+  }
+  .call-portrait {
+    width: min(30dvh, 240px);
+    border-width: 5px;
+  }
+  .call-state h2 {
+    font-size: 1.3rem;
+    margin-bottom: 7px;
+  }
+  .call-state p {
+    font-size: 0.8rem;
+  }
+  .call-state .call-detail {
+    margin-top: 8px;
+    font-size: 0.8rem;
+  }
+  .call-control-area {
+    padding: 10px 0;
+  }
+  .call-conversation {
+    position: absolute;
+    z-index: 3;
+    inset: 8px 0 0;
+    padding: 16px;
+    border: 1px solid var(--call-line);
+    border-radius: 20px;
+    background: var(--call-canvas);
+  }
+  .call-conversation h2 {
+    font-size: 1.05rem;
+  }
+  .airs-call-room :deep(.live-call-controls) {
+    gap: 12px;
+  }
+  .airs-call-room :deep(.live-call-controls button) {
+    min-width: 68px;
+    min-height: 68px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+  }
+  .latest-caption,
+  .stage-caption {
+    padding: 10px 12px;
+  }
+  .stage-caption {
+    max-height: 95px;
+  }
+  .call-plan {
+    inset: 8px 0 0;
+    width: auto;
+    padding: 16px;
+  }
+}
+@media (max-height: 680px) {
+  .call-portrait {
+    width: min(23dvh, 200px);
+  }
+  .call-presence {
+    gap: 7px;
+  }
+  .call-state h2 {
+    font-size: 1.2rem;
+  }
+  .call-state .call-detail {
+    margin-top: 6px;
+  }
+  .call-control-area {
+    padding: 6px 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  .airs-call-room :deep(*) {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* Match the selected portrait and call-control hierarchy. */
+@media (min-width: 1051px) {
+  .call-portrait {
+    width: min(40dvh, 380px);
+  }
+  .call-conversation h2 {
+    font-size: 1.5rem;
+  }
+}
+.airs-call-room :deep(.live-call-controls button) {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--call-ink);
+  gap: 9px;
+}
+.airs-call-room :deep(.call-control-icon) {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--call-line);
+  border-radius: 50%;
+}
+.airs-call-room :deep(.live-call-controls .end-live-call) {
+  background: transparent;
+  color: var(--call-ink);
+}
+.airs-call-room :deep(.end-live-call .call-control-icon) {
+  background: #b63425;
+  border-color: #b63425;
+  color: #fff;
+}
+.airs-call-room :deep(.live-call-controls button[aria-pressed="true"]) {
+  background: transparent;
+}
+.airs-call-room
+  :deep(.live-call-controls button[aria-pressed="true"] .call-control-icon) {
+  background: #eaf1fc;
+  border-color: #315d82;
+}
+@media (max-height: 680px) and (min-width: 1051px) {
+  .call-portrait {
+    width: min(23dvh, 200px);
+  }
+}
+
+.airs-call-room :deep(.voice-recovery) {
+  font-size: 0.8rem;
+  color: #464a53;
+  max-width: 48ch;
+}
+.airs-call-room :deep(.voice-recovery button) {
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  background: #2e2f30;
+  color: white;
+}
+
+/* The goal expands over the stage; it never participates in the call's layout. */
+.study-goal {
+  position: absolute;
+  inset: 8px auto auto 0;
+  max-height: min(340px, 65%);
+  overflow-y: auto;
+  width: min(280px, 85%);
+  box-shadow: none;
+}
+.study-goal[open] {
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(48, 69, 98, 0.08);
+}
+.call-stage {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto 0;
+  gap: 12px;
+}
+.call-presence {
+  min-height: 0;
+  padding-top: 96px;
+  gap: 12px;
+  justify-content: center;
+}
+.call-portrait {
+  width: min(26dvh, 260px);
+}
+.call-state h2 {
+  font-size: clamp(1.2rem, 1.8vw, 1.65rem);
+}
+.call-state .call-detail {
+  max-width: 40ch;
+  font-size: 0.85rem;
+}
+.call-control-area {
+  margin: 0;
+  padding: 10px 0 20px;
+}
+.stage-caption-slot {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 0;
+  pointer-events: none;
+}
+.stage-caption {
+  pointer-events: auto;
+  max-height: 84px;
+  background: #fff;
+}
+.call-stage:has(.stage-caption) .call-control-area {
+  padding-bottom: 110px;
+}
+.call-stage:has(.stage-caption) .call-portrait {
+  width: min(22dvh, 200px);
+}
+.airs-call-room :deep(.live-call-entry) {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+.airs-call-room :deep(.live-call-entry small) {
+  margin: 0;
+}
+.airs-call-room :deep(.live-call-entry p) {
+  margin: 0;
+}
+.airs-call-room :deep(.live-call-entry small a) {
+  color: #315d82;
+  text-decoration: underline;
+}
+.airs-call-room :deep(.call-actions) {
+  padding: 0 8px;
+  gap: 8px;
+}
+.recorded-mode .call-control-area {
+  max-height: 44%;
+  overflow-y: auto;
+}
+.recorded-mode .call-portrait {
+  width: min(14dvh, 130px);
+}
+.recorded-mode .call-presence {
+  padding-top: 90px;
+  gap: 5px;
+}
+.recorded-mode .call-state h2 {
+  font-size: 1.1rem;
+}
+@media (max-width: 767px) {
+  .airs-call-room {
+    padding-top: 4px;
+  }
+  .study-goal {
+    top: 0;
+  }
+  .study-goal summary {
+    min-height: 68px;
+  }
+  .call-presence {
+    padding-top: 92px;
+  }
+  .call-control-area {
+    padding-bottom: 12px;
+  }
+  .call-state .call-detail {
+    margin-top: 6px;
+    font-size: 0.78rem;
+  }
+  .call-portrait {
+    width: min(24dvh, 200px);
+  }
+  .call-state h2 {
+    font-size: 1.2rem;
+  }
+}
+@media (max-height: 720px) {
+  .call-portrait {
+    width: min(18dvh, 145px);
+  }
+  .call-presence {
+    gap: 6px;
+    padding-top: 84px;
+  }
+  .call-state h2 {
+    margin-bottom: 5px;
+    font-size: 1.15rem;
+  }
+  .call-state .call-detail {
+    margin-top: 4px;
+  }
+  .call-control-area {
+    padding-top: 4px;
+  }
+  .airs-call-room :deep(.live-call-entry small) {
+    font-size: 0.68rem;
+  }
+  .airs-call-room :deep(.call-control-icon) {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+.recorded-mode .call-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.recorded-mode .call-presence {
+  flex: 1 0 300px;
+  min-height: 300px;
+  padding-top: 82px;
+}
+.recorded-mode .call-control-area {
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 44%;
+  overflow-y: auto;
+}
+.recorded-mode .call-portrait {
+  width: min(12dvh, 105px);
+}
+
+.study-goal summary .misu-handoff { display: flex; align-items: center; gap: 6px; letter-spacing: normal; text-transform: none; }
