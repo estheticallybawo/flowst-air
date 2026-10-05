@@ -146,7 +146,9 @@ const journey = computed(
     },
 );
 const journeyStage = computed(() =>
-  "review" === sessionPane.value
+  "plan" === sessionPane.value
+    ? "MISU"
+    : "review" === sessionPane.value
     ? "KAI"
     : conversationStarted.value || handoffReady.value
       ? "AMINA"
@@ -159,13 +161,27 @@ async function continueCheckpoint() {
   if (journey.value.kaiReady) {
     stopCurrentPlayback();
     if (paced.value) await pacing.change("PAUSE").catch(() => false);
-    await kaiTransition.prepare();
-    if (!disposed) sessionPane.value = "review";
+    const completed = await kaiTransition.prepare();
+    if (completed && !disposed) sessionPane.value = "review";
   } else {
     sessionPane.value = "";
     if (paced.value && !(await pacing.change("START"))) return;
     await beginLesson();
   }
+}
+async function takeCheckpointBreak() {
+  stopCurrentPlayback();
+  live.stop();
+  stopMicrophone();
+  if (paced.value && !(await pacing.change("PAUSE"))) return;
+  celebration.value = "";
+  sessionPane.value = "";
+}
+function selectJourneyAgent(agent: "MISU" | "AMINA" | "KAI") {
+  if (handoffTransition.active.value || kaiTransition.active.value) return;
+  if (agent === "MISU") sessionPane.value = "plan";
+  else if (agent === "KAI" && journey.value.kaiReady) sessionPane.value = "review";
+  else if (agent === "AMINA") sessionPane.value = "";
 }
 
 // Recorded exercises are separate from the live room, preserving saved practice compatibility.
@@ -743,7 +759,7 @@ async function prepareHandoff(automaticWelcome = false) {
     if (automaticWelcome) deferredReplyId.value = welcomeId || "";
     if (!welcomeTurn.value) throw new Error("Welcome unavailable");
     handoffBusy.value = false;
-    if (automaticWelcome) await handoffTransition.prepare();
+    if (automaticWelcome && !(await handoffTransition.prepare())) return;
     if (disposed || mediaStopped) return;
     handoffReady.value = true;
     await nextTick();
@@ -800,6 +816,7 @@ async function confirmNext() {
   const objectiveId = study.value?.plan.recommendation?.objectiveId;
   if (!objectiveId || planBusy.value || live.running.value) return;
   const completedTitle = activeObjective.value?.title || "Your objective";
+  const alreadyCompleted = journey.value.completedObjectiveIds.includes(objectiveId);
   planBusy.value = true;
   try {
     study.value = await auth.authorizedFetch<StudyConversation>(
@@ -808,7 +825,7 @@ async function confirmNext() {
     );
     const confirmedTitle = completedTitle;
     await load();
-    if (journey.value.completedObjectiveIds.length) {
+    if (!alreadyCompleted && journey.value.completedObjectiveIds.includes(objectiveId)) {
       celebration.value = confirmedTitle;
       sessionPane.value = "";
     }
@@ -1234,6 +1251,8 @@ function stopCurrentPlayback() {
 function primePlayback() {
   if (playbackPrimed || playingTurnId.value) return;
   const audio = (playback ||= new Audio());
+  // Priming is silent and carries no previous turn's playback callbacks.
+  audio.onplaying = audio.ontimeupdate = audio.onwaiting = audio.onpause = audio.onerror = audio.onended = null;
   // Start the same media element on the learner's click. Reusing it after the
   // network reply helps browsers that grant audible playback per element.
   const sampleCount = 400;
@@ -1395,7 +1414,13 @@ async function retryVoice() {
     return;
   }
   primePlayback();
-  await playSpeech(turnId, true, true);
+  await playSpeech(turnId, false, true);
+}
+async function replayWelcome() {
+  const turnId = welcomeTurn.value?.id;
+  if (!turnId || preparingSpeechTurnId.value) return;
+  if (voiceFailureTurnId.value === turnId) await retryVoice();
+  else await playSpeech(turnId);
 }
 
 async function remove() {
@@ -1529,6 +1554,10 @@ async function remove() {
         :completed="journey.completedObjectiveIds.length"
         :total="journey.totalObjectives"
         :review-ready="journey.kaiReady"
+        :plan-ready="study.plan.objectives.length > 0"
+        :practice-ready="handoffReady || conversationStarted"
+        :disabled="handoffTransition.active.value || kaiTransition.active.value"
+        @select="selectJourneyAgent"
       />
       <p v-if="accessError" class="air-error" role="alert">
         {{ accessError }} <button @click="refreshStudyAccess">Try again</button>
@@ -1809,8 +1838,9 @@ async function remove() {
         tabindex="-1"
         aria-label="Preparing your conversation"
       >
+        <AirsAgentHandoff v-if="handoffTransition.active.value" :step="handoffTransition.step.value" />
         <AgentActivity
-          v-if="!handoffReady"
+          v-if="!handoffReady && !handoffTransition.active.value"
           agent="MISU"
           state="connecting"
           :busy="handoffBusy"
@@ -1823,6 +1853,7 @@ async function remove() {
           "
         />
         <AgentActivity
+          v-if="!handoffTransition.active.value"
           agent="AMIRA"
           :state="playingTurnId ? 'composing' : 'working'"
           :busy="handoffBusy || !!preparingSpeechTurnId || !!playingTurnId"
@@ -1840,12 +1871,6 @@ async function remove() {
                   : 'Preparing your first practice. Microphone off.'
           "
         />
-        <div v-if="handoffTransition.active.value" class="handoff-actions">
-          <p role="status">
-            Amina is next · {{ handoffTransition.remaining.value }} seconds
-          </p>
-          <button @click="handoffTransition.continueNow">Continue now</button>
-        </div>
         <p v-if="handoffError" role="alert">{{ handoffError }}</p>
         <button
           v-if="handoffError"
@@ -1857,21 +1882,19 @@ async function remove() {
         <template v-if="handoffReady"
           ><div class="welcome-reader">
             <h2>Hi, I’m Amina.</h2>
-            <p v-if="captionTurnId === welcomeTurn?.id">
-              {{ spokenText || "Playback starting…" }}
-            </p>
+            <AirsMessage v-if="captionTurnId === welcomeTurn?.id" :text="spokenText || 'Playback starting…'" />
             <template v-else-if="deferredReplyId === welcomeTurn?.id"
               ><p role="status">Preparing your spoken welcome…</p>
               <details>
                 <summary>Read welcome now</summary>
-                <p>{{ welcomeTurn?.text }}</p>
+                <AirsMessage :text="welcomeTurn?.text || ''" />
               </details></template
             >
-            <p v-else>{{ welcomeTurn?.text }}</p>
-            <p v-if="voiceFailureTurnId || audioPromptTurnId">
-              Spoken playback is unavailable. You can read the welcome and start
-              when ready.
+            <AirsMessage v-else :text="welcomeTurn?.text || ''" />
+            <p v-if="voiceFailureTurnId" role="alert">
+              {{ speechFailureMessage || 'Spoken playback is unavailable.' }} You can read your welcome and start when ready.
             </p>
+            <p v-else-if="audioPromptTurnId">Your browser needs a click to play audio. Select Play welcome when you’re ready.</p>
           </div>
           <div class="handoff-actions">
             <button
@@ -1880,10 +1903,10 @@ async function remove() {
             >
               Start conversation</button
             ><button
-              :disabled="!!preparingSpeechTurnId"
-              @click="welcomeTurn && playSpeech(welcomeTurn.id)"
+              :disabled="!!preparingSpeechTurnId || (!!voiceFailureTurnId && !speechRetryable)"
+              @click="replayWelcome"
             >
-              {{ playingTurnId ? "Stop welcome" : "Replay welcome" }}</button
+              {{ playingTurnId ? "Stop welcome" : voiceFailureTurnId ? "Retry welcome voice" : audioPromptTurnId ? "Play welcome" : "Replay welcome" }}</button
             ><button @click="leaveSession">Not now</button>
           </div></template
         >
@@ -1935,7 +1958,7 @@ async function remove() {
           @close-conversation="conversationVisible = false"
         >
           <template #plan>
-            <AirsPlanOverview :plan="study.plan" :preferences="preferences" />
+            <AirsPlanOverview :plan="study.plan" :preferences="preferences" :completed-objective-ids="journey.completedObjectiveIds" :active-objective-id="study.plan.activeObjectiveId" />
             <details>
               <summary>What this plan is based on</summary>
               <MisuPlanGuide :plan="study.plan" :preferences="preferences" />
@@ -2378,48 +2401,14 @@ async function remove() {
         title="Checkpoint saved"
         @close="celebration = ''"
       >
-        <div class="checkpoint-celebration" role="status">
-          <span aria-hidden="true">✓</span>
-          <h3>You followed through on this objective.</h3>
-          <p>{{ celebration }}</p>
-        </div>
-        <p>
-          Your explanation and confirmed checkpoint are saved.
-          {{
-            journey.kaiReady
-              ? "All planned objectives have evidence. Kai’s feedback is next."
-              : "You’re ready for the next objective."
-          }}
-        </p>
-        <div class="dialog-actions">
-          <button @click="continueCheckpoint">
-            {{
-              journey.kaiReady ? "Prepare Kai’s review" : "Continue when ready"
-            }}</button
-          ><button @click="celebration = ''">Stay here</button>
-        </div>
+        <AirsObjectiveCelebration v-if="celebration" :objective-title="celebration" :completed="journey.completedObjectiveIds.length" :total="journey.totalObjectives" :continue-label="journey.kaiReady ? 'Prepare Kai’s review' : 'Continue when ready'" @continue="continueCheckpoint" @break="takeCheckpointBreak" />
       </AirFocusDialog>
       <AirFocusDialog
         :open="kaiTransition.active.value"
         title="Kai is next"
-        @close="kaiTransition.continueNow"
+        :dismissible="false"
       >
-        <AgentActivity
-          agent="AMIRA"
-          :busy="false"
-          label="Your objective checkpoints are saved."
-        /><AgentActivity
-          agent="KAI"
-          :busy="false"
-          label="I’ll review the evidence against your approved goals."
-        />
-        <p role="status">
-          Take a moment before your feedback ·
-          {{ kaiTransition.remaining.value }} seconds
-        </p>
-        <div class="dialog-actions">
-          <button @click="kaiTransition.continueNow">Continue now</button>
-        </div>
+        <AirsAgentHandoff kind="KAI" :step="kaiTransition.step.value" />
       </AirFocusDialog>
       <AirFocusDialog
         :open="sessionPane === 'review'"
@@ -2515,7 +2504,7 @@ async function remove() {
 .practice-tools button {
   border: 0;
   background: transparent;
-  color: #456453;
+  color: #475569;
   min-height: 44px;
   padding: 8px 12px;
   text-decoration: underline;
@@ -2533,8 +2522,8 @@ async function remove() {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: #e0f0e5;
-  color: #2b714c;
+  background: #e0f2fe;
+  color: #0369a1;
   font-size: 2rem;
   animation: checkpoint-arrive 0.3s ease-out;
 }
@@ -2560,7 +2549,7 @@ async function remove() {
   gap: 8px 12px;
   align-items: center;
   padding: 4px 0 8px;
-  border-bottom: 1px solid #d6e3dc;
+  border-bottom: 1px solid #cbddeb;
   margin-bottom: 8px;
   text-align: left;
 }
@@ -2580,7 +2569,7 @@ async function remove() {
 .practice-pacing button {
   min-height: 44px;
   padding: 8px 12px;
-  border: 1px solid #d6e3dc;
+  border: 1px solid #cbddeb;
   border-radius: 999px;
   background: transparent;
   font-size: 0.8rem;
@@ -2637,7 +2626,7 @@ async function remove() {
   max-width: 680px;
   margin: 32px auto;
   padding: 28px;
-  border: 1px solid #d9e1dd;
+  border: 1px solid #cbddeb;
   border-radius: 16px;
   background: #fff;
   line-height: 1.7;
@@ -2651,9 +2640,9 @@ async function remove() {
 .plan-adjustment button {
   min-height: 44px;
   padding: 12px 18px;
-  border: 1px solid #173d32;
+  border: 1px solid #0369a1;
   border-radius: 10px;
-  background: #173d32;
+  background: #0369a1;
   color: white;
   cursor: pointer;
 }
@@ -2670,19 +2659,19 @@ async function remove() {
   display: block;
   width: 100%;
   padding: 12px;
-  border: 1px solid #adbab5;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
   box-sizing: border-box;
   font: inherit;
 }
 .prepared-handoff button:focus-visible {
-  outline: 3px solid #608977;
+  outline: 3px solid #64748b;
   outline-offset: 3px;
 }
 
 .study-page {
   padding-bottom: 40px;
-  --air-orange: #d9673c;
+  --air-orange: #0284c7;
   --air-deep: #332921;
 }
 
@@ -2702,8 +2691,8 @@ async function remove() {
   overflow: hidden;
   border-radius: 29px;
   background:
-    radial-gradient(circle at 90% 0%, #ffe5a8 0, transparent 31%),
-    linear-gradient(115deg, #fff3e7 0%, #ffe3d0 100%);
+    radial-gradient(circle at 90% 0%, #bae6fd 0, transparent 31%),
+    linear-gradient(115deg, #f0f9ff 0%, #e0f2fe 100%);
 }
 
 .study-header::after {
@@ -2729,7 +2718,7 @@ async function remove() {
 }
 
 .study-title span {
-  color: #9c5d49;
+  color: #0369a1;
   font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -2792,7 +2781,7 @@ async function remove() {
 .mode-panel {
   grid-area: guide;
   padding: 16px;
-  background: #fff7ef;
+  background: #f0f9ff;
 }
 
 .mode-panel h2 {
@@ -2820,13 +2809,13 @@ async function remove() {
 }
 
 .mode-choice.discussion {
-  background: #fff1e4;
-  color: #9b5133;
+  background: #f0f9ff;
+  color: #0369a1;
 }
 
 .mode-choice.oral-exam {
-  background: #eaf4ef;
-  color: #326a60;
+  background: #f0f9ff;
+  color: #0369a1;
 }
 
 .mode-choice.scenario {
@@ -2846,7 +2835,7 @@ async function remove() {
 .mode-panel button:focus-visible,
 .conversation button:focus-visible,
 .delete:focus-visible {
-  outline: 3px solid #b94e2c;
+  outline: 3px solid #0369a1;
   outline-offset: 3px;
 }
 
@@ -2913,7 +2902,7 @@ async function remove() {
   display: grid;
   gap: 4px;
   border-radius: 13px;
-  background: #f7f1ec;
+  background: #eef8ff;
   font-size: 0.72rem;
   font-weight: 750;
 }
@@ -2928,7 +2917,7 @@ async function remove() {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #fffefa;
+  background: #f8fcff;
 }
 
 .air-presence {
@@ -2937,7 +2926,7 @@ async function remove() {
   height: clamp(310px, 39vw, 405px);
   overflow: hidden;
   border-radius: 27px;
-  background: #f9b968;
+  background: #7dd3fc;
   box-shadow: 0 16px 38px rgba(142, 83, 40, 0.15);
 }
 
@@ -2989,7 +2978,7 @@ async function remove() {
 
 .portrait-caption p {
   margin: 10px 0;
-  color: #fff4e9;
+  color: #f0f9ff;
   font-size: 0.76rem;
   line-height: 1.45;
 }
@@ -3017,8 +3006,8 @@ async function remove() {
   display: grid;
   gap: 7px;
   padding: 11px 20px;
-  border-top: 1px solid #f1dfcf;
-  background: #fff9ef;
+  border-top: 1px solid #e0f2fe;
+  background: #f8fcff;
 }
 
 .activity-state {
@@ -3045,12 +3034,12 @@ async function remove() {
   margin-top: 5px;
   flex: none;
   border-radius: 50%;
-  background: #4b937b;
+  background: #0284c7;
 }
 
 .phase-connecting .activity-dot,
 .phase-processing .activity-dot {
-  background: #d98742;
+  background: #0284c7;
   animation: activity-pulse 1.3s ease-in-out infinite;
 }
 
@@ -3061,7 +3050,7 @@ async function remove() {
 
 .phase-review .activity-dot,
 .phase-blocked .activity-dot {
-  background: #d98742;
+  background: #0284c7;
 }
 
 .phase-speaking .activity-dot {
@@ -3099,7 +3088,7 @@ async function remove() {
   padding: 2px 6px;
   border-radius: 999px;
   background: #fff;
-  color: #8a5340;
+  color: #0369a1;
 }
 
 .voice-retry {
@@ -3152,7 +3141,7 @@ async function remove() {
   margin-bottom: 16px;
   padding: 14px 17px;
   border-radius: 19px;
-  background: #f7f2e9;
+  background: #eef8ff;
 }
 
 .turn.user {
@@ -3161,7 +3150,7 @@ async function remove() {
 }
 
 .turn.air {
-  background: #fff0de;
+  background: #f0f9ff;
 }
 
 .turn-role {
@@ -3179,7 +3168,7 @@ async function remove() {
 
 .turn .audio-prompt {
   margin-top: 10px;
-  color: #8a5340;
+  color: #0369a1;
   font-size: 0.76rem;
   font-weight: 750;
 }
@@ -3195,13 +3184,13 @@ async function remove() {
   padding: 4px 7px;
   border-radius: 99px;
   background: #fff;
-  color: #8a5340;
+  color: #0369a1;
   font-size: 0.62rem;
   font-weight: 700;
 }
 
 .general {
-  background: #f8e7bb;
+  background: #e0f2fe;
   color: #5f4c27;
 }
 
@@ -3216,7 +3205,7 @@ async function remove() {
   display: flex;
   align-items: center;
   gap: 13px;
-  border-top: 1px solid #ede6e2;
+  border-top: 1px solid #e0f2fe;
 }
 
 .voice-controls button {
@@ -3228,14 +3217,14 @@ async function remove() {
   justify-content: center;
   gap: 8px;
   border-radius: 999px;
-  background: #9c5d49;
+  background: #0369a1;
   color: #fff;
   font-size: 0.78rem;
   font-weight: 800;
 }
 
 .voice-controls button.active {
-  background: #3d6864;
+  background: #0369a1;
 }
 
 .voice-controls button:disabled {
@@ -3271,7 +3260,7 @@ async function remove() {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #9c5d49;
+  background: #0369a1;
   color: #fff;
 }
 
@@ -3287,7 +3276,7 @@ async function remove() {
   gap: 9px;
   border-left: 4px solid #b84e32;
   border-radius: 11px;
-  background: #fff1e7;
+  background: #f0f9ff;
   color: #833621;
   font-size: 0.84rem;
   line-height: 1.45;
@@ -3325,8 +3314,8 @@ async function remove() {
     inset: 0;
     background: linear-gradient(
       90deg,
-      #f7a951 0%,
-      #f8b667 43%,
+      #38bdf8 0%,
+      #38bdf8 43%,
       rgba(248, 182, 103, 0.1) 75%
     );
   }
@@ -3457,7 +3446,7 @@ async function remove() {
   max-width: 880px;
   border-radius: 27px;
   background:
-    radial-gradient(circle at 100% 0, #ffe0b3 0, transparent 33%), #fffaf2;
+    radial-gradient(circle at 100% 0, #bae6fd 0, transparent 33%), #f8fcff;
   box-shadow: 0 16px 38px rgba(116, 67, 43, 0.08);
 }
 
@@ -3472,7 +3461,7 @@ async function remove() {
   font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
-  color: #9c5d49;
+  color: #0369a1;
 }
 
 .plan-heading h2 {
@@ -3520,14 +3509,14 @@ async function remove() {
 .progress-recommendation button {
   padding: 11px 16px;
   border-radius: 999px;
-  background: #9c5d49;
+  background: #0369a1;
   color: #fff;
   font-size: 0.75rem;
   font-weight: 800;
 }
 
 .plan-actions button.secondary {
-  background: #f4e9e2;
+  background: #eef8ff;
   color: #744d3d;
 }
 
@@ -3541,7 +3530,7 @@ async function remove() {
   margin-bottom: 18px;
   padding: 12px;
   border-radius: 15px;
-  background: #ffe6c4;
+  background: #bae6fd;
 }
 
 .active-objective strong {
@@ -3562,7 +3551,7 @@ async function remove() {
   margin-bottom: 18px;
   padding: 12px;
   border-radius: 15px;
-  background: #eaf4ef;
+  background: #f0f9ff;
 }
 
 .progress-recommendation strong {
@@ -3578,7 +3567,7 @@ async function remove() {
   margin: 0 0 20px;
   padding: 13px;
   border-radius: 15px;
-  background: #fffdf8;
+  background: #f8fcff;
 }
 
 .lesson-path strong {
@@ -3611,7 +3600,7 @@ async function remove() {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #eeeae5;
+  background: #eef8ff;
   color: #817b76;
   font-size: 0.64rem;
   font-weight: 850;
@@ -3629,23 +3618,23 @@ async function remove() {
 }
 
 .lesson-path li.complete {
-  color: #30675b;
+  color: #0369a1;
   font-weight: 800;
 }
 
 .lesson-path li.complete::before {
-  background: #d7ece5;
-  color: #246858;
+  background: #e0f2fe;
+  color: #0369a1;
 }
 
 .lesson-path li.current {
-  color: #9b5133;
+  color: #0369a1;
   font-weight: 850;
 }
 
 .lesson-path li.current::before {
-  background: #fbe2cf;
-  color: #a34d2c;
+  background: #e0f2fe;
+  color: #0369a1;
 }
 
 .lesson-path p {
@@ -3667,7 +3656,7 @@ async function remove() {
   align-items: center;
   gap: 4px;
   min-height: 32px;
-  color: #805342;
+  color: #0369a1;
   font-size: 0.68rem;
   font-weight: 800;
 }
@@ -3678,8 +3667,8 @@ async function remove() {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  border-top: 1px solid #f0dfd0;
-  background: #fff8ef;
+  border-top: 1px solid #e0f2fe;
+  background: #f0f9ff;
 }
 
 .ready-panel p {
@@ -3704,7 +3693,7 @@ async function remove() {
 .ready-panel button:hover:not(:disabled),
 .send-recording:hover:not(:disabled) {
   transform: translateY(-2px);
-  background: #bb522c;
+  background: #0369a1;
 }
 
 .ready-panel button:active:not(:disabled),
@@ -3721,7 +3710,7 @@ async function remove() {
   display: grid;
   gap: 12px;
   justify-items: center;
-  border-top: 1px solid #ede6e2;
+  border-top: 1px solid #e0f2fe;
 }
 
 .record-context {
@@ -3755,7 +3744,7 @@ async function remove() {
   border-radius: 50%;
   background: var(--air-orange);
   color: #fff;
-  box-shadow: 0 0 0 7px #f5e9e3;
+  box-shadow: 0 0 0 7px #eef8ff;
   transition:
     background 150ms ease,
     box-shadow 180ms cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -3768,7 +3757,7 @@ async function remove() {
 
 .record-button:hover:not(:disabled) {
   box-shadow:
-    0 0 0 7px #f5e9e3,
+    0 0 0 7px #eef8ff,
     0 12px 26px rgba(164, 76, 38, 0.22);
 }
 
@@ -3780,7 +3769,7 @@ async function remove() {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #2e625a;
+  background: #0369a1;
 }
 
 .rerecord {
@@ -3788,7 +3777,7 @@ async function remove() {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #805342;
+  color: #0369a1;
   font-size: 0.73rem;
   font-weight: 800;
 }
@@ -3848,7 +3837,7 @@ async function remove() {
   display: grid;
   gap: 5px;
   border-radius: 15px;
-  background: #ffe6c5;
+  background: #bae6fd;
 }
 
 .voice-usage strong {
@@ -3858,7 +3847,7 @@ async function remove() {
 }
 
 .usage-label {
-  color: #9b512e !important;
+  color: #0369a1 !important;
   font-size: 0.61rem !important;
   font-weight: 850;
   letter-spacing: 0.08em;
@@ -3896,7 +3885,7 @@ async function remove() {
   grid-template-columns: 240px minmax(0, 1fr);
   grid-template-areas: "guide stage";
   gap: 0;
-  border: 1px solid #e8eef6;
+  border: 1px solid #eef8ff;
   border-radius: 26px;
   overflow: hidden;
   background: #fff;
@@ -3923,7 +3912,7 @@ async function remove() {
   justify-content: flex-end;
   padding: 24px;
   background:
-    radial-gradient(ellipse at 70% 25%, #fce8cd, transparent 65%), #ead5bc;
+    radial-gradient(ellipse at 70% 25%, #e0f2fe, transparent 65%), #bae6fd;
   overflow: hidden;
 }
 
@@ -3987,7 +3976,7 @@ async function remove() {
 }
 
 .voice-speech-bubble span {
-  color: #9d4920;
+  color: #0369a1;
   font-size: 0.65rem;
   font-weight: 700;
 }
@@ -4054,14 +4043,14 @@ async function remove() {
 }
 
 .voice-dock .record-context span {
-  color: #ede0d6;
+  color: #e0f2fe;
 }
 
 .voice-dock .record-button {
   width: 58px;
   height: 58px;
   box-shadow: none;
-  background: #c95628;
+  background: #0369a1;
 }
 
 .voice-dock .record-button.recording {
@@ -4088,7 +4077,7 @@ async function remove() {
 }
 
 .voice-dock .meter.recording span {
-  background: #ed8a3d;
+  background: #0284c7;
 }
 
 .voice-dock .ready-panel {
@@ -4099,7 +4088,7 @@ async function remove() {
 }
 
 .voice-dock .ready-panel p {
-  color: #ede0d6;
+  color: #e0f2fe;
 }
 
 .room-playback {
@@ -4122,7 +4111,7 @@ async function remove() {
 
 .session-transcript {
   margin-top: 22px;
-  border: 1px solid #e8eef6;
+  border: 1px solid #eef8ff;
   border-radius: 18px;
   background: #fff;
   overflow: hidden;
@@ -4275,7 +4264,7 @@ async function remove() {
 }
 
 .voice-stage .meter.recording span {
-  background: #b6531b;
+  background: #0369a1;
 }
 
 .voice-dock {
@@ -4453,7 +4442,7 @@ async function remove() {
   flex-direction: column;
   align-self: center;
   padding: clamp(16px, 2vw, 24px);
-  border: 1px solid #d8e3dc;
+  border: 1px solid #cbddeb;
   border-radius: 18px;
   background: #fff;
   box-shadow: none;
@@ -4469,7 +4458,7 @@ async function remove() {
   flex: none;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #e4ebe6;
+  border-top: 1px solid #e0f2fe;
 }
 .app-workspace .plan-review :deep(.agent-activity) {
   margin-bottom: 12px;
@@ -4506,7 +4495,7 @@ async function remove() {
   flex: none;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #e4ebe6;
+  border-top: 1px solid #e0f2fe;
 }
 @media (max-width: 767px) {
   .app-workspace .setup-room-nav {

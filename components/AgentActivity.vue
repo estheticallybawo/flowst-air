@@ -39,7 +39,7 @@ withDefaults(
   gap: 8px;
   line-height: 1.5;
   margin: 6px 0 0;
-  color: #46534f;
+  color: #475569;
   font-size: 0.9rem;
 }
 </style>

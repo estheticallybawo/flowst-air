@@ -1,30 +1,38 @@
-/** Deliberate learner-facing transition after work finishes, never presented as agent reasoning. */
+import { computed, getCurrentInstance, onBeforeUnmount, ref } from "vue";
+import { airsHandoffStep } from "../shared/airsHandoff";
+/** Required presentation after durable preparation; never starts audio capture. */
 export function useAgentHandoff() {
-  const active = ref(false),
-    remaining = ref(0);
-  let timer: ReturnType<typeof setInterval> | undefined,
-    finish: (() => void) | undefined;
-  function continueNow() {
+  const active = ref(false), elapsed = ref(0), duration = ref(10000);
+  const step = computed(() => airsHandoffStep(elapsed.value, duration.value));
+  let timer: ReturnType<typeof setInterval> | undefined;
+  let finish: ((completed: boolean) => void) | undefined;
+  let lastTick = 0;
+  function settle(completed: boolean) {
     if (timer) clearInterval(timer);
     timer = undefined;
     active.value = false;
-    remaining.value = 0;
-    finish?.();
+    const resolve = finish;
     finish = undefined;
+    resolve?.(completed);
   }
-  async function prepare(seconds = 10) {
-    continueNow();
+  function cancel() { settle(false); }
+  async function prepare(seconds = 10): Promise<boolean> {
+    cancel();
+    duration.value = Math.max(10000, seconds * 1000);
+    elapsed.value = 0;
     active.value = true;
-    remaining.value = seconds;
-    const end = Date.now() + seconds * 1000;
-    await new Promise<void>((resolve) => {
+    lastTick = Date.now();
+    return new Promise<boolean>((resolve) => {
       finish = resolve;
       timer = setInterval(() => {
-        remaining.value = Math.max(0, Math.ceil((end - Date.now()) / 1000));
-        if (!remaining.value) continueNow();
-      }, 250);
+        const now = Date.now();
+        if (typeof document === "undefined" || !document.hidden)
+          elapsed.value += Math.min(500, Math.max(0, now - lastTick));
+        lastTick = now;
+        if (elapsed.value >= duration.value) settle(true);
+      }, 100);
     });
   }
-  onBeforeUnmount(continueNow);
-  return { active, remaining, prepare, continueNow };
+  if (getCurrentInstance()) onBeforeUnmount(cancel);
+  return { active, step, prepare, cancel };
 }

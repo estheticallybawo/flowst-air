@@ -3,6 +3,7 @@ export function studySpeechOutcome(cause: any): {
   retryable: boolean;
 } {
   const code = cause?.data?.data?.code || cause?.data?.code;
+  const recovery = cause?.data?.data?.retryable ?? cause?.data?.retryable;
   if (cause?.name === "NotSupportedError")
     return {
       message:
@@ -29,6 +30,14 @@ export function studySpeechOutcome(cause: any): {
     message:
       message ||
       "Amina’s audio could not be played. Your saved reply is available in Conversation.",
-    retryable: true,
+    retryable: typeof recovery === 'boolean' ? recovery : ![
+      'SPEECH_NOT_CONFIGURED',
+      'SPEECH_PROVIDER_CONFIGURATION',
+      'SPEECH_PROVIDER_RESTRICTED',
+      'SPEECH_PROVIDER_CREDITS',
+      'SPEECH_CACHE_UNAVAILABLE',
+      'SPEECH_EXPIRED',
+      'SPEECH_RESPONSE_NOT_FOUND',
+    ].includes(code),
   };
 }

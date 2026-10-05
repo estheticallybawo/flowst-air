@@ -24,6 +24,7 @@ interface CachedSpeech {
   failure?: string;
   failureCode?: string;
   failureStatus?: number;
+  failureRetryable?: boolean;
   expiresAt?: number;
 }
 const records = new Map<string, CachedSpeech>(),
@@ -150,6 +151,7 @@ export async function getOrPrepareStudySpeech(
     throw createError({
       statusCode: 404,
       statusMessage: "Amina’s response was not found.",
+      data: { code: 'SPEECH_RESPONSE_NOT_FOUND', retryable: false },
     });
   const previous = await readRecord(id, turnId, event),
     textHash = hash(turn.text);
@@ -160,6 +162,7 @@ export async function getOrPrepareStudySpeech(
     throw createError({
       statusCode: 410,
       statusMessage: "This guest audio has expired.",
+      data: { code: 'SPEECH_EXPIRED', retryable: false },
     });
   if (
     previous &&
@@ -186,7 +189,10 @@ export async function getOrPrepareStudySpeech(
         statusMessage:
           previous.failure ||
           "Saved audio is unavailable. The response is still readable.",
-        data: { code: previous.failureCode || "SPEECH_FAILED" },
+        data: {
+          code: previous.failureCode || (previous.status === 'READY' ? 'SPEECH_CACHE_UNAVAILABLE' : "SPEECH_FAILED"),
+          ...(previous.status === 'READY' ? { retryable: false } : typeof previous.failureRetryable === 'boolean' ? { retryable: previous.failureRetryable } : {}),
+        },
       });
   }
   const next: CachedSpeech = {
@@ -269,6 +275,7 @@ export async function getOrPrepareStudySpeech(
         failure: message,
         failureStatus: cause?.statusCode || 503,
         failureCode: cause?.data?.code,
+        ...(typeof cause?.data?.retryable === 'boolean' ? { failureRetryable: cause.data.retryable } : {}),
       },
       next.revision,
       event,

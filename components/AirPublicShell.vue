@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const auth = useAuth()
-await auth.ensureSession()
-const authenticated = computed(() => auth.status.value === 'AUTHENTICATED')
+const auth = useAuth();
+await auth.ensureSession();
+const authenticated = computed(() => auth.status.value === "AUTHENTICATED");
 </script>
 
 <template>
@@ -13,9 +13,21 @@ const authenticated = computed(() => auth.status.value === 'AUTHENTICATED')
         <NuxtLink to="/airs/pricing">Pricing</NuxtLink>
         <NuxtLink to="/airs/about">Privacy &amp; trust</NuxtLink>
       </nav>
-      <NuxtLink class="air-button air-button-teal" :to="authenticated ? '/airs' : '/auth/sign-in'">{{ authenticated ? 'Open study space' : 'Sign in' }}</NuxtLink>
+      <NuxtLink
+        class="air-button air-button-teal"
+        :to="authenticated ? '/airs' : '/auth/sign-in'"
+        >{{ authenticated ? "Open study space" : "Sign in" }}</NuxtLink
+      >
     </header>
     <main id="main-content" tabindex="-1"><slot /></main>
-    <footer class="air-footer"><AirBrand /><span>Your learning companion</span><NuxtLink to="/airs/about">About &amp; privacy</NuxtLink></footer>
+    <footer class="air-footer">
+      <AirBrand /><span>Your learning companion</span
+      ><NuxtLink to="/airs/about">About &amp; privacy</NuxtLink>
+    </footer>
   </div>
 </template>
+<style scoped>
+.air-public {
+  background: var(--air-canvas, #eef8ff);
+}
+</style>

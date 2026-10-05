@@ -70,10 +70,12 @@ watch(
           ><span class="saved-indicator">Saved</span>
         </header>
         <template v-if="pendingTextId===turn.id || captionId===turn.id">
-          <p v-if="captionId===turn.id" class="saved-bubble">{{ captionText || 'Playback starting…' }}</p>
+          <div v-if="captionId===turn.id" class="saved-bubble"><AirsMessage :text="captionText || 'Playback starting…'" /></div>
           <p v-else role="status">Reply saved. Preparing audio…</p>
-          <details><summary>Read the full saved reply</summary><p class="saved-bubble">{{turn.text}}</p></details>
-        </template><p v-else class="saved-bubble">{{ turn.text }}</p>
+          <details class="saved-reply"><summary>Read the full saved reply</summary><div class="saved-bubble"><AirsMessage :text="turn.text" /></div></details>
+        </template>
+        <p v-else-if="turn.role === 'USER'" class="saved-bubble">{{ turn.text }}</p>
+        <div v-else class="saved-bubble"><AirsMessage :text="turn.text" /></div>
         <div v-if="turn.role === 'AMIRA'" class="turn-support">
           <details v-if="turn.sources.length || turn.provenance">
             <summary>Sources</summary>
@@ -179,7 +181,7 @@ watch(
 
 .saved-indicator {
   margin-left: auto;
-  color: #38615c;
+  color: #4f7791;
   font-size: 0.7rem;
 }
 
@@ -188,10 +190,10 @@ watch(
   padding: 14px 16px;
   border-radius: 4px 18px 18px 18px;
   color: #30343e;
-  background: rgba(245, 197, 142, 0.18);
-  font-size: 1.05rem;
-  line-height: 1.65;
-  white-space: pre-wrap;
+  background: #f3f9fe;
+  border: 1px solid #dfedf6;
+  font-size: 1rem;
+  line-height: 1.6;
   overflow-wrap: anywhere;
 }
 
@@ -211,7 +213,9 @@ watch(
   justify-self: end;
   width: 100%;
   text-align: right;
+  white-space: pre-wrap;
 }
+.saved-reply summary { min-height: 44px; display: flex; align-items: center; color: #466c87; font-size: .8rem; cursor: pointer; }
 
 .is-user header {
   justify-content: flex-end;
@@ -243,7 +247,7 @@ watch(
 }
 
 .turn-support summary {
-  min-height: 40px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -259,12 +263,14 @@ watch(
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  min-height: 40px;
-  padding: 5px 8px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 6px 10px;
   background: transparent;
   color: #464a53;
   font-size: 0.75rem;
   border-radius: 8px;
+  transition: background-color 160ms ease, transform 120ms ease;
 }
 
 .turn-support button:hover {
@@ -275,6 +281,7 @@ watch(
   opacity: 0.5;
   cursor: not-allowed;
 }
+.turn-support button:active:not(:disabled) { transform: scale(.98); }
 
 .empty-conversation,
 .audio-notice {
@@ -284,7 +291,7 @@ watch(
 }
 
 :is(button, summary, .saved-turns):focus-visible {
-  outline: 3px solid #315d82;
+  outline: 3px solid #337ba9;
   outline-offset: 2px;
 }
 
@@ -306,5 +313,9 @@ watch(
   .saved-turn header {
     gap: 6px;
   }
+}
+@media (prefers-reduced-motion: reduce) {
+  .turn-support button { transition: none; }
+  .turn-support button:active:not(:disabled) { transform: none; }
 }
 </style>

@@ -435,11 +435,11 @@ onBeforeUnmount(() => {
 .source-field select {
   width: 100%;
   box-sizing: border-box;
-  border: 1px solid #cfc6bb;
+  border: 1px solid #c7e4f5;
   border-radius: 0.7rem;
   padding: 0.75rem;
-  background: #fffdf9;
-  color: #292522;
+  background: #f8fcff;
+  color: #102b3f;
   font: inherit;
 }
 .source-check {
@@ -448,14 +448,14 @@ onBeforeUnmount(() => {
   align-items: center;
 }
 .source-help {
-  color: #615a53;
+  color: #475569;
   font-size: 0.9rem;
   line-height: 1.6;
 }
 .source-files {
   max-height: 20rem;
   overflow: auto;
-  border: 1px solid #d6cdc2;
+  border: 1px solid #c7e4f5;
   border-radius: 0.7rem;
 }
 .source-files label {
@@ -475,7 +475,7 @@ onBeforeUnmount(() => {
   min-width: 0;
 }
 .source-preview article {
-  border-top: 1px solid #e3dbd0;
+  border-top: 1px solid #c7e4f5;
   padding: 0.5rem 0;
 }
 .source-preview p {
@@ -491,7 +491,7 @@ onBeforeUnmount(() => {
 }
 .source-ready {
   font-weight: 600;
-  color: #365141;
+  color: #0369a1;
 }
 .source-cancel {
   justify-self: start;
@@ -505,22 +505,22 @@ onBeforeUnmount(() => {
 .source-fixtures,
 .source-notice {
   padding: 0.7rem;
-  background: #eee9df;
+  background: #e0f2fe;
   border-radius: 0.6rem;
 }
 .source-fixtures button {
   margin: 0.4rem;
   padding: 0.5rem;
-  border: 1px solid #a79a88;
+  border: 1px solid #b8dff3;
   border-radius: 0.4rem;
 }
 .source-picker a {
-  color: #3c5c49;
+  color: #0369a1;
   overflow-wrap: anywhere;
 }
 .source-picker button:focus-visible,
 .source-picker summary:focus-visible {
-  outline: 3px solid #677f56;
+  outline: 3px solid #0284c7;
   outline-offset: 3px;
 }
 .source-picker button:disabled {

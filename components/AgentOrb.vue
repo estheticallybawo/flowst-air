@@ -20,7 +20,7 @@ function stop() {
 function render() {
   stop();
   const el = canvas.value,
-    ctx = el?.getContext("2d");
+    ctx = el?.getContext("2d", { willReadFrequently: true });
   if (!el || !ctx) return;
   const dpr = Math.min(2, window.devicePixelRatio || 1),
     size = 20;
@@ -31,6 +31,18 @@ function render() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, size, size);
     MODE_DRAWS[preset.mode](ctx, size, seconds, false, preset.opts);
+    // Preserve the engine's depth shading as opacity against any light surface.
+    // This frame is at most 40 × 40 pixels because pixel density is capped at two.
+    const image = ctx.getImageData(0, 0, el.width, el.height);
+    for (let index = 0; index < image.data.length; index += 4) {
+      image.data[index + 3] = Math.round(
+        image.data[index + 3]! * (1 - image.data[index]! / 255),
+      );
+      image.data[index] = 2;
+      image.data[index + 1] = 132;
+      image.data[index + 2] = 199;
+    }
+    ctx.putImageData(image, 0, 0);
   };
   paint(0.6);
   if (

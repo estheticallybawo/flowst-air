@@ -60,7 +60,7 @@ defineEmits<{ leave: []; plan: []; conversation: [] }>();
   align-items: center;
   gap: 20px;
   min-width: 0;
-  color: #0d0f14;
+  color: #102b3f;
 }
 button {
   display: inline-flex;
@@ -72,7 +72,7 @@ button {
   font-size: 0.85rem;
   border-radius: 999px;
   background: transparent;
-  color: #464a53;
+  color: #475569;
   transition:
     background-color 180ms,
     transform 180ms;
@@ -81,7 +81,7 @@ button:active {
   transform: scale(0.98);
 }
 button:focus-visible {
-  outline: 3px solid #315d82;
+  outline: 3px solid #0369a1;
   outline-offset: 3px;
 }
 .panel-switches {
@@ -89,11 +89,11 @@ button:focus-visible {
   gap: 6px;
 }
 .panel-switches button {
-  border: 1px solid #dbdee5;
+  border: 1px solid #c7e4f5;
 }
 .panel-switches .selected {
-  background: #eef3fb;
-  color: #0d0f14;
+  background: #e0f2fe;
+  color: #102b3f;
 }
 .session-context {
   display: flex;
@@ -120,7 +120,7 @@ button:focus-visible {
 }
 @media (hover: hover) and (pointer: fine) {
   button:hover {
-    background: #eef3fb;
+    background: #e0f2fe;
   }
 }
 @media (max-width: 767px) {

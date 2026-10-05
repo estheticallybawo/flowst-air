@@ -709,8 +709,8 @@ async function replaceCurrentDocument() {
   overflow: hidden;
   border-radius: 34px;
   background:
-    radial-gradient(circle at 45% 110%, #ffd074 0, transparent 42%),
-    linear-gradient(110deg, #ffedcf 0%, #ffc787 100%);
+    radial-gradient(circle at 45% 110%, #bae6fd 0, transparent 42%),
+    linear-gradient(110deg, #eef8ff 0%, #e0f2fe 100%);
 }
 .intro::before {
   position: absolute;
@@ -718,7 +718,7 @@ async function replaceCurrentDocument() {
   left: 46%;
   width: 360px;
   height: 360px;
-  border: 1px solid rgba(178, 83, 41, 0.15);
+  border: 1px solid rgba(2, 132, 199, 0.15);
   border-radius: 50%;
   box-shadow:
     0 0 0 40px rgba(255, 255, 255, 0.09),
@@ -734,7 +734,7 @@ async function replaceCurrentDocument() {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #884026;
+  color: #0369a1;
   font-size: 0.72rem;
   font-weight: 850;
   letter-spacing: 0.09em;
@@ -748,13 +748,13 @@ async function replaceCurrentDocument() {
   text-wrap: balance;
 }
 .intro h1 em {
-  color: #b6502d;
+  color: #0369a1;
   font-style: normal;
 }
 .intro p {
   max-width: 49ch;
   margin: 0;
-  color: #654638;
+  color: #475569;
   font-size: 0.9rem;
   line-height: 1.65;
 }
@@ -762,13 +762,13 @@ async function replaceCurrentDocument() {
   position: absolute;
   inset: 0 0 0 auto;
   width: 34%;
-  background: #e99f53;
+  background: #bae6fd;
 }
 .intro-image::before {
   position: absolute;
   z-index: 1;
   inset: 0;
-  background: linear-gradient(90deg, #ffc787 0%, transparent 29%);
+  background: linear-gradient(90deg, #e0f2fe 0%, transparent 29%);
   content: "";
 }
 .intro-image img {
@@ -786,12 +786,12 @@ async function replaceCurrentDocument() {
   align-items: center;
   gap: 18px;
   border-radius: 25px;
-  background: #fffaf3;
-  box-shadow: 0 14px 36px rgba(135, 77, 40, 0.08);
+  background: #f8fcff;
+  box-shadow: 0 14px 36px rgba(2, 80, 125, 0.08);
 }
 .upload-locked {
   grid-template-columns: auto minmax(0, 1fr) auto;
-  background: #ffe9cb;
+  background: #e0f2fe;
 }
 .upload-locked-actions {
   display: flex;
@@ -802,15 +802,15 @@ async function replaceCurrentDocument() {
 .upload-locked-actions button {
   min-height: 44px;
   padding: 10px 14px;
-  border: 1px solid #dbdee5;
+  border: 1px solid #c7e4f5;
   border-radius: 12px;
   background: #fff;
-  color: #464a53;
+  color: #475569;
   font-size: 0.85rem;
   cursor: pointer;
 }
 .upload-locked-actions button:focus-visible {
-  outline: 3px solid #315d82;
+  outline: 3px solid #0369a1;
   outline-offset: 3px;
 }
 .upload-symbol,
@@ -820,8 +820,8 @@ async function replaceCurrentDocument() {
   display: grid;
   place-items: center;
   border-radius: 16px;
-  color: #a84c28;
-  background: #ffe4c4;
+  color: #0369a1;
+  background: #e0f2fe;
 }
 .upload-card h2,
 .upload-locked h2 {
@@ -832,7 +832,7 @@ async function replaceCurrentDocument() {
 .upload-card p,
 .upload-locked p {
   margin: 0;
-  color: #786257;
+  color: #475569;
   font-size: 0.78rem;
   line-height: 1.45;
 }
@@ -842,7 +842,7 @@ async function replaceCurrentDocument() {
   padding: 12px 16px;
   position: relative;
   overflow: hidden;
-  border: 1px solid #dbbda9;
+  border: 1px solid #b8dff3;
   border-radius: 15px;
   background: #fff;
   cursor: pointer;
@@ -862,7 +862,7 @@ async function replaceCurrentDocument() {
 .chat-actions a:focus-visible,
 .chat-actions button:focus-visible,
 .upload-locked a:focus-visible {
-  outline: 3px solid #b74f2c;
+  outline: 3px solid #0284c7;
   outline-offset: 3px;
 }
 .study-preferences {
@@ -872,7 +872,7 @@ async function replaceCurrentDocument() {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 20px;
   padding-top: 24px;
-  border-top: 1px solid #dbdee5;
+  border-top: 1px solid #c7e4f5;
   text-align: left;
 }
 .preferences-intro,
@@ -891,14 +891,14 @@ async function replaceCurrentDocument() {
   display: flex;
   flex-direction: column;
   gap: 9px;
-  color: #0d0f14;
+  color: #102b3f;
   font-size: 0.875rem;
   font-weight: 600;
 }
 .preference-field > small,
 .preference-field > span > small,
 .scope-option small {
-  color: #464a53;
+  color: #475569;
   font-weight: 400;
   font-size: 0.8rem;
   line-height: 1.4;
@@ -909,10 +909,10 @@ async function replaceCurrentDocument() {
   min-height: 46px;
   width: 100%;
   min-width: 0;
-  border: 1px solid #dbdee5;
+  border: 1px solid #c7e4f5;
   border-radius: 12px;
   background: #fff;
-  color: #0d0f14;
+  color: #102b3f;
 }
 .preference-field select,
 .preference-field textarea {
@@ -936,12 +936,12 @@ async function replaceCurrentDocument() {
   border-radius: 12px;
   background: transparent;
   padding: 11px 13px;
-  color: #0d0f14;
+  color: #102b3f;
   font: inherit;
   font-weight: 400;
 }
 .minutes-input > span {
-  color: #464a53;
+  color: #475569;
   font-size: 0.85rem;
   font-weight: 400;
 }
@@ -954,7 +954,7 @@ async function replaceCurrentDocument() {
 .scope-field legend {
   margin-bottom: 10px;
   padding: 0;
-  color: #0d0f14;
+  color: #102b3f;
   font-size: 0.875rem;
   font-weight: 600;
 }
@@ -969,7 +969,7 @@ async function replaceCurrentDocument() {
   gap: 10px;
   min-height: 66px;
   padding: 12px 14px;
-  border: 1px solid #dbdee5;
+  border: 1px solid #c7e4f5;
   border-radius: 12px;
   background: #fff;
   cursor: pointer;
@@ -978,14 +978,14 @@ async function replaceCurrentDocument() {
     background-color 0.15s ease;
 }
 .scope-option:has(input:checked) {
-  background: #eef3fb;
-  border-color: #315d82;
+  background: #e0f2fe;
+  border-color: #0369a1;
 }
 .scope-option input {
   width: 17px;
   height: 17px;
   margin: 0;
-  accent-color: #315d82;
+  accent-color: #0369a1;
 }
 .scope-option > span {
   display: flex;
@@ -993,7 +993,7 @@ async function replaceCurrentDocument() {
   gap: 4px;
 }
 .scope-option strong {
-  color: #0d0f14;
+  color: #102b3f;
   font-size: 0.875rem;
   font-weight: 600;
 }
@@ -1001,7 +1001,7 @@ async function replaceCurrentDocument() {
 .preference-field textarea:focus-visible,
 .minutes-input:focus-within,
 .scope-option:focus-within {
-  outline: 3px solid #315d82;
+  outline: 3px solid #0369a1;
   outline-offset: 3px;
 }
 .minutes-input input:focus {
@@ -1009,7 +1009,7 @@ async function replaceCurrentDocument() {
 }
 .preference-error {
   margin: 0;
-  color: #823b29;
+  color: #9b2929;
   font-size: 0.85rem;
 }
 .study-preferences + .start-button {
@@ -1026,7 +1026,7 @@ async function replaceCurrentDocument() {
   justify-content: center;
   gap: 8px;
   border-radius: 15px;
-  background: #d9693d;
+  background: #0369a1;
   color: #fff;
   font-size: 0.78rem;
   font-weight: 850;
@@ -1038,7 +1038,7 @@ async function replaceCurrentDocument() {
 .chat-actions a:hover,
 .upload-locked a:hover {
   transform: translateY(-2px);
-  background: #b9502d;
+  background: #075985;
 }
 .start-button:active:not(:disabled),
 .chat-actions a:active,
@@ -1055,10 +1055,10 @@ async function replaceCurrentDocument() {
   display: flex;
   align-items: center;
   gap: 8px;
-  border-left: 4px solid #b84e32;
+  border-left: 4px solid #b63425;
   border-radius: 11px;
-  background: #fff1e7;
-  color: #823b29;
+  background: #fff4f2;
+  color: #9b2929;
   font-size: 0.82rem;
 }
 .saved {
@@ -1095,11 +1095,11 @@ async function replaceCurrentDocument() {
   flex-direction: column;
   border-radius: 24px;
   background: #fff;
-  box-shadow: 0 12px 28px rgba(135, 77, 40, 0.07);
+  box-shadow: 0 12px 28px rgba(2, 80, 125, 0.07);
 }
 .kind {
   margin: 15px 0 6px;
-  color: #a55031;
+  color: #0369a1;
   font-size: 0.68rem;
   font-weight: 850;
 }
@@ -1112,7 +1112,7 @@ async function replaceCurrentDocument() {
 .original-file {
   display: block;
   margin-top: 6px;
-  color: #958174;
+  color: #64748b;
   font-size: 0.66rem;
   overflow-wrap: anywhere;
 }
@@ -1137,8 +1137,8 @@ async function replaceCurrentDocument() {
   display: grid;
   place-items: center;
   border-radius: 15px;
-  color: #8c4e45;
-  background: #fff0e6;
+  color: #9b2929;
+  background: #fff4f2;
 }
 @media (max-width: 900px) {
   .upload-card {

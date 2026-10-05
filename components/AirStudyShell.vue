@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import AirAppShell from "./AirAppShell.vue";
 defineProps<{ session?: boolean; workspace?: boolean }>();
+
 </script>
 <template>
   <div class="air-study-frame" :class="{ 'is-session': session || workspace }">
@@ -11,6 +13,14 @@ defineProps<{ session?: boolean; workspace?: boolean }>();
   </div>
 </template>
 <style scoped>
+.air-study-frame {
+  background: var(--air-canvas, #eef8ff);
+}
+.air-study-frame :deep(.agent-avatar-image) {
+  color: var(--air-ink, #102b3f);
+  background: var(--air-accent-soft, #e0f2fe);
+  box-shadow: 0 6px 18px rgb(2 132 199 / 10%);
+}
 .is-session {
   height: 100dvh;
   min-width: 0;
@@ -23,7 +33,7 @@ defineProps<{ session?: boolean; workspace?: boolean }>();
   min-height: 0;
   max-width: none;
   padding: 14px clamp(12px, 4vw, 48px);
-  background: #f7faff;
+  background: var(--air-canvas, #eef8ff);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -68,6 +78,10 @@ defineProps<{ session?: boolean; workspace?: boolean }>();
   .is-session :deep(.air-app-content),
   .is-session :deep(.flowst-content) {
     padding-top: 8px;
+  }
+  .is-session :deep(.flowst-content) {
+    padding-bottom: 0;
+    box-sizing: border-box;
   }
 }
 </style>

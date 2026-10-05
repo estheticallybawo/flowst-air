@@ -274,7 +274,7 @@ onBeforeUnmount(() => {
   flex: 1;
   padding: clamp(16px, 2vw, 24px);
   box-sizing: border-box;
-  border: 1px solid #d8e3dc;
+  border: 1px solid #c7e4f5;
   border-radius: 18px;
   background: #fff;
 }
@@ -296,7 +296,7 @@ h1 {
   font-size: clamp(1.15rem, 2vw, 1.5rem);
   line-height: 1.25;
   margin: 0 0 14px;
-  color: #142924;
+  color: #102b3f;
 }
 label {
   display: block;
@@ -305,7 +305,7 @@ label {
 }
 p {
   line-height: 1.45;
-  color: #46534f;
+  color: #475569;
   font-size: 0.92rem;
   margin: 8px 0 12px;
 }
@@ -313,7 +313,7 @@ textarea {
   box-sizing: border-box;
   width: 100%;
   padding: 12px;
-  border: 1px solid #adbab5;
+  border: 1px solid #b8dff3;
   border-radius: 12px;
   background: #fff;
   font: inherit;
@@ -326,14 +326,14 @@ small {
   display: block;
   text-align: right;
   margin: 8px 0;
-  color: #46534f;
+  color: #475569;
 }
 button {
   min-height: 44px;
   padding: 12px 20px;
-  background: #173d32;
+  background: #0369a1;
   color: white;
-  border: 1px solid #173d32;
+  border: 1px solid #0369a1;
   border-radius: 10px;
   cursor: pointer;
   margin-top: 0;
@@ -341,7 +341,7 @@ button {
 }
 .secondary {
   background: transparent;
-  color: #173d32;
+  color: #0369a1;
 }
 .actions {
   display: flex;
@@ -361,7 +361,7 @@ button:active {
 }
 textarea:focus-visible,
 button:focus-visible {
-  outline: 3px solid #608977;
+  outline: 3px solid #0284c7;
   outline-offset: 3px;
 }
 </style>

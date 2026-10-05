@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { X } from "lucide-vue-next";
-const props = defineProps<{ open: boolean; title: string; id?: string }>(),
+const props = withDefaults(defineProps<{ open: boolean; title: string; id?: string; dismissible?: boolean }>(), { dismissible: true }),
   emit = defineEmits<{ close: [] }>(),
   dialog = ref<HTMLDialogElement | null>(null);
 watch(
@@ -23,11 +23,12 @@ onBeforeUnmount(() => dialog.value?.close());
       :id="id"
       class="air-focus-dialog"
       :aria-label="title"
-      @cancel.prevent="emit('close')"
+      @cancel.prevent="dismissible && emit('close')"
     >
       <header>
         <h2>{{ title }}</h2>
         <button
+          v-if="dismissible"
           type="button"
           :aria-label="`Close ${title.toLowerCase()}`"
           @click="emit('close')"
@@ -40,18 +41,18 @@ onBeforeUnmount(() => dialog.value?.close());
 </template>
 <style scoped>
 .air-focus-dialog {
-  border: 1px solid #d8e3dc;
+  border: 1px solid #cbddeb;
   border-radius: 24px;
-  background: #fafcf9;
-  color: #163528;
+  background: #f8fcff;
+  color: #0f172a;
   width: min(580px, calc(100vw - 32px));
   max-height: calc(100dvh - 48px);
   padding: 0;
   box-sizing: border-box;
-  box-shadow: 0 24px 70px #10231a2e;
+  box-shadow: 0 24px 70px #0f172a2e;
 }
 .air-focus-dialog::backdrop {
-  background: #10231a70;
+  background: #0f172a70;
 }
 .air-focus-dialog[open] {
   animation: dialog-entry 0.2s ease-out;
@@ -62,10 +63,10 @@ onBeforeUnmount(() => dialog.value?.close());
   justify-content: space-between;
   gap: 16px;
   padding: 20px 24px;
-  border-bottom: 1px solid #d8e3dc;
+  border-bottom: 1px solid #cbddeb;
   position: sticky;
   top: 0;
-  background: #fafcf9;
+  background: #f8fcff;
   z-index: 1;
 }
 .air-focus-dialog h2 {
@@ -78,7 +79,7 @@ onBeforeUnmount(() => dialog.value?.close());
   height: 44px;
   display: grid;
   place-items: center;
-  border: 1px solid #d8e3dc;
+  border: 1px solid #cbddeb;
   background: transparent;
   border-radius: 50%;
   cursor: pointer;
@@ -92,7 +93,7 @@ onBeforeUnmount(() => dialog.value?.close());
 }
 .air-focus-dialog :deep(button:focus-visible),
 .air-focus-dialog :deep(summary:focus-visible) {
-  outline: 3px solid #376d53;
+  outline: 3px solid #0284c7;
   outline-offset: 3px;
 }
 .air-focus-dialog :deep(p) {
@@ -106,10 +107,10 @@ onBeforeUnmount(() => dialog.value?.close());
 }
 .air-focus-dialog :deep(.dialog-actions button) {
   padding: 10px 16px;
-  border: 1px solid #aec5b7;
+  border: 1px solid #bae6fd;
   border-radius: 12px;
-  background: #eaf2ec;
-  color: #173d2e;
+  background: #e0f2fe;
+  color: #0369a1;
 }
 .air-focus-dialog :deep(.dialog-actions button:disabled) {
   opacity: 0.5;

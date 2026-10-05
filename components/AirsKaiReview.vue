@@ -157,7 +157,7 @@ li {
 button {
   padding: 12px;
   margin: 4px;
-  border: 1px solid #bfc6d2;
+  border: 1px solid #b8dff3;
   border-radius: 8px;
 }
 button:disabled {
@@ -165,6 +165,6 @@ button:disabled {
 }
 article {
   padding: 12px 0;
-  border-bottom: 1px solid #dbdee5;
+  border-bottom: 1px solid #c7e4f5;
 }
 </style>

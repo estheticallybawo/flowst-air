@@ -124,14 +124,15 @@ async function signOut() {
   font-family: "Unbounded", sans-serif;
   font-size: 1rem;
   font-weight: 600;
-  color: #0d0f14;
+  color: #102b3f;
   flex: none;
 }
 .call-brand img {
   object-fit: contain;
 }
 .call-brand-air {
-  border-left: 1px solid #dbdee5;
+  color: var(--air-accent-strong, #0369a1);
+  border-left: 1px solid #c7e4f5;
   padding-left: 14px;
   margin-left: 5px;
   font-size: 0.8rem;
@@ -149,12 +150,12 @@ async function signOut() {
   border-radius: 24px;
   padding: 0 20px;
   gap: 20px;
-  box-shadow: 0 14px 35px rgba(48, 69, 98, 0.07);
+  box-shadow: 0 14px 35px rgba(2, 80, 125, 0.07);
 }
 .call-shell .air-account summary {
-  background: #eef3fb;
-  border: 1px solid #dbdee5;
-  color: #0d0f14;
+  background: #e0f2fe;
+  border: 1px solid #c7e4f5;
+  color: #102b3f;
 }
 @media (max-width: 767px) {
   .call-brand {
@@ -189,7 +190,7 @@ async function signOut() {
   align-items: center;
 }
 .air-session-nav span {
-  border-bottom: 2px solid var(--agent-amina);
+  border-bottom: 2px solid var(--air-accent, #0284c7);
   font-weight: 700;
 }
 @media (max-width: 767px) {

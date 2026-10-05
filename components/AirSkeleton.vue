@@ -111,7 +111,7 @@ withDefaults(
 }
 .loading-block {
   display: block;
-  background: #e5ebf4;
+  background: #d7edf9;
   border-radius: 7px;
   animation: amina-skeleton-pulse 1.5s ease-in-out infinite alternate;
 }
@@ -159,7 +159,7 @@ withDefaults(
   display: flex;
   flex-direction: column;
   gap: 15px;
-  border: 1px solid #dbdee5;
+  border: 1px solid #c7e4f5;
   border-radius: 16px;
   background: #fff;
 }
@@ -174,7 +174,7 @@ withDefaults(
   flex-direction: column;
   align-items: center;
   gap: 18px;
-  border: 1px solid #dbdee5;
+  border: 1px solid #c7e4f5;
   border-radius: 18px;
   background: #fff;
 }
@@ -195,7 +195,7 @@ withDefaults(
   width: 100%;
   gap: 20px;
   padding-top: 24px;
-  border-top: 1px solid #dbdee5;
+  border-top: 1px solid #c7e4f5;
 }
 .loading-preferences-heading,
 .loading-preference--wide {
@@ -232,7 +232,7 @@ withDefaults(
 .amina-loading--access {
   margin: 24px 0 18px;
   padding: 24px;
-  border: 1px solid #dbdee5;
+  border: 1px solid #c7e4f5;
   border-radius: 20px;
   background: #fff;
 }
@@ -250,7 +250,7 @@ withDefaults(
   flex-direction: column;
   gap: 14px;
   padding: 22px;
-  border: 1px solid #dbdee5;
+  border: 1px solid #c7e4f5;
   border-radius: 16px;
   background: #fff;
 }

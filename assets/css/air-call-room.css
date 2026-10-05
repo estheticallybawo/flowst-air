@@ -1,10 +1,10 @@
 .air-call-room {
-  --call-ink: #0d0f14;
-  --call-muted: #464a53;
-  --call-line: #dbdee5;
-  --call-canvas: #f7faff;
-  --call-primary: #2e2f30;
-  --call-peach: #f5c58e;
+  --call-ink: #102b3f;
+  --call-muted: #475569;
+  --call-line: #c7e4f5;
+  --call-canvas: #eef8ff;
+  --call-primary: #0369a1;
+  --call-peach: #e0f2fe;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   flex: 1;
@@ -34,7 +34,7 @@
   width: min(280px, 70%);
   border: 1px solid var(--call-line);
   border-radius: 16px;
-  background: rgba(247, 250, 255, 0.95);
+  background: rgba(238, 248, 255, 0.95);
 }
 .study-goal summary {
   display: flex;
@@ -103,8 +103,8 @@
   flex: none;
   border-radius: 50%;
   border: 6px solid #fff;
-  outline: 1px solid rgba(245, 197, 142, 0.5);
-  box-shadow: 0 0 0 14px rgba(245, 197, 142, 0.1);
+  outline: 1px solid rgba(2, 132, 199, 0.5);
+  box-shadow: 0 0 0 14px rgba(2, 132, 199, 0.1);
   overflow: hidden;
 }
 .call-portrait img {
@@ -193,7 +193,7 @@
 }
 .call-conversation > header button:hover,
 .call-plan > header button:hover {
-  background: #eef3fb;
+  background: #e0f2fe;
 }
 .latest-caption,
 .stage-caption {
@@ -231,7 +231,7 @@
   border-radius: 20px;
   padding: 20px;
   background: #fff;
-  box-shadow: -12px 10px 40px rgba(48, 69, 98, 0.08);
+  box-shadow: -12px 10px 40px rgba(2, 80, 125, 0.08);
 }
 .air-call-room :deep(.mode-panel) {
   padding: 0;
@@ -240,7 +240,7 @@
   box-shadow: none;
 }
 .air-call-room :deep(.active-objective) {
-  background: #eef3fb;
+  background: #e0f2fe;
   color: var(--call-ink);
 }
 .air-call-room :deep(.delete) {
@@ -285,8 +285,8 @@
   border-color: #b63425;
 }
 .air-call-room :deep(.live-call-controls button[aria-pressed="true"]) {
-  border-color: #315d82;
-  background: #eaf1fc;
+  border-color: #0369a1;
+  background: #e0f2fe;
 }
 .air-call-room :deep(.live-call-entry) {
   text-align: center;
@@ -316,7 +316,7 @@
 }
 .air-call-room :deep(.live-call-entry p button),
 .air-call-room :deep(.live-call-entry p a) {
-  color: #315d82;
+  color: #0369a1;
   background: transparent;
   text-decoration: underline;
   min-height: 40px;
@@ -373,7 +373,7 @@
 }
 .air-call-room :deep(.rerecord) {
   color: var(--call-ink);
-  background: #eef3fb;
+  background: #e0f2fe;
 }
 .air-call-room :deep(.ready-panel) {
   padding: 8px;
@@ -409,13 +409,13 @@
   height: 20px;
 }
 .air-call-room :deep(.voice-meter span) {
-  background: #996124;
+  background: #0284c7;
   height: 18px;
   width: 3px;
 }
 :is(button, summary):focus-visible,
 .air-call-room :deep(button:focus-visible) {
-  outline: 3px solid #315d82;
+  outline: 3px solid #0369a1;
   outline-offset: 3px;
 }
 .air-call-room :deep(button) {
@@ -591,8 +591,8 @@
 }
 .air-call-room
   :deep(.live-call-controls button[aria-pressed="true"] .call-control-icon) {
-  background: #eaf1fc;
-  border-color: #315d82;
+  background: #e0f2fe;
+  border-color: #0369a1;
 }
 @media (max-height: 680px) and (min-width: 1051px) {
   .call-portrait {
@@ -602,14 +602,14 @@
 
 .air-call-room :deep(.voice-recovery) {
   font-size: 0.8rem;
-  color: #464a53;
+  color: #475569;
   max-width: 48ch;
 }
 .air-call-room :deep(.voice-recovery button) {
   min-height: 44px;
   padding: 10px 18px;
   border-radius: 12px;
-  background: #2e2f30;
+  background: #0369a1;
   color: white;
 }
 
@@ -624,7 +624,7 @@
 }
 .study-goal[open] {
   background: #fff;
-  box-shadow: 0 12px 32px rgba(48, 69, 98, 0.08);
+  box-shadow: 0 12px 32px rgba(2, 80, 125, 0.08);
 }
 .call-stage {
   display: grid;
@@ -681,7 +681,7 @@
   margin: 0;
 }
 .air-call-room :deep(.live-call-entry small a) {
-  color: #315d82;
+  color: #0369a1;
   text-decoration: underline;
 }
 .air-call-room :deep(.call-actions) {

@@ -148,7 +148,7 @@ const shortStatus = computed(() =>
             ? "Saved transcript"
             : "Live caption · not confirmed saved"
         }}</small>
-        <p>{{ caption }}</p>
+        <AirsMessage :text="caption" />
       </div>
     </section>
     <AirFocusDialog
