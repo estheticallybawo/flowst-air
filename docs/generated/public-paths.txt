@@ -66,6 +66,7 @@
 :(literal)docs/design-docs/focused-practice-and-replay.md
 :(literal)docs/design-docs/index.md
 :(literal)docs/design-docs/misu-led-setup.md
+:(literal)docs/design-docs/objective-based-practice.md
 :(literal)docs/design-docs/source-ingestion.md
 :(literal)docs/design-docs/topic-pacing-and-voice.md
 :(literal)docs/exec-plans/active/flowst-air-orchestration.md
@@ -244,6 +245,7 @@
 :(literal)shared/community.ts
 :(literal)shared/study.ts
 :(literal)shared/studyCompletion.ts
+:(literal)shared/studyConversation.ts
 :(literal)shared/studyLive.ts
 :(literal)shared/studyMaterial.ts
 :(literal)shared/studyPacing.ts
@@ -268,7 +270,10 @@
 :(literal)tests/study-air-history.test.ts
 :(literal)tests/study-aws-voice.test.ts
 :(literal)tests/study-companion.test.ts
+:(literal)tests/study-conversation-progress.test.ts
 :(literal)tests/study-live-lease.test.ts
+:(literal)tests/study-misu-progress.test.ts
+:(literal)tests/study-objective-journey.test.ts
 :(literal)tests/study-pacing.test.ts
 :(literal)tests/study-preferences.test.ts
 :(literal)tests/study-presentation.test.ts

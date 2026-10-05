@@ -95,7 +95,11 @@ export async function changeStudyPacing(
       return current;
     next = { ...current, phase: "PAUSED", startedAt: now, serverNow: now };
   } else {
-    if (current?.phase === "PRACTICE") return current;
+    if (
+      current?.phase === "PRACTICE" &&
+      current.objectiveId === study.plan.activeObjectiveId
+    )
+      return current;
     if (
       current?.phase === "BREAK_DUE" ||
       (current?.phase === "BREAK" && current.remainingMs > 0)
@@ -133,6 +137,7 @@ export async function assertStudyPacingOpen(
   const state = await getStudyPacing(study.ownerId, study.id, event);
   if (
     !state ||
+    state.objectiveId !== study.plan.activeObjectiveId ||
     state.phase === "BREAK" ||
     state.phase === "PAUSED" ||
     (state.phase === "BREAK_DUE" &&

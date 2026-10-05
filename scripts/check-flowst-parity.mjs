@@ -13,6 +13,8 @@ const files = [
   "components/AirSessionNavigation.vue",
   "composables/useAgentHandoff.ts",
   "server/services/studySpeechCache.ts",
+  "shared/studyConversation.ts",
+  "server/domain/neuromap/studyFunctions.ts",
   "server/services/studyAwsSpeech.ts",
   "shared/airsJourney.ts",
   "shared/studySpeechOutcome.ts",
@@ -66,8 +68,13 @@ const files = [
   "components/AirsKaiReview.vue",
   "components/MisuPlanGuide.vue",
 ];
-const hash = (p) =>
-  crypto.createHash("sha256").update(fs.readFileSync(p,'utf8').replace(/\r\n/g,'\n')).digest("hex");
+const hash = (p) => {
+  let source = fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
+  // Flowst retains this exact compatibility export for its legacy callers.
+  if (p.endsWith(path.join('server', 'domain', 'neuromap', 'studyFunctions.ts')))
+    source = source.replace(/\nexport const compileAmiraStudyPacket = compileAirStudyPacket\s*$/, '');
+  return crypto.createHash('sha256').update(source.trimEnd()).digest('hex');
+};
 const mismatches = files.filter(
   (f) =>
     !fs.existsSync(path.join(host, f)) ||
@@ -80,5 +87,5 @@ if (mismatches.length) {
   console.log(
     "Shared Airs parity passed: " +
       files.length +
-      " modules/components. Authentication and host adapters intentionally differ.",
+      " modules/components. Authentication, host adapters and the legacy compiler alias intentionally differ.",
   );

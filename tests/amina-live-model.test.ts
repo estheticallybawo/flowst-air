@@ -22,7 +22,7 @@ afterEach(() => vi.unstubAllGlobals())
 test('the provider cannot replace server scope or select a different inference model', async () => {
  const result = await (handler as any)({})
  expect(mocks.stream).toHaveBeenCalledWith('Approved objective', [], 'Plants capture light.', {}, '{"type":"UNTRUSTED_STUDY_SOURCE","passages":[]}')
- expect(mocks.finish).toHaveBeenCalledWith('owner', 'study', expect.anything(), 'Source-backed generated reply.', {}, { claimId: 'turn' }, true, false)
+ expect(mocks.finish).toHaveBeenCalledWith('owner', 'study', expect.anything(), 'Source-backed generated reply.', {}, { claimId: 'turn' }, true, true)
  expect(result).toContain('data: [DONE]'); expect(result).toContain('test-model'); expect(result).not.toContain('attacker-model')
 })
 test('a ended call or changed plan cannot invoke inference', async () => {

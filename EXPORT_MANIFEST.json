@@ -129,6 +129,11 @@
       "sha256": "97d2439a8e8a48e594c9fa5d8cd446db422b55a15a9081c794c4115742bb2226"
     },
     {
+      "path": "components/AirsAgentHandoff.vue",
+      "bytes": 2645,
+      "sha256": "c2aca9f005321e19925fec2f846f78ef66a929bcfdb6eb0eac32a872920a913e"
+    },
+    {
       "path": "components/AirsContextCard.vue",
       "bytes": 9982,
       "sha256": "b2fd27b55994872f7426df88b72c12489c3d880550cfc5a933e0f4aa79900721"
@@ -152,6 +157,16 @@
       "path": "components/AirSkeleton.vue",
       "bytes": 7127,
       "sha256": "1c2a84a9709946092ee8d5dc2eb2dae8192d33198feec68dbf5fa5282ea91510"
+    },
+    {
+      "path": "components/AirsMessage.vue",
+      "bytes": 1257,
+      "sha256": "9b9583d415ad84b94081aa8aef149c250c86fd69baa4593081eacd132691320f"
+    },
+    {
+      "path": "components/AirsObjectiveCelebration.vue",
+      "bytes": 6238,
+      "sha256": "2511c43790ff4e0e2d3802f5f6e0412f3832b2d2f11daeae4f2e6b7bb3c36a7a"
     },
     {
       "path": "components/AirSourcePicker.vue",
@@ -270,18 +285,23 @@
     },
     {
       "path": "docs/design-docs/focused-practice-and-replay.md",
-      "bytes": 8497,
-      "sha256": "0692117f0493d9e0a3341b866d70e0fc0be6186f6416544712d8686bafa023b9"
+      "bytes": 8861,
+      "sha256": "2d82116e977cbb921efd97a83de345f54f8c8b326b2b9d1971bc1ef9d36df737"
     },
     {
       "path": "docs/design-docs/index.md",
-      "bytes": 1308,
-      "sha256": "a4545515fac73d52d7643bc8732cec454ccfa72004b02b641aa81cf8b98920e0"
+      "bytes": 1520,
+      "sha256": "4de224d22eab441e35bb8a27981614dad0bf863e30a129ad045fbe2e19633cce"
     },
     {
       "path": "docs/design-docs/misu-led-setup.md",
       "bytes": 2532,
       "sha256": "cf4e9c61da0db7fb7035d99bbffe12f0b933bddac76e283434d44bcf634f431c"
+    },
+    {
+      "path": "docs/design-docs/objective-based-practice.md",
+      "bytes": 4527,
+      "sha256": "00c9aa6b8778b17bcbfe444538cbd3bb27fa0f8856969abd19b62a46b8c68a54"
     },
     {
       "path": "docs/design-docs/source-ingestion.md",
@@ -290,8 +310,8 @@
     },
     {
       "path": "docs/design-docs/topic-pacing-and-voice.md",
-      "bytes": 4722,
-      "sha256": "ab323c4ef82245a5445d6f4764dbaf784214b66074a5f12aca51e089f16535c6"
+      "bytes": 4910,
+      "sha256": "30eac1124116929c80ed65730952c7a4eaabb6af36c1f09835010769d783403b"
     },
     {
       "path": "docs/exec-plans/active/flowst-air-orchestration.md",
@@ -321,7 +341,7 @@
     {
       "path": "docs/generated/db-schema.md",
       "bytes": 7479,
-      "sha256": "45d64988dd71f54effd1421735bbaf9d6a34c3283bb0f67da5cb893a3b6eebd0"
+      "sha256": "2150ac2fa850fbb18aef6ed40ebd2a31940416572124aac2feb62c18425385a6"
     },
     {
       "path": "docs/generated/index.md",
@@ -330,8 +350,8 @@
     },
     {
       "path": "docs/generated/public-paths.txt",
-      "bytes": 12630,
-      "sha256": "6f0e2b75f66ebb2a847a7928d065e5a5b4979939771e13ca01d980a8cc03be18"
+      "bytes": 12867,
+      "sha256": "478c96c02f054321322584a1356909ceffe83ccca43e5664c238a94a6a0f4a02"
     },
     {
       "path": "docs/index.md",
@@ -400,8 +420,8 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 35552,
-      "sha256": "0c619420b78414428ffc7ee5572d81d6affc898027a556688bfb64bcc021f7df"
+      "bytes": 38753,
+      "sha256": "95874c39c0281bbb6290d09d2d1a3564002da4120f81fa03c2f4c12bcf34b70d"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
@@ -465,8 +485,8 @@
     },
     {
       "path": "pages/airs/[id].vue",
-      "bytes": 119734,
-      "sha256": "6f9d597b186b0c373813182899d73f43bf236eea1f30d4d8b5418802bc2f4327"
+      "bytes": 124479,
+      "sha256": "fb96a0a3979e15e8e1811c1af9963f53089ab55c1297355da26b040407a97212"
     },
     {
       "path": "pages/airs/about.vue",
@@ -650,8 +670,8 @@
     },
     {
       "path": "scripts/check-flowst-parity.mjs",
-      "bytes": 3223,
-      "sha256": "334c14a7721e36c853808d438386982c08293b7a64a71486fd2aeab958ed779c"
+      "bytes": 3637,
+      "sha256": "003c404d6ca311855352f61550c214465d9879e196f658ddd3258892ffa34ebc"
     },
     {
       "path": "scripts/check-public-export.mjs",
@@ -825,8 +845,8 @@
     },
     {
       "path": "server/api/study/conversations/[id]/plan/confirm.post.ts",
-      "bytes": 3847,
-      "sha256": "b694af97b63060b6a48a029f0800516872638f601f13c5cf7dd76d4900ff4fe6"
+      "bytes": 3842,
+      "sha256": "9ccc7f81df3d6643c794938a28c33525e483d63bf0cbd3992fb40f28e0e09477"
     },
     {
       "path": "server/api/study/conversations/[id]/plan/recommend.post.ts",
@@ -895,8 +915,8 @@
     },
     {
       "path": "server/api/study/llm/v1/chat/completions.post.ts",
-      "bytes": 5117,
-      "sha256": "b8253a5aeb7786dbc15290f81da402b05bc6f44b090ff1bcff47f363bb7f199e"
+      "bytes": 5124,
+      "sha256": "90ee7ff43b184952403c52cde03f845b2b6d87b758ce85228577858317ae5fe3"
     },
     {
       "path": "server/api/study/sources/[id].delete.ts",
@@ -940,8 +960,8 @@
     },
     {
       "path": "server/domain/neuromap/studyFunctions.ts",
-      "bytes": 6717,
-      "sha256": "d3a1bfbc8e13a999d34a2d9604f3827d6646129204384ba147823fd5f3d5c809"
+      "bytes": 8392,
+      "sha256": "96d2518657ba33f69675025a4b1f48f842430828c4325ee2369d3fe72fb0540c"
     },
     {
       "path": "server/middleware/air-access.ts",
@@ -975,8 +995,8 @@
     },
     {
       "path": "server/services/airsAminaFunctions.ts",
-      "bytes": 2795,
-      "sha256": "4f3619a6969bf40e9c5cbdab65780ea954f7d4da550e8c62d2f3b3f387a6c50f"
+      "bytes": 3367,
+      "sha256": "43d684cb6282647fdbcfa37836b667b99566fa24794c14614b0bd40439d86534"
     },
     {
       "path": "server/services/airsContext.ts",
@@ -1050,13 +1070,13 @@
     },
     {
       "path": "server/services/studyAmina.ts",
-      "bytes": 23347,
-      "sha256": "7afc5406ef3c882e53e6d45faf6cffdd4a48525d8bcfb0dd794980cd7b934566"
+      "bytes": 27636,
+      "sha256": "2af673cd5a4a58b1dde9051a6c0123ba492e4f6a56d96bcb3b030b233ab06001"
     },
     {
       "path": "server/services/studyAwsSpeech.ts",
-      "bytes": 4665,
-      "sha256": "d19067b47163f510f825355fcc4d68a6f656658b7cc194f14e91f371c66596a3"
+      "bytes": 5109,
+      "sha256": "b7ef6d739918a15cdcb30fbf55f7c0bf25b8d197b027e1f35d595894e621164b"
     },
     {
       "path": "server/services/studyElevenAgent.ts",
@@ -1065,8 +1085,8 @@
     },
     {
       "path": "server/services/studyElevenSpeech.ts",
-      "bytes": 10678,
-      "sha256": "1e0edbc6f5a40fb6a241298a81940bc30686abbe1d9cf194c25a797ae5561cf8"
+      "bytes": 12161,
+      "sha256": "9c75ed8b519a0808283fda5b8234b07268a5c4a9f125d5b10f08ff6d3a745e5d"
     },
     {
       "path": "server/services/studyExtraction.ts",
@@ -1080,23 +1100,23 @@
     },
     {
       "path": "server/services/studyMisu.ts",
-      "bytes": 20544,
-      "sha256": "3e54519f5c4bc8c1f5b1284948d8e7feb5043d8116a59f84827d55dcfffb3cc0"
+      "bytes": 28198,
+      "sha256": "5397121bf9eef7446f6561222eee86694b92c5678fdfc1066ef6cc7cb050cfa9"
     },
     {
       "path": "server/services/studyPacing.ts",
-      "bytes": 4618,
-      "sha256": "1a3f5eacc6887f38956795c10327255492ad2611a75790d2a182323a7dedc468"
+      "bytes": 4756,
+      "sha256": "fe46a9730ab9fbf0b1b0b5f35c80b3ae88b9fef6c7d404673e468a64daa06ad7"
     },
     {
       "path": "server/services/studyPreferences.ts",
-      "bytes": 2097,
-      "sha256": "5546d942e8d398736b6f450ad57a644424aa8f6aca358545344c98bafa1025fa"
+      "bytes": 2364,
+      "sha256": "5bf688914b1cde6140bf756c0712245c1f4331131d8855db707e369dd066d1c4"
     },
     {
       "path": "server/services/studyRepository.ts",
-      "bytes": 62303,
-      "sha256": "ae8937005f14603b5ad3172dfd8d9a28fbbf54085c2da44cb639db8ccf3b07b6"
+      "bytes": 63535,
+      "sha256": "ed49814846523a273580b9e6cecdebe9bb5d9970a293be9e49eb596620b2c73f"
     },
     {
       "path": "server/services/studyRetrieval.ts",
@@ -1105,8 +1125,8 @@
     },
     {
       "path": "server/services/studySources.ts",
-      "bytes": 14855,
-      "sha256": "46047941d60b29ac7e19d9db5c541496efe5d0e659be1ca69be8617dde66f9c4"
+      "bytes": 16750,
+      "sha256": "c598b2f3c225d338fcde447a5fd7ae0388d710d78888e53d785cb07d840a8cba"
     },
     {
       "path": "server/services/studySpeech.ts",
@@ -1164,9 +1184,19 @@
       "sha256": "cfe989be33df086dc475b48c8ffe9d041e876efa983a92022e8031fb12a8afd7"
     },
     {
+      "path": "shared/airsHandoff.ts",
+      "bytes": 2015,
+      "sha256": "2d6e119b1aade87bc7a7968d42e0f0666f38f0c92a29cb66dac9edb18f6412bf"
+    },
+    {
       "path": "shared/airsJourney.ts",
       "bytes": 1523,
       "sha256": "a241b8cb5fd616d1f9a6b2a26d204d1babc99aef20442ec8857892ac2b775bee"
+    },
+    {
+      "path": "shared/airsMessage.ts",
+      "bytes": 3791,
+      "sha256": "063c78fca8b7cd0a1c6bbbd2387bd5eb1a0d9270d6d5597364cf730de56cc251"
     },
     {
       "path": "shared/airsOrchestration.ts",
@@ -1190,13 +1220,18 @@
     },
     {
       "path": "shared/study.ts",
-      "bytes": 5080,
-      "sha256": "b902f4eacf5faae0dc7de96b36a045957244c248b50f47569997f448c9a16234"
+      "bytes": 5416,
+      "sha256": "e8c508fe87bc12932c5e301528e7162ba32071beabb836bd7bb261d51a3ae888"
     },
     {
       "path": "shared/studyCompletion.ts",
       "bytes": 2455,
       "sha256": "2e12ca4f83d4ca3eace53d6148ad9bd20281c12315c9c3ef01950dfae87844d9"
+    },
+    {
+      "path": "shared/studyConversation.ts",
+      "bytes": 734,
+      "sha256": "a3ba41096f6ec01b0260adfb7930d61c5b4ef75d000b252f799d84ce1bd2ca6a"
     },
     {
       "path": "shared/studyLive.ts",
@@ -1235,8 +1270,8 @@
     },
     {
       "path": "shared/studySpeechOutcome.ts",
-      "bytes": 4336,
-      "sha256": "8a1e5049c07d2ac9ab44da3ab97493c9c103274d2a920a03eae03c861b942a58"
+      "bytes": 4557,
+      "sha256": "911e0935d7f880811549374d85de29cf0e9f187606b0d52c12e8d29eeef9378f"
     },
     {
       "path": "shared/userErrors.ts",
@@ -1252,6 +1287,16 @@
       "path": "tests/airs-feedback.test.ts",
       "bytes": 4108,
       "sha256": "f79b96675ac2701ecdd0c50dbc736b9162b7a2cd6f054c82888dfe500b180f25"
+    },
+    {
+      "path": "tests/airs-handoff.test.ts",
+      "bytes": 2193,
+      "sha256": "a8b29c2e4c03bddd6b889798b558ee32b4b2b9ad18776bd81aa1925ed32e5bc9"
+    },
+    {
+      "path": "tests/airs-message.test.ts",
+      "bytes": 2926,
+      "sha256": "64fda8ae846cc8ddb802e82398c503991cce76a3f03d08419deea316456ff0ae"
     },
     {
       "path": "tests/airs-orchestration.test.ts",
@@ -1275,8 +1320,8 @@
     },
     {
       "path": "tests/amina-live-model.test.ts",
-      "bytes": 3757,
-      "sha256": "385f267a54ea15e879372d947e562b0c11e4108e1127d8ae61622716b9ae5df9"
+      "bytes": 3756,
+      "sha256": "04c2de4d638eb02c24e2918fe85a3e4538d22ec6abd00b7258f8cd97a1fadc39"
     },
     {
       "path": "tests/amina-plan-approval.test.ts",
@@ -1290,8 +1335,8 @@
     },
     {
       "path": "tests/source-e2e/guest-context.spec.ts",
-      "bytes": 23663,
-      "sha256": "ea65b330e087c1a39013daff92600813dd1ee86d721a5010069de812b0e479e8"
+      "bytes": 27200,
+      "sha256": "767301a7f78e60c554eb09baf95f10e4f7cf207fdd100912a69701ffd270ee2d"
     },
     {
       "path": "tests/study-air-history.test.ts",
@@ -1306,12 +1351,27 @@
     {
       "path": "tests/study-companion.test.ts",
       "bytes": 24173,
-      "sha256": "eaa4e4cbf192cb7a177356c2eb875aaf6591c347e2bd479e4e484ab5253ea82e"
+      "sha256": "65bb74272c5781b6e49cc1fcab25c333b9d82a126deda41111f52032bb93cf94"
+    },
+    {
+      "path": "tests/study-conversation-progress.test.ts",
+      "bytes": 8849,
+      "sha256": "6171c26a40ee9c1e19e99fce98aa386056d8dca255c5169b8dcbaacf28199f89"
     },
     {
       "path": "tests/study-live-lease.test.ts",
       "bytes": 3653,
       "sha256": "12861588e47e583f381b8785be400daa7db1a597ef07727947d3ff5ac832590b"
+    },
+    {
+      "path": "tests/study-misu-progress.test.ts",
+      "bytes": 11158,
+      "sha256": "da72fb28d4250d7c5a9be63ac103385aac3a323300c2775a2343677b8f02eba0"
+    },
+    {
+      "path": "tests/study-objective-journey.test.ts",
+      "bytes": 8463,
+      "sha256": "fba3d5861b7a74b09f8af370560d50641360a39d32ae1bc78a2ab833b371cad3"
     },
     {
       "path": "tests/study-pacing.test.ts",
@@ -1349,9 +1409,19 @@
       "sha256": "46f01e588c0314d8852d8875cdee8668dc9c6ed35ce4b4a5ff77a43e710e870b"
     },
     {
+      "path": "tests/study-speech-storage.test.ts",
+      "bytes": 3645,
+      "sha256": "3294ffe27e3af64a16f9fbf63b22fe7c3a50a206c8b3719cd0d0b0da9dc3941d"
+    },
+    {
       "path": "tests/study-upload-limit.test.ts",
-      "bytes": 8886,
-      "sha256": "c0cf76c7826e3aa65dff20009e27390766032058d4a4a1b8ea001bc30dc5c014"
+      "bytes": 9159,
+      "sha256": "fc5567985b146605a3644174574e87d2753623c5912e2aa45ae4596f3f59e799"
+    },
+    {
+      "path": "tests/study-voice-reservation.test.ts",
+      "bytes": 7701,
+      "sha256": "05652d4bcf95493cd2a0489ff031eacc3f73a2c7c3753a03e636b37eb33c5118"
     },
     {
       "path": "tsconfig.json",
@@ -1447,51 +1517,6 @@
       "path": "vitest.config.ts",
       "bytes": 421,
       "sha256": "e0a3895d66cd71bb2a2339ff44fdd4de0991858415f05a7537d57a3388ad1dba"
-    },
-    {
-      "path": "tests/study-voice-reservation.test.ts",
-      "bytes": 7701,
-      "sha256": "05652d4bcf95493cd2a0489ff031eacc3f73a2c7c3753a03e636b37eb33c5118"
-    },
-    {
-      "path": "components/AirsAgentHandoff.vue",
-      "bytes": 2645,
-      "sha256": "c2aca9f005321e19925fec2f846f78ef66a929bcfdb6eb0eac32a872920a913e"
-    },
-    {
-      "path": "components/AirsMessage.vue",
-      "bytes": 1257,
-      "sha256": "9b9583d415ad84b94081aa8aef149c250c86fd69baa4593081eacd132691320f"
-    },
-    {
-      "path": "components/AirsObjectiveCelebration.vue",
-      "bytes": 6238,
-      "sha256": "2511c43790ff4e0e2d3802f5f6e0412f3832b2d2f11daeae4f2e6b7bb3c36a7a"
-    },
-    {
-      "path": "shared/airsHandoff.ts",
-      "bytes": 2015,
-      "sha256": "2d6e119b1aade87bc7a7968d42e0f0666f38f0c92a29cb66dac9edb18f6412bf"
-    },
-    {
-      "path": "shared/airsMessage.ts",
-      "bytes": 3791,
-      "sha256": "063c78fca8b7cd0a1c6bbbd2387bd5eb1a0d9270d6d5597364cf730de56cc251"
-    },
-    {
-      "path": "tests/airs-handoff.test.ts",
-      "bytes": 2193,
-      "sha256": "a8b29c2e4c03bddd6b889798b558ee32b4b2b9ad18776bd81aa1925ed32e5bc9"
-    },
-    {
-      "path": "tests/airs-message.test.ts",
-      "bytes": 2926,
-      "sha256": "64fda8ae846cc8ddb802e82398c503991cce76a3f03d08419deea316456ff0ae"
-    },
-    {
-      "path": "tests/study-speech-storage.test.ts",
-      "bytes": 3645,
-      "sha256": "3294ffe27e3af64a16f9fbf63b22fe7c3a50a206c8b3719cd0d0b0da9dc3941d"
     }
   ],
   "updatedAt": "2026-10-05T14:16:10.451Z"

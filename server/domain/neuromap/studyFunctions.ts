@@ -45,11 +45,28 @@ export const STUDY_FUNCTION_REGISTRY: Readonly<Record<string, StudyFunctionDefin
     prohibitedBehaviors: ['Do not supply the full answer before the learner has a chance to attempt it.'],
     evidenceToCapture: ['Explanation linked to the learner turn', 'Source-backed feedback linked to the agent turn'],
   }),
+  'self-explanation-teach-back@2': publishFunction({
+    ref: { id: 'self-explanation-teach-back', version: '2', kind: 'technique' as const },
+    stages: ['GUIDED_PRACTICE', 'INDEPENDENT_EXPLANATION'] as StudyInstructionPacket['stage'][],
+    requiredBehaviors: [
+      'Invite an explanation in the learner’s own words; accept faithful paraphrases and ordinary transcription disfluencies.',
+      'After an attempt, identify supported strengths and name a gap only when the learner’s meaning and source evidence demonstrate one.',
+      'Use one fresh why, how or application probe when the outcome needs that evidence; do not keep demanding the same explanation or exact source wording.',
+      'When a supported explanation covers the approved outcome, acknowledge it and leave checkpoint review and advancement to Misu and the learner.',
+    ],
+    prohibitedBehaviors: [
+      'Do not invent a gap to fill a feedback template.',
+      'Do not mistake a semantically equivalent explanation or harmless speech recognition error for a misconception.',
+      'Do not supply the full answer before the learner has a chance to attempt it.',
+      'Do not declare mastery or advance the objective without learner confirmation.',
+    ],
+    evidenceToCapture: ['Explanation linked to the learner turn', 'Source-backed feedback linked to the agent turn', 'Actual reasoning or application evidence requested by the objective'],
+  }),
 })
 
 export const DEFAULT_STUDY_FUNCTION_REFS: readonly Readonly<StudyFunctionRef>[] = Object.freeze([
   Object.freeze({ id: 'explicit-instruction', version: '1', kind: 'framework' as const }),
-  Object.freeze({ id: 'self-explanation-teach-back', version: '1', kind: 'technique' as const }),
+  Object.freeze({ id: 'self-explanation-teach-back', version: '2', kind: 'technique' as const }),
 ])
 
 export function compileAirStudyPacket(conversation: StudyConversation): StudyInstructionPacket {
@@ -70,14 +87,16 @@ export function compileAirStudyPacket(conversation: StudyConversation): StudyIns
   if (!plan.approvedBy || !plan.approvedAt || plan.approvedBy !== conversation.ownerId || !plan.functionRefs)
     throw createError({ statusCode: 409, statusMessage: 'This plan predates NeuroMap function approval. Start a new study chat and approve its plan.' })
   const refs = plan.functionRefs
-  if (refs.length !== 2 || refs.some((ref, index) => {
-    const expected = DEFAULT_STUDY_FUNCTION_REFS[index]!
-    return ref.id !== expected.id || ref.version !== expected.version || ref.kind !== expected.kind
-  })) throw createError({ statusCode: 409, statusMessage: 'This plan contains unpublished or incompatible NeuroMap functions.' })
+  if (refs.length !== 2
+    || refs[0]!.id !== 'explicit-instruction' || refs[0]!.version !== '1' || refs[0]!.kind !== 'framework'
+    || refs[1]!.id !== 'self-explanation-teach-back' || !['1', '2'].includes(refs[1]!.version) || refs[1]!.kind !== 'technique')
+    throw createError({ statusCode: 409, statusMessage: 'This plan contains unpublished or incompatible NeuroMap functions.' })
   const framework = STUDY_FUNCTION_REGISTRY[`${refs[0]!.id}@${refs[0]!.version}`]!
   const technique = STUDY_FUNCTION_REGISTRY[`${refs[1]!.id}@${refs[1]!.version}`]!
   const objectiveAttempts = conversation.practice.attempts.filter(item => item.objectiveId === objective.id).length
-  const stage: StudyInstructionPacket['stage'] = !conversation.turns.some(turn => turn.kind === 'INTRO')
+  const hasIntroduction = conversation.turns.some(turn => turn.role === 'AMIRA' && turn.kind === 'INTRO'
+    && (turn.objectiveId === objective.id || !turn.objectiveId && objective.id === plan.objectives[0]?.id))
+  const stage: StudyInstructionPacket['stage'] = !courseAssessment && !hasIntroduction
     ? 'INTRODUCTION' : objectiveAttempts ? 'INDEPENDENT_EXPLANATION' : 'GUIDED_PRACTICE'
   if (!framework.stages.includes(stage) || (stage !== 'INTRODUCTION' && !technique.stages.includes(stage)))
     throw createError({ statusCode: 409, statusMessage: 'The approved pedagogy functions are incompatible with this study stage.' })

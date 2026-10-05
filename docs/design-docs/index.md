@@ -16,3 +16,5 @@ See [verification](../references/verification.md). Updating a specification does
 | [Topic pacing and synchronized voice](topic-pacing-and-voice.md) | Implemented | See task-specific verification; paid speech remains pending |
 
 - [Focused practice, optional recovery and private replay](focused-practice-and-replay.md) — implemented; see the linked verification record for limits.
+
+- [Objective-based Amina practice](objective-based-practice.md) — saved semantic review, learner-confirmed next objectives and Kai evidence cards; fixture verification and live-provider limits are documented.

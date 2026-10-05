@@ -251,6 +251,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     page.getByRole("region", { name: "Preparing your conversation" }),
   ).toBeVisible();
   let introduced = false;
+  let sourceStudySnapshot: any;
   const introId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
   const intro = {
     id: introId,
@@ -270,6 +271,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     async (route) => {
       const response = await route.fetch();
       const data = await response.json();
+      sourceStudySnapshot = structuredClone(data);
       if (introduced && !data.turns.some((t: any) => t.id === introId))
         data.turns.push(intro);
       await route.fulfill({ json: data });
@@ -407,6 +409,50 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await expect(
     page.getByRole("region", { name: "Practice and break timer" }),
   ).toContainText("Practice");
+ // An ordinary ADVANCE checkpoint celebrates the objective just completed,
+ // not the target objective. A running break does not delay confirmation.
+ skipped=false
+ let advanced=false,advanceStudy:any
+ await page.unroute(/\/api\/study\/conversations\/[a-f0-9-]+$/)
+ await page.route(/\/api\/study\/conversations\/[a-f0-9-]+$/,async route=>{
+  const data = structuredClone(sourceStudySnapshot);
+  const first={...data.plan.objectives[0],id:'objective-1',title:'Explain retrieval practice'}
+  const next={...first,id:'objective-2',title:'Apply retrieval in an interview'}
+  data.plan.objectives=[first,next];data.plan.activeObjectiveId=advanced?next.id:first.id
+  data.practice.awaitingAnswer=false
+  data.turns.push({...intro,objectiveId:data.plan.activeObjectiveId})
+  data.plan.recommendation=advanced?undefined:{objectiveId:next.id,action:'ADVANCE',reason:'Your saved explanation supports this checkpoint.',basedOnAttemptCount:data.practice.attempts.length}
+  data.journey={completedObjectiveIds:advanced?[first.id]:[],totalObjectives:2,checkpointReady:!advanced,kaiReady:false}
+  advanceStudy=data;await route.fulfill({json:data})
+ })
+ await page.route('**/api/study/conversations/*/plan/confirm',async route=>{
+  expect(route.request().postDataJSON().objectiveId).toBe('objective-2')
+  expect(timer.phase).toBe('BREAK');expect(timer.remainingMs).toBeGreaterThan(0);expect(skipped).toBe(false)
+  advanced=true;advanceStudy.plan.activeObjectiveId='objective-2';advanceStudy.plan.recommendation=undefined
+  await route.fulfill({json:advanceStudy})
+ })
+ timer={...timer,revision:'advance-break',phase:'BREAK',remainingMs:180000,breakEndsAt:Date.now()+180000}
+ await page.reload({waitUntil:'domcontentloaded'})
+ const advanceCheckpoint=page.getByRole('dialog',{name:'Your objective checkpoint'})
+ await expect(advanceCheckpoint).toBeVisible()
+ await expect(advanceCheckpoint).toContainText('Your saved explanation supports this checkpoint.')
+ await expect(advanceCheckpoint.getByRole('button',{name:'Continue to next objective',exact:true})).toBeEnabled()
+ // Dismissing the checkpoint keeps the saved recommendation available.
+ await advanceCheckpoint.getByRole('button',{name:'Keep practising',exact:true}).click()
+ await expect(page.getByRole('region',{name:'Misu’s next step'})).toContainText('Your saved explanation supports this checkpoint.')
+ await expect(page.getByRole('button',{name:'Continue to next objective',exact:true})).toBeEnabled()
+ await page.screenshot({path:'test-results/airs-next-objective-'+test.info().project.name+'.png',fullPage:true})
+ await page.getByRole('button',{name:'Continue to next objective',exact:true}).click()
+ await expect(page.getByRole('dialog',{name:'Checkpoint saved'})).toBeVisible()
+ await expect(page.locator('.objective-celebration .objective-title')).toHaveText('Explain retrieval practice')
+ await expect(page.locator('.objective-celebration')).toContainText('1 of 2 checkpoints completed')
+ await page.keyboard.press('Escape')
+ await page.getByRole('navigation',{name:'Your learning journey'}).getByRole('button',{name:/Misu/}).click()
+ await expect(page.getByRole('dialog',{name:'Your session plan'}).locator('.plan-progress')).toContainText('1 of 2 practice checkpoints completed')
+ await page.keyboard.press('Escape')
+ await page.unroute('**/api/study/conversations/*/plan/confirm')
+ await page.unroute(/\/api\/study\/conversations\/[a-f0-9-]+$/)
+ timer={...timer,revision:'after-advance',phase:'PRACTICE',remainingMs:300000,startedAt:Date.now()}
   // UI contract fixture: backend evidence validation is exercised separately in unit tests.
   let confirmed = false,
     fixtureStudy: any,
@@ -415,8 +461,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await page.route(
     /\/api\/study\/conversations\/[a-f0-9-]+$/,
     async (route) => {
-      const response = await route.fetch(),
-        data = await response.json();
+      const data = structuredClone(sourceStudySnapshot);
       data.turns.push(intro);
       data.plan.activeObjectiveId = data.plan.objectives.at(-1).id;
       data.plan.recommendation = {
@@ -488,14 +533,12 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     }),
   );
   await page.reload({ waitUntil: "domcontentloaded" });
-  await page
-    .getByRole("button", { name: "Review checkpoint", exact: true })
-    .click();
+  // The saved supported answer surfaces its checkpoint automatically.
   await expect(
     page.getByRole("dialog", { name: "Your objective checkpoint" }),
   ).toBeVisible();
   await page
-    .getByRole("button", { name: "Confirm objectives complete", exact: true })
+    .getByRole("button", { name: "Continue to Kai’s review", exact: true })
     .click();
   await expect(
     page.getByRole("dialog", { name: "Checkpoint saved" }),

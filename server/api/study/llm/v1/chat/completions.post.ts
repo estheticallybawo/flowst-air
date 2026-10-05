@@ -118,8 +118,8 @@ export default defineEventHandler(async (event) => {
         event,
       );
       // Save generated replies without assuming the learner heard the entire response.
-      // Capture a durable learner attempt; an explicit grounded progress review
-      // proposes the next objective later. Ending a call never completes it.
+      // Review the durable attempt, just as recorded practice does. A recommendation
+      // can end the repetition loop; the learner still controls the checkpoint.
       await finishAminaTurn(
         token.ownerId,
         token.conversationId,
@@ -128,7 +128,7 @@ export default defineEventHandler(async (event) => {
         event,
         result.claim,
         true,
-        false,
+        true,
       );
     } catch (cause) {
       await failAminaTurn(

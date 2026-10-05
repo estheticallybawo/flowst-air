@@ -167,6 +167,9 @@ async function continueCheckpoint() {
     if (completed && !disposed) sessionPane.value = "review";
   } else {
     sessionPane.value = "";
+    if (paced.value && ["BREAK", "BREAK_DUE"].includes(pacing.current.value?.phase || "")) {
+      if (!(await pacing.change("SKIP_BREAK"))) return;
+    }
     if (paced.value && !(await pacing.change("START"))) return;
     await beginLesson();
   }
@@ -242,6 +245,28 @@ const canReviewProgress = computed(
     hasCurrentEvidence.value &&
     !study.value?.practice.awaitingAnswer,
 );
+// Saved evidence and learner confirmation govern progress; recovery breaks
+// remain available without delaying a covered objective.
+const currentMisuRecommendation = computed(() => {
+  const current = study.value;
+  const recommendation = current?.plan.recommendation;
+  if (!current || !recommendation || current.plan.courseCompletedAt ||
+      recommendation.basedOnAttemptCount !== current.practice.attempts.length)
+    return undefined;
+  const index = current.plan.objectives.findIndex(o => o.id === current.plan.activeObjectiveId);
+  const expected = recommendation.action === "ADVANCE"
+    ? current.plan.objectives[index + 1]?.id : current.plan.activeObjectiveId;
+  return recommendation.objectiveId === expected ? recommendation : undefined;
+});
+const checkpointCanConfirm = computed(() => journey.value.checkpointReady);
+const checkpointInteractionAvailable = computed(() => !busy.value &&
+  !planBusy.value && !live.running.value && recorderStatus.value === "IDLE" &&
+  !playingTurnId.value && !preparingSpeechTurnId.value && !deferredReplyId.value &&
+  !microphoneRequesting.value && !pacing.busy.value);
+const showMisuCheckpoint = computed(() => conversationStarted.value &&
+  canStudy.value && study.value?.mode === "DISCUSSION" && !study.value.abandonedAt && !study.value.plan.courseCompletedAt &&
+  !sessionPane.value && !celebration.value &&
+  Boolean(currentMisuRecommendation.value || study.value.plan.recommendationError));
 
 const inputLevel = computed(() =>
   live.running.value ? live.level.value : microphoneLevel.value,
@@ -370,6 +395,20 @@ const sessionPane = ref<
   "plan" | "context" | "checkpoint" | "review" | "options" | ""
 >("");
 const conversationVisible = ref(false);
+let shownCheckpoint = "";
+watch(
+  () => [journey.value.checkpointReady, study.value?.plan.activeObjectiveId,
+    study.value?.plan.recommendation?.basedOnAttemptCount, busy.value, live.running.value,
+    recorderStatus.value, playingTurnId.value, preparingSpeechTurnId.value],
+  () => {
+    if (!journey.value.checkpointReady || busy.value || live.running.value || recorderStatus.value !== "IDLE"
+      || playingTurnId.value || preparingSpeechTurnId.value) return;
+    const checkpoint = `${study.value?.plan.activeObjectiveId}:${study.value?.plan.recommendation?.basedOnAttemptCount}`;
+    if (checkpoint === shownCheckpoint) return;
+    shownCheckpoint = checkpoint;
+    sessionPane.value = "checkpoint";
+  },
+);
 
 const sessionActive = computed(
   () =>
@@ -424,13 +463,13 @@ const lessonStep = computed(() =>
             ? "Welcome"
             : !introductionTurn.value
               ? "Introduction"
+              : journey.value.checkpointReady
+                ? "Your explanation is ready for the next step"
               : objectiveExplanations.value.length < 1
                 ? "Explore the idea"
-                : objectiveExplanations.value.length < 2
-                  ? "Try a scenario or explain again"
-                  : study.value?.plan.recommendation
-                    ? "Review Misu’s recommendation"
-                    : "Review feedback and explain it again",
+                : study.value?.plan.recommendation?.action === "REVISIT"
+                  ? "Explore the remaining idea with Amina"
+                  : "Review your saved explanation",
 );
 const conversationActivity = computed(() => {
   if (!recordedPracticeMode.value && !live.running.value) {
@@ -817,8 +856,9 @@ async function startConversation() {
 async function confirmNext() {
   const objectiveId = study.value?.plan.recommendation?.objectiveId;
   if (!objectiveId || planBusy.value || live.running.value) return;
+  const completedObjectiveId = activeObjective.value?.id;
   const completedTitle = activeObjective.value?.title || "Your objective";
-  const alreadyCompleted = journey.value.completedObjectiveIds.includes(objectiveId);
+  const alreadyCompleted = Boolean(completedObjectiveId && journey.value.completedObjectiveIds.includes(completedObjectiveId));
   planBusy.value = true;
   try {
     study.value = await auth.authorizedFetch<StudyConversation>(
@@ -827,7 +867,7 @@ async function confirmNext() {
     );
     const confirmedTitle = completedTitle;
     await load();
-    if (!alreadyCompleted && journey.value.completedObjectiveIds.includes(objectiveId)) {
+    if (!alreadyCompleted && completedObjectiveId && journey.value.completedObjectiveIds.includes(completedObjectiveId)) {
       celebration.value = confirmedTitle;
       sessionPane.value = "";
     }
@@ -2000,7 +2040,7 @@ async function remove() {
                 v-if="
                   pacing.current.value?.phase === 'PAUSED' ||
                   (pacing.current.value?.phase === 'BREAK' &&
-                    pacing.remaining.value === 0)
+                    pacing.remaining.value === 0 && !journey.checkpointReady)
                 "
                 :disabled="pacing.busy.value"
                 @click="resumePractice"
@@ -2037,6 +2077,20 @@ async function remove() {
               >
                 Retry break
               </button>
+            </section>
+            <section v-if="showMisuCheckpoint" class="misu-checkpoint" aria-label="Misu’s next step" aria-live="polite">
+              <AgentAvatar agent="MISU" size="compact" />
+              <div class="misu-checkpoint-copy">
+                <strong>{{ currentMisuRecommendation?.action === 'REVISIT' ? 'One more focused try' : currentMisuRecommendation ? 'Your checkpoint is ready to review' : 'Your explanation is saved' }}</strong>
+                <p>{{ currentMisuRecommendation?.reason || 'Misu could not review this attempt yet. Retry her review when you’re ready.' }}</p>
+                <div class="misu-checkpoint-actions">
+                  <button v-if="journey.checkpointReady" :disabled="!checkpointCanConfirm || !checkpointInteractionAvailable" @click="confirmNext">
+                    {{ currentMisuRecommendation?.action === 'COMPLETE' ? 'Continue to Kai’s review' : 'Continue to next objective' }}
+                  </button>
+                  <button v-else-if="study.plan.recommendationError" :disabled="!canReviewProgress || !checkpointInteractionAvailable" @click="retryRecommendation">Retry Misu’s review</button>
+                  <button v-if="journey.checkpointReady && pacing.current.value?.phase === 'BREAK_DUE'" :disabled="!checkpointInteractionAvailable" @click="pacing.change('BREAK')">Take recovery break</button>
+                </div>
+              </div>
             </section>
             <div class="practice-tools">
               <button
@@ -2376,13 +2430,13 @@ async function remove() {
         <div class="dialog-actions">
           <button
             v-if="journey.checkpointReady"
-            :disabled="planBusy || live.running.value"
+            :disabled="!checkpointCanConfirm || !checkpointInteractionAvailable"
             @click="confirmNext"
           >
             {{
               study.plan.recommendation?.action === "COMPLETE"
-                ? "Confirm objectives complete"
-                : "Confirm checkpoint & continue"
+                ? "Continue to Kai’s review"
+                : "Continue to next objective"
             }}</button
           ><button
             v-else
@@ -2392,17 +2446,7 @@ async function remove() {
             {{ planBusy ? "Reviewing…" : "Review saved explanation" }}</button
           ><button @click="sessionPane = ''">Keep practising</button>
         </div>
-        <p
-          v-if="
-            journey.checkpointReady &&
-            paced &&
-            study.plan.recommendation?.action === 'ADVANCE' &&
-            (pacing.current.value?.phase !== 'BREAK' ||
-              pacing.remaining.value > 0)
-          "
-        >
-          Finish this practice block, then take or skip the recovery break.
-        </p>
+        <p v-if="journey.checkpointReady">Your saved explanation covers this objective. Continue when ready, or keep practising. You can take a break at the next step.</p>
       </AirFocusDialog>
       <AirFocusDialog
         :open="Boolean(celebration)"
@@ -2497,6 +2541,26 @@ async function remove() {
 </template>
 
 <style scoped>
+.misu-checkpoint {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 680px;
+  margin: 8px auto;
+  padding: 12px 14px;
+  border: 1px solid #bfdff2;
+  border-radius: 16px;
+  background: #e6f4ff;
+  text-align: left;
+}
+.misu-checkpoint-copy { min-width: 0; flex: 1; }
+.misu-checkpoint-copy strong { font-size: .85rem; color: #21475f; }
+.misu-checkpoint-copy p { margin: 4px 0; font-size: .8rem; line-height: 1.5; overflow-wrap: anywhere; }
+.misu-checkpoint-copy small { display: block; font-size: .74rem; line-height: 1.45; color: #49677e; }
+.misu-checkpoint-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.misu-checkpoint-actions button { min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1px solid #b2d2e8; color: #285e81; background: #fff; font-size: .8rem; }
+.misu-checkpoint-actions button:disabled { opacity: .55; cursor: default; }
+.misu-checkpoint-actions button:focus-visible { outline: 3px solid #2d709b; outline-offset: 3px; }
 .session-active :deep(.journey-rail) {
   flex: none;
   margin: 0 auto;
