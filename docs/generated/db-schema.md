@@ -37,13 +37,13 @@ Proposed Kai/longitudinal entities are not added here unless implemented in thes
 | [server/services/sources/store.ts:56](../../server/services/sources/store.ts#L56) | <code>`STUDY_SOURCE_LIMIT#${id}`</code> | <code>'USAGE'</code> | <code>Not present in this object</code> |
 | [server/services/sources/store.ts:59](../../server/services/sources/store.ts#L59) | <code>`STUDY_SOURCE_LIMIT#${id}`</code> | <code>'USAGE'</code> | <code>Not present in this object</code> |
 | [server/services/sources/store.ts:108](../../server/services/sources/store.ts#L108) | <code>`STUDY_UPLOAD#${record.ownerId}`</code> | <code>'ACTIVE'</code> | <code>Not present in this object</code> |
-| [server/services/studySpeechCache.ts:43](../../server/services/studySpeechCache.ts#L43) | <code>`STUDY#${id}`</code> | <code>`SPEECH#${turnId}`</code> | <code>Not present in this object</code> |
-| [server/services/studySpeechCache.ts:74](../../server/services/studySpeechCache.ts#L74) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
-| [server/services/studySpeechCache.ts:83](../../server/services/studySpeechCache.ts#L83) | <code>`STUDY#${id}`</code> | <code>`SPEECH#${turnId}`</code> | <code>Not present in this object</code> |
+| [server/services/studySpeechCache.ts:44](../../server/services/studySpeechCache.ts#L44) | <code>`STUDY#${id}`</code> | <code>`SPEECH#${turnId}`</code> | <code>Not present in this object</code> |
+| [server/services/studySpeechCache.ts:75](../../server/services/studySpeechCache.ts#L75) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
+| [server/services/studySpeechCache.ts:84](../../server/services/studySpeechCache.ts#L84) | <code>`STUDY#${id}`</code> | <code>`SPEECH#${turnId}`</code> | <code>Not present in this object</code> |
 
 ## Source fingerprints
 
 - server/services/studyRepository.ts: ae8937005f14603b5ad3172dfd8d9a28fbbf54085c2da44cb639db8ccf3b07b6
 - server/services/sources/store.ts: 09c553ad30a77fa09e552d796d479e1d986ca1a47d7492c6c80830c80dbc17f6
 - server/services/airsContext.ts: ab93383d2287a0cc4570568acc8a070d754448e46b6f73774a36131217658b3d
-- server/services/studySpeechCache.ts: 731d50823ea2f6c4f3b2079a2277949f7c7af3b371afc585d5b55ca101533f4e
+- server/services/studySpeechCache.ts: fd1c4d90500211cbd49ae1d06a80820179971e17e97e95e7a8d9cff7ba7c38cc

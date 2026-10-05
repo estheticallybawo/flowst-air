@@ -1,5 +1,5 @@
 import { computed, getCurrentInstance, onBeforeUnmount, ref } from "vue";
-import { airsHandoffStep } from "../shared/airsHandoff";
+import { airsHandoffStep } from "~/shared/airsHandoff";
 /** Required presentation after durable preparation; never starts audio capture. */
 export function useAgentHandoff() {
   const active = ref(false), elapsed = ref(0), duration = ref(10000);

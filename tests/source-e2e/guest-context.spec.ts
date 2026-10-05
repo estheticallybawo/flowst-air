@@ -72,10 +72,21 @@ test('Misu guides setup and prepares Amina without starting a microphone or voic
  expect(voiceStarts).toBe(0);expect(await page.evaluate(()=>(window as any).__micRequests)).toBe(0)
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
  await page.screenshot({path:'test-results/airs-prepared-'+test.info().project.name+'.png',fullPage:true})
+ const wav=Buffer.alloc(44+16000*2);wav.write('RIFF');wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(16000,24);wav.writeUInt32LE(32000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(wav.length-44,40)
+ await page.unroute('**/api/study/conversations/*/speech')
+ let recoveryRequests=0
+ await page.route('**/api/study/conversations/*/speech',route=>{
+   const input=route.request().postDataJSON();expect(input.retry).toBe(true);recoveryRequests++
+   return route.fulfill({json:{audioBase64:wav.toString('base64'),mimeType:'audio/wav',spokenText:'Fixture welcome recovery.',alignment:null}})
+ })
+ await page.getByRole('button',{name:'Retry welcome voice',exact:true}).click()
+ await expect(page.getByRole('button',{name:'Replay welcome',exact:true})).toBeVisible()
+ expect(recoveryRequests).toBe(1)
+ expect(await page.evaluate(()=>(window as any).__micRequests)).toBe(0)
  const currentWelcomeReads=welcomeReads
  await page.reload({waitUntil:'domcontentloaded'})
  await expect(page.getByRole('button',{name:'Start conversation',exact:true})).toBeVisible()
- expect(welcomeReads).toBe(currentWelcomeReads);expect(voiceStarts).toBe(0)
+ expect(welcomeReads).toBe(currentWelcomeReads);expect(voiceStarts).toBe(0);expect(recoveryRequests).toBe(1)
  await page.emulateMedia({reducedMotion:'reduce'})
  await expect(page.getByRole('region',{name:'Preparing your conversation'})).toBeVisible()
  let introduced=false
@@ -83,7 +94,6 @@ test('Misu guides setup and prepares Amina without starting a microphone or voic
  const intro={id:introId,role:'AMIRA',kind:'INTRO',text:'Fixture introduction. What does retrieval practice mean?',createdAt:new Date().toISOString(),mode:'DISCUSSION',sources:[]}
  await page.route('**/api/study/conversations/*/control',async route=>{introduced=true;await route.fulfill({json:{agentTurn:intro}})})
  await page.route(/\/api\/study\/conversations\/[a-f0-9-]+$/,async route=>{const response=await route.fetch();const data=await response.json();if(introduced && !data.turns.some((t:any)=>t.id===introId))data.turns.push(intro);await route.fulfill({json:data})})
- const wav=Buffer.alloc(44+16000*2);wav.write('RIFF');wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(16000,24);wav.writeUInt32LE(32000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(wav.length-44,40)
  await page.unroute('**/api/study/conversations/*/speech')
  let releaseAudio!:()=>void
  const audioGate=new Promise<void>(resolve=>{releaseAudio=resolve})

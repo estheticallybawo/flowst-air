@@ -9,7 +9,7 @@ Status: implemented in Flowst; validation and extraction results are recorded as
 - The practice room removes the duplicate Misu goal card. Conversation starts closed and is the only transcript/caption panel. Plan, checkpoint, options and Kai review have separate native dialogs with focus containment, Escape dismissal and return focus.
 - The Misu → Amina → Kai avatar rail uses confirmed setup stages and objective checkpoints. Completed objectives require learner confirmation and validated saved source/turn/execution evidence. Time, model prose and a timer reaching zero do not fill it.
 - Checkpoint celebrations follow successful durable confirmation. Kai's separate review becomes available after all planned objectives are confirmed with evidence. Feedback presents one observation at a time, then one next exercise. Existing oral/scenario gates remain available under Practice options.
-- Transfers have a ten-second visible ready transition after preparation succeeds. Continue now shortens it. The copy says the work is ready; it does not invent thinking. Reload does not replay the welcome or start audio. Start conversation remains the only entry into practice; recording additionally requires its own explicit action.
+- Transfers have a required ten-second guided sequence after durable preparation succeeds. Four visible presentation stages introduce Misu’s approved plan, Amina’s practice responsibilities and Kai’s feedback criteria, with no countdown or skip action. These stages describe saved responsibilities rather than claiming live tool completions or exposing private reasoning. Hidden tabs pause the sequence; navigation cancels it. Reload does not replay the welcome or start audio. Start conversation remains the only entry into practice; recording additionally requires its own explicit action.
 
 ## Speech defect and correction
 
@@ -23,7 +23,7 @@ Production request metadata inspected on 5 October showed 429, 503, 404 and succ
 
 ## Verification
 
-Unit checks cover optional breaks, stale and cross-account actions, unchanged completion, replay reuse and usage, concurrent dispatch, explicit retry, deletion, grounded journey progress and Kai's completion gate. Desktop/mobile fixtures cover prepared handoff, skipped transition, closed transcripts, dialog dismissal, actual playback/waiting events, pause/resume, denied microphone and optional recovery. Silent audio fixtures do not verify real provider speech quality.
+Unit checks cover optional breaks, stale and cross-account actions, unchanged completion, replay reuse and usage, concurrent dispatch, explicit retry, deletion, grounded journey progress and Kai's completion gate. Desktop/mobile fixtures cover prepared handoff, compulsory presentation stages, closed transcripts, dialog dismissal, actual playback/waiting events, pause/resume, denied microphone and optional recovery. Silent audio fixtures do not verify real provider speech quality.
 
 The design follows Hick's Law, chunking and cognitive load, with connected avatar stages and evidence-backed progress. Activity explanations remain factual; private reasoning and hidden prompts are not exposed.
 
@@ -42,3 +42,11 @@ Practice options shows input seconds and generated speech characters used, rathe
 Recorded speech and prepared replies atomically reserve a private per-conversation usage record before dispatch, with owner/active-study checks and the durable event. The historical VOICE#ALLOWANCE storage key is retained for compatibility and no longer imposes a policy ceiling. Legacy usage is adopted with consistent reads. Failed or uncertain dispatch retains its reservation; success does not add it twice. An uncertain paid request is not retried automatically. Explicit Retry may incur another provider request.
 
 Technical safeguards remain: two-minute recorded takes, bounded synthesis payloads, a 60-second ElevenLabs live call and provider-specific per-call output bounds. A later call may be started after the current lease closes. Explicit microphone consent, owner access, active-study and source-approval gates remain. Verification uses fixtures; real provider account availability and speech quality require owner preflight.
+
+## Sky-blue identity and saved-plan access
+
+Airs uses a pale-blue canvas, readable deep-blue controls and sky-blue activity marks. Flowst navigation and recording/error colors retain their roles. Misu’s journey button opens the existing approved plan, server-confirmed objective checkpoints and remaining practice; it never creates a replacement session.
+
+A newly confirmed objective opens a three-agent celebration with a finite confetti burst. Reduced motion uses static confetti, hidden/offscreen content pauses, and unmount cleans up observers. Take a break pauses practice; existing recovery timing still applies. Continue opens the next objective or prepares Kai’s review. Timers and model-generated claims do not trigger celebrations.
+
+Saved Amina messages render a small text-only markdown dialect inside chat bubbles: paragraphs, emphasis, lists and code. HTML and markdown URLs remain escaped text. Caption timing still comes from provider alignment and actual audio events. Welcome Retry is an explicit failed-speech recovery action; saved audio is reused, and automatic paid retries remain disabled. Safe errors distinguish browser playback, busy providers, unavailable service, configuration, credits and account restrictions. Real provider availability requires owner preflight.

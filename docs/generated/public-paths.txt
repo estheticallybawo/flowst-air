@@ -42,9 +42,12 @@
 :(literal)components/AirStudyShell.vue
 :(literal)components/AirUpgradePanel.vue
 :(literal)components/AirVoiceMeter.vue
+:(literal)components/AirsAgentHandoff.vue
 :(literal)components/AirsContextCard.vue
 :(literal)components/AirsJourneyRail.vue
 :(literal)components/AirsKaiReview.vue
+:(literal)components/AirsMessage.vue
+:(literal)components/AirsObjectiveCelebration.vue
 :(literal)components/AirsPlanOverview.vue
 :(literal)components/AirsSetup.vue
 :(literal)components/AuthShell.vue
@@ -233,7 +236,9 @@
 :(literal)shared/airAccess.ts
 :(literal)shared/airNavigation.ts
 :(literal)shared/airSurface.ts
+:(literal)shared/airsHandoff.ts
 :(literal)shared/airsJourney.ts
+:(literal)shared/airsMessage.ts
 :(literal)shared/airsOrchestration.ts
 :(literal)shared/auth.ts
 :(literal)shared/community.ts
@@ -250,6 +255,8 @@
 :(literal)shared/userErrors.ts
 :(literal)tests/air-access.test.ts
 :(literal)tests/airs-feedback.test.ts
+:(literal)tests/airs-handoff.test.ts
+:(literal)tests/airs-message.test.ts
 :(literal)tests/airs-orchestration.test.ts
 :(literal)tests/airs-quota.test.ts
 :(literal)tests/airs-setup.test.ts
