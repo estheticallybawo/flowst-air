@@ -276,6 +276,7 @@
 :(literal)tests/study-source-network.test.ts
 :(literal)tests/study-sources.test.ts
 :(literal)tests/study-speech-cache.test.ts
+:(literal)tests/study-speech-storage.test.ts
 :(literal)tests/study-upload-limit.test.ts
 :(literal)tests/study-voice-reservation.test.ts
 :(literal)tsconfig.json

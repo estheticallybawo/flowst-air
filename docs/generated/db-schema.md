@@ -46,4 +46,4 @@ Proposed Kai/longitudinal entities are not added here unless implemented in thes
 - server/services/studyRepository.ts: ae8937005f14603b5ad3172dfd8d9a28fbbf54085c2da44cb639db8ccf3b07b6
 - server/services/sources/store.ts: 09c553ad30a77fa09e552d796d479e1d986ca1a47d7492c6c80830c80dbc17f6
 - server/services/airsContext.ts: ab93383d2287a0cc4570568acc8a070d754448e46b6f73774a36131217658b3d
-- server/services/studySpeechCache.ts: fd1c4d90500211cbd49ae1d06a80820179971e17e97e95e7a8d9cff7ba7c38cc
+- server/services/studySpeechCache.ts: d60810807f482c94539aac91427b662d881b88b21d1e51776b4bc32ec84a53b1

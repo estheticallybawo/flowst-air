@@ -171,7 +171,7 @@
     {
       "path": "components/AirsSetup.vue",
       "bytes": 17411,
-      "sha256": "20fd19a323b4a47d8993aff8c92754805c73ed2982f353eb01165b6652a923f1"
+      "sha256": "e3914a245141f2f65fb85a1562e78addb1a238bb9767d528f36fa263d4bd15ec"
     },
     {
       "path": "components/AirStudyShell.vue",
@@ -185,8 +185,8 @@
     },
     {
       "path": "components/AirVoiceMeter.vue",
-      "bytes": 933,
-      "sha256": "05e6778e8ca9f45ea9573d829d3625062e571effb455beafd391f8b46f62ba28"
+      "bytes": 952,
+      "sha256": "e64a8a97e03b25f9a2123eb701a856cb18d4a7304f5d0540da76145453fab713"
     },
     {
       "path": "components/AuthShell.vue",
@@ -196,7 +196,7 @@
     {
       "path": "components/MisuPlanGuide.vue",
       "bytes": 6018,
-      "sha256": "e20aaccd7cc028c6d40c7dc23d4a96ac0bb9f104cfb079167255c5961672adfa"
+      "sha256": "c931f86cfb12ae897dd7944b963ef63765e62daa992b319cb3ac6817fd05d06c"
     },
     {
       "path": "components/PasswordField.vue",
@@ -250,8 +250,8 @@
     },
     {
       "path": "docs/AIRS_FOCUSED_PRACTICE_VERIFICATION.md",
-      "bytes": 13526,
-      "sha256": "2fa7556a9c44dffa1bc98b21df1cf693c0321e1e9e65b35438ba2235bcdbcb6c"
+      "bytes": 16365,
+      "sha256": "2f8c197c8235d9ad300e062a2a485f9c7a7133d2b1534197edd3ced57ecf6f0e"
     },
     {
       "path": "docs/design-docs/context-aware-practice.md",
@@ -321,7 +321,7 @@
     {
       "path": "docs/generated/db-schema.md",
       "bytes": 7479,
-      "sha256": "8a126c4101a7d0a43e1a0279b5b7af12fbdb6f343ede943e95f56edb64a43c4d"
+      "sha256": "45d64988dd71f54effd1421735bbaf9d6a34c3283bb0f67da5cb893a3b6eebd0"
     },
     {
       "path": "docs/generated/index.md",
@@ -330,8 +330,8 @@
     },
     {
       "path": "docs/generated/public-paths.txt",
-      "bytes": 12585,
-      "sha256": "cdab3ca957321613af6bdbf4efbb22206b8ba976135548b06fbf5c732f46ddc4"
+      "bytes": 12630,
+      "sha256": "6f0e2b75f66ebb2a847a7928d065e5a5b4979939771e13ca01d980a8cc03be18"
     },
     {
       "path": "docs/index.md",
@@ -400,8 +400,8 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 26883,
-      "sha256": "756e5c529b4f54de8ae1126493682962ba9bff856af23e124eea15126c64fda0"
+      "bytes": 29722,
+      "sha256": "6665c56f0c30b0791bc168bc6f3482101972a9420817793da44fd914cf029433"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
@@ -1115,8 +1115,8 @@
     },
     {
       "path": "server/services/studySpeechCache.ts",
-      "bytes": 11224,
-      "sha256": "fd1c4d90500211cbd49ae1d06a80820179971e17e97e95e7a8d9cff7ba7c38cc"
+      "bytes": 11933,
+      "sha256": "d60810807f482c94539aac91427b662d881b88b21d1e51776b4bc32ec84a53b1"
     },
     {
       "path": "server/services/studyVoice.ts",
@@ -1235,8 +1235,8 @@
     },
     {
       "path": "shared/studySpeechOutcome.ts",
-      "bytes": 1554,
-      "sha256": "0efabd6fb80559fbc8648e2c62b6a6b3679ca1065ba945f0f432effa0c74c887"
+      "bytes": 1610,
+      "sha256": "c21a40fd5e9360524b0dd68fdb35652138adb4e3a174436abd887d552a265ae4"
     },
     {
       "path": "shared/userErrors.ts",
@@ -1290,8 +1290,8 @@
     },
     {
       "path": "tests/source-e2e/guest-context.spec.ts",
-      "bytes": 17287,
-      "sha256": "676f434de413923034527918ecc948ea71ac6117b3ec4e46448fb9647e7b26ec"
+      "bytes": 20957,
+      "sha256": "036e25091c566df3e586d2f0a1e6aa67b830c2fc1b6e036b0abf01c3ad54c564"
     },
     {
       "path": "tests/study-air-history.test.ts",
@@ -1345,8 +1345,8 @@
     },
     {
       "path": "tests/study-speech-cache.test.ts",
-      "bytes": 8953,
-      "sha256": "5b46049c12f256ba88a3f564c0890b449cdbc9e7e7af7ff4dad551fa4e1f3812"
+      "bytes": 9334,
+      "sha256": "ad8737a6261017125e10d2bfe1a8a95b5465d9486f73a9fa2e2636ea039b4a17"
     },
     {
       "path": "tests/study-upload-limit.test.ts",
@@ -1487,7 +1487,12 @@
       "path": "tests/airs-message.test.ts",
       "bytes": 2926,
       "sha256": "64fda8ae846cc8ddb802e82398c503991cce76a3f03d08419deea316456ff0ae"
+    },
+    {
+      "path": "tests/study-speech-storage.test.ts",
+      "bytes": 3645,
+      "sha256": "3294ffe27e3af64a16f9fbf63b22fe7c3a50a206c8b3719cd0d0b0da9dc3941d"
     }
   ],
-  "updatedAt": "2026-10-05T11:14:38.042Z"
+  "updatedAt": "2026-10-05T11:35:09.039Z"
 }
