@@ -45,8 +45,8 @@
     },
     {
       "path": "assets/css/air-call-room.css",
-      "bytes": 17306,
-      "sha256": "832ce7fa5402953bb363a18296fa7e5ae902a0333eab9d84f4cae788ec6b39ca"
+      "bytes": 18536,
+      "sha256": "b65be9026be28d709f2831e86d89442dbad71eeeddeb528557eda753eb0e2cff"
     },
     {
       "path": "assets/css/air.css",
@@ -85,8 +85,8 @@
     },
     {
       "path": "components/AirAppShell.vue",
-      "bytes": 5361,
-      "sha256": "86d0e10a885f2d3322d19abb4f5ceac87f43ca52c298888ae29190b077906730"
+      "bytes": 5400,
+      "sha256": "4a4f062cd3852cab080dbd17feaef7097dd66b247ade3e6c71a753b76dfd951e"
     },
     {
       "path": "components/AirBrand.vue",
@@ -95,8 +95,8 @@
     },
     {
       "path": "components/AirCallRoom.vue",
-      "bytes": 4685,
-      "sha256": "5f8db12fa87dfcb19a9dd22439cad18d552debeb9c2ccf3798b9979fafbfb622"
+      "bytes": 4448,
+      "sha256": "a5f458571b0660e5638c923b4ffa617e0d8d3807ed4bbb7de9018ac5fb08f5a9"
     },
     {
       "path": "components/AirCitation.vue",
@@ -105,8 +105,8 @@
     },
     {
       "path": "components/AirConversation.vue",
-      "bytes": 7645,
-      "sha256": "34e777162aaeb927ee0482da77ec8232d8edda24cb069dbe8ebda2ca2e0a9ebe"
+      "bytes": 8074,
+      "sha256": "55e0e1a9578d3c035fee4cba4a09562d1e74f795817187361f16784d3023a12d"
     },
     {
       "path": "components/AirFocusDialog.vue",
@@ -140,8 +140,8 @@
     },
     {
       "path": "components/AirSessionNavigation.vue",
-      "bytes": 3494,
-      "sha256": "849bd9e898ae954391372f9a5b3d9f0460a92298cb179a77e5df645b678b3eff"
+      "bytes": 4159,
+      "sha256": "0200b7216693a8c5b57b06637cd29f1d7d34d905d93e371461764532df68f2fe"
     },
     {
       "path": "components/AirsJourneyRail.vue",
@@ -186,12 +186,12 @@
     {
       "path": "components/AirsSetup.vue",
       "bytes": 17411,
-      "sha256": "e3914a245141f2f65fb85a1562e78addb1a238bb9767d528f36fa263d4bd15ec"
+      "sha256": "88ae322441fafba4a58619a045a6863d07241c0420a70be8a12ee446ff515d34"
     },
     {
       "path": "components/AirStudyShell.vue",
-      "bytes": 1953,
-      "sha256": "fb51d69d8e0ab217fea7988d3aa706c5f16f20ecdb12c9f10bb8443c11276b4c"
+      "bytes": 2049,
+      "sha256": "dc42f43851f2a4d827bcc26ac49d2878f25c597dc319eadb579ace463391b40a"
     },
     {
       "path": "components/AirUpgradePanel.vue",
@@ -285,8 +285,8 @@
     },
     {
       "path": "docs/design-docs/focused-practice-and-replay.md",
-      "bytes": 8861,
-      "sha256": "2d82116e977cbb921efd97a83de345f54f8c8b326b2b9d1971bc1ef9d36df737"
+      "bytes": 10056,
+      "sha256": "5fd684dde49e563d196574fc5380e2697c3904d5b8fec59a92d455d2321fb1e7"
     },
     {
       "path": "docs/design-docs/index.md",
@@ -415,13 +415,13 @@
     },
     {
       "path": "docs/references/public-repository.md",
-      "bytes": 3013,
-      "sha256": "527369f5feb9694c9a097e6d2311ab8edf6d4a87a31d52ad7cdd3080038f5fe6"
+      "bytes": 4010,
+      "sha256": "23b4d560c186fb4ba0ae5e8523f9c18fcdc8bb1b7325d45974f6edb5ecd6b146"
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 38753,
-      "sha256": "95874c39c0281bbb6290d09d2d1a3564002da4120f81fa03c2f4c12bcf34b70d"
+      "bytes": 41644,
+      "sha256": "b0dad31b05466f299fee2edd75ed75d023781cbd13566aa7ebe3af8fde8ab7b2"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
@@ -485,8 +485,8 @@
     },
     {
       "path": "pages/airs/[id].vue",
-      "bytes": 124479,
-      "sha256": "fb96a0a3979e15e8e1811c1af9963f53089ab55c1297355da26b040407a97212"
+      "bytes": 123297,
+      "sha256": "9a455d6d1677c924a417069eafc71d907a2bb685ffa8f0f2098fa11dc80bd6b6"
     },
     {
       "path": "pages/airs/about.vue",
@@ -1335,8 +1335,8 @@
     },
     {
       "path": "tests/source-e2e/guest-context.spec.ts",
-      "bytes": 27200,
-      "sha256": "767301a7f78e60c554eb09baf95f10e4f7cf207fdd100912a69701ffd270ee2d"
+      "bytes": 29549,
+      "sha256": "68b2f31e3df1637ba57ef97389aef499e2833b76bee1e5cdf2e5bc175387ccfe"
     },
     {
       "path": "tests/study-air-history.test.ts",
@@ -1510,8 +1510,8 @@
     },
     {
       "path": "vercel.json",
-      "bytes": 140,
-      "sha256": "ea2b284c471ae9aae7e5e02d66f6cff92c47ad9411bef970587e752c175c479e"
+      "bytes": 204,
+      "sha256": "437b9d5f8e716eb9a04aeac9db2e63de745027422403e2ccb2e0b69d810273b4"
     },
     {
       "path": "vitest.config.ts",

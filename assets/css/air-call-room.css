@@ -885,6 +885,12 @@
   border-top: 1px solid var(--call-line);
   padding: 12px 0 0;
 }
+.conversation-open .call-stage {
+  gap: 16px;
+}
+.conversation-open .call-control-area {
+  padding-bottom: 8px;
+}
 @media (max-width: 767px) {
   .air-call-room {
     padding: 0;

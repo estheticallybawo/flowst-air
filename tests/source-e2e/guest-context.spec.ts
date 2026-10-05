@@ -63,6 +63,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await expect(
     page.getByRole("region", { name: "Your learning context" }),
   ).toBeVisible({ timeout: 90000 });
+  await expect(page.locator(".flowst-topbar, .flowst-bottom-nav, .air-app-header")).toHaveCount(0);
   expect(await page.locator("iframe").count()).toBe(0);
   await expect(page.getByLabel("Public source link")).toHaveCount(0);
   await expect(
@@ -145,6 +146,18 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     page.getByRole("button", { name: "Approve plan", exact: true }),
   ).toBeEnabled();
   await expectPrimaryInWorkspace(page, "Approve plan");
+  // Record short presentation states in the page; Node-side polling can miss them.
+  await page.evaluate(() => {
+    const labels = ["Misu is reviewing your plan", "Misu is arranging your practice", "Misu is introducing Kai’s role", "Amina is getting ready"];
+    const seen = new Set<string>();
+    const capture = () => labels.forEach(label => {
+      if (document.querySelector(".prepared-handoff")?.textContent?.includes(label)) seen.add(label);
+    });
+    const observer = new MutationObserver(capture);
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    (window as any).__handoffPresentation = { seen, observer };
+  });
+
   await page.getByRole("button", { name: "Approve plan", exact: true }).click();
   await expect(
     page.getByRole("region", { name: "Preparing your conversation" }),
@@ -158,15 +171,6 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await expect(
     page.getByRole("button", { name: "Start conversation", exact: true }),
   ).toHaveCount(0);
-  await expect(
-    page.getByText("Misu is arranging your practice", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    page.getByText("Misu is introducing Kai’s role", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    page.getByText("Amina is getting ready", { exact: true }),
-  ).toBeVisible();
   expect(await page.evaluate(() => (window as any).__micRequests)).toBe(0);
   await page.screenshot({
     path: "test-results/airs-handoff-" + test.info().project.name + ".png",
@@ -175,6 +179,13 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await expect(
     page.getByText("Your welcome is ready. Microphone off.", { exact: true }),
   ).toBeVisible({ timeout: 30000 });
+  const handoffLabels = await page.evaluate(() => {
+    const presentation = (window as any).__handoffPresentation;
+    presentation.observer.disconnect();
+    return [...presentation.seen];
+  });
+  expect(handoffLabels).toEqual(expect.arrayContaining(["Misu is reviewing your plan", "Misu is arranging your practice", "Misu is introducing Kai’s role", "Amina is getting ready"]));
+
   await expect(
     page.getByRole("button", { name: "Start conversation", exact: true }),
   ).toBeVisible();
@@ -237,9 +248,10 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   expect(await page.evaluate(() => (window as any).__micRequests)).toBe(0);
   const currentWelcomeReads = welcomeReads;
   await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("navigation", { name: "Your learning journey", exact: true })).toBeVisible({ timeout: 30000 });
   await expect(
     page.getByRole("button", { name: "Start conversation", exact: true }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 30000 });
   expect(welcomeReads).toBe(currentWelcomeReads);
   expect(voiceStarts).toBe(0);
   expect(recoveryRequests).toBe(1);
@@ -394,6 +406,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     await route.fulfill({ json: { pacing: timer } });
   });
   await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("navigation", { name: "Your learning journey", exact: true })).toBeVisible({ timeout: 30000 });
   await expect(
     page.getByRole("button", { name: "Skip break & continue", exact: true }),
   ).toBeVisible();
@@ -428,6 +441,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
  })
  timer={...timer,revision:'advance-break',phase:'BREAK',remainingMs:180000,breakEndsAt:Date.now()+180000}
  await page.reload({waitUntil:'domcontentloaded'})
+  await expect(page.getByRole("navigation", { name: "Your learning journey", exact: true })).toBeVisible({ timeout: 30000 });
  const advanceCheckpoint=page.getByRole('dialog',{name:'Your objective checkpoint'})
  await expect(advanceCheckpoint).toBeVisible()
  await expect(advanceCheckpoint).toContainText('Your saved explanation supports this checkpoint.')
@@ -528,6 +542,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     }),
   );
   await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("navigation", { name: "Your learning journey", exact: true })).toBeVisible({ timeout: 30000 });
   // The saved supported answer surfaces its checkpoint automatically.
   await expect(
     page.getByRole("dialog", { name: "Your objective checkpoint" }),
@@ -588,6 +603,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   // Earlier usage beyond the retired quotas leaves playback and recording available.
   pastTrialUsage = true;
   await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("navigation", { name: "Your learning journey", exact: true })).toBeVisible({ timeout: 30000 });
   await page
     .getByRole("button", { name: "Listen to reply", exact: true })
     .click();
