@@ -11,7 +11,7 @@ import {
   TransactWriteCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
-import type { QueryCommandOutput } from "@aws-sdk/lib-dynamodb";
+import type { QueryCommandOutput, TransactWriteCommandInput } from "@aws-sdk/lib-dynamodb";
 import {
   DeleteObjectCommand,
   PutObjectCommand,
@@ -1040,76 +1040,129 @@ export async function getStudyConversation(
   return publicRecord(record, turns, usage);
 }
 
+type VoiceUsageReservation = Omit<StudyVoiceUsageEvent, "id" | "createdAt">;
+interface StudyVoiceAllowance {
+  ownerId: string;
+  transcribeSeconds: number;
+  pollyCharacters: number;
+}
+interface LiveOutputReservation {
+  leaseId: string;
+  outputBudget: number;
+}
+
+function recordedVoiceUsage(kind: StudyVoiceUsageEvent["kind"]) {
+  return ["TRANSCRIBE", "POLLY", "ELEVEN_INPUT", "ELEVEN_OUTPUT"].includes(kind);
+}
+function inputVoiceUsage(kind: StudyVoiceUsageEvent["kind"]) {
+  return ["TRANSCRIBE", "SONIC_INPUT", "ELEVEN_INPUT", "ELEVEN_CALL"].includes(kind);
+}
+function assertVoiceUsageTotals(totals: StudyVoiceAllowance, field: "transcribeSeconds" | "pollyCharacters", units: number) {
+  if (!Number.isSafeInteger(totals.transcribeSeconds) || totals.transcribeSeconds < 0 ||
+      !Number.isSafeInteger(totals.pollyCharacters) || totals.pollyCharacters < 0 ||
+      !Number.isSafeInteger(totals[field] + units))
+    throw createError({ statusCode: 503, statusMessage: "Voice usage could not be recorded safely. Your saved conversation is still available." });
+}
+function recordedVoiceLeaseError() {
+  return createError({ statusCode: 409, statusMessage: "End the live call before using recorded voice." });
+}
+function liveOutputAllowanceError() {
+  return createError({ statusCode: 429, statusMessage: "This call has ended or reached its reply allowance." });
+}
+
+/** Record before dispatch. Failed or uncertain provider work retains usage; success does not charge again. */
+export async function reserveStudyVoiceUsage(
+  ownerId: string,
+  id: string,
+  usage: VoiceUsageReservation,
+  event?: H3Event,
+) {
+  return commitStudyVoiceUsage(ownerId, id, usage, event);
+}
+
+/** Live and recorded usage share the same private accounting ledger, without a cumulative ceiling. */
 export async function appendStudyVoiceUsage(
   ownerId: string,
   id: string,
-  usage: Omit<StudyVoiceUsageEvent, "id" | "createdAt">,
+  usage: VoiceUsageReservation,
   event?: H3Event,
 ) {
-  await getStudyConversation(ownerId, id, event);
-  if (
-    (usage.kind === "TRANSCRIBE" ||
-      usage.kind === "POLLY" ||
-      usage.kind === "ELEVEN_INPUT" ||
-      usage.kind === "ELEVEN_OUTPUT") &&
-    (await studyLiveLease(id, event))
-  )
-    throw createError({
-      statusCode: 409,
-      statusMessage: "End the live call before using recorded voice.",
-    });
+  return reserveStudyVoiceUsage(ownerId, id, usage, event);
+}
+
+async function commitStudyVoiceUsage(
+  ownerId: string,
+  id: string,
+  usage: VoiceUsageReservation,
+  event?: H3Event,
+  liveOutput?: LiveOutputReservation,
+) {
+  const field = inputVoiceUsage(usage.kind) ? "transcribeSeconds" : "pollyCharacters";
+  if (!Number.isSafeInteger(usage.units) || usage.units <= 0)
+    throw createError({ statusCode: 400, statusMessage: "Voice usage must be a positive, safely represented number of units." });
+  assertStudyConversationActive(await getStudyConversation(ownerId, id, event));
   const item: StudyVoiceUsageEvent = {
     ...usage,
     id: randomUUID(),
     createdAt: new Date().toISOString(),
   };
   const { mock, table, db } = resources(event);
-  if (mock) mockVoiceUsage.set(id, [...(mockVoiceUsage.get(id) || []), item]);
-  else if (
-    usage.kind === "TRANSCRIBE" ||
-    usage.kind === "POLLY" ||
-    usage.kind === "ELEVEN_INPUT" ||
-    usage.kind === "ELEVEN_OUTPUT"
-  )
-    await db.send(
-      new TransactWriteCommand({
-        TransactItems: [
-          {
-            ConditionCheck: {
-              TableName: table,
-              Key: { pk: `STUDY#${id}`, sk: "LIVE#VOICE" },
-              ConditionExpression:
-                "attribute_not_exists(pk) OR expiresAt <= :now",
-              ExpressionAttributeValues: { ":now": Date.now() },
-            },
-          },
-          {
-            Put: {
-              TableName: table,
-              Item: {
-                pk: `STUDY#${id}`,
-                sk: `USAGE#${item.createdAt}#${item.id}`,
-                usage: item,
-              },
-              ConditionExpression: "attribute_not_exists(pk)",
-            },
-          },
-        ],
-      }),
-    );
-  else
-    await db.send(
-      new PutCommand({
-        TableName: table,
-        Item: {
-          pk: `STUDY#${id}`,
-          sk: `USAGE#${item.createdAt}#${item.id}`,
-          usage: item,
-        },
-        ConditionExpression: "attribute_not_exists(pk)",
-      }),
-    );
-  return item;
+  if (mock) {
+    // Re-read after awaits, then check and reserve without yielding to another request.
+    const record = mockRecords.get(id);
+    if (!record || record.ownerId !== ownerId)
+      throw createError({ statusCode: 404, statusMessage: "Study chat not found." });
+    const current = publicRecord(record, [], mockVoiceUsage.get(id) || []);
+    assertStudyConversationActive(current);
+    const lease = mockLiveLeases.get(id);
+    if (recordedVoiceUsage(usage.kind) && (lease?.expiresAt || 0) > Date.now())
+      throw recordedVoiceLeaseError();
+    if (liveOutput && (!lease || lease.ownerId !== ownerId || lease.leaseId !== liveOutput.leaseId || lease.expiresAt <= Date.now() || (lease.outputUsed || 0) + usage.units > (lease.outputBudget || 0)))
+      throw liveOutputAllowanceError();
+    assertVoiceUsageTotals({ ownerId, transcribeSeconds: current.voiceUsage?.transcribeSeconds ?? 0, pollyCharacters: current.voiceUsage?.pollyCharacters ?? 0 }, field, usage.units);
+    if (liveOutput) lease!.outputUsed = (lease!.outputUsed || 0) + usage.units;
+    mockVoiceUsage.set(id, [...(mockVoiceUsage.get(id) || []), item]);
+    return item;
+  }
+
+  const allowanceKey = { pk: `STUDY#${id}`, sk: "VOICE#ALLOWANCE" };
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const saved = (await db.send(new GetCommand({ TableName: table, Key: allowanceKey, ConsistentRead: true }))).Item as StudyVoiceAllowance | undefined;
+    // Older documents only have usage events. Adopt those totals once, under an absence condition.
+    const current = saved ? undefined : await getStudyConversation(ownerId, id, event);
+    const allowance: StudyVoiceAllowance = saved || {
+      ownerId,
+      transcribeSeconds: current?.voiceUsage?.transcribeSeconds ?? 0,
+      pollyCharacters: current?.voiceUsage?.pollyCharacters ?? 0,
+    };
+    if (allowance.ownerId !== ownerId)
+      throw createError({ statusCode: 404, statusMessage: "Study chat not found." });
+    assertVoiceUsageTotals(allowance, field, usage.units);
+    const writes: NonNullable<TransactWriteCommandInput["TransactItems"]> = [
+      { ConditionCheck: { TableName: table, Key: { pk: `STUDY#${id}`, sk: "META" }, ConditionExpression: "ownerId = :owner AND attribute_not_exists(abandonedAt)", ExpressionAttributeValues: { ":owner": ownerId } } },
+      saved
+        ? { Update: { TableName: table, Key: allowanceKey, UpdateExpression: `SET ${field} = ${field} + :units`, ConditionExpression: `ownerId = :owner AND ${field} = :previous`, ExpressionAttributeValues: { ":owner": ownerId, ":units": usage.units, ":previous": allowance[field] } } }
+        : { Put: { TableName: table, Item: { ...allowanceKey, ...allowance, [field]: allowance[field] + usage.units }, ConditionExpression: "attribute_not_exists(pk)" } },
+      { Put: { TableName: table, Item: { pk: `STUDY#${id}`, sk: `USAGE#${item.createdAt}#${item.id}`, usage: item }, ConditionExpression: "attribute_not_exists(pk)" } },
+    ];
+    if (recordedVoiceUsage(usage.kind))
+      writes.push({ ConditionCheck: { TableName: table, Key: { pk: `STUDY#${id}`, sk: "LIVE#VOICE" }, ConditionExpression: "attribute_not_exists(pk) OR expiresAt <= :now", ExpressionAttributeValues: { ":now": Date.now() } } });
+    if (liveOutput)
+      writes.push({ Update: { TableName: table, Key: { pk: `STUDY#${id}`, sk: "LIVE#VOICE" }, UpdateExpression: "SET outputUsed = outputUsed + :units", ConditionExpression: "ownerId = :owner AND leaseId = :lease AND expiresAt > :now AND outputUsed <= :remaining", ExpressionAttributeValues: { ":owner": ownerId, ":lease": liveOutput.leaseId, ":now": Date.now(), ":units": usage.units, ":remaining": liveOutput.outputBudget - usage.units } } });
+    try {
+      await db.send(new TransactWriteCommand({ ClientRequestToken: randomUUID(), TransactItems: writes }));
+      return item;
+    } catch (cause) {
+      // Only a rejected transaction is safe to re-evaluate. Unknown write outcomes never trigger provider work.
+      if (!["TransactionCanceledException", "TransactionConflictException"].includes((cause as Error).name)) throw cause;
+      assertStudyConversationActive(await getStudyConversation(ownerId, id, event));
+      const lease = await studyLiveLease(id, event);
+      if (recordedVoiceUsage(usage.kind) && lease) throw recordedVoiceLeaseError();
+      if (liveOutput && (lease?.ownerId !== ownerId || lease.leaseId !== liveOutput.leaseId || (lease.outputUsed || 0) + usage.units > (lease.outputBudget || 0)))
+        throw liveOutputAllowanceError();
+    }
+  }
+  throw createError({ statusCode: 409, statusMessage: "Voice usage is busy. Try again." });
 }
 
 export async function listStudyConversations(ownerId: string, event?: H3Event) {
@@ -1877,57 +1930,5 @@ export async function reserveStudyLiveOutput(
       statusMessage:
         "This call has reached its reply allowance. Your saved turns remain available.",
     });
-  const { mock, table, db } = resources(event);
-  const usage: StudyVoiceUsageEvent = {
-    kind: "ELEVEN_LIVE_OUTPUT",
-    units,
-    id: randomUUID(),
-    createdAt: new Date().toISOString(),
-  };
-  if (mock) {
-    lease.outputUsed = (lease.outputUsed || 0) + units;
-    mockVoiceUsage.set(id, [...(mockVoiceUsage.get(id) || []), usage]);
-  } else
-    try {
-      await db.send(
-        new TransactWriteCommand({
-          TransactItems: [
-            {
-              Update: {
-                TableName: table,
-                Key: { pk: "STUDY#" + id, sk: "LIVE#VOICE" },
-                UpdateExpression: "SET outputUsed = outputUsed + :units",
-                ConditionExpression:
-                  "ownerId = :owner AND leaseId = :lease AND expiresAt > :now AND outputUsed <= :remaining",
-                ExpressionAttributeValues: {
-                  ":units": units,
-                  ":owner": ownerId,
-                  ":lease": leaseId,
-                  ":now": Date.now(),
-                  ":remaining": (lease.outputBudget || 0) - units,
-                },
-              },
-            },
-            {
-              Put: {
-                TableName: table,
-                Item: {
-                  pk: "STUDY#" + id,
-                  sk: `USAGE#${usage.createdAt}#${usage.id}`,
-                  usage,
-                },
-                ConditionExpression: "attribute_not_exists(pk)",
-              },
-            },
-          ],
-        }),
-      );
-    } catch (cause) {
-      if ((cause as Error).name === "TransactionCanceledException")
-        throw createError({
-          statusCode: 429,
-          statusMessage: "This call has ended or reached its reply allowance.",
-        });
-      throw cause;
-    }
+  await commitStudyVoiceUsage(ownerId, id, { kind: "ELEVEN_LIVE_OUTPUT", units }, event, { leaseId, outputBudget: lease.outputBudget || 0 });
 }

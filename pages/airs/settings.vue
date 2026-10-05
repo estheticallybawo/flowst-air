@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ alias: '/amira/settings', middleware: ["air-only"] });
+definePageMeta({ middleware: [] });
 const auth = useAuth();
 const { access, loading, error, refresh } = useAirAccess();
 useHead({ title: "Settings · Flowst Air" });
@@ -89,13 +89,9 @@ onMounted(() => {
             >
           </p>
           <p>
-            Per document: {{ access.limits.recordedSecondsPerDocument }} voice
-            input seconds and
-            {{
-              access.limits.spokenCharactersPerDocument.toLocaleString()
-            }}
-            generated reply characters. All Voice conversation shares this
-            allowance.
+            Voice practice has no cumulative input-time or generated-speech
+            quota. Recordings can be up to two minutes per take. Your chosen
+            practice time applies to each topic block.
           </p>
           <p v-if="access.tier === 'RESTRICTED'">
             Your saved documents remain readable and can be deleted from the

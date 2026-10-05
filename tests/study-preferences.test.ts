@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { DEFAULT_STUDY_PREFERENCES, type StudyPreferences } from '../shared/study'
 import { readStudyPreferencesField, validateStudyPreferences } from '../server/services/studyPreferences'
 import { buildMisuPlanningRequest, generateMisuPlan, standaloneStudyObjectiveCapacity, validateMisuObjectives } from '../server/services/studyMisu'
-import { createStudyConversation, deleteStudyConversation, getStudyChunks, getStudyConversation, indexStudySections } from '../server/services/studyRepository'
+import { appendStudyVoiceUsage, createStudyConversation, deleteStudyConversation, getStudyChunks, getStudyConversation, indexStudySections } from '../server/services/studyRepository'
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -47,57 +47,41 @@ describe('learner-selected Amina planning context', () => {
     expect(() => validateMisuObjectives({ objectives: [objective] }, chunks, { ...preferences, scope: 'BROAD' })).toThrow()
   })
 
-  it('bounds standalone broad objectives by reserved calls while preserving the full Flowst range', () => {
+  it('bounds a deliberately selected objective count independently of voice usage', () => {
     const broad = { ...preferences, scope: 'BROAD' as const, timeBudgetMinutes: 120 }
     const chunks = indexStudySections(extraction)
     const objectives = Array.from({ length: 6 }, (_, index) => ({ title: `Explain supervised learning ${index + 1}`, outcome: 'Explain labelled examples.', sourceIds: [chunks[0]!.id], estimatedMinutes: 1 }))
     const bounded = buildMisuPlanningRequest(broad, 'source passages', 5)
     expect(bounded.system).toContain('3 to 5')
-    expect(bounded.system).toContain('a larger time preference never grants longer calls or more voice usage')
+    expect(bounded.system).not.toContain('reserved live calls')
     expect(() => validateMisuObjectives({ objectives }, chunks, broad, 5)).toThrow()
     expect(validateMisuObjectives({ objectives: objectives.slice(0, 5) }, chunks, broad, 5)).toHaveLength(5)
     expect(validateMisuObjectives({ objectives }, chunks, broad)).toHaveLength(6)
-    expect(() => buildMisuPlanningRequest(broad, 'sources', 2)).toThrow(/remaining voice allowance/)
+    expect(() => buildMisuPlanningRequest(broad, 'sources', 2)).toThrow(/selected study scope/)
   })
 
-  it('derives the standalone objective capacity from remaining reserved input, never the chosen minutes', () => {
-    vi.stubGlobal('useRuntimeConfig', () => ({ public: { appSurface: 'air' }, studyAwsVoiceTrialMaxSeconds: 300 }))
-    const study = { preferences: { ...preferences, timeBudgetMinutes: 120 }, voiceUsage: { transcribeSeconds: 120, pollyCharacters: 0 } } as any
-    expect(standaloneStudyObjectiveCapacity(study)).toBe(3)
-    vi.stubGlobal('useRuntimeConfig', () => ({ public: { appSurface: 'flowst' }, studyAwsVoiceTrialMaxSeconds: 300 }))
-    expect(standaloneStudyObjectiveCapacity(study)).toBeUndefined()
-    vi.stubGlobal('useRuntimeConfig', () => ({ public: { appSurface: 'air' }, studyAwsVoiceTrialMaxSeconds: NaN }))
-    expect(() => standaloneStudyObjectiveCapacity(study)).toThrow(/could not be checked/)
+  it('does not restrict objective capacity by earlier speech or retired quota settings', () => {
+    const study = { preferences: { ...preferences, timeBudgetMinutes: 120 }, voiceUsage: { transcribeSeconds: 1200, pollyCharacters: 25000 } } as any
+    for (const appSurface of ['air','amira','flowst']) {
+      vi.stubGlobal('useRuntimeConfig', () => ({ public: { appSurface }, studyAwsVoiceTrialMaxSeconds: 300 }))
+      expect(standaloneStudyObjectiveCapacity(study)).toBeUndefined()
+    }
   })
 
-  it('rejects an infeasible standalone scope before spending model credits', async () => {
+  it('generates all six broad objectives after earlier voice usage exceeds the retired limits', async () => {
     vi.stubGlobal('useRuntimeConfig', () => ({ flowstAuthMode: 'mock', public: { appSurface: 'air' }, studyAwsVoiceTrialMaxSeconds: 120, studyTextProvider: 'groq', groqApiKey: 'test-key', groqModel: 'test-model' }))
     const broad = { ...preferences, scope: 'BROAD' as const, timeBudgetMinutes: 120 }
-    const chat = await createStudyConversation('planning-live-scope-limit', 'notes.pdf', 'application/pdf', Buffer.from('fixture'), extraction, undefined, broad)
-    const fetcher = vi.fn()
-    vi.stubGlobal('fetch', fetcher)
-    try {
-      await expect(generateMisuPlan('planning-live-scope-limit', chat.id)).rejects.toMatchObject({ statusCode: 409 })
-      expect(fetcher).not.toHaveBeenCalled()
-      const saved = await getStudyConversation('planning-live-scope-limit', chat.id)
-      expect(saved.plan.status).toBe('FAILED')
-      expect(saved.plan.error).toContain('remaining voice allowance')
-    } finally { await deleteStudyConversation('planning-live-scope-limit', chat.id) }
-  })
-
-  it('enforces the standalone cap in the generation pipeline even for a large time preference', async () => {
-    vi.stubGlobal('useRuntimeConfig', () => ({ flowstAuthMode: 'mock', public: { appSurface: 'air' }, studyAwsVoiceTrialMaxSeconds: 300, studyTextProvider: 'groq', groqApiKey: 'test-key', groqModel: 'test-model' }))
-    const broad = { ...preferences, scope: 'BROAD' as const, timeBudgetMinutes: 120 }
-    const chat = await createStudyConversation('planning-live-objective-limit', 'notes.pdf', 'application/pdf', Buffer.from('fixture'), extraction, undefined, broad)
-    const chunks = await getStudyChunks('planning-live-objective-limit', chat.id)
+    const chat = await createStudyConversation('planning-unlimited-owner', 'notes.pdf', 'application/pdf', Buffer.from('fixture'), extraction, undefined, broad)
+    await appendStudyVoiceUsage(chat.ownerId, chat.id, {kind:'TRANSCRIBE',units:1200})
+    const chunks = await getStudyChunks(chat.ownerId, chat.id)
     const modelPlan = { title: 'Supervised Learning With Labelled Examples', objectives: Array.from({ length: 6 }, (_, index) => ({ title: `Explain supervised learning ${index + 1}`, outcome: 'Explain labelled examples.', sourceIds: [chunks[0]!.id], estimatedMinutes: 1 })) }
-    const fetcher = vi.fn().mockResolvedValue(planningResponse(modelPlan))
-    vi.stubGlobal('fetch', fetcher)
+    const fetcher = vi.fn().mockResolvedValue(planningResponse(modelPlan));vi.stubGlobal('fetch', fetcher)
     try {
-      await expect(generateMisuPlan('planning-live-objective-limit', chat.id)).rejects.toMatchObject({ statusCode: 502 })
-      expect(JSON.parse(fetcher.mock.calls[0]?.[1].body).messages[0].content).toContain('3 to 5')
-      expect((await getStudyConversation('planning-live-objective-limit', chat.id)).plan.status).toBe('FAILED')
-    } finally { await deleteStudyConversation('planning-live-objective-limit', chat.id) }
+      const planned = await generateMisuPlan(chat.ownerId, chat.id)
+      expect(planned.plan.status).toBe('DRAFT');expect(planned.plan.objectives).toHaveLength(6)
+      expect(JSON.parse(fetcher.mock.calls[0]?.[1].body).messages[0].content).toContain('3 to 6')
+      expect(fetcher).toHaveBeenCalledTimes(1)
+    } finally { await deleteStudyConversation(chat.ownerId, chat.id) }
   })
 
   it('saves the learner context and produces a grounded timed plan through the existing model pipeline', async () => {

@@ -24,7 +24,7 @@ Flowst Airs is the product. Misu plans and proposes instructional choices. Amina
 
 Current implementation: one reviewed source, learner preferences, Misu's plan and visible planner identity, learner approval, Amina practice/application, source-linked records, bounded public adapters and a read-only development MCP. Sources include documents, selected public repository files, readable pages and speech transcripts. Timestamp references do not imply visual video inspection.
 
-Kai's separate interpreter, comprehensive support-event packets, learner-controlled cross-session development views and delayed retention evidence remain target additions. Existing feedback must not be presented as already produced by Kai. Real video-provider callbacks, live voice and new live-model plan explanations still require deployed checks. See [verification](../references/verification.md).
+Kai's separate owner-scoped review is implemented: after all source-linked objective checkpoints are confirmed, it interprets saved attempts against approved evaluation criteria and proposes a next exercise. Its observations reference recorded evidence and do not establish intelligence, mastery or lasting improvement. Comprehensive support-event packets, learner-controlled longitudinal views and delayed retention evidence remain target additions. Real video-provider callbacks, live voice and new live-model plan explanations still require deployed checks. See [verification](../references/verification.md).
 
 ## Operating conditions
 

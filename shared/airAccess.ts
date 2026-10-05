@@ -2,7 +2,7 @@ export type AirStudyAction = 'UPLOAD' | 'PLAN' | 'PRACTISE' | 'SPEECH'
 export interface AirAccess {
   tier: 'FREE_PILOT' | 'RESTRICTED'
   allowedActions: Record<AirStudyAction, boolean>
-  limits: { uploadBytes: number; uploadPolicy: 'OBJECTIVE_COMPLETION'; uploadsPerMonth?: number; recordedSecondsPerDocument: number; spokenCharactersPerDocument: number }
+  limits: { uploadBytes: number; uploadPolicy: 'OBJECTIVE_COMPLETION'; uploadsPerMonth?: number; recordedSecondsPerDocument: number | null; spokenCharactersPerDocument: number | null }
   usage: { uploadsThisMonth?: number; nextUploadAt?: string; activeConversationId?: string; completionRequired: boolean; uploadRestrictionReason?: string; uploadRestrictionCode?: string; conversationId?: string; recordedSeconds?: number; spokenCharacters?: number }
   upgradeAvailable: false
 }

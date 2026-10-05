@@ -11,7 +11,7 @@ async function expectPrimaryInWorkspace(page:any,name:string){
 }
 
 test('Misu guides setup and prepares Amina without starting a microphone or voice lease',async({page})=>{
- test.setTimeout(180000)
+ test.setTimeout(300000)
  const pageErrors:string[]=[];page.on('pageerror',error=>pageErrors.push(error.message))
  let voiceStarts=0,welcomeReads=0
  await page.addInitScript(()=>{(window as any).__micRequests=0;Object.defineProperty(navigator.mediaDevices,'getUserMedia',{value:async()=>{(window as any).__micRequests++;throw new DOMException('Test permission denial','NotAllowedError')}})})
@@ -118,9 +118,9 @@ test('Misu guides setup and prepares Amina without starting a microphone or voic
  expect(skipped).toBe(true)
  await expect(page.getByRole('region',{name:'Practice and break timer'})).toContainText('Practice')
  // UI contract fixture: backend evidence validation is exercised separately in unit tests.
- let confirmed=false,fixtureStudy:any
+ let confirmed=false,fixtureStudy:any,pastTrialUsage=false
  await page.unroute(/\/api\/study\/conversations\/[a-f0-9-]+$/)
- await page.route(/\/api\/study\/conversations\/[a-f0-9-]+$/,async route=>{const response=await route.fetch(),data=await response.json();data.turns.push(intro);data.plan.activeObjectiveId=data.plan.objectives.at(-1).id;data.plan.recommendation={objectiveId:data.plan.activeObjectiveId,action:'COMPLETE',reason:'Fixture: the saved explanation supports this checkpoint.',basedOnAttemptCount:data.practice.attempts.length};if(confirmed){data.plan.courseCompletedAt=new Date().toISOString();data.plan.courseCompletedBy=data.ownerId;data.plan.recommendation=undefined}data.journey={completedObjectiveIds:confirmed?data.plan.objectives.map((o:any)=>o.id):data.plan.objectives.slice(0,-1).map((o:any)=>o.id),totalObjectives:data.plan.objectives.length,checkpointReady:!confirmed,kaiReady:confirmed};fixtureStudy=data;await route.fulfill({json:data})})
+ await page.route(/\/api\/study\/conversations\/[a-f0-9-]+$/,async route=>{const response=await route.fetch(),data=await response.json();data.turns.push(intro);data.plan.activeObjectiveId=data.plan.objectives.at(-1).id;data.plan.recommendation={objectiveId:data.plan.activeObjectiveId,action:'COMPLETE',reason:'Fixture: the saved explanation supports this checkpoint.',basedOnAttemptCount:data.practice.attempts.length};if(confirmed){data.plan.courseCompletedAt=new Date().toISOString();data.plan.courseCompletedBy=data.ownerId;data.plan.recommendation=undefined}data.journey={completedObjectiveIds:confirmed?data.plan.objectives.map((o:any)=>o.id):data.plan.objectives.slice(0,-1).map((o:any)=>o.id),totalObjectives:data.plan.objectives.length,checkpointReady:!confirmed,kaiReady:confirmed};if(pastTrialUsage)data.voiceUsage={...data.voiceUsage,transcribeSeconds:1200,pollyCharacters:25000};fixtureStudy=data;await route.fulfill({json:data})})
  await page.route('**/api/study/conversations/*/plan/confirm',async route=>{confirmed=true;fixtureStudy.plan.courseCompletedAt=new Date().toISOString();fixtureStudy.plan.courseCompletedBy=fixtureStudy.ownerId;fixtureStudy.plan.recommendation=undefined;await route.fulfill({json:fixtureStudy})})
  await page.route('**/api/study/conversations/*/review',route=>route.fulfill({json:route.request().method()==='GET'?{review:null}:{id:'fixture-review',observations:[{criterionId:'CLARITY',text:'Fixture: your explanation was organized around the source.',evidenceIds:['fixture-evidence']}],evidence:[{id:'fixture-evidence',attempt:'Fixture learner explanation'}],notAssessed:['Mastery and longitudinal improvement'],nextPractice:{goal:'Explain to another audience',exercise:'Try explaining the idea to a teammate.'},nextPracticeStatus:'PROPOSED'}}))
  await page.reload({waitUntil:'domcontentloaded'})
@@ -137,5 +137,19 @@ test('Misu guides setup and prepares Amina without starting a microphone or voic
  await page.getByRole('button',{name:'What to practise next',exact:true}).click()
  await expect(page.getByText('Explain to another audience',{exact:true})).toBeVisible()
  await page.screenshot({path:'test-results/airs-kai-review-'+test.info().project.name+'.png',fullPage:true})
+ // Earlier usage beyond the retired quotas leaves playback and recording available.
+ pastTrialUsage=true
+ await page.reload({waitUntil:'domcontentloaded'})
+ await page.getByRole('button',{name:'Listen to reply',exact:true}).click()
+ await expect(page.getByText('Amina is waiting for your turn',{exact:true})).toBeVisible({timeout:15000})
+ await page.getByRole('button',{name:'Practice options',exact:true}).click()
+ const voicePractice=page.getByRole('region',{name:'Voice practice',exact:true})
+ await expect(voicePractice).toContainText('No cumulative voice limit applies to this study.')
+ await expect(voicePractice).toContainText('Your speech input used: 1200 seconds.')
+ await expect(voicePractice).toContainText('25,000')
+ await page.keyboard.press('Escape')
+ await expect(page.getByRole('button',{name:'Start recording',exact:true})).toBeEnabled()
+ await page.getByRole('button',{name:'Conversation',exact:true}).click()
+ await expect(page.getByRole('region',{name:'Saved conversation',exact:true})).toContainText(intro.text)
  expect(pageErrors).toEqual([])
 })

@@ -103,6 +103,8 @@ async function refreshStudyAccess() {
 }
 const id = computed(() => String(route.params.id || ""));
 const study = ref<StudyConversation | null>(null);
+const voiceInputUsed = computed(() => study.value?.voiceUsage?.transcribeSeconds || 0);
+const voiceOutputUsed = computed(() => study.value?.voiceUsage?.pollyCharacters || 0);
 const pacing = useStudyPacing(id);
 const paced = computed(() => Boolean(study.value?.plan.pacing));
 const pacingBlocked = computed(
@@ -625,8 +627,8 @@ function modeLockReason(mode: StudyMode) {
 useHead({
   title: computed(() =>
     study.value
-      ? `${study.value.document.title || study.value.document.name} · Flowst Air`
-      : "Study session · Flowst Air",
+      ? `${study.value.document.title || study.value.document.name} · Flowst Airs`
+      : "Study session · Flowst Airs",
   ),
 });
 
@@ -634,7 +636,7 @@ async function load() {
   const loaded = await auth.authorizedFetch<StudyConversation>(
     `/api/study/conversations/${id.value}`,
   );
-  if (disposed) return;
+  if (disposed || (study.value && loaded.revision < study.value.revision)) return;
   study.value = loaded;
   await nextTick();
   transcript.value?.scrollTo({ top: transcript.value.scrollHeight });
@@ -1182,6 +1184,7 @@ async function sendRecording() {
         ? "We could not confirm whether your recording was saved. Your take is still here; check the transcript or retry sending this same take."
         : "We could not prepare that recording. It is still here; retry or record again.",
     );
+    if (requestStarted) void load().catch(() => undefined);
     return;
   }
   // The POST acknowledged the saved turn. Refreshing the view or playing audio
@@ -1378,6 +1381,8 @@ async function playSpeech(turnId: string, automatic = false, retry = false) {
     speechFailureMessage.value = outcome.message;
     speechRetryable.value = outcome.retryable;
     error.value = "";
+    // A dispatched request may reserve allowance even when no audio arrives.
+    void load().catch(() => undefined);
   }
 }
 
@@ -2072,8 +2077,8 @@ async function remove() {
                 >
                   Start conversation</button
                 ><small v-if="live.availability.value?.enabled"
-                  >60-second pilot call. Starting reserves 60 seconds of your
-                  document’s voice allowance, even if you end early.
+                  >Each pilot live call lasts up to 60 seconds. You can start
+                  another call; earlier voice usage does not block it.
                   <NuxtLink to="/airs/about"
                     >Microphone &amp; privacy</NuxtLink
                   ></small
@@ -2129,6 +2134,7 @@ async function remove() {
                   }}
                 </p>
                 <button
+                  v-if="speechRetryable"
                   type="button"
                   :disabled="
                     !!preparingSpeechTurnId || !canStudy || !speechRetryable
@@ -2189,9 +2195,11 @@ async function remove() {
                       >Transcribing and asking Amina…</strong
                     >
                     <strong v-else>Your turn to explain</strong>
-                    <span v-if="voiceFailureTurnId"
-                      >Retry Amina’s voice above to continue.</span
-                    >
+                    <span v-if="voiceFailureTurnId">{{
+                      speechRetryable
+                        ? "Retry Amina’s voice above to continue."
+                        : "Read your saved reply in Conversation. Voice practice is paused."
+                    }}</span>
                     <span v-else-if="recorderStatus === 'RECORDING'"
                       >{{ recordingSeconds }}s · Tap the button to stop</span
                     >
@@ -2450,25 +2458,33 @@ async function remove() {
             </button>
           </div>
         </details>
-        <details>
-          <summary>Timing and voice allowance</summary>
+        <details open>
+          <summary>Timing and voice practice</summary>
           <p v-if="paced">
             {{ study.plan.pacing?.practiceMinutes }} minutes per topic, with
             optional {{ study.plan.pacing?.breakMinutes }}-minute recovery
             breaks. Pause or skip a break whenever you need. Time does not
             complete an objective.
           </p>
-          <p>
-            {{
-              Math.max(
-                0,
-                $config.public.studyAwsVoiceTrialMaxSeconds -
-                  (study.voiceUsage?.transcribeSeconds || 0),
-              )
-            }}
-            voice input seconds remaining. Cached replies can be replayed
-            without a new synthesis.
-          </p>
+          <section aria-label="Voice practice">
+            <p>No cumulative voice limit applies to this study.</p>
+            <p>
+              Your speech input used: {{ voiceInputUsed }} seconds.
+            </p>
+            <p>
+              Amina’s generated speech used: {{ voiceOutputUsed.toLocaleString() }}
+              characters.
+            </p>
+            <p>
+              The practice timer sets each topic block. Recordings can be up to
+              two minutes per take. Speech characters measure text prepared
+              for audio, not playback time.
+            </p>
+            <p>
+              Saved audio can be replayed after a reload without another
+              synthesis request. Video-source transcription has a separate budget.
+            </p>
+          </section>
         </details>
         <details v-if="study.document.provenance">
           <summary>Included source</summary>

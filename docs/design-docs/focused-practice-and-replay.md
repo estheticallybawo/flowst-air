@@ -13,13 +13,13 @@ Status: implemented in Flowst; validation and extraction results are recorded as
 
 ## Speech defect and correction
 
-A regression test also found the synthesis character limit was passed as the input-seconds parameter, leaving the default character limit in effect. Both ElevenLabs and AWS synthesis now use the configured character limit correctly; defaults and spending ceilings were not raised.
+A regression test found a synthesis counter was being passed as the input-seconds parameter. Voice reservations now validate the appropriate unit and retain atomic accounting. Cumulative voice quotas were subsequently removed with explicit owner authorization; technical per-request bounds remain.
 
 Previously the browser discarded provider error detail, so a quota or connection failure looked like a generic retry. Audio was cached only in browser memory, so Replay after a reload could request and reserve another synthesis for the same saved turn.
 
-The new service claims each turn before dispatch, persists bounded audio/timing in private encrypted object storage, and reuses it for Replay. Concurrent dispatch is rejected. A failed or ambiguous request is not retried automatically; a deliberate Retry may send a new request and consume allowance. Audio saved before its ready marker can be recovered without dispatch. Owner checks guard reads/writes; conversation deletion includes cached speech. Guest cache metadata is time bounded; deployment object-retention cleanup must cover guest objects independently of DynamoDB TTL. No retention guarantee is inferred from metadata expiry.
+The new service claims each turn before dispatch, persists bounded audio/timing in private encrypted object storage, and reuses it for Replay. Concurrent dispatch is rejected. A failed or ambiguous request is not retried automatically; a deliberate Retry may send a new request and add to recorded usage. Audio saved before its ready marker can be recovered without dispatch. Owner checks guard reads/writes; conversation deletion includes cached speech. Guest cache metadata is time bounded; deployment object-retention cleanup must cover guest objects independently of DynamoDB TTL. No retention guarantee is inferred from metadata expiry.
 
-Production request metadata inspected on 5 October showed 429, 503, 404 and successful speech requests. It did not identify the exact cause of the owner's silent reply. No private transcripts were exported and no paid provider diagnostics were run. Exhausted allowance, provider/pending errors and browser playback failures now retain distinct learner-facing outcomes. Text remains readable. Increasing spend limits is not part of this fix.
+Production request metadata inspected on 5 October showed 429, 503, 404 and successful speech requests. It did not identify the exact cause of the owner's silent reply. No private transcripts were exported and no paid provider diagnostics were run. Provider/pending errors and browser playback failures retain distinct learner-facing outcomes. Text remains readable. Legacy saved quota errors offer a deliberate retry under the current policy.
 
 ## Verification
 
@@ -32,3 +32,13 @@ The design follows Hick's Law, chunking and cognitive load, with connected avata
 The setup and practice routes use a bounded viewport workspace with the host navigation preserved. Compact headers and the avatar rail reduce repeated chrome. Context/source/preferences, plan review and welcome have reachable primary action rows. Long source text opens in a focused reader; scope and plan adjustments use separate dialogs. Longer content scrolls inside its own panel rather than expanding the document. Short viewports and larger text can still require internal scrolling; content is not silently clipped to enforce a fit. No manifest, installability or offline guarantee is inferred from this layout change.
 
 Browser assertions check the primary setup/approval/start controls against viewport and mobile bottom-navigation geometry, and check that the document itself does not scroll. Readers support Escape and return focus. Existing practice, evidence, ownership and paid-provider boundaries remain in force.
+
+## Voice usage without cumulative quotas
+
+The owner explicitly approved removing the 300-second input and 6,000-character output quotas on 5 October 2026. Flowst and standalone Airs now record usage without a per-study voice ceiling. Standalone daily voice submissions also have no application quota. Model and video-ingestion allowances remain independent.
+
+Practice options shows input seconds and generated speech characters used, rather than a remaining balance. Earlier usage does not disable recording, shorten a new call or restrict the number of objectives Misu can propose. Topic timing remains 5–15 minutes per block with the learner-selected break; it is independent of speech accounting. Saved audio remains replayable after reload. Failed dispatched requests refresh recorded usage without claiming that audio or a learner response was saved. Older conversation responses cannot overwrite a newer loaded revision.
+
+Recorded speech and prepared replies atomically reserve a private per-conversation usage record before dispatch, with owner/active-study checks and the durable event. The historical VOICE#ALLOWANCE storage key is retained for compatibility and no longer imposes a policy ceiling. Legacy usage is adopted with consistent reads. Failed or uncertain dispatch retains its reservation; success does not add it twice. An uncertain paid request is not retried automatically. Explicit Retry may incur another provider request.
+
+Technical safeguards remain: two-minute recorded takes, bounded synthesis payloads, a 60-second ElevenLabs live call and provider-specific per-call output bounds. A later call may be started after the current lease closes. Explicit microphone consent, owner access, active-study and source-approval gates remain. Verification uses fixtures; real provider account availability and speech quality require owner preflight.

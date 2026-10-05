@@ -6,7 +6,7 @@ Status: source/planning foundation and Flowst Airs identity implemented; separat
 2. Inspect one bounded source; show actual processing, coverage, omissions and attribution. Speech transcripts exclude unseen visuals.
 3. Ask for purpose, time and scope. These are choices, not inferred fixed learner types.
 4. Confirm source review before Misu's proposal. Show avatar, actual preparation state, objectives, citations and concise proposed explanation.
-5. Learner approves or regenerates. Explain microphone and voice allowance; save approval before starting practice.
+5. Learner approves or regenerates. Explain microphone consent, individual recording/call bounds and paid provider usage; save approval before starting practice. Airs has no cumulative per-study or daily guest voice-start quota.
 6. Amina follows the packet. Learner requests help or stops; save only confirmed records.
 7. Current recap reflects saved activities. Future Kai feedback must cite recorded evidence and remain contextual interpretation.
 8. Future continuing study uses learner-controlled evidence; do not infer lasting retention from a single exchange.

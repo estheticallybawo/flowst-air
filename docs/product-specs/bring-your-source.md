@@ -1,13 +1,13 @@
 # Capstone specification — Flowst Airs source-learning slice
 
-The product is Flowst Airs. This slice implements its source journey through Misu and Amina on the existing standalone Amina foundation. Kai’s separate interpretation service and full cross-session orchestration remain target additions, not claims in the acceptance criteria below. See [system responsibilities](../design-docs/flowst-air-system-design.md).
+The product is Flowst Airs. This slice implements its source journey through Misu, Amina and Kai on the existing standalone Amina foundation. Kai's separate owner-scoped review interprets saved attempts against approved criteria after all source-linked objective checkpoints are confirmed, and proposes a next exercise. Richer longitudinal views and delayed retention evidence remain target additions. Immediate feedback does not establish intelligence, mastery or lasting improvement. See [system responsibilities](../design-docs/flowst-air-system-design.md).
 
 ## Acceptance criteria
 
 1. Documents, selected public GitHub files, a public HTML page, and supported video/transcript inputs reach the same owner-scoped learning pipeline.
 2. Source review identifies actual included text, omissions, provenance, and timestamps before plan creation.
 3. Misu proposes source-supported objectives requiring learner approval.
-4. Amina supports spoken explanation and a hypothetical transfer application, with durable source-linked evidence and existing progression controls.
+4. Amina supports spoken explanation and a hypothetical transfer application, with durable source-linked evidence and existing progression controls. After all evidence-backed objective checkpoints are confirmed, Kai provides a separate contextual review and next-practice proposal grounded in those saved attempts.
 5. A fresh public checkout runs a labelled local fixture demonstration and includes an actually exercised read-only GitHub MCP workflow.
 
 ## Implementation tasks

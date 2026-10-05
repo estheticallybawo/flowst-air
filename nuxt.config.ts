@@ -32,7 +32,6 @@ export default defineNuxtConfig({
   runtimeConfig: {
     airsGuestSecret: process.env.AIRS_GUEST_SECRET || '',
     airsGuestDailyModelLimit: Number(process.env.AIRS_GUEST_DAILY_MODEL_LIMIT || 30),
-    airsGuestDailyVoiceLimit: Number(process.env.AIRS_GUEST_DAILY_VOICE_LIMIT || 10),
     studyGithubToken: airEnv('AIR_GITHUB_READ_TOKEN', 'AMINA_GITHUB_READ_TOKEN') || '',
     studySourceFixtureMode: airEnv('AIR_SOURCE_FIXTURE_MODE', 'AMINA_SOURCE_FIXTURE_MODE') === 'true',
     studyVideoEnabled: airEnv('AIR_VIDEO_ENABLED', 'AMINA_VIDEO_ENABLED') === 'true',
@@ -76,8 +75,6 @@ export default defineNuxtConfig({
     elevenLabsApiKey: process.env.ELEVENLABS_API_KEY || '',
     elevenLabsVoiceId: process.env.ELEVENLABS_VOICE_ID || '',
     studyAwsPollyVoiceId: process.env.FLOWST_STUDY_AWS_POLLY_VOICE_ID || 'Joanna',
-    studyAwsVoiceTrialMaxSeconds: Number(process.env.FLOWST_STUDY_AWS_VOICE_TRIAL_MAX_SECONDS || 300),
-    studyAwsVoiceTrialMaxCharacters: Number(process.env.FLOWST_STUDY_AWS_VOICE_TRIAL_MAX_CHARACTERS || 6000),
     studyAwsTranscribeUsdPerMinute: Number(process.env.FLOWST_STUDY_AWS_TRANSCRIBE_ESTIMATE_USD_PER_MINUTE || 0.03),
     studyAwsPollyUsdPerMillion: Number(process.env.FLOWST_STUDY_AWS_POLLY_ESTIMATE_USD_PER_MILLION || 16),
     studyBedrockModelId: process.env.FLOWST_STUDY_BEDROCK_MODEL_ID || 'us.amazon.nova-2-lite-v1:0',
@@ -98,8 +95,6 @@ export default defineNuxtConfig({
       schoolId: process.env.NUXT_PUBLIC_SCHOOL_ID || 'school-aster',
       demoMode: process.env.NUXT_PUBLIC_DEMO_MODE !== 'false',
       neoGenerationAvailable: process.env.NEO_GENERATION_ENABLED === 'true',
-      studyAwsVoiceTrialMaxSeconds: Number(process.env.FLOWST_STUDY_AWS_VOICE_TRIAL_MAX_SECONDS || 300),
-      studyAwsVoiceTrialMaxCharacters: Number(process.env.FLOWST_STUDY_AWS_VOICE_TRIAL_MAX_CHARACTERS || 6000),
     },
   },
   pwa: {

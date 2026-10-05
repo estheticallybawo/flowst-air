@@ -1,6 +1,6 @@
 # Owner preflight: topic pacing and voice turns
 
-Automated fixtures have not verified real provider availability, speech quality or latency. Run this in your own account with your permitted source and existing voice allowance. Starting practice, sending a recording and generating speech can incur provider usage. The selected topic duration does not enlarge that allowance.
+Automated fixtures have not verified real provider availability, speech quality or latency. Run this with your own configured providers and permitted source. Airs has no cumulative per-study voice quota or daily guest voice-start quota; starting practice, sending a recording and generating speech can incur provider charges. Recorded takes remain bounded to two minutes, synthesized replies to 3,000 characters, and optional live calls retain individual duration, lease and output bounds. Topic timing is a practice clock, not a provider spending ceiling.
 
 1. Open `https://app.useflowst.com/airs/new` after Flowst sign-in. Confirm Misu’s context, review one source, choose five minutes per topic and a three-minute break, then approve the plan.
 2. During handoff, check Misu/Amina preparation, the ten-second ready transition (or Continue now), readable welcome, voice preparation and playback. No microphone should be active. If the browser blocks playback, use Replay. Saved approval and welcome should survive an audio failure.
@@ -14,6 +14,6 @@ Record deployment/date, provider, whether captions matched actual speech, a meas
 
 The standalone guest slice uses the same shared flow, but its existing hosting protection currently blocks signed-out access. Use local labelled fixtures for reproducibility; a silent browser fixture is not evidence of real Amina speech.
 
-8. Replay a prepared response, reload and Replay again. It should reuse stored audio without reserving new synthesis allowance. If a provider/allowance error occurs, check the specific outcome and read the saved reply; do not raise limits to bypass it.
+8. Replay a prepared response, reload and Replay again. It should reuse stored audio without dispatching or recording another synthesis request. If a provider, pending-work or playback error occurs, check the specific outcome and read the saved reply; an uncertain paid result must not trigger an automatic retry.
 9. Confirm a source-evidenced checkpoint. Only successful saved confirmation should celebrate and fill the journey rail. Kai becomes available after every objective is confirmed with evidence.
 10. Check setup, plan and welcome on a phone: the primary buttons should clear the host navigation without document scrolling. Long material should remain available in its focused reader.

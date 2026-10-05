@@ -137,21 +137,9 @@ export class AminaSonicCall {
       }
       const context = await buildAminaLiveContext(this.ownerId, this.id);
       if (this.ended) return;
-      this.maxInput = Math.max(
-        0,
-        Number(config.studyAwsVoiceTrialMaxSeconds) -
-          (context.conversation.voiceUsage?.transcribeSeconds || 0),
-      );
-      this.maxOutput = Math.max(
-        0,
-        Number(config.studyAwsVoiceTrialMaxCharacters) -
-          (context.conversation.voiceUsage?.pollyCharacters || 0),
-      );
-      if (this.maxInput < 1 || this.maxOutput < 1)
-        throw new AirLiveError(
-          "This document has reached its voice allowance. Saved study remains available.",
-          "AMIRA_VOICE_ALLOWANCE_USED",
-        );
+      // Technical bounds apply to this connection, never the study's accumulated usage.
+      this.maxInput = 300;
+      this.maxOutput = 6000;
       this.input.push({
         sessionStart: {
           inferenceConfiguration: {
@@ -250,8 +238,9 @@ export class AminaSonicCall {
         () => {
           this.send({
             type: "error",
+            code: "AMIRA_CALL_LIMIT_REACHED",
             message:
-              "This call reached the document voice allowance. Your saved study is still available.",
+              "This live connection reached its five-minute limit. Your saved study is still available; you can start another call.",
           });
           void this.stop();
         },
@@ -313,8 +302,8 @@ export class AminaSonicCall {
         (Date.now() - this.startedAt) / 1000 + 2
     )
       throw new AirLiveError(
-        "This call reached its voice input allowance.",
-        "AMIRA_VOICE_ALLOWANCE_USED",
+        "This live connection reached its audio input limit. Stop the call before starting another.",
+        "AMIRA_CALL_LIMIT_REACHED",
       );
     if (seconds > this.inputCharged) {
       if (!(await authenticateAccessToken(this.token)))
@@ -377,8 +366,8 @@ export class AminaSonicCall {
       if (!block.final) {
         if (this.outputCharged + block.text.length > this.maxOutput)
           throw new AirLiveError(
-            "This call reached its reply allowance.",
-            "AMIRA_VOICE_ALLOWANCE_USED",
+            "This live connection reached its reply limit. Stop the call before starting another.",
+            "AMIRA_CALL_LIMIT_REACHED",
           );
         await appendStudyVoiceUsage(this.ownerId, this.id, {
           kind: "SONIC_OUTPUT",

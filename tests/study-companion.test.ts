@@ -3,7 +3,6 @@ import JSZip from 'jszip'
 import { PDFDocument, StandardFonts } from 'pdf-lib'
 import { extractStudyDocument } from '../server/services/studyExtraction'
 import { indexStudySections, createStudyConversation, deleteStudyConversation, getStudyConversation, getStudyChunks, getStudyPedagogyHistory, saveStudyPlan, updateStudyMode, appendStudyTurn, appendStudyVoiceUsage } from '../server/services/studyRepository'
-import { awsVoiceTrialCheck } from '../server/services/studyAwsSpeech'
 import { retrieveStudyPassages } from '../server/services/studyRetrieval'
 import { failAminaTurn, finishAminaTurn, nextPracticeState, prepareAminaTurn } from '../server/services/studyAmina'
 import { compileAirStudyPacket, DEFAULT_STUDY_FUNCTION_REFS } from '../server/domain/neuromap/studyFunctions'
@@ -230,15 +229,16 @@ describe('Amina document study', () => {
     expect(await studySpeechFailure(failure, 'playback')).toContain('API key ID')
   })
 
-  it('counts AWS voice usage, enforces a small per-chat trial, and deletes usage with the chat', async () => {
+  it('records AWS voice usage beyond former quotas and deletes it with the chat', async () => {
     const extraction = { kind: 'PDF' as const, sections: [{ id: 'page-1', label: 'Page 1', text: 'Light becomes chemical energy.' }], excerpt: 'Light' }
     const chat = await createStudyConversation('voice-owner', 'lesson.pdf', 'application/pdf', Buffer.from('fake'), extraction)
     await appendStudyVoiceUsage('voice-owner', chat.id, { kind: 'TRANSCRIBE', units: 60, estimatedUsd: 0.03 })
     await appendStudyVoiceUsage('voice-owner', chat.id, { kind: 'POLLY', units: 1000, estimatedUsd: 0.016 })
     const current = await getStudyConversation('voice-owner', chat.id)
     expect(current.voiceUsage).toEqual({ transcribeSeconds: 60, pollyCharacters: 1000, estimatedUsd: 0.046 })
-    expect(() => awsVoiceTrialCheck(current, 'TRANSCRIBE', 241)).toThrow()
-    expect(() => awsVoiceTrialCheck(current, 'POLLY', 5001)).toThrow()
+    await appendStudyVoiceUsage('voice-owner', chat.id, {kind:'TRANSCRIBE',units:241})
+    await appendStudyVoiceUsage('voice-owner', chat.id, {kind:'POLLY',units:5001})
+    expect((await getStudyConversation('voice-owner',chat.id)).voiceUsage).toMatchObject({transcribeSeconds:301,pollyCharacters:6001})
     await deleteStudyConversation('voice-owner', chat.id)
     await expect(getStudyConversation('voice-owner', chat.id)).rejects.toMatchObject({ statusCode: 404 })
   })

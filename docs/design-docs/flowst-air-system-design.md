@@ -102,7 +102,7 @@ Longitudinal memory needs explicit retention, review, deletion and context rules
 
 ### 7. Operations and trust
 
-Air owns validated provider responses, idempotency, reservations, cancellations, bounded retries, failure states and operational traces. Source ingestion and voice-practice allowances remain separate. An ambiguous paid dispatch must not automatically be repeated.
+Air owns validated provider responses, idempotency, reservations, cancellations, bounded retries, failure states and operational traces. Source/video ingestion and model-task allowances remain separate from voice accounting. Airs has no cumulative per-study voice quota or guest daily voice-start quota; individual recording/call/output bounds and private usage records remain. An ambiguous paid dispatch must not automatically be repeated.
 
 If a role fails, show what is actually saved and a real retry/fallback. A Kai failure must not produce fabricated feedback; a Misu failure must not silently change the approved plan. No secret belongs in learner-facing context or the development MCP environment.
 

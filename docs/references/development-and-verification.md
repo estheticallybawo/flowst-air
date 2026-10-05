@@ -10,4 +10,4 @@ Documentation: npm run docs:generate refreshes the static code-derived storage r
 
 Export: npm run repo:check verifies hashes, compares Git-visible candidate files with the allowlist and scans bounded credential/private-file patterns. It is not a comprehensive secret detector or permission to publish. Review asset rights and foundation/new-work disclosures.
 
-Live checks need permitted sources and configured allowances. The owner chose to run paid/voice tests herself. See [checklist](deployed-video-checklist.md). The MCP review exercises only four read-only GitHub tools.
+Live checks need permitted sources and configured providers. Source/video ingestion and model-task allowances remain; cumulative voice quotas are removed and provider charges continue. The owner chose to run paid/voice tests herself. See [checklist](deployed-video-checklist.md). The MCP review exercises only four read-only GitHub tools.

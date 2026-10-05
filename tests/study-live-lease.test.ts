@@ -1,5 +1,5 @@
 import { afterAll, expect, test, vi } from 'vitest';
-import { createStudyConversation, deleteStudyConversation, getStudyConversation, acquireStudyLiveLease, releaseStudyLiveLease, appendStudyVoiceUsage, studyLiveLease } from '../server/services/studyRepository';
+import { createStudyConversation, deleteStudyConversation, getStudyConversation, acquireStudyLiveLease, releaseStudyLiveLease, appendStudyVoiceUsage, reserveStudyLiveOutput, studyLiveLease } from '../server/services/studyRepository';
 vi.stubGlobal('useRuntimeConfig', () => ({ flowstAuthMode: 'mock', awsRegion: 'us-east-1', public: { appSurface: 'flowst' } }));
 afterAll(() => vi.unstubAllGlobals());
 test('only one live call acquires a document; legacy voice is excluded and unknown Sonic cost stays unknown', async () => {
@@ -16,4 +16,21 @@ test('only one live call acquires a document; legacy voice is excluded and unkno
  await releaseStudyLiveLease(doc.id, lease!.leaseId); expect(await studyLiveLease(doc.id)).toBeUndefined();
  await appendStudyVoiceUsage('lease-owner', doc.id, { kind: 'TRANSCRIBE', units: 1, estimatedUsd: .0005 });
  await deleteStudyConversation('lease-owner', doc.id);
+});
+test('recorded and live usage exceeds former totals while each live lease keeps its output budget', async () => {
+ const doc = await createStudyConversation('shared-lease-owner', 'voice.pdf', 'application/pdf', Buffer.from('source'), { kind: 'PDF', excerpt: 'Plants', sections: [{ id: 'p1', label: 'Page 1', text: 'Plants use sunlight.' }] });
+ await appendStudyVoiceUsage('shared-lease-owner', doc.id, {kind:'TRANSCRIBE',units:299});
+ await appendStudyVoiceUsage('shared-lease-owner', doc.id, {kind:'POLLY',units:5999});
+ const lease = await acquireStudyLiveLease('shared-lease-owner', doc.id, 330_000, 2);
+ await appendStudyVoiceUsage('shared-lease-owner', doc.id, {kind:'SONIC_INPUT',units:1});
+ await appendStudyVoiceUsage('shared-lease-owner', doc.id, {kind:'ELEVEN_CALL',units:1});
+ await reserveStudyLiveOutput('shared-lease-owner', doc.id, lease.leaseId, 1);
+ await expect(reserveStudyLiveOutput('shared-lease-owner', doc.id, lease.leaseId, 2)).rejects.toMatchObject({statusCode:429});
+ expect((await studyLiveLease(doc.id))?.outputUsed).toBe(1);
+ await appendStudyVoiceUsage('shared-lease-owner', doc.id, {kind:'SONIC_OUTPUT',units:1});
+ await releaseStudyLiveLease(doc.id, lease.leaseId);
+ await appendStudyVoiceUsage('shared-lease-owner', doc.id, {kind:'TRANSCRIBE',units:1});
+ await appendStudyVoiceUsage('shared-lease-owner', doc.id, {kind:'ELEVEN_OUTPUT',units:1});
+ expect((await getStudyConversation('shared-lease-owner',doc.id)).voiceUsage).toMatchObject({transcribeSeconds:302,pollyCharacters:6002});
+ await deleteStudyConversation('shared-lease-owner',doc.id);
 });

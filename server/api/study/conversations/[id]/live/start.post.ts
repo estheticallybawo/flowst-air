@@ -1,4 +1,3 @@
-import { reserveGuestAllowance } from '../../../../../services/airsContext'
 import { requireIdentity } from "../../../../../utils/auth";
 import { assertAirStudyAccess } from "../../../../../services/airAccess";
 import {
@@ -10,43 +9,23 @@ import {
 import { buildAminaLiveContext } from "../../../../../services/studyAmina";
 import { getAminaAgent } from "../../../../../services/studyElevenAgent";
 import { signStudyVoiceToken } from "../../../../../services/studyVoice";
-import { awsVoiceTrialCheck } from "../../../../../services/studyAwsSpeech";
 
 export default defineEventHandler(async (event) => {
   const identity = await requireIdentity(event);
-  await reserveGuestAllowance(identity.userId,"VOICE",event);
   const id = getRouterParam(event, "id") || "";
   await assertAirStudyAccess(identity.userId, "PRACTISE", event);
   const { conversation } = await buildAminaLiveContext(identity.userId, id);
   const { maxSeconds } = await getAminaAgent();
   const config = useRuntimeConfig(event);
-  awsVoiceTrialCheck(
-    conversation,
-    "TRANSCRIBE",
-    maxSeconds,
-    Number(config.studyAwsVoiceTrialMaxSeconds),
-  );
-  awsVoiceTrialCheck(
-    conversation,
-    "POLLY",
-    1,
-    Number(config.studyAwsVoiceTrialMaxCharacters),
-  );
+  // Bound this provider connection independently of earlier study usage.
   const lease = await acquireStudyLiveLease(
     identity.userId,
     id,
     90_000,
-    Number(config.studyAwsVoiceTrialMaxCharacters) -
-      (conversation.voiceUsage?.pollyCharacters || 0),
+    6000,
   );
   try {
     const current = await getStudyConversation(identity.userId, id, event);
-    awsVoiceTrialCheck(
-      current,
-      "TRANSCRIBE",
-      maxSeconds,
-      Number(config.studyAwsVoiceTrialMaxSeconds),
-    );
     if (current.plan.version !== conversation.plan.version)
       throw createError({
         statusCode: 409,

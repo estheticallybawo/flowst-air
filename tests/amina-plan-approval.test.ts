@@ -12,15 +12,15 @@ beforeEach(() => {
   vi.stubGlobal('getRouterParam', () => 'study')
   vi.stubGlobal('readBody', async () => ({ version: 1 }))
   vi.stubGlobal('createError', (options: any) => Object.assign(new Error(options.statusMessage), options))
-  mocks.conversation.mockResolvedValue({ id: 'study', ownerId: 'owner', revision: 1, voiceUsage: { transcribeSeconds: 0 },
+  mocks.conversation.mockResolvedValue({ id: 'study', ownerId: 'owner', revision: 1, voiceUsage: { transcribeSeconds: 1200, pollyCharacters: 25000 },
     plan: { status: 'DRAFT', version: 1, functionRefs: DEFAULT_STUDY_FUNCTION_REFS, objectives: Array.from({ length: 6 }, (_, index) => ({ id: `objective-${index}`, title: 'Concept' })) } })
   mocks.save.mockResolvedValue({})
 })
 afterEach(() => vi.unstubAllGlobals())
 
-test('a cached six-objective draft cannot bypass the standalone call capacity', async () => {
-  await expect((approve as any)({})).rejects.toMatchObject({ statusCode: 409 })
-  expect(mocks.save).not.toHaveBeenCalled()
+test('a six-objective draft can be approved after the retired standalone voice quota', async () => {
+  await expect((approve as any)({})).resolves.toEqual({})
+  expect(mocks.save).toHaveBeenCalledWith('owner', 'study', expect.objectContaining({ status: 'APPROVED' }), 1, {})
 })
 
 test('full Flowst retains its existing six-objective approval behavior', async () => {

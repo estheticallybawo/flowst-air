@@ -43,12 +43,8 @@ export async function getAirAccess(
       uploadBytes:
         ['air', 'amira'].includes(config.public.appSurface) ? 4_000_000 : 20 * 1024 * 1024,
       uploadPolicy: "OBJECTIVE_COMPLETION",
-      recordedSecondsPerDocument: Number(
-        config.studyAwsVoiceTrialMaxSeconds ?? 300,
-      ),
-      spokenCharactersPerDocument: Number(
-        config.studyAwsVoiceTrialMaxCharacters ?? 6000,
-      ),
+      recordedSecondsPerDocument: null,
+      spokenCharactersPerDocument: null,
     },
     usage: {
       activeConversationId: eligibility.canUpload
@@ -94,5 +90,5 @@ export async function assertAirStudyAccess(
         upgradeAvailable: false,
       },
     });
-  // The active-document completion gate and voice budgets are enforced atomically by the study services.
+  // Study services enforce the active-document gate and individual request boundaries.
 }

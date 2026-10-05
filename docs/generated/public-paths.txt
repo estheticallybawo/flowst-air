@@ -270,6 +270,7 @@
 :(literal)tests/study-sources.test.ts
 :(literal)tests/study-speech-cache.test.ts
 :(literal)tests/study-upload-limit.test.ts
+:(literal)tests/study-voice-reservation.test.ts
 :(literal)tsconfig.json
 :(literal)vendor/thinking-orbs/LICENSE
 :(literal)vendor/thinking-orbs/README.md

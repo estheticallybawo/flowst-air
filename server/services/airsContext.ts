@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
+import { authenticateRequest } from '../utils/auth'
+import { getMe } from './authRepository'
 import { createError } from 'h3'
 import { GetCommand, PutCommand, QueryCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb'
 import type { H3Event } from 'h3'
@@ -30,6 +32,7 @@ export async function writeAirsArtifact(ownerId: string, key: string, value: unk
 }
 export async function getAirsContext(ownerId: string, event?: H3Event) {
   const context:ContextSnapshot=await readAirsArtifact<ContextSnapshot>(ownerId,'PROFILE',event) || {background:'',goals:'',audience:'',origin:'LEARNER_CONFIRMED' as const,recordedAt:''}
+  if(event){const identity=await authenticateRequest(event);if(identity?.userId===ownerId){const account=await getMe(identity,event);return {...context,accountContext:{displayName:account.profile.displayName || '',origin:'FLOWST_PROFILE'}}}}
   return context
 }
 export async function saveAirsContext(ownerId: string, input: unknown, event?: H3Event) {
@@ -85,12 +88,12 @@ export async function claimAirsReview(ownerId:string,key:string,event?:H3Event) 
  return async()=>{if(storage.mock)local.delete(pk+sk);else await storage.db.send(new DeleteCommand({TableName:storage.table,Key:{pk,sk}}))}
 }
 
-/** Deployment-wide allowance survives guest-cookie resets. Reserve before provider work. */
+/** Model allowance survives guest-cookie resets; voice has no daily quota. */
 export async function reserveGuestAllowance(ownerId:string,kind:'MODEL'|'VOICE',event?:H3Event){
- if(!ownerId.startsWith('guest-') || process.env.NODE_ENV!=='production') return
+ if(kind==='VOICE' || !ownerId.startsWith('guest-') || process.env.NODE_ENV!=='production') return
  const config=useRuntimeConfig(event),storage=studyStorageResources(event)
- const configured=Number(kind==='MODEL' ? config.airsGuestDailyModelLimit : config.airsGuestDailyVoiceLimit)
- const limit=Number.isInteger(configured) && configured>=0 ? Math.min(configured,100) : (kind==='MODEL'?30:10)
+ const configured=Number(config.airsGuestDailyModelLimit)
+ const limit=Number.isInteger(configured) && configured>=0 ? Math.min(configured,100) : 30
  const pk='AIRS_GUEST_USAGE#'+new Date().toISOString().slice(0,10),sk=kind
  for(let attempt=0;attempt<3;attempt++){
   const current=(await storage.db.send(new GetCommand({TableName:storage.table,Key:{pk,sk},ConsistentRead:true}))).Item
