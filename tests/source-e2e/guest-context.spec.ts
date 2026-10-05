@@ -25,7 +25,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   const pageErrors: string[] = [];
   page.on("pageerror", (error) => pageErrors.push(error.message));
   let voiceStarts = 0,
-    welcomeReads = 0;
+    welcomeReads = 0, speechRequests = 0;
   await page.addInitScript(() => {
     (window as any).__micRequests = 0;
     Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
@@ -51,10 +51,10 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     }),
   );
   await page.route("**/api/study/conversations/*/speech", (route) =>
-    route.fulfill({
+    (speechRequests++, route.fulfill({
       status: 503,
-      json: { statusMessage: "Fixture welcome playback unavailable" },
-    }),
+      json: { statusMessage: "Fixture voice account access needs updating", data: { code: "SPEECH_PROVIDER_PLAN", retryable: false } },
+    })),
   );
   await page.route("**/api/study/conversations/*/welcome", async (route) => {
     welcomeReads++;
@@ -183,11 +183,14 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   ).toBeVisible();
   await expectPrimaryInWorkspace(page, "Start conversation");
   await expect(
-    page.getByText("Fixture welcome playback unavailable", { exact: false }),
+    page.getByText("Fixture voice account access needs updating", { exact: false }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Retry welcome voice", exact: true }),
+    page.getByRole("button", { name: "Retry after account update", exact: true }),
   ).toBeVisible();
+  const speechRequestsBeforeUpdate = speechRequests;
+  await page.waitForTimeout(600);
+  expect(speechRequests).toBe(speechRequestsBeforeUpdate);
   expect(voiceStarts).toBe(0);
   expect(await page.evaluate(() => (window as any).__micRequests)).toBe(0);
   expect(
@@ -228,7 +231,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     });
   });
   await page
-    .getByRole("button", { name: "Retry welcome voice", exact: true })
+    .getByRole("button", { name: "Retry after account update", exact: true })
     .click();
   await expect(
     page.getByRole("button", { name: "Replay welcome", exact: true }),
@@ -524,7 +527,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   ).toBeVisible();
   await expect(
     page.getByRole("dialog", { name: "Kai’s practice review" }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 15000 });
   await page
     .getByRole("button", { name: "Review my saved practice", exact: true })
     .click();
@@ -589,7 +592,9 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
  const sentTakeIds:string[]=[]
  await page.route('**/api/study/conversations/*/recorded-turn',route=>{
   if(route.request().method()!=='POST')return route.continue()
-  sentTakeIds.push(route.request().postDataBuffer()!.toString('utf8').match(/name="recordingId"\r\n\r\n([a-f0-9-]+)/)![1])
+  const takeId=route.request().postDataBuffer()?.toString('utf8').match(/name="recordingId"\r\n\r\n([a-f0-9-]+)/)?.[1]
+  if(!takeId)throw new Error('Expected a recording ID in the fixture request')
+  sentTakeIds.push(takeId)
   return route.fulfill({status:503,json:{statusMessage:'ElevenLabs quota_exceeded: private provider diagnostics',data:{code:'SPEECH_PROVIDER_QUOTA',retryable:false}}})
  })
  await page.getByRole('button',{name:'Start recording',exact:true}).click()

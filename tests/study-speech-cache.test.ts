@@ -19,6 +19,19 @@ it('offers explicit service recovery for legacy quota failures without overridin
  }
  expect(studySpeechOutcome({name:'NotSupportedError',data:{code:'AMIRA_VOICE_ALLOWANCE_USED'}}).retryable).toBe(false)
 })
+it('allows only explicit recovery after provider account or voice setup is changed',()=>{
+ for(const code of ['SPEECH_PROVIDER_PLAN','SPEECH_PROVIDER_CONFIGURATION','SPEECH_PROVIDER_QUOTA','SPEECH_PROVIDER_KEY_QUOTA','SPEECH_PROVIDER_CREDITS','SPEECH_PROVIDER_RESTRICTED','SPEECH_NOT_CONFIGURED']){
+  for(const cause of [{data:{code,retryable:true,statusMessage:'Voice setup needs attention.'}},{data:{data:{code,retryable:false},statusMessage:'Voice setup needs attention.'}}]){
+   expect(studySpeechOutcome(cause)).toEqual({message:'Voice setup needs attention.',retryable:false,retryAfterSetup:true})
+  }
+ }
+})
+it('does not offer setup recovery for storage, missing, expired, pending or browser failures',()=>{
+ for(const code of ['SPEECH_CACHE_ACCESS','SPEECH_CACHE_AUTH','SPEECH_CACHE_UNAVAILABLE','SPEECH_EXPIRED','SPEECH_RESPONSE_NOT_FOUND','SPEECH_PENDING','SPEECH_PROVIDER_BUSY','SPEECH_PROVIDER_UNAVAILABLE','UNKNOWN_CODE']){
+  expect(studySpeechOutcome({data:{code}})).not.toHaveProperty('retryAfterSetup')
+ }
+ expect(studySpeechOutcome({name:'NotSupportedError',data:{code:'SPEECH_PROVIDER_PLAN'}})).toEqual({message:'This browser could not play the audio format. Your saved reply is available in Conversation.',retryable:false})
+})
 async function fixture(){
  vi.stubGlobal('useRuntimeConfig',()=>({flowstAuthMode:'mock',elevenLabsApiKey:'test',elevenLabsVoiceId:'voice',elevenLabsModelId:'eleven_flash_v2_5',elevenLabsStudyAgentId:'agent-fixture',studyAwsVoiceTrialMaxCharacters:6000,public:{appSurface:'flowst'}}))
  const owner=randomUUID(),study=await createStudyConversation(owner,'source.txt','text/plain',Buffer.from('fixture'),{kind:'WEB',sections:[{id:'one',label:'Section 1',text:'Recall an idea before checking notes.'}],excerpt:'Recall'})
@@ -103,9 +116,12 @@ it.each([
   expect(first.statusMessage).not.toMatch(/insufficient credits|account needs credits|credits (?:are )?exhausted/i)
  }
  expect(studySpeechOutcome(first).retryable).toBe(retryable)
+ expect(studySpeechOutcome(first).retryAfterSetup).toBe(retryable?undefined:true)
  await expect(getOrPrepareStudySpeech(f.owner,f.id,f.turnId)).rejects.toMatchObject({data:{code,retryable}})
  expect(fetcher).toHaveBeenCalledTimes(1)
  fetcher.mockResolvedValue(new Response(JSON.stringify({audio_base64:Buffer.from('prepared-audio').toString('base64')})))
+ await expect(getOrPrepareStudySpeech('other',f.id,f.turnId,true)).rejects.toMatchObject({statusCode:404})
+ expect(fetcher).toHaveBeenCalledTimes(1)
  const packet=await getOrPrepareStudySpeech(f.owner,f.id,f.turnId,true)
  expect(packet.audioBase64).toBe(Buffer.from('prepared-audio').toString('base64'))
  expect(await getOrPrepareStudySpeech(f.owner,f.id,f.turnId)).toEqual(packet)
@@ -209,16 +225,24 @@ it('bounds provider error bodies and returns a safe temporary service error for 
   await deleteStudyConversation(f.owner,f.id)
  }
 })
-it('reports a missing voice before dispatch and permits explicitly preparing it after configuration is fixed',async()=>{
+it.each(['key','voice'])('reports a missing %s before dispatch and requires explicit recovery after configuration is fixed',async(missing)=>{
  const f=await fixture()
- vi.stubGlobal('useRuntimeConfig',()=>({flowstAuthMode:'mock',elevenLabsApiKey:'test',public:{appSurface:'flowst'}}))
+ vi.stubGlobal('useRuntimeConfig',()=>({flowstAuthMode:'mock',...(missing==='key'?{elevenLabsVoiceId:'voice'}:{elevenLabsApiKey:'test'}),public:{appSurface:'flowst'}}))
  const fetcher=vi.fn()
  vi.stubGlobal('fetch',fetcher)
- await expect(getOrPrepareStudySpeech(f.owner,f.id,f.turnId)).rejects.toMatchObject({statusCode:503,data:{code:'SPEECH_NOT_CONFIGURED',retryable:false}})
+ const failure=await getOrPrepareStudySpeech(f.owner,f.id,f.turnId).catch(cause=>cause)
+ expect(failure).toMatchObject({statusCode:503,data:{code:'SPEECH_NOT_CONFIGURED',retryable:false}})
+ expect(studySpeechOutcome(failure)).toMatchObject({retryable:false,retryAfterSetup:true})
  expect(fetcher).not.toHaveBeenCalled()
  vi.stubGlobal('useRuntimeConfig',()=>({flowstAuthMode:'mock',elevenLabsApiKey:'test',elevenLabsVoiceId:'voice',public:{appSurface:'flowst'}}))
  fetcher.mockResolvedValue(new Response(JSON.stringify({audio_base64:Buffer.from('prepared-audio').toString('base64')})))
+ await expect(getOrPrepareStudySpeech(f.owner,f.id,f.turnId)).rejects.toMatchObject({data:{code:'SPEECH_NOT_CONFIGURED',retryable:false}})
+ await expect(getOrPrepareStudySpeech('other',f.id,f.turnId,true)).rejects.toMatchObject({statusCode:404})
+ expect(fetcher).not.toHaveBeenCalled()
+ await expect(getOrPrepareStudySpeech(f.owner,f.id,f.turnId,true)).resolves.toMatchObject({mimeType:'audio/mpeg'})
  await expect(getOrPrepareStudySpeech(f.owner,f.id,f.turnId,true)).resolves.toMatchObject({mimeType:'audio/mpeg'})
  expect(fetcher).toHaveBeenCalledTimes(1)
  await deleteStudyConversation(f.owner,f.id)
+ await expect(getOrPrepareStudySpeech(f.owner,f.id,f.turnId,true)).rejects.toMatchObject({statusCode:404})
+ expect(fetcher).toHaveBeenCalledTimes(1)
 })

@@ -18,6 +18,7 @@ export function studyTranscriptionOutcome(cause: any): string | undefined {
 export function studySpeechOutcome(cause: any): {
   message: string;
   retryable: boolean;
+  retryAfterSetup?: true;
 } {
   const code = cause?.data?.data?.code || cause?.data?.code;
   const recovery = cause?.data?.data?.retryable ?? cause?.data?.retryable;
@@ -43,6 +44,21 @@ export function studySpeechOutcome(cause: any): {
         "This spoken reply is still being prepared. No second voice request was sent.",
       retryable: true,
     };
+  // Account and configuration failures need an operator change before a learner
+  // explicitly tries again. This capability never enables automatic recovery.
+  if ([
+    'SPEECH_NOT_CONFIGURED',
+    'SPEECH_PROVIDER_CONFIGURATION',
+    'SPEECH_PROVIDER_RESTRICTED',
+    'SPEECH_PROVIDER_CREDITS',
+    'SPEECH_PROVIDER_QUOTA',
+    'SPEECH_PROVIDER_KEY_QUOTA',
+    'SPEECH_PROVIDER_PLAN',
+  ].includes(code)) return {
+    message: message || "Amina’s voice setup needs attention. Your saved reply is available in Conversation.",
+    retryable: false,
+    retryAfterSetup: true,
+  };
   return {
     message:
       message ||

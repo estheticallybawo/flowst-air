@@ -400,13 +400,13 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 34121,
-      "sha256": "b392c14f5c0bc267d3bab343abdcf95e87acb30f4583b4fe034ccfdd61815749"
+      "bytes": 35552,
+      "sha256": "0c619420b78414428ffc7ee5572d81d6affc898027a556688bfb64bcc021f7df"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
-      "bytes": 4790,
-      "sha256": "fab49978e4da5d02ac827686da88a59a2e98271a935d218847d4d7a86ffd6fa7"
+      "bytes": 5831,
+      "sha256": "8cb29876aff429fee1452b7d7d397be4658c17db0f9f5aaee4c48882facaae9e"
     },
     {
       "path": "FLOWST_AIR_SYSTEM_DESIGN.md",
@@ -465,8 +465,8 @@
     },
     {
       "path": "pages/airs/[id].vue",
-      "bytes": 119151,
-      "sha256": "453cc8cbd9860ef6bb6f0437c1b8ee21dd202ac263c63ca9b1147a1e9a79f1d4"
+      "bytes": 119734,
+      "sha256": "6f9d597b186b0c373813182899d73f43bf236eea1f30d4d8b5418802bc2f4327"
     },
     {
       "path": "pages/airs/about.vue",
@@ -1235,8 +1235,8 @@
     },
     {
       "path": "shared/studySpeechOutcome.ts",
-      "bytes": 3725,
-      "sha256": "3e335abcbcc49f5662871fd5ab52768cacab97674dd48364b70488ee9c9be0f0"
+      "bytes": 4336,
+      "sha256": "8a1e5049c07d2ac9ab44da3ab97493c9c103274d2a920a03eae03c861b942a58"
     },
     {
       "path": "shared/userErrors.ts",
@@ -1290,8 +1290,8 @@
     },
     {
       "path": "tests/source-e2e/guest-context.spec.ts",
-      "bytes": 23271,
-      "sha256": "3885831b9ab39c44f62c7254f98253c9534284d11872376510dbc3cb48764e53"
+      "bytes": 23663,
+      "sha256": "ea65b330e087c1a39013daff92600813dd1ee86d721a5010069de812b0e479e8"
     },
     {
       "path": "tests/study-air-history.test.ts",
@@ -1345,8 +1345,8 @@
     },
     {
       "path": "tests/study-speech-cache.test.ts",
-      "bytes": 17766,
-      "sha256": "947b0827396072d6fa42d7f0efa67664f5a264bc69382974976549a66fbfc0b5"
+      "bytes": 19990,
+      "sha256": "46f01e588c0314d8852d8875cdee8668dc9c6ed35ce4b4a5ff77a43e710e870b"
     },
     {
       "path": "tests/study-upload-limit.test.ts",
@@ -1494,5 +1494,5 @@
       "sha256": "3294ffe27e3af64a16f9fbf63b22fe7c3a50a206c8b3719cd0d0b0da9dc3941d"
     }
   ],
-  "updatedAt": "2026-10-05T13:11:09.336Z"
+  "updatedAt": "2026-10-05T14:16:10.451Z"
 }

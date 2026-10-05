@@ -155,7 +155,9 @@ const journeyStage = computed(() =>
       : "MISU",
 );
 const speechFailureMessage = ref(""),
-  speechRetryable = ref(true);
+  speechRetryable = ref(true),
+  speechRetryAfterSetup = ref(false);
+const canRetrySpeech = computed(() => speechRetryable.value || speechRetryAfterSetup.value);
 async function continueCheckpoint() {
   celebration.value = "";
   if (journey.value.kaiReady) {
@@ -1357,6 +1359,7 @@ async function playSpeech(turnId: string, automatic = false, retry = false) {
       speechFailureMessage.value =
         "This browser could not play the saved audio. Read the response in Conversation or try playback again.";
       speechRetryable.value = true;
+      speechRetryAfterSetup.value = false;
       voiceFailureTurnId.value = turnId;
       playingTurnId.value = "";
       preparingSpeechTurnId.value = "";
@@ -1399,6 +1402,7 @@ async function playSpeech(turnId: string, automatic = false, retry = false) {
     const outcome = studySpeechOutcome(cause);
     speechFailureMessage.value = outcome.message;
     speechRetryable.value = outcome.retryable;
+    speechRetryAfterSetup.value = outcome.retryAfterSetup === true;
     error.value = "";
     // A dispatched request may reserve allowance even when no audio arrives.
     void load().catch(() => undefined);
@@ -1407,7 +1411,7 @@ async function playSpeech(turnId: string, automatic = false, retry = false) {
 
 async function retryVoice() {
   const turnId = voiceFailureTurnId.value;
-  if (!turnId || preparingSpeechTurnId.value || !speechRetryable.value) return;
+  if (!turnId || preparingSpeechTurnId.value || !canRetrySpeech.value || !canStudy.value) return;
   error.value = "";
   if (audioPromptTurnId.value === turnId) {
     await playSpeech(turnId);
@@ -1903,10 +1907,10 @@ async function remove() {
             >
               Start conversation</button
             ><button
-              :disabled="!!preparingSpeechTurnId || (!!voiceFailureTurnId && !speechRetryable)"
+              :disabled="!!preparingSpeechTurnId || (!!voiceFailureTurnId && !canRetrySpeech)"
               @click="replayWelcome"
             >
-              {{ playingTurnId ? "Stop welcome" : voiceFailureTurnId ? "Retry welcome voice" : audioPromptTurnId ? "Play welcome" : "Replay welcome" }}</button
+              {{ playingTurnId ? "Stop welcome" : voiceFailureTurnId ? speechRetryAfterSetup ? "Retry after account update" : "Retry welcome voice" : audioPromptTurnId ? "Play welcome" : "Replay welcome" }}</button
             ><button @click="leaveSession">Not now</button>
           </div></template
         >
@@ -2157,10 +2161,10 @@ async function remove() {
                   }}
                 </p>
                 <button
-                  v-if="speechRetryable"
+                  v-if="canRetrySpeech"
                   type="button"
                   :disabled="
-                    !!preparingSpeechTurnId || !canStudy || !speechRetryable
+                    !!preparingSpeechTurnId || !canStudy || !canRetrySpeech
                   "
                   @click="retryVoice"
                 >
@@ -2169,6 +2173,8 @@ async function remove() {
                       ? "Preparing voice…"
                       : audioPromptTurnId === voiceFailureTurnId
                         ? "Listen now"
+                        : speechRetryAfterSetup
+                          ? "Retry after account update"
                         : "Retry voice"
                   }}
                 </button>
@@ -2219,7 +2225,9 @@ async function remove() {
                     >
                     <strong v-else>Your turn to explain</strong>
                     <span v-if="voiceFailureTurnId">{{
-                      speechRetryable
+                      speechRetryAfterSetup
+                        ? "Update the speech provider account or voice setup, then retry above. Your reply is saved."
+                        : speechRetryable
                         ? "Retry Amina’s voice above to continue."
                         : "Read your saved reply in Conversation. Voice practice is paused."
                     }}</span>

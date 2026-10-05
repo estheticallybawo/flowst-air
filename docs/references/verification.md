@@ -175,3 +175,11 @@ Flowst's final production build is Ready at app.useflowst.com (deployment flowst
 
 Standalone's matching production build is also Ready (amira-study-dijxd3zzn-estheticallybawos-projects.vercel.app). Hosting protection is unchanged. Both production builds succeeded; owner live transcription after the key-setting change remains unverified.
 
+
+## Provider account recovery — 5 October 2026
+
+Production speech metadata identified an account/feature rejection during synthesis after the owner changed the key; the owner confirmed a Free subscription. This is separate from the earlier Scribe quota rejection. The configured voice's category and successful live speech after resolving entitlement are not yet verified. Official documentation excludes Voice Library voices from Free-tier API use.
+
+Both hosts now offer **Retry after account update** for a recognized provider setup failure while preserving its non-transient status. The action explicitly prepares the same saved reply after legitimate account/configuration repair. It does not automatically dispatch speech, resend a learner recording, request a microphone or change authentication.
+
+Verification: 37 focused speech-cache tests passed in each host; both type checks passed. Desktop and mobile setup journeys passed in both hosts, including account-error recovery, one explicit retry with `retry:true`, saved reply reuse and no automatic repeat. An initial mobile run in each host exceeded a five-second Kai-dialog assertion during the existing ten-second handoff; the assertion now allows fifteen seconds and both reruns passed. Runtime handoff timing is unchanged. Documentation checks passed. All speech in these checks was mocked; owner-run live playback remains pending after provider access is repaired.
