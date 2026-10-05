@@ -1494,20 +1494,6 @@ async function remove() {
 
 <template>
   <AirStudyShell :session="sessionActive" workspace>
-    <template v-if="sessionActive && study" #session-navigation>
-      <AirSessionNavigation
-        controls-only
-        :title="study.document.title || study.document.name"
-        :plan-open="sessionPane === 'plan'"
-        :conversation-open="conversationVisible"
-        @leave="leaveSession"
-        @plan="sessionPane = sessionPane === 'plan' ? '' : 'plan'"
-        @conversation="
-          conversationVisible = !conversationVisible;
-          sessionPane = '';
-        "
-      />
-    </template>
     <AgentActivity
       v-if="initialLoading"
       agent="MISU"
@@ -1567,24 +1553,10 @@ async function remove() {
       </AirFocusDialog>
       <div v-if="sessionActive" class="session-toolbar">
         <AirSessionNavigation
-          v-if="sessionActive"
-          context-only
           :title="study.document.title || study.document.name"
           :plan-open="sessionPane === 'plan'"
           :conversation-open="conversationVisible"
           @leave="leaveSession"
-          @plan="sessionPane = sessionPane === 'plan' ? '' : 'plan'"
-          @conversation="
-            conversationVisible = !conversationVisible;
-            sessionPane = '';
-          "
-        />
-        <AirSessionNavigation
-          v-if="sessionActive && !standaloneAir"
-          controls-only
-          :title="study.document.title || study.document.name"
-          :plan-open="sessionPane === 'plan'"
-          :conversation-open="conversationVisible"
           @plan="sessionPane = sessionPane === 'plan' ? '' : 'plan'"
           @conversation="
             conversationVisible = !conversationVisible;
@@ -2008,9 +1980,8 @@ async function remove() {
               <MisuPlanGuide :plan="study.plan" :preferences="preferences" />
             </details>
           </template>
-          <template #controls>
+          <template v-if="paced" #timing>
             <section
-              v-if="paced"
               class="practice-pacing"
               aria-label="Practice and break timer"
             >
@@ -2078,6 +2049,8 @@ async function remove() {
                 Retry break
               </button>
             </section>
+          </template>
+          <template #controls>
             <section v-if="showMisuCheckpoint" class="misu-checkpoint" aria-label="Misu’s next step" aria-live="polite">
               <AgentAvatar agent="MISU" size="compact" />
               <div class="misu-checkpoint-copy">
@@ -2378,6 +2351,7 @@ async function remove() {
               :caption-text="spokenText"
               :allow-playback="recordedPracticeMode"
               :live-running="live.running.value"
+              :live-caption="live.running.value && live.captionsVisible.value && !live.savedCaption.value ? live.caption.value : ''"
               :playing-id="playingTurnId"
               :preparing-id="preparingSpeechTurnId"
               :audio-prompt-id="audioPromptTurnId"
@@ -2616,13 +2590,11 @@ async function remove() {
 }
 
 .practice-pacing {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px 12px;
   align-items: center;
-  padding: 4px 0 8px;
-  border-bottom: 1px solid #cbddeb;
-  margin-bottom: 8px;
+  padding: 0;
   text-align: left;
 }
 .practice-pacing strong {
@@ -2631,10 +2603,11 @@ async function remove() {
 }
 .practice-pacing p,
 .pacing-explanation {
-  grid-column: 1/-1;
+  flex-basis: 100%;
   max-width: 60ch;
 }
 .pacing-clock {
+  margin-right: auto;
   font-variant-numeric: tabular-nums;
   font-size: 1rem;
 }
@@ -4465,7 +4438,7 @@ async function remove() {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
   max-width: 1120px;
   margin: 0 auto;
 }
@@ -4491,18 +4464,8 @@ async function remove() {
   flex: 1;
 }
 .session-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
   flex: none;
   min-width: 0;
-}
-.session-toolbar :deep(.session-context) {
-  flex: 1;
-  min-width: 0;
-  padding: 0;
-  gap: 16px;
 }
 .app-workspace .plan-review {
   width: 100%;
@@ -4546,7 +4509,7 @@ async function remove() {
   margin: 0 auto;
   padding: clamp(16px, 2vw, 24px);
   border-radius: 18px;
-  overflow-y: auto;
+  overflow: hidden;
 }
 .prepared-handoff :deep(.agent-activity) {
   margin-bottom: 12px;
@@ -4577,11 +4540,8 @@ async function remove() {
   .setup-room-nav > span {
     display: none;
   }
-  .session-toolbar :deep(.session-context) {
-    gap: 8px;
-  }
   .app-workspace {
-    gap: 4px;
+    gap: 12px;
   }
   .practice-tools {
     margin-bottom: 4px;

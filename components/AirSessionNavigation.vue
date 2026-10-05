@@ -55,12 +55,31 @@ defineEmits<{ leave: []; plan: []; conversation: [] }>();
 </template>
 <style scoped>
 .session-navigation {
-  display: flex;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 20px;
   min-width: 0;
   color: #102b3f;
+}
+.session-navigation:has(> .panel-switches:only-child) {
+  display: flex;
+  justify-content: flex-end;
+}
+.session-navigation h1 {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+  font-family: "Unbounded", sans-serif;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.library-return {
+  padding-left: 0;
+  white-space: nowrap;
 }
 button {
   display: inline-flex;
@@ -150,7 +169,17 @@ button:focus-visible {
     display: none;
   }
   .session-navigation {
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
+  }
+  .session-navigation h1 {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    font-size: 0.85rem;
+  }
+  .session-navigation .panel-switches {
+    grid-row: 1;
+    grid-column: 2;
   }
 }
 @media (prefers-reduced-motion: reduce) {

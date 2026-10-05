@@ -7,7 +7,7 @@ import {
   LogOut,
   ArrowUpRight,
 } from "lucide-vue-next";
-const props = defineProps<{ session?: boolean }>();
+const props = defineProps<{ session?: boolean; focusMode?: boolean }>();
 const route = useRoute();
 const auth = useAuth();
 const signingOut = ref(false);
@@ -54,7 +54,7 @@ async function signOut() {
 
 <template>
   <div class="air-app" :class="{ 'call-shell': props.session }">
-    <header class="air-app-header">
+    <header v-if="!focusMode" class="air-app-header">
       <NuxtLink
         v-if="props.session"
         to="/"

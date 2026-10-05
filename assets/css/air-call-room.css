@@ -7,6 +7,7 @@
   --call-peach: #e0f2fe;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -827,7 +828,7 @@
   box-sizing: border-box;
 }
 .recorded-mode .call-stage {
-  gap: 8px;
+  gap: 20px;
 }
 .recorded-mode .call-control-area {
   width: min(680px, 100%);
@@ -843,15 +844,73 @@
   border-radius: 18px;
   padding: 16px;
   background: #fff;
+  overflow: hidden;
+  grid-column: 2;
+  grid-row: 1;
+}
+.call-conversation > header {
+  flex: none;
+}
+.call-stage {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.call-presence,
+.recorded-mode .call-presence {
+  flex: 1 0 auto;
+  min-height: 180px;
+  padding-top: 0;
+  gap: 12px;
+}
+.call-portrait,
+.recorded-mode .call-portrait {
+  width: min(18dvh, 150px);
+}
+.call-control-area,
+.recorded-mode .call-control-area {
+  flex: none;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+  padding: 8px 0 16px;
+}
+.call-timing {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  border-top: 1px solid var(--call-line);
+  padding: 12px 0 0;
 }
 @media (max-width: 767px) {
   .air-call-room {
     padding: 0;
-    gap: 0;
+    gap: 12px;
   }
+  .call-presence,
   .recorded-mode .call-presence {
-    min-height: 145px;
-    gap: 6px;
+    min-height: 160px;
+    gap: 10px;
+  }
+  .call-portrait,
+  .recorded-mode .call-portrait {
+    width: min(14dvh, 110px);
+  }
+  .call-conversation {
+    position: relative;
+    inset: auto;
+    grid-column: 1;
+    height: 100%;
+    box-sizing: border-box;
+  }
+  .conversation-open .call-stage {
+    visibility: hidden;
+  }
+  .call-timing {
+    padding-top: 8px;
   }
   .call-state h2 {
     margin-bottom: 6px;

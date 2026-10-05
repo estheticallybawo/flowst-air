@@ -139,18 +139,8 @@ const shortStatus = computed(() =>
         </button>
       </header>
       <slot name="conversation" />
-      <div
-        v-if="liveRunning && captionsVisible && caption && !captionSaved"
-        class="latest-caption"
-      >
-        <small>{{
-          captionSaved
-            ? "Saved transcript"
-            : "Live caption · not confirmed saved"
-        }}</small>
-        <AirsMessage :text="caption" />
-      </div>
     </section>
+    <footer v-if="$slots.timing" class="call-timing"><slot name="timing" /></footer>
     <AirFocusDialog
       id="amina-session-plan"
       :open="planOpen"

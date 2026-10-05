@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import AirAppShell from "./AirAppShell.vue";
 defineProps<{ session?: boolean; workspace?: boolean }>();
-
 </script>
 <template>
   <div class="air-study-frame" :class="{ 'is-session': session || workspace }">
-    <AirAppShell :session="session"
+    <AirAppShell :session="session" :focus-mode="session || workspace"
       ><template #session-navigation
         ><slot name="session-navigation" /></template
       ><slot
@@ -32,7 +31,7 @@ defineProps<{ session?: boolean; workspace?: boolean }>();
   box-sizing: border-box;
   min-height: 0;
   max-width: none;
-  padding: 14px clamp(12px, 4vw, 48px);
+  padding: 20px clamp(20px, 4vw, 48px);
   background: var(--air-canvas, #eef8ff);
   display: flex;
   flex-direction: column;
@@ -61,7 +60,7 @@ defineProps<{ session?: boolean; workspace?: boolean }>();
   min-width: 0;
   width: 100%;
   max-width: none;
-  padding: 12px 0 0;
+  padding: 0;
   margin: 0;
   overflow: hidden;
 }
@@ -73,11 +72,11 @@ defineProps<{ session?: boolean; workspace?: boolean }>();
 @media (max-width: 767px) {
   .is-session :deep(.air-app),
   .is-session :deep(.flowst-shell) {
-    padding: 6px 10px;
+    padding: max(12px, env(safe-area-inset-top)) 16px max(12px, env(safe-area-inset-bottom));
   }
   .is-session :deep(.air-app-content),
   .is-session :deep(.flowst-content) {
-    padding-top: 8px;
+    padding-top: 0;
   }
   .is-session :deep(.flowst-content) {
     padding-bottom: 0;

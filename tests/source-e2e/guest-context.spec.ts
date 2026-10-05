@@ -4,16 +4,13 @@ async function expectPrimaryInWorkspace(page: any, name: string) {
   const box = await page
     .getByRole("button", { name, exact: true })
     .boundingBox();
-  const nav = (await page.locator(".flowst-bottom-nav").count())
-    ? await page.locator(".flowst-bottom-nav").boundingBox()
-    : null;
   const viewport = await page.evaluate(() => ({
     height: innerHeight,
     scroll: scrollY,
     documentHeight: document.documentElement.scrollHeight,
   }));
   expect(box!.y).toBeGreaterThanOrEqual(0);
-  expect(box!.y + box!.height).toBeLessThanOrEqual(nav?.y ?? viewport.height);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
   expect(viewport.scroll).toBe(0);
   expect(viewport.documentHeight).toBeLessThanOrEqual(viewport.height + 1);
 }
@@ -325,14 +322,12 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     path: "test-results/airs-voice-turn-" + test.info().project.name + ".png",
     fullPage: true,
   });
-  const recordBox = await page
-    .getByRole("button", { name: "Start recording", exact: true })
-    .boundingBox();
-  const bottomNav = (await page.locator(".flowst-bottom-nav").count())
-    ? await page.locator(".flowst-bottom-nav").boundingBox()
-    : null;
-  if (bottomNav)
-    expect(recordBox!.y + recordBox!.height).toBeLessThanOrEqual(bottomNav.y);
+  await expectPrimaryInWorkspace(page, "Start recording");
+  await expect(page.locator(".flowst-topbar, .flowst-bottom-nav, .air-app-header")).toHaveCount(0);
+  await expect(page.locator(".session-navigation")).toHaveCount(1);
+  const stageBox = await page.locator(".call-stage").boundingBox();
+  const timingBox = await page.locator(".call-timing").boundingBox();
+  expect(timingBox!.y).toBeGreaterThanOrEqual(stageBox!.y + stageBox!.height);
   await page
     .getByRole("button", { name: "Start recording", exact: true })
     .click();
@@ -621,6 +616,21 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await expect(
     page.getByRole("region", { name: "Saved conversation", exact: true }),
   ).toContainText(intro.text);
+  const transcript = page.locator(".saved-turns");
+  await expect.poll(() => transcript.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+  const layout = await page.evaluate(() => {
+    const dimensions = (selector: string) => {
+      const el = document.querySelector(selector) as HTMLElement;
+      return { overflow: getComputedStyle(el).overflowY, extraHeight: el.scrollHeight - el.clientHeight };
+    };
+    return { panel: dimensions(".call-conversation"), controls: dimensions(".call-control-area"), stage: dimensions(".call-stage") };
+  });
+  expect(layout.panel.overflow).toBe("hidden");
+  expect(layout.controls.overflow).toBe("visible");
+  expect(layout.stage.extraHeight).toBeLessThanOrEqual(1);
+  await page.screenshot({ path: "test-results/airs-conversation-space-" + test.info().project.name + ".png", fullPage: true });
+  await expect(page.locator(".call-timing")).toBeVisible();
+
   await page.keyboard.press('Escape');
  await page.getByRole('button',{name:'Conversation',exact:true}).click()
  await expect(page.getByRole('region',{name:'Saved conversation',exact:true})).toHaveCount(0)
