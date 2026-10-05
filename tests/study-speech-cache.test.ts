@@ -4,6 +4,11 @@ import { createStudyConversation, appendStudyTurn, deleteStudyConversation, getS
 import { getOrPrepareStudySpeech } from '../server/services/studySpeechCache'
 import { studySpeechOutcome } from '../shared/studySpeechOutcome'
 afterEach(()=>vi.unstubAllGlobals())
+it('does not offer repeated paid recovery while application audio-storage permissions need repair',()=>{
+ for(const code of ['SPEECH_CACHE_ACCESS','SPEECH_CACHE_AUTH']){
+  expect(studySpeechOutcome({data:{code,statusMessage:'The app’s audio-storage connection needs attention.'}})).toEqual({message:'The app’s audio-storage connection needs attention.',retryable:false})
+ }
+})
 it('offers explicit service recovery for legacy quota failures without overriding unsupported playback',()=>{
  for(const cause of [{data:{code:'AMIRA_VOICE_ALLOWANCE_USED'}},{data:{data:{code:'AMIRA_VOICE_ALLOWANCE_USED'}}}]) {
   const outcome=studySpeechOutcome(cause)

@@ -36,6 +36,8 @@ export function studySpeechOutcome(cause: any): {
       'SPEECH_PROVIDER_RESTRICTED',
       'SPEECH_PROVIDER_CREDITS',
       'SPEECH_CACHE_UNAVAILABLE',
+      'SPEECH_CACHE_ACCESS',
+      'SPEECH_CACHE_AUTH',
       'SPEECH_EXPIRED',
       'SPEECH_RESPONSE_NOT_FOUND',
     ].includes(code),

@@ -131,6 +131,18 @@ async function readPacket(
     ) as TimedStudySpeech;
   } catch (cause) {
     if (["NoSuchKey", "NotFound"].includes((cause as Error).name)) return null;
+    if (["AccessDenied", "AccessDeniedException"].includes((cause as Error).name))
+      throw createError({
+        statusCode: 503,
+        statusMessage: "Amina’s saved audio needs a server storage-permission update. Your saved reply is still readable.",
+        data: { code: "SPEECH_CACHE_ACCESS", retryable: false },
+      });
+    if (["ExpiredToken", "ExpiredTokenException", "CredentialsProviderError", "InvalidIdentityToken"].includes((cause as Error).name))
+      throw createError({
+        statusCode: 503,
+        statusMessage: "The app’s audio-storage connection is unavailable. Your saved reply is still readable.",
+        data: { code: "SPEECH_CACHE_AUTH", retryable: false },
+      });
     throw cause;
   }
 }

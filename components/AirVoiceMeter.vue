@@ -36,7 +36,7 @@ defineProps<{ level: number; active: boolean }>();
   width: 5px;
   height: 25px;
   border-radius: 99px;
-  background: #b6531b;
+  background: var(--air-accent, #0284c7);
   transform-origin: center;
   transition: transform 100ms linear;
 }

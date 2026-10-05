@@ -157,25 +157,25 @@ header {
 }
 header p {
   margin: 0 0 5px;
-  color: #464a53;
+  color: #475569;
   font-size: 0.82rem;
 }
 h2 {
   margin: 0;
   font-size: 1.1rem;
-  color: #0d0f14;
+  color: #102b3f;
 }
 .misu-guide > p,
 dd {
-  color: #464a53;
+  color: #475569;
   font-size: 0.85rem;
   line-height: 1.6;
 }
 details {
   padding: 12px;
-  border: 1px solid #dbdee5;
+  border: 1px solid #c7e4f5;
   border-radius: 12px;
-  background: #f7faff;
+  background: #eef8ff;
 }
 summary {
   cursor: pointer;
@@ -192,7 +192,7 @@ dd {
 }
 .note {
   font-size: 0.78rem;
-  color: #464a53;
+  color: #475569;
   line-height: 1.5;
 }
 </style>

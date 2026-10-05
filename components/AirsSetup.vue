@@ -447,7 +447,7 @@ async function createPlan() {
   flex-direction: column;
   flex: 1;
   padding: clamp(16px, 2vw, 24px);
-  border: 1px solid #d8e3dc;
+  border: 1px solid #c7e4f5;
   border-radius: 18px;
   background: #fff;
 }
@@ -477,7 +477,7 @@ async function createPlan() {
   display: flex;
   flex-direction: column;
   padding: 0;
-  color: #142924;
+  color: #102b3f;
 }
 .setup-nav {
   display: flex;
@@ -490,7 +490,7 @@ async function createPlan() {
   font-size: 0.85rem;
 }
 .setup-nav a {
-  color: #234d40;
+  color: #0369a1;
 }
 .misu-setup :deep(.journey-rail) {
   flex: none;
@@ -512,7 +512,7 @@ h3 {
 p,
 small {
   line-height: 1.45;
-  color: #46534f;
+  color: #475569;
   overflow-wrap: anywhere;
 }
 fieldset {
@@ -547,7 +547,7 @@ textarea {
   width: 100%;
   padding: 10px 12px;
   min-height: 44px;
-  border: 1px solid #adbab5;
+  border: 1px solid #b8dff3;
   border-radius: 10px;
   background: white;
   font: inherit;
@@ -564,22 +564,22 @@ textarea {
   flex-wrap: wrap;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #e4ebe6;
+  border-top: 1px solid #c7e4f5;
   flex: none;
 }
 button {
   min-height: 44px;
   padding: 12px 20px;
-  background: #173d32;
+  background: #0369a1;
   color: white;
-  border: 1px solid #173d32;
+  border: 1px solid #0369a1;
   border-radius: 10px;
   cursor: pointer;
   font: inherit;
 }
 .secondary {
   background: transparent;
-  color: #173d32;
+  color: #0369a1;
 }
 button:disabled {
   opacity: 0.55;
@@ -593,13 +593,13 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 summary:focus-visible {
-  outline: 3px solid #608977;
+  outline: 3px solid #0284c7;
   outline-offset: 3px;
 }
 details {
   padding: 16px 0;
-  border-top: 1px solid #d9e1dd;
-  border-bottom: 1px solid #d9e1dd;
+  border-top: 1px solid #c7e4f5;
+  border-bottom: 1px solid #c7e4f5;
 }
 summary {
   cursor: pointer;
@@ -608,7 +608,7 @@ summary {
   align-items: center;
 }
 article {
-  border-top: 1px solid #d9e1dd;
+  border-top: 1px solid #c7e4f5;
   padding: 12px 0;
 }
 .setup-error {
@@ -616,7 +616,7 @@ article {
   gap: 16px;
 }
 input[type="radio"] {
-  accent-color: #173d32;
+  accent-color: #0369a1;
 }
 @media (prefers-reduced-motion: no-preference) {
   button {
