@@ -1,4 +1,6 @@
-import { getMe } from '../services/authRepository'
-import { requireIdentity } from '../utils/auth'
+import { getMe } from "../services/authRepository";
+import { requireIdentity } from "../utils/auth";
 
-export default defineEventHandler(async event => getMe(await requireIdentity(event), event))
+export default defineEventHandler(async (event) =>
+  getMe(await requireIdentity(event), event),
+);
