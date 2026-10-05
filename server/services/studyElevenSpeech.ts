@@ -29,7 +29,7 @@ export async function elevenTranscribeStudyPcm(ownerId: string, conversation: St
 export async function elevenSynthesizeStudySpeech(ownerId: string, conversation: StudyConversation, text: string, event?: H3Event) {
   const config = key(event); const spoken = text.slice(0, 3000)
   if (!config.elevenLabsVoiceId) throw createError({ statusCode: 503, statusMessage: 'Amina’s voice is not selected yet.' })
-  awsVoiceTrialCheck(conversation, 'POLLY', spoken.length, Number(config.studyAwsVoiceTrialMaxCharacters))
+  awsVoiceTrialCheck(conversation, 'POLLY', spoken.length, undefined, Number(config.studyAwsVoiceTrialMaxCharacters) || 6000)
   await appendStudyVoiceUsage(ownerId, conversation.id, { kind: 'ELEVEN_OUTPUT', units: spoken.length }, event)
   const response = await checked(await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(String(config.elevenLabsVoiceId))}`, {
     method: 'POST', headers: { 'xi-api-key': String(config.elevenLabsApiKey), 'Content-Type': 'application/json' }, body: JSON.stringify({ text: spoken, model_id: config.elevenLabsModelId }), signal: AbortSignal.timeout(45_000),
@@ -41,7 +41,7 @@ export async function elevenSynthesizeStudySpeech(ownerId: string, conversation:
 export async function elevenSynthesizeTimedStudySpeech(ownerId:string,conversation:StudyConversation,text:string,event?:H3Event):Promise<TimedStudySpeech>{
  const config=key(event),spoken=text.slice(0,3000)
  if(!config.elevenLabsVoiceId)throw createError({statusCode:503,statusMessage:'Amina’s voice is not selected yet.'})
- awsVoiceTrialCheck(conversation,'POLLY',spoken.length,Number(config.studyAwsVoiceTrialMaxCharacters))
+ awsVoiceTrialCheck(conversation,'POLLY',spoken.length,undefined,Number(config.studyAwsVoiceTrialMaxCharacters) || 6000)
  await appendStudyVoiceUsage(ownerId,conversation.id,{kind:'ELEVEN_OUTPUT',units:spoken.length},event)
  const response=await checked(await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(String(config.elevenLabsVoiceId))}/with-timestamps`,{method:'POST',headers:{'xi-api-key':String(config.elevenLabsApiKey),'Content-Type':'application/json'},body:JSON.stringify({text:spoken,model_id:config.elevenLabsModelId}),signal:AbortSignal.timeout(45000)}))
  const reader=response.body?.getReader();if(!reader)throw createError({statusCode:503,statusMessage:'Amina’s spoken reply was empty.'})

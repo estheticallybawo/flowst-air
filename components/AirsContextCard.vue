@@ -174,10 +174,12 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <section class="context-card" aria-label="Your learning context">
-    <AirSkeleton
+    <AgentActivity
       v-if="loading"
-      variant="upload"
-      label="Loading your context for Misu"
+      agent="MISU"
+      :busy="true"
+      state="working"
+      label="Loading your saved context."
     />
     <template v-else
       ><AgentActivity
@@ -186,84 +188,114 @@ onBeforeUnmount(() => {
         :label="status"
         state="working"
       />
-      <template v-if="editing"
-        ><h1>Share a little about yourself so I can help you plan.</h1>
-        <label for="self-context">Share context about yourself</label>
-        <p id="context-help">
-          Your background, career direction, interests, or conversations you
-          want to prepare for. Share only what you want me to use.
-        </p>
-        <textarea
-          id="self-context"
-          v-model="words"
-          maxlength="2000"
-          rows="7"
-          aria-describedby="context-help"
-          :disabled="busy || (!!error && !context)"
-          placeholder="I’m an early-career developer. I also create content, and I want to explain my projects confidently in interviews."
-        /><small>{{ words.length }} / 2,000 characters</small
-        ><button :disabled="busy || !context || !words.trim()" @click="save">
-          Save context
-        </button></template
-      >
-      <template v-else
-        ><h1>Here’s what I understand.</h1>
-        <p v-if="context?.summaryOrigin === 'FIXTURE'">
-          Demonstration summary of your words — no model was contacted.
-        </p>
-        <label for="context-summary">My understanding — you can edit it</label
-        ><textarea
-          id="context-summary"
-          v-model="summary"
-          maxlength="700"
-          rows="5"
-          :disabled="busy"
-        />
-        <p v-if="!summary">
-          I can use your saved words directly if you prefer.
+      <div class="context-body">
+        <template v-if="editing"
+          ><h1>Let’s make this practice yours.</h1>
+          <label for="self-context">Share context about yourself</label>
+          <p id="context-help">
+            Your background, career direction, interests, or conversations you
+            want to prepare for. Share only what you want me to use.
+          </p>
+          <textarea
+            id="self-context"
+            v-model="words"
+            maxlength="2000"
+            rows="4"
+            aria-describedby="context-help"
+            :disabled="busy || (!!error && !context)"
+            placeholder="I’m an early-career developer. I also create content, and I want to explain my projects confidently in interviews."
+          /><small>{{ words.length }} / 2,000 characters</small></template
+        >
+        <template v-else
+          ><h1>Here’s what I understand.</h1>
+          <p v-if="context?.summaryOrigin === 'FIXTURE'">
+            Demonstration summary of your words — no model was contacted.
+          </p>
+          <label for="context-summary">My understanding — you can edit it</label
+          ><textarea
+            id="context-summary"
+            v-model="summary"
+            maxlength="700"
+            rows="4"
+            :disabled="busy"
+          />
+          <p v-if="!summary">
+            I can use your saved words directly if you prefer.
+          </p>
+        </template>
+      </div>
+      <footer class="context-footer">
+        <p class="privacy">
+          Saved privately to your account. Shared with the learning model to
+          prepare your session.
         </p>
         <div class="actions">
-          <button :disabled="busy" @click="proceed">Continue</button
-          ><button class="secondary" :disabled="busy" @click="editing = true">
-            Edit my context</button
-          ><button
-            v-if="
-              context?.summaryStatus === 'FAILED' ||
-              context?.summaryStatus === 'NONE' ||
-              (context?.summaryStatus === 'PROCESSING' && !busy)
-            "
-            class="secondary"
-            :disabled="busy"
-            @click="summarize"
+          <button
+            v-if="editing"
+            :disabled="busy || !context || !words.trim()"
+            @click="save"
           >
-            Retry summary
+            Save context
           </button>
-        </div></template
-      >
-      <p v-if="error" role="alert">
-        {{ error }}
-        <button class="secondary" :disabled="busy" @click="load">
-          Reload context
-        </button>
-      </p>
-      <p class="privacy">
-        Your context is saved privately to your account and sent to the learning
-        model to help prepare this session.
-      </p></template
+          <template v-else
+            ><button :disabled="busy" @click="proceed">Continue</button
+            ><button class="secondary" :disabled="busy" @click="editing = true">
+              Edit my context</button
+            ><button
+              v-if="
+                context?.summaryStatus === 'FAILED' ||
+                context?.summaryStatus === 'NONE' ||
+                (context?.summaryStatus === 'PROCESSING' && !busy)
+              "
+              class="secondary"
+              :disabled="busy"
+              @click="summarize"
+            >
+              Retry summary
+            </button>
+          </template>
+        </div>
+        <p v-if="error" role="alert">
+          {{ error }}
+          <button class="secondary" :disabled="busy" @click="load">
+            Reload context
+          </button>
+        </p>
+      </footer></template
     >
   </section>
 </template>
 <style scoped>
 .context-card {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 28px 0;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: clamp(16px, 2vw, 24px);
+  box-sizing: border-box;
+  border: 1px solid #d8e3dc;
+  border-radius: 18px;
+  background: #fff;
+}
+.context-card :deep(.agent-activity) {
+  margin-bottom: 12px;
+  flex: none;
+}
+.context-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.context-footer {
+  flex: none;
+  padding-top: 8px;
 }
 h1 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
   line-height: 1.25;
-  margin: 0 0 24px;
-  max-width: 25ch;
+  margin: 0 0 14px;
   color: #142924;
 }
 label {
@@ -272,20 +304,23 @@ label {
   margin-bottom: 8px;
 }
 p {
-  line-height: 1.65;
+  line-height: 1.45;
   color: #46534f;
   font-size: 0.92rem;
+  margin: 8px 0 12px;
 }
 textarea {
   box-sizing: border-box;
   width: 100%;
-  padding: 16px;
+  padding: 12px;
   border: 1px solid #adbab5;
   border-radius: 12px;
   background: #fff;
   font: inherit;
-  line-height: 1.6;
-  resize: vertical;
+  line-height: 1.5;
+  min-height: 100px;
+  max-height: 220px;
+  resize: none;
 }
 small {
   display: block;
@@ -301,7 +336,7 @@ button {
   border: 1px solid #173d32;
   border-radius: 10px;
   cursor: pointer;
-  margin-top: 12px;
+  margin-top: 0;
   font: inherit;
 }
 .secondary {
@@ -322,7 +357,7 @@ button:active {
 }
 .privacy {
   font-size: 0.78rem;
-  margin-top: 24px;
+  margin: 0 0 10px;
 }
 textarea:focus-visible,
 button:focus-visible {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ alias: '/amira/about', middleware: ["air-only"] });
+definePageMeta({ alias: "/amira/about", middleware: ["air-only"] });
 useHead({ title: "Privacy & trust · Flowst Air" });
 </script>
 <template>
@@ -10,10 +10,11 @@ useHead({ title: "Privacy & trust · Flowst Air" });
       <section>
         <h2>About Flowst Air</h2>
         <p>
-          Flowst Air is an independent learning environment. Misu proposes plans for your approval; Amina guides spoken practice. Amina is an AI learning partner, not a human
-          tutor or accredited examiner. Upload a resource and practise it aloud
-          in a guided conversation. Check important answers against the cited
-          source.
+          Flowst Air is an independent learning environment. Misu proposes plans
+          for your approval; Amina guides spoken practice. Amina is an AI
+          learning partner, not a human tutor or accredited examiner. Upload a
+          resource and practise it aloud in a guided conversation. Check
+          important answers against the cited source.
         </p>
       </section>
       <section>
@@ -35,12 +36,12 @@ useHead({ title: "Privacy & trust · Flowst Air" });
       <section>
         <h2>Your material and data</h2>
         <p>
-          Your uploaded document or confirmed source snapshot is stored in cloud object storage. Extracted
-          passages, session choices and any short brief, study plans, finalized
-          transcripts, feedback, and learning activity records are stored in a
-          cloud database. Study operations check the signed-in owner before
-          accessing records. Authorized service operators may access data for
-          operation and support.
+          Your uploaded document or confirmed source snapshot is stored in cloud
+          object storage. Extracted passages, session choices and any short
+          brief, study plans, finalized transcripts, feedback, and learning
+          activity records are stored in a cloud database. Study operations
+          check the signed-in owner before accessing records. Authorized service
+          operators may access data for operation and support.
         </p>
         <p>
           AWS stores your study records and provides account and backend
@@ -57,30 +58,31 @@ useHead({ title: "Privacy & trust · Flowst Air" });
           abandon the plan. Deleting an unfinished document does not unlock a
           replacement by itself; Replace study document asks you to confirm
           abandonment, leaves any saved document read-only, and does not mark
-          the objectives complete. No automatic
-          retention period or deletion of provider-side records is promised by
-          this interface.
+          the objectives complete. No automatic retention period or deletion of
+          provider-side records is promised by this interface.
         </p>
       </section>
       <section>
         <h2>Source links and video transcripts</h2>
         <p>
-          Public repositories and readable web pages become attributed text snapshots.
-          Review the included passages before creating a plan. Repository files are
-          pinned to a commit; source content cannot give the agents new instructions.
+          Public repositories and readable web pages become attributed text
+          snapshots. Review the included passages before creating a plan.
+          Repository files are pinned to a commit; source content cannot give
+          the agents new instructions.
         </p>
         <p>
-          Where video transcription is configured, choosing Create transcript sends
-          the public YouTube or TikTok link to ElevenLabs. This uses a separate source
-          allowance, not your voice-practice time. AI transcripts can contain errors.
-          Only speech is included; diagrams, demonstrations and on-screen text are
-          not inspected. Pasted or uploaded transcripts are labelled as learner-supplied.
+          Where video transcription is configured, choosing Create transcript
+          sends the public YouTube or TikTok link to ElevenLabs. This uses a
+          separate source allowance, not your voice-practice time. AI
+          transcripts can contain errors. Only speech is included; diagrams,
+          demonstrations and on-screen text are not inspected. Pasted or
+          uploaded transcripts are labelled as learner-supplied.
         </p>
         <p>
-          Draft access expires after 30 minutes; storage cleanup may happen later.
-          Cancelling a draft prevents its use but may not stop provider work already
-          submitted. Deleting a study record does not delete the original public
-          source or independent provider records.
+          Draft access expires after 30 minutes; storage cleanup may happen
+          later. Cancelling a draft prevents its use but may not stop provider
+          work already submitted. Deleting a study record does not delete the
+          original public source or independent provider records.
         </p>
       </section>
       <section>
@@ -104,8 +106,10 @@ useHead({ title: "Privacy & trust · Flowst Air" });
           confirms them. Transcripts can contain speech recognition errors. A
           saved generated reply does not prove you heard it completely,
           especially if you interrupted. Live call responses do not
-          automatically advance assessed activities. Raw voice audio is not
-          saved as an application storage object.
+          automatically advance assessed activities. Amina’s prepared spoken
+          replies are saved privately for Replay and removed when you delete the
+          conversation. Raw microphone audio is not saved as an application
+          storage object.
         </p>
         <details>
           <summary>About separate recorded exercises</summary>

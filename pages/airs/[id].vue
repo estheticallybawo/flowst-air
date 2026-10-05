@@ -19,7 +19,12 @@ import {
   Square,
   Trash2,
 } from "lucide-vue-next";
-import {spokenCaption,validSpeechAlignment,type TimedStudySpeech} from '~/shared/studySpeech';
+import { studySpeechOutcome } from "~/shared/studySpeechOutcome";
+import {
+  spokenCaption,
+  validSpeechAlignment,
+  type TimedStudySpeech,
+} from "~/shared/studySpeech";
 import type { StudyConversation, StudyMode, StudyTurn } from "~/shared/study";
 import {
   DEFAULT_STUDY_PREFERENCES,
@@ -46,7 +51,7 @@ function prepareExit() {
     )
   )
     return false;
-  if(paced.value)void pacing.change('PAUSE');
+  if (paced.value) void pacing.change("PAUSE");
   live.stop();
   mediaStopped = true;
   microphoneRequest++;
@@ -98,19 +103,71 @@ async function refreshStudyAccess() {
 }
 const id = computed(() => String(route.params.id || ""));
 const study = ref<StudyConversation | null>(null);
-const pacing=useStudyPacing(id);
-const paced=computed(()=>Boolean(study.value?.plan.pacing));
-const pacingBlocked=computed(()=>paced.value && pacing.current.value?.phase!=='PRACTICE');
-const deferredReplyId=ref(''),captionTurnId=ref(''),spokenText=ref('');
-const speechPackets=new Map<string,TimedStudySpeech>();
-async function pausePractice(){live.stop();stopMicrophone();await pacing.change('PAUSE')}
-async function resumePractice(){if(!paced.value || await pacing.change('RESUME')){if(recordedPracticeMode.value && !introductionTurn.value)await beginLesson()}}
+const pacing = useStudyPacing(id);
+const paced = computed(() => Boolean(study.value?.plan.pacing));
+const pacingBlocked = computed(
+  () => paced.value && pacing.current.value?.phase !== "PRACTICE",
+);
+const deferredReplyId = ref(""),
+  captionTurnId = ref(""),
+  spokenText = ref("");
+const speechPackets = new Map<string, TimedStudySpeech>();
+async function skipBreak() {
+  if (await pacing.change("SKIP_BREAK")) {
+    if (journey.value.checkpointReady) sessionPane.value = "checkpoint";
+    else await resumePractice();
+  }
+}
+async function pausePractice() {
+  live.stop();
+  stopMicrophone();
+  await pacing.change("PAUSE");
+}
+async function resumePractice() {
+  if (!paced.value || (await pacing.change("RESUME"))) {
+    if (recordedPracticeMode.value && !introductionTurn.value)
+      await beginLesson();
+  }
+}
 
 const initialLoading = ref(true);
-// Recorded exercises are separate from the live room, preserving saved practice compatibility.
-const recordedPracticeMode = computed(
-  () => route.query.practice !== "live",
+const handoffTransition = useAgentHandoff(),
+  kaiTransition = useAgentHandoff();
+const celebration = ref("");
+const journey = computed(
+  () =>
+    study.value?.journey || {
+      completedObjectiveIds: [],
+      totalObjectives: study.value?.plan.objectives.length || 0,
+      checkpointReady: false,
+      kaiReady: false,
+    },
 );
+const journeyStage = computed(() =>
+  "review" === sessionPane.value
+    ? "KAI"
+    : conversationStarted.value || handoffReady.value
+      ? "AMINA"
+      : "MISU",
+);
+const speechFailureMessage = ref(""),
+  speechRetryable = ref(true);
+async function continueCheckpoint() {
+  celebration.value = "";
+  if (journey.value.kaiReady) {
+    stopCurrentPlayback();
+    if (paced.value) await pacing.change("PAUSE").catch(() => false);
+    await kaiTransition.prepare();
+    if (!disposed) sessionPane.value = "review";
+  } else {
+    sessionPane.value = "";
+    if (paced.value && !(await pacing.change("START"))) return;
+    await beginLesson();
+  }
+}
+
+// Recorded exercises are separate from the live room, preserving saved practice compatibility.
+const recordedPracticeMode = computed(() => route.query.practice !== "live");
 const visibleTurns = computed(() =>
   recordedPracticeMode.value
     ? study.value?.turns || []
@@ -179,7 +236,7 @@ async function startLiveCall() {
   )
     return;
   stopCurrentPlayback();
-  if(pacingBlocked.value)return;
+  if (pacingBlocked.value) return;
   await live.start();
 }
 const error = ref("");
@@ -193,6 +250,7 @@ const handoffBusy = ref(false),
   conversationStarted = ref(false);
 const adjustingPlan = ref(false),
   adjustment = ref("");
+const sourceInfoOpen = ref(false);
 const adjustedPreferences = ref({ ...DEFAULT_STUDY_PREFERENCES });
 const planPhaseLabels: Record<string, string> = {
   READING_SOURCE: "I’m reading the included material.",
@@ -200,11 +258,39 @@ const planPhaseLabels: Record<string, string> = {
   CHECKING_REFERENCES: "I’m checking the plan’s source references.",
   PLAN_READY: "Your draft is ready to review.",
 };
-const voiceTurnPhase=ref('');
-let voiceProgressPoll:ReturnType<typeof setTimeout>|undefined;
-function pollVoiceProgress(takeId:string){
- clearTimeout(voiceProgressPoll);
- voiceProgressPoll=setTimeout(async()=>{if(disposed || recorderStatus.value!=='SENDING' || recordingId!==takeId)return;try{const result=await auth.authorizedFetch<{progress:{recordingId:string;phase:string}|null}>(`/api/study/conversations/${id.value}/recorded-turn?recordingId=${takeId}`);if(!disposed && recordingId===takeId && result.progress?.recordingId===takeId)voiceTurnPhase.value=result.progress.phase}catch{/* Keep the generic pending state if status metadata is unavailable. */}if(!disposed && recorderStatus.value==='SENDING' && recordingId===takeId)pollVoiceProgress(takeId)},1000)
+const voiceTurnPhase = ref("");
+let voiceProgressPoll: ReturnType<typeof setTimeout> | undefined;
+function pollVoiceProgress(takeId: string) {
+  clearTimeout(voiceProgressPoll);
+  voiceProgressPoll = setTimeout(async () => {
+    if (
+      disposed ||
+      recorderStatus.value !== "SENDING" ||
+      recordingId !== takeId
+    )
+      return;
+    try {
+      const result = await auth.authorizedFetch<{
+        progress: { recordingId: string; phase: string } | null;
+      }>(
+        `/api/study/conversations/${id.value}/recorded-turn?recordingId=${takeId}`,
+      );
+      if (
+        !disposed &&
+        recordingId === takeId &&
+        result.progress?.recordingId === takeId
+      )
+        voiceTurnPhase.value = result.progress.phase;
+    } catch {
+      /* Keep the generic pending state if status metadata is unavailable. */
+    }
+    if (
+      !disposed &&
+      recorderStatus.value === "SENDING" &&
+      recordingId === takeId
+    )
+      pollVoiceProgress(takeId);
+  }, 1000);
 }
 const recorderStatus = ref<"IDLE" | "RECORDING" | "REVIEW" | "SENDING">("IDLE");
 const microphoneLevel = ref(0);
@@ -227,20 +313,44 @@ let playback: HTMLAudioElement | undefined;
 let playbackPrimed = false;
 let playbackRequest = 0;
 const speechUrls = new Map<string, string>();
-watch(()=>[pacing.current.value?.phase,recorderStatus.value,busy.value,playingTurnId.value,preparingSpeechTurnId.value,deferredReplyId.value,microphoneRequesting.value,live.running.value],async()=>{
- if(pacing.current.value?.phase==='BREAK_DUE' && recorderStatus.value==='IDLE' && !busy.value && !playingTurnId.value && !preparingSpeechTurnId.value && !deferredReplyId.value && !microphoneRequesting.value && !pacing.busy.value){
- if(live.running.value)live.stop();stopMicrophone();await pacing.change('BREAK')}
-});
+watch(
+  () => [
+    pacing.current.value?.phase,
+    recorderStatus.value,
+    busy.value,
+    playingTurnId.value,
+    preparingSpeechTurnId.value,
+    deferredReplyId.value,
+    microphoneRequesting.value,
+    live.running.value,
+  ],
+  async () => {
+    if (
+      pacing.current.value?.phase === "BREAK_DUE" &&
+      recorderStatus.value === "IDLE" &&
+      !busy.value &&
+      !playingTurnId.value &&
+      !preparingSpeechTurnId.value &&
+      !deferredReplyId.value &&
+      !microphoneRequesting.value &&
+      !pacing.busy.value
+    ) {
+      if (live.running.value) live.stop();
+      stopMicrophone();
+      await pacing.change("BREAK");
+    }
+  },
+);
 const activeObjective = computed(() =>
   study.value?.plan.objectives.find(
     (objective) => objective.id === study.value?.plan.activeObjectiveId,
   ),
 );
-const sessionPane = ref<"plan" | "context" | "">("");
+const sessionPane = ref<
+  "plan" | "context" | "checkpoint" | "review" | "options" | ""
+>("");
 const conversationVisible = ref(false);
-onMounted(() => {
-  conversationVisible.value = window.matchMedia("(min-width: 768px)").matches;
-});
+
 const sessionActive = computed(
   () =>
     !study.value?.abandonedAt &&
@@ -256,7 +366,11 @@ const welcomeTurn = computed(() =>
 );
 const introductionTurn = computed(() =>
   study.value?.turns.find(
-    (turn) => turn.kind === "INTRO" && turn.role === "AMIRA",
+    (turn) =>
+      turn.kind === "INTRO" &&
+      turn.role === "AMIRA" &&
+      (turn.objectiveId === study.value?.plan.activeObjectiveId ||
+        (!turn.objectiveId && objectiveIndex.value === 0)),
   ),
 );
 const readyToPractice = computed(() => Boolean(introductionTurn.value));
@@ -384,9 +498,8 @@ const conversationActivity = computed(() => {
   if (voiceFailureTurnId.value)
     return {
       phase: "error",
-      label: "Voice conversation temporarily unavailable",
-      detail:
-        "Your transcript is saved. Retry voice to continue speaking practice.",
+      label: "Audio unavailable",
+      detail: speechFailureMessage.value,
     };
   if (error.value)
     return {
@@ -397,7 +510,14 @@ const conversationActivity = computed(() => {
   if (recorderStatus.value === "SENDING")
     return {
       phase: "processing",
-      label: voiceTurnPhase.value==='TRANSCRIBING' ? 'Turning your recording into text' : voiceTurnPhase.value==='CHOOSING_ACTIVITY' ? 'Amina is choosing a practice activity' : voiceTurnPhase.value==='DRAFTING_REPLY' ? 'Amina is preparing your reply' : 'Processing your answer',
+      label:
+        voiceTurnPhase.value === "TRANSCRIBING"
+          ? "Turning your recording into text"
+          : voiceTurnPhase.value === "CHOOSING_ACTIVITY"
+            ? "Amina is choosing a practice activity"
+            : voiceTurnPhase.value === "DRAFTING_REPLY"
+              ? "Amina is preparing your reply"
+              : "Processing your answer",
       detail:
         "Your transcript and feedback will appear after the turn is saved.",
     };
@@ -416,8 +536,11 @@ const conversationActivity = computed(() => {
   if (preparingSpeechTurnId.value)
     return {
       phase: "processing",
-      label: captionTurnId.value ? 'Buffering Amina’s audio' : 'Preparing Amina’s voice',
-      detail: "Audio is being prepared. You can open the full saved reply while you wait.",
+      label: captionTurnId.value
+        ? "Buffering Amina’s audio"
+        : "Preparing Amina’s voice",
+      detail:
+        "Audio is being prepared. You can open the full saved reply while you wait.",
     };
   if (busy.value && !playingTurnId.value)
     return {
@@ -444,7 +567,19 @@ const conversationActivity = computed(() => {
       label: "Voice playback paused",
       detail: "Tap Listen on Amina’s reply to hear it.",
     };
-  if(paced.value && ['BREAK','PAUSED'].includes(pacing.current.value?.phase || ''))return{phase:'ready',label:pacing.current.value?.phase==='BREAK' ? 'Take a break' : 'Practice is paused',detail:'Microphone off. Resume when you are ready and the timer allows it.'};
+  if (
+    paced.value &&
+    ["BREAK", "PAUSED"].includes(pacing.current.value?.phase || "")
+  )
+    return {
+      phase: "ready",
+      label:
+        pacing.current.value?.phase === "BREAK"
+          ? "Take a break"
+          : "Practice is paused",
+      detail:
+        "Microphone off. Resume when you are ready and the timer allows it.",
+    };
   if (!readyToPractice.value)
     return {
       phase: "ready",
@@ -537,7 +672,7 @@ async function ensureWelcome() {
 
 function schedulePlanPoll() {
   if (planPoll) clearTimeout(planPoll);
-  if(voiceProgressPoll)clearTimeout(voiceProgressPoll);
+  if (voiceProgressPoll) clearTimeout(voiceProgressPoll);
   planPoll = setTimeout(async () => {
     try {
       await load();
@@ -603,15 +738,20 @@ async function prepareHandoff(automaticWelcome = false) {
   try {
     const welcomeId = await ensureWelcome();
     if (disposed) return;
-    if(automaticWelcome)deferredReplyId.value=welcomeId || "";
-    handoffReady.value = Boolean(welcomeTurn.value);
+    if (automaticWelcome) deferredReplyId.value = welcomeId || "";
+    if (!welcomeTurn.value) throw new Error("Welcome unavailable");
+    handoffBusy.value = false;
+    if (automaticWelcome) await handoffTransition.prepare();
+    if (disposed || mediaStopped) return;
+    handoffReady.value = true;
     await nextTick();
     document
       .querySelector<HTMLElement>(".prepared-handoff")
       ?.focus({ preventScroll: true });
     if (!handoffReady.value) throw new Error("Welcome unavailable");
-    handoffBusy.value=false;
-    if (automaticWelcome && welcomeId) await playSpeech(welcomeId, true);
+    handoffBusy.value = false;
+    if (automaticWelcome && welcomeId && !document.hidden)
+      await playSpeech(welcomeId, true);
   } catch {
     if (!disposed)
       handoffError.value =
@@ -648,7 +788,7 @@ async function startConversation() {
   stopCurrentPlayback();
   voiceFailureTurnId.value = "";
   audioPromptTurnId.value = "";
-  if(paced.value && !(await pacing.change('START')))return;
+  if (paced.value && !(await pacing.change("START"))) return;
   conversationStarted.value = true;
   if (recordedPracticeMode.value) await beginLesson();
   else await startLiveCall();
@@ -657,13 +797,20 @@ async function startConversation() {
 async function confirmNext() {
   const objectiveId = study.value?.plan.recommendation?.objectiveId;
   if (!objectiveId || planBusy.value || live.running.value) return;
+  const completedTitle = activeObjective.value?.title || "Your objective";
   planBusy.value = true;
   try {
     study.value = await auth.authorizedFetch<StudyConversation>(
       `/api/study/conversations/${id.value}/plan/confirm`,
       { method: "POST", body: { objectiveId } },
     );
-    if(paced.value && !study.value.plan.courseCompletedAt){await pacing.refresh();await pacing.change('START')}
+    const confirmedTitle = completedTitle;
+    await load();
+    if (journey.value.completedObjectiveIds.length) {
+      celebration.value = confirmedTitle;
+      sessionPane.value = "";
+    }
+    if (paced.value) await pacing.refresh();
   } catch (cause: any) {
     error.value = learnerStudyError(
       cause,
@@ -705,7 +852,11 @@ onMounted(async () => {
     if (!recordedPracticeMode.value && !study.value?.abandonedAt)
       void live.checkAvailability();
     if (study.value?.plan.status === "APPROVED") {
-      if(paced.value){await pacing.refresh();if(pacing.current.value?.phase==="PRACTICE")await pacing.change("PAUSE")}
+      if (paced.value) {
+        await pacing.refresh();
+        if (pacing.current.value?.phase === "PRACTICE")
+          await pacing.change("PAUSE");
+      }
       conversationStarted.value = study.value.turns.some(
         (turn) =>
           turn.kind === "INTRO" ||
@@ -754,7 +905,8 @@ async function sendControl(
     live.running.value ||
     disposed ||
     busy.value ||
-    voiceFailureTurnId.value || pacingBlocked.value
+    voiceFailureTurnId.value ||
+    pacingBlocked.value
   )
     return;
   busy.value = true;
@@ -764,9 +916,16 @@ async function sendControl(
       `/api/study/conversations/${id.value}/control`,
       { method: "POST", body: { action } },
     );
-    deferredReplyId.value=response.agentTurn?.id || "";
-    if(response.agentTurn && study.value && !study.value.turns.some(turn=>turn.id===response.agentTurn!.id))study.value.turns.push(response.agentTurn);
-    const playbackWork=response.agentTurn?.id ? playSpeech(response.agentTurn.id,true) : Promise.resolve();
+    deferredReplyId.value = response.agentTurn?.id || "";
+    if (
+      response.agentTurn &&
+      study.value &&
+      !study.value.turns.some((turn) => turn.id === response.agentTurn!.id)
+    )
+      study.value.turns.push(response.agentTurn);
+    const playbackWork = response.agentTurn?.id
+      ? playSpeech(response.agentTurn.id, true)
+      : Promise.resolve();
     await load();
     await playbackWork;
   } catch (cause: any) {
@@ -841,7 +1000,8 @@ async function startRecording() {
     live.status.value = "IDLE";
     live.error.value = "";
   }
-  if (!canStudy.value || disposed || live.running.value || pacingBlocked.value) return;
+  if (!canStudy.value || disposed || live.running.value || pacingBlocked.value)
+    return;
   if (
     !readyToPractice.value ||
     busy.value ||
@@ -870,9 +1030,15 @@ async function startRecording() {
       return;
     }
     microphone = stream;
-    recordingId=crypto.randomUUID();
-    if(paced.value && !(await pacing.change('RECORD',recordingId))){stopMicrophone();return}
-    if(disposed || mediaStopped || request!==microphoneRequest){stopMicrophone();return}
+    recordingId = crypto.randomUUID();
+    if (paced.value && !(await pacing.change("RECORD", recordingId))) {
+      stopMicrophone();
+      return;
+    }
+    if (disposed || mediaStopped || request !== microphoneRequest) {
+      stopMicrophone();
+      return;
+    }
     audioContext = new AudioContext();
     const source = audioContext.createMediaStreamSource(microphone);
     const analyser = audioContext.createAnalyser();
@@ -903,7 +1069,9 @@ async function startRecording() {
       recordedAudio = new Blob(chunks, {
         type: recorder?.mimeType || "audio/webm",
       });
-      recordingId = recordedAudio.size ? recordingId || crypto.randomUUID() : undefined;
+      recordingId = recordedAudio.size
+        ? recordingId || crypto.randomUUID()
+        : undefined;
       recorderStatus.value = recordedAudio.size ? "REVIEW" : "IDLE";
       stopMicrophone();
     };
@@ -945,7 +1113,9 @@ async function sendRecording() {
   const generation = microphoneRequest;
   stopCurrentPlayback();
   primePlayback();
-  recorderStatus.value = "SENDING";voiceTurnPhase.value="";pollVoiceProgress(recordingId ||= crypto.randomUUID());
+  recorderStatus.value = "SENDING";
+  voiceTurnPhase.value = "";
+  pollVoiceProgress((recordingId ||= crypto.randomUUID()));
   error.value = "";
   let requestStarted = false;
   let response: { userTurn?: StudyTurn; agentTurn?: StudyTurn };
@@ -1004,7 +1174,8 @@ async function sendRecording() {
     });
   } catch (cause: any) {
     if (disposed || generation !== microphoneRequest) return;
-    recorderStatus.value = "REVIEW";clearTimeout(voiceProgressPoll);
+    recorderStatus.value = "REVIEW";
+    clearTimeout(voiceProgressPoll);
     error.value = learnerStudyError(
       cause,
       requestStarted
@@ -1018,9 +1189,12 @@ async function sendRecording() {
   if (disposed || generation !== microphoneRequest) return;
   recordedAudio = undefined;
   recordingId = undefined;
-  recorderStatus.value = "IDLE";clearTimeout(voiceProgressPoll);
-  deferredReplyId.value=response.agentTurn?.id || "";
-  const playbackWork=response.agentTurn?.id ? playSpeech(response.agentTurn.id,true) : Promise.resolve();
+  recorderStatus.value = "IDLE";
+  clearTimeout(voiceProgressPoll);
+  deferredReplyId.value = response.agentTurn?.id || "";
+  const playbackWork = response.agentTurn?.id
+    ? playSpeech(response.agentTurn.id, true)
+    : Promise.resolve();
   const savedTurns = [response.userTurn, response.agentTurn].filter(
     (turn): turn is StudyTurn => Boolean(turn),
   );
@@ -1050,7 +1224,8 @@ function stopCurrentPlayback() {
   playback?.pause();
   playingTurnId.value = "";
   preparingSpeechTurnId.value = "";
-  deferredReplyId.value="";captionTurnId.value="";
+  deferredReplyId.value = "";
+  captionTurnId.value = "";
 }
 
 function primePlayback() {
@@ -1086,7 +1261,7 @@ function primePlayback() {
     .catch(() => undefined);
 }
 
-async function playSpeech(turnId: string, automatic = false) {
+async function playSpeech(turnId: string, automatic = false, retry = false) {
   if (disposed || live.running.value || (automatic && mediaStopped)) return;
   if (!automatic) mediaStopped = false;
   if (!automatic && playingTurnId.value === turnId && playback) {
@@ -1096,48 +1271,97 @@ async function playSpeech(turnId: string, automatic = false) {
   const request = ++playbackRequest;
   playback?.pause();
   playingTurnId.value = "";
-  deferredReplyId.value=turnId;
-  captionTurnId.value="";spokenText.value="";
+  deferredReplyId.value = turnId;
+  captionTurnId.value = "";
+  spokenText.value = "";
   preparingSpeechTurnId.value = turnId;
   audioPromptTurnId.value = "";
   let url = speechUrls.get(turnId);
   if (!url && !canStudy.value) {
-    deferredReplyId.value="";
+    deferredReplyId.value = "";
     preparingSpeechTurnId.value = "";
     return;
   }
   try {
     if (!url) {
-      const packet=await auth.authorizedFetch<TimedStudySpeech>(`/api/study/conversations/${id.value}/speech`,{method:'POST',body:{turnId,withTimestamps:true}});
-      if(request!==playbackRequest || disposed)return;
-      const data=Uint8Array.from(atob(packet.audioBase64),character=>character.charCodeAt(0));
-      url=URL.createObjectURL(new Blob([data],{type:packet.mimeType}));
-      packet.alignment=validSpeechAlignment(packet.alignment);packet.audioBase64='';speechPackets.set(turnId,packet);
+      const packet = await auth.authorizedFetch<TimedStudySpeech>(
+        `/api/study/conversations/${id.value}/speech`,
+        { method: "POST", body: { turnId, withTimestamps: true, retry } },
+      );
+      if (request !== playbackRequest || disposed) return;
+      const data = Uint8Array.from(atob(packet.audioBase64), (character) =>
+        character.charCodeAt(0),
+      );
+      url = URL.createObjectURL(new Blob([data], { type: packet.mimeType }));
+      packet.alignment = validSpeechAlignment(packet.alignment);
+      packet.audioBase64 = "";
+      speechPackets.set(turnId, packet);
       speechUrls.set(turnId, url);
       void load().catch(() => undefined);
     }
     if (request !== playbackRequest) return;
     const audio = (playback ||= new Audio());
     audio.src = url;
-    const caption=()=>{if(request!==playbackRequest)return;const packet=speechPackets.get(turnId);captionTurnId.value=turnId;spokenText.value=spokenCaption(packet?.alignment || null,packet?.spokenText || study.value?.turns.find(turn=>turn.id===turnId)?.text || '',audio.currentTime)};
-    audio.onplaying=()=>{if(request!==playbackRequest)return;playingTurnId.value=turnId;preparingSpeechTurnId.value='';caption()};
-    audio.ontimeupdate=caption;
-    audio.onwaiting=()=>{if(request!==playbackRequest)return;playingTurnId.value='';preparingSpeechTurnId.value=turnId};
-    audio.onpause=()=>{if(request!==playbackRequest)return;playingTurnId.value=''};
-    audio.onerror=()=>{if(request!==playbackRequest)return;voiceFailureTurnId.value=turnId;playingTurnId.value='';preparingSpeechTurnId.value='';deferredReplyId.value='';captionTurnId.value=''};
-    audio.onended=()=>{if(request!==playbackRequest)return;playingTurnId.value='';preparingSpeechTurnId.value='';deferredReplyId.value='';captionTurnId.value='';spokenText.value=''};
+    const caption = () => {
+      if (request !== playbackRequest) return;
+      const packet = speechPackets.get(turnId);
+      captionTurnId.value = turnId;
+      spokenText.value = spokenCaption(
+        packet?.alignment || null,
+        packet?.spokenText ||
+          study.value?.turns.find((turn) => turn.id === turnId)?.text ||
+          "",
+        audio.currentTime,
+      );
+    };
+    audio.onplaying = () => {
+      if (request !== playbackRequest) return;
+      playingTurnId.value = turnId;
+      preparingSpeechTurnId.value = "";
+      caption();
+    };
+    audio.ontimeupdate = caption;
+    audio.onwaiting = () => {
+      if (request !== playbackRequest) return;
+      playingTurnId.value = "";
+      preparingSpeechTurnId.value = turnId;
+    };
+    audio.onpause = () => {
+      if (request !== playbackRequest) return;
+      playingTurnId.value = "";
+    };
+    audio.onerror = () => {
+      if (request !== playbackRequest) return;
+      speechFailureMessage.value =
+        "This browser could not play the saved audio. Read the response in Conversation or try playback again.";
+      speechRetryable.value = true;
+      voiceFailureTurnId.value = turnId;
+      playingTurnId.value = "";
+      preparingSpeechTurnId.value = "";
+      deferredReplyId.value = "";
+      captionTurnId.value = "";
+    };
+    audio.onended = () => {
+      if (request !== playbackRequest) return;
+      playingTurnId.value = "";
+      preparingSpeechTurnId.value = "";
+      deferredReplyId.value = "";
+      captionTurnId.value = "";
+      spokenText.value = "";
+    };
     await audio.play();
     if (request === playbackRequest) {
       playbackPrimed = true;
       preparingSpeechTurnId.value = "";
-      if(!audio.paused)playingTurnId.value = turnId;
+      if (!audio.paused) playingTurnId.value = turnId;
       if (voiceFailureTurnId.value === turnId) voiceFailureTurnId.value = "";
     }
   } catch (cause: any) {
     if (request !== playbackRequest) return;
     preparingSpeechTurnId.value = "";
     playingTurnId.value = "";
-    deferredReplyId.value="";captionTurnId.value="";
+    deferredReplyId.value = "";
+    captionTurnId.value = "";
     if (cause?.name === "NotAllowedError") {
       audioPromptTurnId.value = turnId;
       return;
@@ -1150,20 +1374,23 @@ async function playSpeech(turnId: string, automatic = false) {
       URL.revokeObjectURL(url);
     }
     voiceFailureTurnId.value = turnId;
+    const outcome = studySpeechOutcome(cause);
+    speechFailureMessage.value = outcome.message;
+    speechRetryable.value = outcome.retryable;
     error.value = "";
   }
 }
 
 async function retryVoice() {
   const turnId = voiceFailureTurnId.value;
-  if (!turnId || preparingSpeechTurnId.value) return;
+  if (!turnId || preparingSpeechTurnId.value || !speechRetryable.value) return;
   error.value = "";
   if (audioPromptTurnId.value === turnId) {
     await playSpeech(turnId);
     return;
   }
   primePlayback();
-  await playSpeech(turnId, true);
+  await playSpeech(turnId, true, true);
 }
 
 async function remove() {
@@ -1192,7 +1419,7 @@ async function remove() {
 </script>
 
 <template>
-  <AirStudyShell :session="sessionActive">
+  <AirStudyShell :session="sessionActive" workspace>
     <template v-if="sessionActive && study" #session-navigation>
       <AirSessionNavigation
         controls-only
@@ -1207,10 +1434,12 @@ async function remove() {
         "
       />
     </template>
-    <AirSkeleton
+    <AgentActivity
       v-if="initialLoading"
-      variant="room"
-      label="Loading your study room"
+      agent="MISU"
+      :busy="true"
+      state="working"
+      label="Loading your saved learning workspace."
     />
     <div v-else-if="!study" class="air-panel" role="alert">
       <h1>Study room unavailable</h1>
@@ -1235,43 +1464,66 @@ async function remove() {
       </button>
       <NuxtLink to="/airs" class="air-text-link">Back to library</NuxtLink>
     </div>
-    <div v-else class="study-page" :class="{ 'session-active': sessionActive }">
+    <div
+      v-else
+      class="study-page app-workspace"
+      :class="{
+        'session-active': sessionActive,
+        'archived-workspace': study.abandonedAt,
+      }"
+    >
       <nav v-if="!sessionActive" class="setup-room-nav">
         <NuxtLink to="/airs/library">Saved sessions</NuxtLink
         ><span>{{ study.document.title || study.document.name }}</span
+        ><button
+          v-if="study.document.provenance"
+          @click="sourceInfoOpen = true"
+        >
+          Source details</button
         ><button @click="leaveSession">Leave session</button>
       </nav>
-      <details
-        v-if="study.document.provenance && !sessionActive"
-        class="setup-source-details"
+      <AirFocusDialog
+        v-if="study.document.provenance"
+        id="reviewed-source-info"
+        :open="sourceInfoOpen"
+        title="Source you reviewed"
+        @close="sourceInfoOpen = false"
       >
-        <summary>Source you reviewed</summary>
         <AirSourceProvenance :provenance="study.document.provenance" />
-      </details>
-      <AirSessionNavigation
-        v-if="sessionActive"
-        context-only
-        :title="study.document.title || study.document.name"
-        :plan-open="sessionPane === 'plan'"
-        :conversation-open="conversationVisible"
-        @leave="leaveSession"
-        @plan="sessionPane = sessionPane === 'plan' ? '' : 'plan'"
-        @conversation="
-          conversationVisible = !conversationVisible;
-          sessionPane = '';
-        "
-      />
-      <AirSessionNavigation
-        v-if="sessionActive && !standaloneAir"
-        controls-only
-        :title="study.document.title || study.document.name"
-        :plan-open="sessionPane === 'plan'"
-        :conversation-open="conversationVisible"
-        @plan="sessionPane = sessionPane === 'plan' ? '' : 'plan'"
-        @conversation="
-          conversationVisible = !conversationVisible;
-          sessionPane = '';
-        "
+      </AirFocusDialog>
+      <div v-if="sessionActive" class="session-toolbar">
+        <AirSessionNavigation
+          v-if="sessionActive"
+          context-only
+          :title="study.document.title || study.document.name"
+          :plan-open="sessionPane === 'plan'"
+          :conversation-open="conversationVisible"
+          @leave="leaveSession"
+          @plan="sessionPane = sessionPane === 'plan' ? '' : 'plan'"
+          @conversation="
+            conversationVisible = !conversationVisible;
+            sessionPane = '';
+          "
+        />
+        <AirSessionNavigation
+          v-if="sessionActive && !standaloneAir"
+          controls-only
+          :title="study.document.title || study.document.name"
+          :plan-open="sessionPane === 'plan'"
+          :conversation-open="conversationVisible"
+          @plan="sessionPane = sessionPane === 'plan' ? '' : 'plan'"
+          @conversation="
+            conversationVisible = !conversationVisible;
+            sessionPane = '';
+          "
+        />
+      </div>
+      <AirsJourneyRail
+        :stage="journeyStage"
+        :setup-progress="study.plan.status === 'APPROVED' ? 100 : 75"
+        :completed="journey.completedObjectiveIds.length"
+        :total="journey.totalObjectives"
+        :review-ready="journey.kaiReady"
       />
       <p v-if="accessError" class="air-error" role="alert">
         {{ accessError }} <button @click="refreshStudyAccess">Try again</button>
@@ -1349,7 +1601,9 @@ async function remove() {
         >
         <AirConversation
           :turns="visibleTurns"
-              :pending-text-id="deferredReplyId" :caption-id="captionTurnId" :caption-text="spokenText"
+          :pending-text-id="deferredReplyId"
+          :caption-id="captionTurnId"
+          :caption-text="spokenText"
           :allow-playback="false"
           :live-running="false"
           :can-study="false"
@@ -1364,152 +1618,104 @@ async function remove() {
         class="plan-review"
         aria-label="Your session plan"
       >
-        <MisuPlanGuide
-          :plan="study.plan"
-          :preferences="preferences"
-          :preparing="planPreparing"
-          :saving-approval="planBusy && !planPreparing"
-        />
-        <AirSkeleton
-          v-if="planPreparing || study.plan.status === 'PENDING'"
-          variant="plan"
-          label="Misu is preparing your session plan"
-        />
-        <p v-else-if="study.plan.status === 'FAILED'">
-          {{
-            learnerStudyError(
-              { data: { statusMessage: study.plan.error } },
-              "Your plan could not be prepared. Try again below.",
-            )
-          }}
-        </p>
-        <template v-else>
-          <p>
-            Review the objectives, source locations, and teaching approach.
-            Approve when you're ready, or ask me to adjust the plan.
+        <div class="plan-review-body">
+          <MisuPlanGuide
+            :plan="study.plan"
+            :preferences="preferences"
+            :preparing="planPreparing"
+            :saving-approval="planBusy && !planPreparing"
+          />
+          <p v-if="study.plan.status === 'FAILED'">
+            {{
+              learnerStudyError(
+                { data: { statusMessage: study.plan.error } },
+                "Your plan could not be prepared. Try again below.",
+              )
+            }}
           </p>
-          <details
-            v-if="study.plan.functionRefs?.length"
-            class="learning-guidance"
+          <AirsPlanOverview
+            v-if="study.plan.status === 'DRAFT'"
+            :plan="study.plan"
+            :preferences="preferences"
+          />
+          <p v-if="error" class="error" role="alert">
+            <CircleAlert :size="16" /> {{ error }}
+          </p>
+          <p
+            v-if="study.plan.status === 'DRAFT' && !recordedPracticeMode"
+            class="plan-call-note"
           >
-            <summary>How learning guidance works</summary>
-            <p>
-              Teaching approach:
-              <strong>{{
-                study.plan.functionRefs
-                  .map(
-                    (ref) => `${ref.id.replaceAll("-", " ")} (v${ref.version})`,
-                  )
-                  .join(" + ")
-              }}</strong
-              >. Amina will introduce the idea, guide practice, then invite you
-              to explain it in your own words.
-            </p>
-          </details>
-          <div class="study-brief" aria-label="Your study preferences">
-            <strong>{{ purposeLabel }}</strong>
-            <p>
-              {{
-                preferences.scope === "FOCUSED"
-                  ? "Focused scope"
-                  : "Broad scope"
-              }}
-              · {{ preferences.pacing ? `${preferences.pacing.practiceMinutes} minutes per topic · ${preferences.pacing.breakMinutes}-minute breaks` : `${preferences.timeBudgetMinutes} minutes available` }}<span
-                v-if="plannedStudyMinutes"
-              >
-                · approximately {{ plannedStudyMinutes }} minutes planned</span
-              >
-            </p>
-            <p v-if="preferences.context">{{ preferences.context }}</p>
-            <small
-              >These are effort estimates. Progress depends on your saved
-              practice and confirmed checkpoints.</small
-            >
-          </div>
-          <ol class="objectives">
-            <li v-for="objective in study.plan.objectives" :key="objective.id">
-              <strong>{{ objective.title }}</strong
-              ><small v-if="objective.estimatedMinutes" class="objective-time"
-                >About {{ objective.estimatedMinutes }} min</small
-              >
-              <p>{{ objective.outcome }}</p>
-              <p v-if="objective.planningNote" class="planning-note">
-                <strong>Misu’s plan explanation:</strong>
-                {{ objective.planningNote }}
-              </p>
-              <AirCitation
-                v-for="source in objective.sources"
-                :key="source.id"
-                class="source"
-                :source="source"
-              />
-            </li>
-          </ol>
-        </template>
-        <p v-if="error" class="error" role="alert">
-          <CircleAlert :size="16" /> {{ error }}
-        </p>
-        <p
-          v-if="study.plan.status === 'DRAFT' && !recordedPracticeMode"
-          class="plan-call-note"
-        >
-          Approving prepares your session with Amina. Your microphone stays off
-          until you choose Start conversation. Each pilot call reserves 60
-          seconds, including unused time.
-          <NuxtLink to="/airs/about">Microphone &amp; privacy</NuxtLink>
-        </p>
-        <section
-          v-if="adjustingPlan"
-          class="plan-adjustment"
-          aria-label="Adjust your plan"
-        >
-          <label
-            >What would you like me to change?<textarea
-              v-model="adjustment"
-              maxlength="600"
-              rows="3"
-            />
-          </label>
-          <label
-            >Practice goal<select v-model="adjustedPreferences.purpose">
-              <option
-                v-for="(label, value) in STUDY_PURPOSE_LABELS"
-                :key="value"
-                :value="value"
-              >
-                {{ label }}
-              </option>
-            </select></label
+            Approving prepares your session with Amina. Your microphone stays
+            off until you choose Start conversation. Each pilot call reserves 60
+            seconds, including unused time.
+            <NuxtLink to="/airs/about">Microphone &amp; privacy</NuxtLink>
+          </p>
+        </div>
+        <AirFocusDialog
+          id="adjust-session-plan"
+          :open="adjustingPlan"
+          title="Adjust your plan"
+          @close="adjustingPlan = false"
+          ><section
+            v-if="adjustingPlan"
+            class="plan-adjustment"
+            aria-label="Adjust your plan"
           >
-          <label
-            >Practice time per topic<input
-              v-model.number="adjustedPreferences.pacing!.practiceMinutes"
-              type="number"
-              min="5"
-              max="15"
-          /></label>
-          <label>Break length<select v-model.number="adjustedPreferences.pacing!.breakMinutes"><option :value="3">3 minutes</option><option :value="5">5 minutes</option></select></label>
-          <details>
-            <summary>Scope and focus</summary>
             <label
-              >Coverage<select v-model="adjustedPreferences.scope">
-                <option value="FOCUSED">One useful goal</option>
-                <option value="BROAD">The main ideas</option>
-              </select></label
-            ><label
-              >Session focus<textarea
-                v-model="adjustedPreferences.context"
+              >What would you like me to change?<textarea
+                v-model="adjustment"
                 maxlength="600"
-                rows="2"
+                rows="3"
               />
             </label>
-          </details>
-          <button :disabled="planBusy" @click="preparePlan(true, true)">
-            Draft adjusted plan</button
-          ><button :disabled="planBusy" @click="adjustingPlan = false">
-            Keep current draft
-          </button>
-        </section>
+            <label
+              >Practice goal<select v-model="adjustedPreferences.purpose">
+                <option
+                  v-for="(label, value) in STUDY_PURPOSE_LABELS"
+                  :key="value"
+                  :value="value"
+                >
+                  {{ label }}
+                </option>
+              </select></label
+            >
+            <label
+              >Practice time per topic<input
+                v-model.number="adjustedPreferences.pacing!.practiceMinutes"
+                type="number"
+                min="5"
+                max="15"
+            /></label>
+            <label
+              >Break length<select
+                v-model.number="adjustedPreferences.pacing!.breakMinutes"
+              >
+                <option :value="3">3 minutes</option>
+                <option :value="5">5 minutes</option>
+              </select></label
+            >
+            <details>
+              <summary>Scope and focus</summary>
+              <label
+                >Coverage<select v-model="adjustedPreferences.scope">
+                  <option value="FOCUSED">One useful goal</option>
+                  <option value="BROAD">The main ideas</option>
+                </select></label
+              ><label
+                >Session focus<textarea
+                  v-model="adjustedPreferences.context"
+                  maxlength="600"
+                  rows="2"
+                />
+              </label>
+            </details>
+            <button :disabled="planBusy" @click="preparePlan(true, true)">
+              Draft adjusted plan</button
+            ><button :disabled="planBusy" @click="adjustingPlan = false">
+              Keep current draft
+            </button>
+          </section></AirFocusDialog
+        >
         <div class="plan-actions">
           <button
             v-if="study.plan.status === 'DRAFT'"
@@ -1529,7 +1735,16 @@ async function remove() {
             @click="
               study.plan.status === 'FAILED'
                 ? preparePlan(true)
-                : ((adjustedPreferences = { ...preferences, pacing: {...(preferences.pacing || {mode:'TOPIC_BLOCKS',practiceMinutes:5,breakMinutes:3})} }),
+                : ((adjustedPreferences = {
+                    ...preferences,
+                    pacing: {
+                      ...(preferences.pacing || {
+                        mode: 'TOPIC_BLOCKS',
+                        practiceMinutes: 5,
+                        breakMinutes: 3,
+                      }),
+                    },
+                  }),
                   (adjustingPlan = true))
             "
           >
@@ -1597,7 +1812,9 @@ async function remove() {
           :label="
             handoffError
               ? 'Your approval is saved. Amina’s preparation needs a retry.'
-              : 'I’m preparing your session with Amina. I’ll share your context, source and approved plan.'
+              : handoffTransition.active.value
+                ? 'Your context, source and approved plan are ready for Amina. Take a moment before we continue.'
+                : 'I’m preparing your session with Amina. I’ll share your context, source and approved plan.'
           "
         />
         <AgentActivity
@@ -1613,9 +1830,17 @@ async function remove() {
                   : 'Your welcome is ready. Microphone off.'
               : handoffError
                 ? 'Your welcome isn’t ready yet. Microphone off.'
-                : 'Preparing your first practice. Microphone off.'
+                : handoffTransition.active.value
+                  ? 'Your welcome is saved. Take a moment before meeting Amina.'
+                  : 'Preparing your first practice. Microphone off.'
           "
         />
+        <div v-if="handoffTransition.active.value" class="handoff-actions">
+          <p role="status">
+            Amina is next · {{ handoffTransition.remaining.value }} seconds
+          </p>
+          <button @click="handoffTransition.continueNow">Continue now</button>
+        </div>
         <p v-if="handoffError" role="alert">{{ handoffError }}</p>
         <button
           v-if="handoffError"
@@ -1625,14 +1850,24 @@ async function remove() {
           Retry preparation
         </button>
         <template v-if="handoffReady"
-          ><h2>Hi, I’m Amina.</h2>
-          <p v-if="captionTurnId===welcomeTurn?.id">{{spokenText || 'Playback starting…'}}</p>
-          <template v-else-if="deferredReplyId===welcomeTurn?.id"><p role="status">Preparing your spoken welcome…</p><details><summary>Read welcome now</summary><p>{{welcomeTurn?.text}}</p></details></template>
-          <p v-else>{{welcomeTurn?.text}}</p>
-          <p v-if="voiceFailureTurnId || audioPromptTurnId">
-            Spoken playback is unavailable. You can read the welcome and start
-            when ready.
-          </p>
+          ><div class="welcome-reader">
+            <h2>Hi, I’m Amina.</h2>
+            <p v-if="captionTurnId === welcomeTurn?.id">
+              {{ spokenText || "Playback starting…" }}
+            </p>
+            <template v-else-if="deferredReplyId === welcomeTurn?.id"
+              ><p role="status">Preparing your spoken welcome…</p>
+              <details>
+                <summary>Read welcome now</summary>
+                <p>{{ welcomeTurn?.text }}</p>
+              </details></template
+            >
+            <p v-else>{{ welcomeTurn?.text }}</p>
+            <p v-if="voiceFailureTurnId || audioPromptTurnId">
+              Spoken playback is unavailable. You can read the welcome and start
+              when ready.
+            </p>
+          </div>
           <div class="handoff-actions">
             <button
               :disabled="handoffBusy || !canStudy"
@@ -1663,8 +1898,14 @@ async function remove() {
             'Review your session plan'
           "
           :objective="activeObjective?.title || ''"
-          :study-minutes="study.plan.pacing?.practiceMinutes || preferences.timeBudgetMinutes"
-          :pacing-label="study.plan.pacing ? `${study.plan.pacing.practiceMinutes} minutes per topic · ${study.plan.pacing.breakMinutes}-minute breaks` : undefined"
+          :study-minutes="
+            study.plan.pacing?.practiceMinutes || preferences.timeBudgetMinutes
+          "
+          :pacing-label="
+            study.plan.pacing
+              ? `${study.plan.pacing.practiceMinutes} minutes per topic · ${study.plan.pacing.breakMinutes}-minute breaks`
+              : undefined
+          "
           :conversation-clock="conversationSeconds > 0 ? conversationClock : ''"
           :activity="conversationActivity"
           :level="inputLevel"
@@ -1689,378 +1930,103 @@ async function remove() {
           @close-conversation="conversationVisible = false"
         >
           <template #plan>
-            <MisuPlanGuide :plan="study.plan" :preferences="preferences" />
-            <AirsKaiReview
-              :conversation-id="id"
-              :can-review="
-                Boolean(hasCurrentEvidence) &&
-                !study.practice.awaitingAnswer &&
-                !live.running.value
-              "
-            />
-            <div class="study-brief" aria-label="Your study preferences">
-              <strong>{{ purposeLabel }}</strong>
-              <p>
-                {{
-                  preferences.scope === "FOCUSED"
-                    ? "Focused scope"
-                    : "Broad scope"
-                }}
-                · {{ preferences.pacing ? `${preferences.pacing.practiceMinutes} minutes per topic · ${preferences.pacing.breakMinutes}-minute breaks` : `${preferences.timeBudgetMinutes} minutes available` }}
-              </p>
-              <p v-if="plannedStudyMinutes">
-                About {{ plannedStudyMinutes }} minutes of planned activities.
-              </p>
-              <p v-if="preferences.context">{{ preferences.context }}</p>
-              <p v-if="conversationSeconds > 0">
-                {{ conversationClock }} conversation time this visit.
-              </p>
-              <small v-if="preferences.pacing">Each topic has its own practice clock and break. Pausing preserves time; this does not extend the voice allowance.</small>
-              <small v-else
-                >The conversation timer pauses between calls. Your study budget
-                also includes reading and reflection; it does not extend the
-                pilot voice allowance.</small
-              >
-            </div>
-            <ol class="session-objectives" aria-label="Learning objectives">
-              <li
-                v-for="objective in study.plan.objectives"
-                :key="objective.id"
-                :aria-current="
-                  objective.id === study.plan.activeObjectiveId
-                    ? 'step'
-                    : undefined
-                "
-              >
-                <strong>{{ objective.title }}</strong
-                ><span v-if="objective.estimatedMinutes">
-                  · about {{ objective.estimatedMinutes }} min</span
-                >
-              </li>
-            </ol>
-            <aside class="mode-panel" aria-label="Study mode" tabindex="0">
-              <div class="active-objective" v-if="activeObjective">
-                <span
-                  >Objective {{ objectiveIndex + 1 }} of
-                  {{ study.plan.objectives.length }} · Your session plan</span
-                ><strong>{{ activeObjective.title }}</strong
-                ><small>{{ activeObjective.outcome }}</small>
-                <div>
-                  <AirCitation
-                    v-for="source in activeObjective.sources"
-                    :key="source.id"
-                    class="source"
-                    :source="source"
-                  />
-                </div>
-              </div>
-              <div
-                v-if="recordedPracticeMode"
-                class="lesson-path"
-                aria-label="Study stages"
-              >
-                <strong>Your study path</strong>
-                <ol>
-                  <li
-                    :class="{
-                      complete: !!study.plan.courseCompletedAt,
-                      current: study.progression?.stage === 'COURSE',
-                    }"
-                  >
-                    Explore & explain
-                  </li>
-                  <li
-                    :class="{
-                      complete:
-                        (study.progression?.oralAnswersCompleted || 0) >=
-                        (study.progression?.oralAnswersRequired || 5),
-                      current: study.progression?.stage === 'ORAL_EXAM',
-                    }"
-                  >
-                    Oral exam
-                  </li>
-                  <li
-                    :class="{
-                      complete: study.progression?.stage === 'COMPLETE',
-                      current: study.progression?.stage === 'SCENARIO',
-                    }"
-                  >
-                    Scenario
-                  </li>
-                </ol>
-                <p>Next: {{ lessonStep }}</p>
-              </div>
-              <div class="voice-usage">
-                <span class="usage-label">Voice conversation</span>
-                <strong
-                  >{{
-                    Math.max(
-                      0,
-                      $config.public.studyAwsVoiceTrialMaxSeconds -
-                        (study.voiceUsage?.transcribeSeconds || 0),
-                    )
-                  }}
-                  voice input seconds remaining</strong
-                >
-                <div
-                  class="voice-progress"
-                  role="progressbar"
-                  aria-label="Voice input time used"
-                  aria-valuemin="0"
-                  :aria-valuemax="$config.public.studyAwsVoiceTrialMaxSeconds"
-                  :aria-valuenow="study.voiceUsage?.transcribeSeconds || 0"
-                >
-                  <i
-                    :style="{
-                      width: `${Math.min(100, ((study.voiceUsage?.transcribeSeconds || 0) / $config.public.studyAwsVoiceTrialMaxSeconds) * 100)}%`,
-                    }"
-                  />
-                </div>
-                <small
-                  >Completed transcripts are saved; raw audio is not.</small
-                >
-              </div>
-              <div
-                class="progress-recommendation"
-                v-if="study.plan.recommendation"
-              >
-                <strong
-                  >{{
-                    study.plan.recommendation.action === "ADVANCE"
-                      ? "Suggested next step"
-                      : study.plan.recommendation.action === "COMPLETE"
-                        ? study.plan.courseCompletedAt
-                          ? "Objectives completed"
-                          : "Suggested completion"
-                        : "Try the idea again"
-                  }}
-                </strong>
-                <div class="misu-review-heading">
-                  <AgentAvatar agent="MIRO" size="compact" /><span
-                    >Misu · Learning planner</span
-                  >
-                </div>
-                <p>{{ study.plan.recommendation.reason }}</p>
-                <small
-                  >Review checkpoint:
-                  {{ study.plan.recommendation.basedOnAttemptCount }} saved
-                  {{
-                    study.plan.recommendation.basedOnAttemptCount === 1
-                      ? "attempt"
-                      : "attempts"
-                  }}
-                  in this chat. Misu reviews recent attempts on this objective.
-                  This is a suggestion, not a mastery assessment. You choose
-                  whether to continue.</small
-                >
-                <details
-                  class="learning-guidance"
-                  v-if="study.practice.attempts.length"
-                >
-                  <summary>Inspect saved attempts used in this review</summary>
-                  <template
-                    v-for="attempt in study.practice.attempts
-                      .slice(0, study.plan.recommendation.basedOnAttemptCount)
-                      .filter(
-                        (item) =>
-                          item.objectiveId === study?.plan.activeObjectiveId,
-                      )
-                      .slice(-5)"
-                    :key="attempt.evidenceId || attempt.answer"
-                  >
-                    <p><strong>Question:</strong> {{ attempt.question }}</p>
-                    <p>
-                      <strong>Your explanation:</strong> {{ attempt.answer }}
-                    </p>
-                    <p>
-                      <strong>Amina’s feedback:</strong> {{ attempt.feedback }}
-                    </p>
-                    <AirCitation
-                      v-for="source in attempt.sources"
-                      :key="source.id"
-                      :source="source"
-                    />
-                  </template>
-                </details>
-                <button
-                  v-if="
-                    study.plan.recommendation.action === 'ADVANCE' ||
-                    (study.plan.recommendation.action === 'COMPLETE' &&
-                      !study.plan.courseCompletedAt)
-                  "
-                  type="button"
-                  :disabled="planBusy || live.running.value"
-                  @click="confirmNext"
-                >
-                  {{
-                    study.plan.recommendation.action === "COMPLETE"
-                      ? "Confirm objectives complete"
-                      : "Continue to next objective"
-                  }}
-                </button>
-              </div>
-              <div
-                class="progress-recommendation"
-                v-else-if="study.plan.recommendationError"
-              >
-                <strong>Progress review unavailable</strong>
-                <p>
-                  {{
-                    learnerStudyError(
-                      {
-                        data: { statusMessage: study.plan.recommendationError },
-                      },
-                      "Your feedback could not be reviewed yet. Try again.",
-                    )
-                  }}
-                </p>
-                <button
-                  type="button"
-                  :disabled="planBusy || live.running.value"
-                  @click="retryRecommendation"
-                >
-                  Retry plan review
-                </button>
-              </div>
-              <div
-                v-if="!recordedPracticeMode && !study.plan.courseCompletedAt"
-                class="progress-recommendation"
-              >
-                <div class="misu-review-heading">
-                  <AgentAvatar agent="MIRO" size="compact" /><strong
-                    >Misu · Review this objective</strong
-                  >
-                </div>
-                <p v-if="planReviewing" role="status">
-                  Misu is reviewing your saved explanation and Amina’s feedback.
-                </p>
-                <p v-if="live.running.value">
-                  End the call when you are ready to review your saved
-                  explanation.
-                </p>
-                <p v-else-if="hasCurrentEvidence">
-                  Ask for a progress review based on your saved explanation. You
-                  choose whether to move on.
-                </p>
-                <p v-else>
-                  Explain this objective during a call. A saved explanation is
-                  needed before a progress review.
-                </p>
-                <button
-                  type="button"
-                  :disabled="
-                    !canReviewProgress || planBusy || live.running.value
-                  "
-                  @click="retryRecommendation"
-                >
-                  {{ planBusy ? "Reviewing…" : "Review saved explanation" }}
-                </button>
-              </div>
-              <p v-if="paced && study.plan.recommendation?.action==='ADVANCE' && (pacing.current.value?.phase!=='BREAK' || pacing.remaining.value>0)">Misu’s next-topic recommendation is saved. Finish this practice block and break before opening it.</p>
-              <div
-                v-if="study.plan.courseCompletedAt"
-                class="progress-recommendation"
-              >
-                <strong>Objective completion saved</strong>
-                <p>
-                  You can upload another resource or explicitly choose optional
-                  practice. Completion is not a mastery score.
-                </p>
-                <NuxtLink v-if="standaloneAir" to="/airs/new"
-                  >Upload another resource</NuxtLink
-                >
-              </div>
-              <h2 v-if="recordedPracticeMode && readyToPractice">
-                How shall we study?
-              </h2>
-              <button
-                v-for="(mode, modeIndex) in recordedPracticeMode &&
-                readyToPractice
-                  ? modes
-                  : []"
-                :key="mode.id"
-                type="button"
-                class="mode-choice"
-                :class="[
-                  mode.id.toLowerCase().replace('_', '-'),
-                  {
-                    selected: study.mode === mode.id,
-                    locked: !modeAvailable(mode.id),
-                  },
-                ]"
-                :aria-pressed="study.mode === mode.id"
-                :aria-label="
-                  modeAvailable(mode.id)
-                    ? mode.label
-                    : `${mode.label} locked. ${modeLockReason(mode.id)}`
-                "
-                :title="
-                  modeAvailable(mode.id) ? undefined : modeLockReason(mode.id)
-                "
-                :disabled="
-                  !canStudy ||
-                  !modeAvailable(mode.id) ||
-                  busy ||
-                  !!voiceFailureTurnId ||
-                  recorderStatus !== 'IDLE' ||
-                  live.running.value
-                "
-                @click="chooseMode(mode.id)"
-              >
-                <span class="mode-icon" aria-hidden="true">
-                  <MessageCircleMore
-                    v-if="mode.id === 'DISCUSSION'"
-                    :size="19"
-                  />
-                  <ListChecks v-else-if="mode.id === 'ORAL_EXAM'" :size="19" />
-                  <Clapperboard v-else :size="19" />
-                </span>
-                <span class="mode-copy"
-                  ><strong>{{ mode.label }}</strong
-                  ><small>{{ mode.helper }}</small></span
-                >
-                <span class="mode-step" aria-hidden="true">{{
-                  modeIndex + 1
-                }}</span>
-                <LockKeyhole
-                  v-if="!modeAvailable(mode.id)"
-                  class="mode-lock"
-                  :size="14"
-                  aria-hidden="true"
-                />
-              </button>
-              <div class="practice-progress" v-if="study.mode !== 'DISCUSSION'">
-                <span>{{
-                  study.mode === "ORAL_EXAM"
-                    ? `Question
-                  ${study.practice.questionNumber} of 5`
-                    : "Scenario practice"
-                }}</span
-                ><small
-                  >{{ study.practice.attempts.length }} attempts saved</small
-                >
-              </div>
-              <p class="source-note">
-                Amina names document sources when using them and labels general
-                knowledge separately.
-              </p>
-            </aside>
-            <button type="button" class="delete" @click="remove">
-              <Trash2 :size="16" /> Delete chat
-            </button>
+            <AirsPlanOverview :plan="study.plan" :preferences="preferences" />
+            <details>
+              <summary>What this plan is based on</summary>
+              <MisuPlanGuide :plan="study.plan" :preferences="preferences" />
+            </details>
           </template>
           <template #controls>
-            <section v-if="paced" class="practice-pacing" aria-label="Practice and break timer">
-              <strong>{{pacing.current.value?.phase==='BREAK' ? 'Take a break' : pacing.current.value?.phase==='BREAK_DUE' ? 'Break due — finish your current turn' : pacing.current.value?.phase==='PAUSED' ? 'Practice paused' : 'Current topic practice'}}</strong>
-              <span class="pacing-clock" aria-label="Time remaining">{{pacing.clock.value}}</span>
-              <p v-if="pacing.current.value?.phase==='BREAK'">Microphone off. {{pacing.remaining.value>0 ? 'Your next practice block will be ready after this break.' : 'Your break is finished. Continue when you are ready.'}}</p>
-              <p v-if="pacing.current.value?.phase==='BREAK_DUE'">Finish sending or discard your current take. Then we’ll pause for your break.</p>
-              <p v-if="pacing.error.value" role="alert">{{pacing.error.value}}</p>
-              <button v-if="pacing.current.value?.phase==='BREAK_DUE' && pacing.error.value && recorderStatus==='IDLE' && !busy && !playingTurnId && !preparingSpeechTurnId" :disabled="pacing.busy.value" @click="pacing.change('BREAK')">Retry starting break</button>
-              <button v-if="pacing.current.value?.phase==='PAUSED' || pacing.current.value?.phase==='BREAK' && pacing.remaining.value===0" :disabled="pacing.busy.value" @click="resumePractice">Resume practice</button>
-              <button v-if="pacing.current.value?.phase==='PRACTICE' && recorderStatus==='IDLE' && !busy && !playingTurnId && !preparingSpeechTurnId" :disabled="pacing.busy.value" @click="pausePractice">Pause practice</button>
-              <details class="pacing-explanation"><summary>About timing</summary><p>The timer pauses practice; it does not mark a topic complete. Use Misu’s saved review to advance topics.</p></details>
+            <section
+              v-if="paced"
+              class="practice-pacing"
+              aria-label="Practice and break timer"
+            >
+              <strong>{{
+                pacing.current.value?.phase === "BREAK"
+                  ? "Recovery break"
+                  : pacing.current.value?.phase === "BREAK_DUE"
+                    ? "Finish this turn"
+                    : pacing.current.value?.phase === "PAUSED"
+                      ? "Paused"
+                      : "Practice"
+              }}</strong>
+              <span class="pacing-clock" aria-label="Time remaining">{{
+                pacing.clock.value
+              }}</span>
+              <button
+                v-if="
+                  pacing.current.value?.phase === 'BREAK' &&
+                  pacing.remaining.value > 0
+                "
+                :disabled="pacing.busy.value"
+                @click="skipBreak"
+              >
+                Skip break &amp; continue
+              </button>
+              <button
+                v-if="
+                  pacing.current.value?.phase === 'PAUSED' ||
+                  (pacing.current.value?.phase === 'BREAK' &&
+                    pacing.remaining.value === 0)
+                "
+                :disabled="pacing.busy.value"
+                @click="resumePractice"
+              >
+                Resume practice
+              </button>
+              <button
+                v-if="
+                  pacing.current.value?.phase === 'PRACTICE' &&
+                  recorderStatus === 'IDLE' &&
+                  !busy &&
+                  !playingTurnId &&
+                  !preparingSpeechTurnId
+                "
+                :disabled="pacing.busy.value"
+                @click="pausePractice"
+              >
+                Pause
+              </button>
+              <p v-if="pacing.error.value" role="alert">
+                {{ pacing.error.value }}
+              </p>
+              <button
+                v-if="
+                  pacing.current.value?.phase === 'BREAK_DUE' &&
+                  pacing.error.value &&
+                  recorderStatus === 'IDLE' &&
+                  !busy &&
+                  !playingTurnId &&
+                  !preparingSpeechTurnId
+                "
+                :disabled="pacing.busy.value"
+                @click="pacing.change('BREAK')"
+              >
+                Retry break
+              </button>
             </section>
+            <div class="practice-tools">
+              <button
+                v-if="
+                  !study.plan.courseCompletedAt &&
+                  (journey.checkpointReady ||
+                    study.plan.recommendationError ||
+                    canReviewProgress)
+                "
+                @click="sessionPane = 'checkpoint'"
+              >
+                {{
+                  journey.checkpointReady
+                    ? "Review checkpoint"
+                    : "Review progress"
+                }}
+              </button>
+              <button v-if="journey.kaiReady" @click="sessionPane = 'review'">
+                Kai’s review
+              </button>
+              <button @click="sessionPane = 'options'">Practice options</button>
+            </div>
             <div
               class="call-actions"
               :class="{ 'live-dock': live.running.value }"
@@ -2157,12 +2123,16 @@ async function remove() {
                 role="alert"
               >
                 <p>
-                  Your saved transcript is available. Voice conversation resumes
-                  when reply playback starts.
+                  {{
+                    speechFailureMessage ||
+                    "Your saved reply is available in Conversation."
+                  }}
                 </p>
                 <button
                   type="button"
-                  :disabled="!!preparingSpeechTurnId || !canStudy"
+                  :disabled="
+                    !!preparingSpeechTurnId || !canStudy || !speechRetryable
+                  "
                   @click="retryVoice"
                 >
                   {{
@@ -2173,13 +2143,14 @@ async function remove() {
                         : "Retry voice"
                   }}
                 </button>
+                <button @click="conversationVisible = true">
+                  Read saved reply
+                </button>
               </div>
-              <details
+              <div
                 v-if="recordedPracticeMode && !live.running.value"
                 class="recorded-practice"
-                open
               >
-                <summary>Voice turns</summary>
                 <div
                   v-if="!live.running.value && !introductionTurn"
                   class="ready-panel"
@@ -2201,7 +2172,10 @@ async function remove() {
                   </button>
                 </div>
                 <div v-else-if="!live.running.value" class="record-controls">
-                  <div v-if="recorderStatus!=='IDLE' || voiceFailureTurnId" class="record-context">
+                  <div
+                    v-if="recorderStatus !== 'IDLE' || voiceFailureTurnId"
+                    class="record-context"
+                  >
                     <strong v-if="voiceFailureTurnId"
                       >Voice conversation is paused</strong
                     >
@@ -2239,7 +2213,9 @@ async function remove() {
                         recorderStatus === 'SENDING' ||
                         recorderStatus === 'REVIEW' ||
                         busy ||
-                        !!voiceFailureTurnId || (pacingBlocked && recorderStatus !== 'RECORDING') || !!preparingSpeechTurnId
+                        !!voiceFailureTurnId ||
+                        (pacingBlocked && recorderStatus !== 'RECORDING') ||
+                        !!preparingSpeechTurnId
                       "
                       :aria-label="
                         recorderStatus === 'RECORDING'
@@ -2277,7 +2253,7 @@ async function remove() {
                     </button>
                   </div>
                 </div>
-              </details>
+              </div>
               <button
                 v-if="
                   recordedPracticeMode && latestReply && !live.running.value
@@ -2304,7 +2280,9 @@ async function remove() {
           <template #conversation>
             <AirConversation
               :turns="visibleTurns"
-              :pending-text-id="deferredReplyId" :caption-id="captionTurnId" :caption-text="spokenText"
+              :pending-text-id="deferredReplyId"
+              :caption-id="captionTurnId"
+              :caption-text="spokenText"
               :allow-playback="recordedPracticeMode"
               :live-running="live.running.value"
               :playing-id="playingTurnId"
@@ -2317,12 +2295,300 @@ async function remove() {
           </template>
         </AirCallRoom>
       </template>
+      <AirFocusDialog
+        :open="sessionPane === 'checkpoint'"
+        title="Your objective checkpoint"
+        @close="sessionPane = ''"
+      >
+        <AgentActivity
+          agent="MISU"
+          :busy="planReviewing"
+          state="working"
+          :label="
+            planReviewing
+              ? 'Reviewing your saved attempt.'
+              : 'Let’s review your progress.'
+          "
+        />
+        <h3>{{ activeObjective?.title }}</h3>
+        <p v-if="study.plan.recommendation">
+          {{ study.plan.recommendation.reason }}
+        </p>
+        <p v-else>
+          Your saved explanation can help us decide what to practise next.
+        </p>
+        <details v-if="hasCurrentEvidence">
+          <summary>Saved evidence</summary>
+          <article
+            v-for="attempt in study.practice.attempts
+              .filter((a) => a.objectiveId === study?.plan.activeObjectiveId)
+              .slice(-3)"
+            :key="attempt.evidenceId || attempt.answer"
+          >
+            <p>{{ attempt.answer }}</p>
+            <AirCitation
+              v-for="source in attempt.sources"
+              :key="source.id"
+              :source="source"
+            />
+          </article>
+        </details>
+        <p v-if="error" role="alert">{{ error }}</p>
+        <div class="dialog-actions">
+          <button
+            v-if="journey.checkpointReady"
+            :disabled="planBusy || live.running.value"
+            @click="confirmNext"
+          >
+            {{
+              study.plan.recommendation?.action === "COMPLETE"
+                ? "Confirm objectives complete"
+                : "Confirm checkpoint & continue"
+            }}</button
+          ><button
+            v-else
+            :disabled="!canReviewProgress || planBusy || live.running.value"
+            @click="retryRecommendation"
+          >
+            {{ planBusy ? "Reviewing…" : "Review saved explanation" }}</button
+          ><button @click="sessionPane = ''">Keep practising</button>
+        </div>
+        <p
+          v-if="
+            journey.checkpointReady &&
+            paced &&
+            study.plan.recommendation?.action === 'ADVANCE' &&
+            (pacing.current.value?.phase !== 'BREAK' ||
+              pacing.remaining.value > 0)
+          "
+        >
+          Finish this practice block, then take or skip the recovery break.
+        </p>
+      </AirFocusDialog>
+      <AirFocusDialog
+        :open="Boolean(celebration)"
+        title="Checkpoint saved"
+        @close="celebration = ''"
+      >
+        <div class="checkpoint-celebration" role="status">
+          <span aria-hidden="true">✓</span>
+          <h3>You followed through on this objective.</h3>
+          <p>{{ celebration }}</p>
+        </div>
+        <p>
+          Your explanation and confirmed checkpoint are saved.
+          {{
+            journey.kaiReady
+              ? "All planned objectives have evidence. Kai’s feedback is next."
+              : "You’re ready for the next objective."
+          }}
+        </p>
+        <div class="dialog-actions">
+          <button @click="continueCheckpoint">
+            {{
+              journey.kaiReady ? "Prepare Kai’s review" : "Continue when ready"
+            }}</button
+          ><button @click="celebration = ''">Stay here</button>
+        </div>
+      </AirFocusDialog>
+      <AirFocusDialog
+        :open="kaiTransition.active.value"
+        title="Kai is next"
+        @close="kaiTransition.continueNow"
+      >
+        <AgentActivity
+          agent="AMIRA"
+          :busy="false"
+          label="Your objective checkpoints are saved."
+        /><AgentActivity
+          agent="KAI"
+          :busy="false"
+          label="I’ll review the evidence against your approved goals."
+        />
+        <p role="status">
+          Take a moment before your feedback ·
+          {{ kaiTransition.remaining.value }} seconds
+        </p>
+        <div class="dialog-actions">
+          <button @click="kaiTransition.continueNow">Continue now</button>
+        </div>
+      </AirFocusDialog>
+      <AirFocusDialog
+        :open="sessionPane === 'review'"
+        title="Kai’s practice review"
+        @close="sessionPane = ''"
+      >
+        <AirsKaiReview
+          :conversation-id="id"
+          :can-review="journey.kaiReady && !live.running.value"
+        />
+      </AirFocusDialog>
+      <AirFocusDialog
+        :open="sessionPane === 'options'"
+        title="Practice options"
+        @close="sessionPane = ''"
+      >
+        <details>
+          <summary>Practice modes</summary>
+          <p>{{ lessonStep }}</p>
+          <div class="dialog-actions">
+            <button
+              v-for="mode in modes"
+              :key="mode.id"
+              :disabled="
+                !canStudy ||
+                !modeAvailable(mode.id) ||
+                busy ||
+                !!voiceFailureTurnId ||
+                recorderStatus !== 'IDLE' ||
+                live.running.value
+              "
+              :title="modeLockReason(mode.id)"
+              @click="chooseMode(mode.id)"
+            >
+              {{ mode.label }}
+            </button>
+          </div>
+        </details>
+        <details>
+          <summary>Timing and voice allowance</summary>
+          <p v-if="paced">
+            {{ study.plan.pacing?.practiceMinutes }} minutes per topic, with
+            optional {{ study.plan.pacing?.breakMinutes }}-minute recovery
+            breaks. Pause or skip a break whenever you need. Time does not
+            complete an objective.
+          </p>
+          <p>
+            {{
+              Math.max(
+                0,
+                $config.public.studyAwsVoiceTrialMaxSeconds -
+                  (study.voiceUsage?.transcribeSeconds || 0),
+              )
+            }}
+            voice input seconds remaining. Cached replies can be replayed
+            without a new synthesis.
+          </p>
+        </details>
+        <details v-if="study.document.provenance">
+          <summary>Included source</summary>
+          <AirSourceProvenance :provenance="study.document.provenance" />
+        </details>
+        <div class="dialog-actions">
+          <button @click="remove"><Trash2 :size="16" /> Delete chat</button
+          ><button @click="leaveSession">Leave session</button>
+        </div>
+      </AirFocusDialog>
     </div>
   </AirStudyShell>
 </template>
 
 <style scoped>
-.practice-pacing{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px 12px;align-items:center;padding:4px 0 8px;border-bottom:1px solid #d6e3dc;margin-bottom:8px;text-align:left}.practice-pacing strong{font-size:.85rem;line-height:1.4}.practice-pacing p,.pacing-explanation{grid-column:1/-1;max-width:60ch}.pacing-clock{font-variant-numeric:tabular-nums;font-size:1rem}.practice-pacing button{min-height:44px;padding:8px 12px;border:1px solid #d6e3dc;border-radius:999px;background:transparent;font-size:.8rem;cursor:pointer}.practice-pacing button:focus-visible,.pacing-explanation summary:focus-visible{outline:3px solid #315d82;outline-offset:3px}.pacing-explanation summary{width:fit-content;font-size:.75rem;color:#464a53;cursor:pointer}.pacing-explanation p{font-size:.8rem;line-height:1.5;margin:8px 0}.practice-pacing button:hover{background:#eef3fb}
+.session-active :deep(.journey-rail) {
+  flex: none;
+  margin: 0 auto;
+  padding: 2px 0;
+}
+.practice-tools {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.practice-tools button {
+  border: 0;
+  background: transparent;
+  color: #456453;
+  min-height: 44px;
+  padding: 8px 12px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.checkpoint-celebration {
+  text-align: center;
+  padding: 12px 0;
+}
+.checkpoint-celebration > span {
+  display: inline-grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #e0f0e5;
+  color: #2b714c;
+  font-size: 2rem;
+  animation: checkpoint-arrive 0.3s ease-out;
+}
+@keyframes checkpoint-arrive {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .checkpoint-celebration > span {
+    animation: none;
+  }
+}
+
+.practice-pacing {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px 12px;
+  align-items: center;
+  padding: 4px 0 8px;
+  border-bottom: 1px solid #d6e3dc;
+  margin-bottom: 8px;
+  text-align: left;
+}
+.practice-pacing strong {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.practice-pacing p,
+.pacing-explanation {
+  grid-column: 1/-1;
+  max-width: 60ch;
+}
+.pacing-clock {
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+}
+.practice-pacing button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #d6e3dc;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.practice-pacing button:focus-visible,
+.pacing-explanation summary:focus-visible {
+  outline: 3px solid #315d82;
+  outline-offset: 3px;
+}
+.pacing-explanation summary {
+  width: fit-content;
+  font-size: 0.75rem;
+  color: #464a53;
+  cursor: pointer;
+}
+.pacing-explanation p {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin: 8px 0;
+}
+.practice-pacing button:hover {
+  background: #eef3fb;
+}
 
 .setup-room-nav {
   display: flex;
@@ -4116,6 +4382,134 @@ async function remove() {
 </style>
 
 <style scoped>
+.app-workspace {
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.app-workspace.archived-workspace {
+  overflow-y: auto;
+}
+.app-workspace :deep(.journey-rail) {
+  flex: none;
+  margin: 0 auto;
+  padding: 0;
+}
+.app-workspace .setup-room-nav {
+  margin: 0;
+  flex-wrap: nowrap;
+  gap: 12px;
+  flex: none;
+}
+.setup-room-nav span {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+.session-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex: none;
+  min-width: 0;
+}
+.session-toolbar :deep(.session-context) {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  gap: 16px;
+}
+.app-workspace .plan-review {
+  width: 100%;
+  max-width: 920px;
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  padding: clamp(16px, 2vw, 24px);
+  border: 1px solid #d8e3dc;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: none;
+}
+.plan-review-body {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 3px;
+}
+.app-workspace .plan-actions {
+  flex: none;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e4ebe6;
+}
+.app-workspace .plan-review :deep(.agent-activity) {
+  margin-bottom: 12px;
+}
+.app-workspace .prepared-handoff {
+  width: 100%;
+  max-width: 920px;
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  padding: clamp(16px, 2vw, 24px);
+  border-radius: 18px;
+  overflow-y: auto;
+}
+.prepared-handoff :deep(.agent-activity) {
+  margin-bottom: 12px;
+  flex: none;
+}
+.welcome-reader {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 3px;
+}
+.welcome-reader h2 {
+  font-size: 1.3rem;
+  margin: 4px 0 12px;
+}
+.prepared-handoff .handoff-actions {
+  flex: none;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e4ebe6;
+}
+@media (max-width: 767px) {
+  .app-workspace .setup-room-nav {
+    gap: 8px;
+    font-size: 0.75rem;
+  }
+  .setup-room-nav > span {
+    display: none;
+  }
+  .session-toolbar :deep(.session-context) {
+    gap: 8px;
+  }
+  .app-workspace {
+    gap: 4px;
+  }
+  .practice-tools {
+    margin-bottom: 4px;
+  }
+}
 .misu-review-heading {
   display: flex;
   align-items: center;

@@ -1,6 +1,7 @@
 import { it,expect,vi,afterEach } from 'vitest'
 import { createError } from 'h3'
-import { createStudyConversation,getStudyChunks,saveStudyPlan,appendStudyTurn,deleteStudyConversation } from '../server/services/studyRepository'
+import { createStudyConversation,getStudyConversation,getStudyPedagogyHistory,getStudyChunks,saveStudyPlan,appendStudyTurn,deleteStudyConversation } from '../server/services/studyRepository'
+import {deriveAirsJourney} from '../shared/airsJourney'
 import { prepareAminaTurn,finishAminaTurn } from '../server/services/studyAmina'
 import { DEFAULT_STUDY_FUNCTION_REFS } from '../server/domain/neuromap/studyFunctions'
 import { createKaiReview,chooseNextPractice } from '../server/services/airsKai'
@@ -17,6 +18,13 @@ it('keeps context and feedback owner-scoped and persists an evidence-linked next
  await appendStudyTurn('feedback-owner',chat.id,{id:'welcome',role:'AMIRA',kind:'WELCOME',mode:'DISCUSSION',text:'Welcome',sources:[],createdAt:new Date().toISOString(),objectiveId:'objective-1'})
  const intro=await prepareAminaTurn('feedback-owner',chat.id,"I'm ready");await finishAminaTurn('feedback-owner',chat.id,intro,'Section 1 describes retrieval. How would you explain it?')
  const attempt=await prepareAminaTurn('feedback-owner',chat.id,'Retrieval means recalling an idea without looking at notes.');await finishAminaTurn('feedback-owner',chat.id,attempt,'Your explanation describes recalling from memory, as Section 1 says.')
+ const completed=await getStudyConversation('feedback-owner',chat.id),history=await getStudyPedagogyHistory('feedback-owner',chat.id)
+ expect(deriveAirsJourney(completed,history).kaiReady).toBe(false)
+ expect(deriveAirsJourney(completed,history).completedObjectiveIds).toEqual([])
+ await expect(createKaiReview('feedback-owner',chat.id)).rejects.toMatchObject({statusCode:409})
+ const confirmed=await saveStudyPlan('feedback-owner',chat.id,{...completed.plan,courseCompletedBy:'feedback-owner',courseCompletedAt:new Date().toISOString()},completed.revision)
+ expect(deriveAirsJourney(confirmed,history)).toMatchObject({kaiReady:true,completedObjectiveIds:['objective-1']})
+ expect(deriveAirsJourney(confirmed,{traces:[],evidence:[]}).kaiReady).toBe(false)
  const review=await createKaiReview('feedback-owner',chat.id)
  expect(review.observations[0]?.evidenceIds.length).toBeGreaterThan(0)
  expect((await createKaiReview('feedback-owner',chat.id)).id).toBe(review.id)

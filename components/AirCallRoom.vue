@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { X, ChevronRight, Mic2, MicOff } from "lucide-vue-next";
+import { X, Mic2, MicOff } from "lucide-vue-next";
 const props = defineProps<{
   goal: string;
   objective: string;
@@ -18,7 +18,7 @@ const props = defineProps<{
   loading?: boolean;
   recordedMode?: boolean;
   studyMinutes?: number;
-  pacingLabel?:string;
+  pacingLabel?: string;
   conversationClock?: string;
 }>();
 defineEmits<{ closePlan: []; closeConversation: [] }>();
@@ -49,25 +49,6 @@ const shortStatus = computed(() =>
     }"
   >
     <section class="call-stage" aria-label="Amina voice room">
-      <details class="study-goal">
-        <summary>
-          <span
-            ><small class="misu-handoff"
-              ><AgentAvatar agent="MIRO" size="compact" /> Planned by
-              Misu</small
-            ><strong>{{ objective || goal }}</strong></span
-          ><ChevronRight :size="18" />
-        </summary>
-        <p>{{ goal }}</p>
-        <small v-if="studyMinutes"
-          >{{ pacingLabel || `${studyMinutes} minutes available` }}<span v-if="conversationClock">
-            · {{ conversationClock }} conversation time this visit</span
-          ></small
-        ><small
-          >Your plan is approved. Amina guides your practice; Misu’s plan is
-          available in the plan panel.</small
-        >
-      </details>
       <AirSkeleton
         v-if="loading"
         variant="room"
@@ -91,10 +72,14 @@ const shortStatus = computed(() =>
         >
           <AgentOrb
             v-if="
-              (recordedMode && ['processing','speaking','listening'].includes(activity.phase)) || liveRunning &&
-              (liveStatus === 'SPEAKING' ||
-                (liveStatus === 'LISTENING' && !muted && microphoneActive) ||
-                liveStatus === 'CONNECTING')
+              (recordedMode &&
+                ['processing', 'speaking', 'listening'].includes(
+                  activity.phase,
+                )) ||
+              (liveRunning &&
+                (liveStatus === 'SPEAKING' ||
+                  (liveStatus === 'LISTENING' && !muted && microphoneActive) ||
+                  liveStatus === 'CONNECTING'))
             "
             :busy="true"
             :state="
@@ -122,26 +107,18 @@ const shortStatus = computed(() =>
               · {{ clock }} elapsed</span
             >
           </p>
-          <p class="call-detail">{{ activity.detail }}</p>
+          <p
+            v-if="!recordedMode || activity.phase !== 'ready'"
+            class="call-detail"
+          >
+            {{ activity.detail }}
+          </p>
         </div>
       </div>
       <div v-if="!loading" class="call-control-area">
         <slot name="controls" /><small v-if="liveRunning" class="call-limit"
           >60-second pilot call</small
         >
-      </div>
-      <div class="stage-caption-slot">
-        <div
-          v-if="!conversationOpen && captionsVisible && caption"
-          class="stage-caption"
-        >
-          <small>{{
-            captionSaved
-              ? recordedMode ? "Spoken captions · saved reply" : "Saved transcript"
-              : "Live caption · not confirmed saved"
-          }}</small>
-          <p>{{ caption }}</p>
-        </div>
       </div>
     </section>
     <section
@@ -151,7 +128,7 @@ const shortStatus = computed(() =>
       aria-label="Saved conversation"
     >
       <header>
-        <h2>Saved conversation</h2>
+        <h2>Conversation</h2>
         <button
           class="conversation-close"
           type="button"
@@ -163,7 +140,7 @@ const shortStatus = computed(() =>
       </header>
       <slot name="conversation" />
       <div
-        v-if="liveRunning && captionsVisible && caption"
+        v-if="liveRunning && captionsVisible && caption && !captionSaved"
         class="latest-caption"
       >
         <small>{{
@@ -174,25 +151,13 @@ const shortStatus = computed(() =>
         <p>{{ caption }}</p>
       </div>
     </section>
-    <section
-      v-if="planOpen"
+    <AirFocusDialog
       id="amina-session-plan"
-      class="call-plan"
-      aria-label="Your session plan"
-      @keydown.esc="$emit('closePlan')"
-    >
-      <header>
-        <h2>Your session plan</h2>
-        <button
-          type="button"
-          aria-label="Close plan"
-          @click="$emit('closePlan')"
-        >
-          <X :size="20" />
-        </button>
-      </header>
-      <slot name="plan" />
-    </section>
+      :open="planOpen"
+      title="Your session plan"
+      @close="$emit('closePlan')"
+      ><slot name="plan"
+    /></AirFocusDialog>
   </div>
 </template>
 <style scoped src="~/assets/css/air-call-room.css"></style>

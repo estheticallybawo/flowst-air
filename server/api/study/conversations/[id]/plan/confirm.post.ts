@@ -1,4 +1,4 @@
-import {getStudyPacing} from '../../../../../services/studyPacing'
+import { getStudyPacing } from "../../../../../services/studyPacing";
 import { z } from "zod";
 import { requireIdentity } from "../../../../../utils/auth";
 import {
@@ -18,7 +18,6 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id") || "";
   const { objectiveId } = schema.parse(await readBody(event));
   const conversation = await getStudyConversation(identity.userId, id, event);
-  const standalone = ['air', 'amira'].includes(useRuntimeConfig(event).public.appSurface);
   const recommendation = conversation.plan.recommendation;
   if (
     conversation.plan.status !== "APPROVED" ||
@@ -33,7 +32,15 @@ export default defineEventHandler(async (event) => {
       statusMessage: "Review Misu’s latest recommendation before continuing.",
     });
   if (recommendation.action === "ADVANCE") {
-    if(conversation.plan.pacing){const clock=await getStudyPacing(identity.userId,id,event);if(clock?.phase!=='BREAK' || clock.remainingMs>0)throw createError({statusCode:409,statusMessage:'Finish this practice block and its break before opening the next topic.'})}
+    if (conversation.plan.pacing) {
+      const clock = await getStudyPacing(identity.userId, id, event);
+      if (clock?.phase !== "BREAK" || clock.remainingMs > 0)
+        throw createError({
+          statusCode: 409,
+          statusMessage:
+            "Finish this practice block and its break before opening the next topic.",
+        });
+    }
     const current = conversation.plan.objectives.findIndex(
       (item) => item.id === conversation.plan.activeObjectiveId,
     );
@@ -43,7 +50,6 @@ export default defineEventHandler(async (event) => {
         statusMessage: "Misu has not recommended that next objective.",
       });
     if (
-      standalone &&
       !hasStudyObjectiveEvidence(
         conversation,
         conversation.plan.activeObjectiveId!,
@@ -80,7 +86,6 @@ export default defineEventHandler(async (event) => {
           "Finish the final objective before confirming the course.",
       });
     if (
-      standalone &&
       !studyObjectivesHaveEvidence(
         conversation,
         await getStudyPedagogyHistory(identity.userId, id, event),

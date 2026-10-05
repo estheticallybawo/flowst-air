@@ -1,10 +1,9 @@
 <script setup lang="ts">
-defineProps<{ session?: boolean }>();
+defineProps<{ session?: boolean; workspace?: boolean }>();
 </script>
 <template>
-  <div class="air-study-frame" :class="{ 'is-session': session }">
-    <AirAppShell
-      :session="session"
+  <div class="air-study-frame" :class="{ 'is-session': session || workspace }">
+    <AirAppShell :session="session"
       ><template #session-navigation
         ><slot name="session-navigation" /></template
       ><slot
@@ -20,6 +19,7 @@ defineProps<{ session?: boolean }>();
 .is-session :deep(.air-app),
 .is-session :deep(.flowst-shell) {
   height: 100%;
+  box-sizing: border-box;
   min-height: 0;
   max-width: none;
   padding: 14px clamp(12px, 4vw, 48px);

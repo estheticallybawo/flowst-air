@@ -6,6 +6,23 @@ const auth = useAuth(),
   busy = ref(false),
   reviewing = ref(false),
   error = ref("");
+const page = ref(0);
+watch(
+  () => props.canReview,
+  async (allowed) => {
+    if (!allowed || review.value) return;
+    try {
+      review.value = (
+        await auth.authorizedFetch<{ review: KaiReview | null }>(
+          "/api/study/conversations/" + props.conversationId + "/review",
+        )
+      ).review;
+    } catch {
+      /* The learner can still request a review. */
+    }
+  },
+  { immediate: true },
+);
 async function generate() {
   busy.value = true;
   reviewing.value = true;
@@ -15,9 +32,11 @@ async function generate() {
       "/api/study/conversations/" + props.conversationId + "/review",
       { method: "POST" },
     );
-  } catch {
+    page.value = 0;
+  } catch (cause: any) {
     error.value =
-      "Kai could not prepare feedback. Finish a saved attempt or retry.";
+      cause?.data?.statusMessage ||
+      "Kai could not prepare feedback. Your saved practice remains available.";
   } finally {
     busy.value = false;
     reviewing.value = false;
@@ -52,17 +71,19 @@ async function choose(status: "ACCEPTED" | "DISMISSED") {
             : 'Your practice feedback'
       "
     />
-    <p>
-      Feedback is based on saved attempts and approved goals. It does not
-      measure overall intelligence or establish mastery.
+    <p v-if="!review">
+      I’ll review your saved explanations against your approved goals.
     </p>
-    <button :disabled="!canReview || busy" @click="generate">
+    <button v-if="!review" :disabled="!canReview || busy" @click="generate">
       {{ busy ? "Preparing…" : "Review my saved practice" }}
     </button>
     <p role="status">{{ error }}</p>
     <template v-if="review"
       ><article
-        v-for="(observation, index) in review.observations"
+        v-for="(observation, index) in review.observations.slice(
+          page,
+          page + 1,
+        )"
         :key="index"
       >
         <h3>{{ observation.criterionId.toLowerCase() }}</h3>
@@ -77,32 +98,43 @@ async function choose(status: "ACCEPTED" | "DISMISSED") {
           </p>
         </details>
       </article>
-      <h3>Not assessed</h3>
-      <ul>
-        <li v-for="item in review.notAssessed" :key="item">{{ item }}</li>
-      </ul>
-      <h3>Suggested next practice</h3>
-      <p>{{ review.nextPractice.goal }}</p>
-      <p>{{ review.nextPractice.exercise }}</p>
-      <button :disabled="busy" @click="choose('ACCEPTED')">
-        Save next practice</button
-      ><button :disabled="busy" @click="choose('DISMISSED')">
-        Dismiss suggestion
-      </button>
-      <p role="status">
-        Next exercise: {{ review.nextPracticeStatus.toLowerCase() }}. This does
-        not start a new session.
-      </p></template
+      <details>
+        <summary>What this review does not assess</summary>
+        <ul>
+          <li v-for="item in review.notAssessed" :key="item">{{ item }}</li>
+        </ul>
+      </details>
+      <template v-if="page >= review.observations.length"
+        ><h3>Suggested next practice</h3>
+        <p>{{ review.nextPractice.goal }}</p>
+        <p>{{ review.nextPractice.exercise }}</p>
+        <button :disabled="busy" @click="choose('ACCEPTED')">
+          Save next practice</button
+        ><button :disabled="busy" @click="choose('DISMISSED')">
+          Dismiss suggestion
+        </button>
+        <p role="status">
+          Next exercise: {{ review.nextPracticeStatus.toLowerCase() }}. This
+          does not start a new session.
+        </p></template
+      >
+      <div class="dialog-actions">
+        <button v-if="page > 0" @click="page--">Back</button
+        ><button v-if="page < review.observations.length" @click="page++">
+          {{
+            page === review.observations.length - 1
+              ? "What to practise next"
+              : "Next observation"
+          }}
+        </button>
+      </div></template
     >
   </section>
 </template>
 <style scoped>
 .kai-review {
-  padding: 20px;
-  margin: 16px 0;
-  border: 1px solid #dbdee5;
-  border-radius: 16px;
-  background: #fff;
+  padding: 0;
+  margin: 0;
 }
 header {
   display: flex;

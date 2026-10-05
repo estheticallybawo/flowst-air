@@ -20,7 +20,7 @@ Disclose the existing deployed foundation and identify what was built for this s
 
 ### Show Misu’s contribution
 
-On the plan screen, identify Misu’s avatar and planner role. Open “What this plan is based on”; show the chosen goal, scope, time and source grounding. Read the objective’s proposed plan explanation alongside its citation, then approve the plan. Show Misu preparing the handoff, Amina’s welcome and the microphone-off status. Choose Start conversation only when ready. Show “Planned by Misu” in Amina’s voice room. Recommendations expose the saved attempts used in the review; they remain suggestions the learner can accept or decline. Fixture explanations are scripted demonstrations, not live inference evidence.
+On the plan screen, identify Misu’s avatar and planner role. Open “What this plan is based on”; show the chosen goal, scope, time and source grounding. Read the objective’s proposed plan explanation alongside its citation, then approve the plan. Show Misu preparing the handoff, Amina’s welcome and the microphone-off status. Choose Start conversation only when ready. Show the connected Misu → Amina → Kai portraits and the compact practice timer. Open Conversation only when needed. Recommendations expose the saved attempts used in the review; they remain suggestions the learner can accept or decline. Fixture explanations are scripted demonstrations, not live inference evidence.
 
 ### Prepared entry
 
@@ -30,4 +30,6 @@ Enter from app.useflowst.com after Flowst sign-in. Misu asks for one self-descri
 
 Choose five minutes per topic and a three-minute break. Show that the plan total is the sum of practice blocks, not a five-minute whole conversation. Start when ready, then record, review and send a short explanation. Show transcription/reply preparation, audio preparation, captions during actual speech and the waiting state. If audio is blocked, use Replay and name the actual fallback.
 
-Show Pause and Resume preserving remaining time. At the block boundary, finish or discard the current take, show microphone-off recovery, then explicitly resume after the break. Do not fast-forward a real demo clock or label a fixture's silent WAV as real Amina speech. A saved recommendation and learning evidence, not the timer, determine topic progression. Preflight live model/voice in the owner's account before recording the demo.
+Show Pause and Resume preserving remaining time. At the block boundary, finish or discard the current take, show microphone-off recovery, then choose Skip break & continue or explicitly resume after the break. Do not fast-forward a real demo clock or label a fixture's silent WAV as real Amina speech. A saved recommendation and learning evidence, not the timer, determine topic progression. Preflight live model/voice in the owner's account before recording the demo.
+
+Show a saved objective checkpoint and its confirmation before the celebration. Kai’s review appears in a separate panel after all objectives have evidence-backed confirmation; inspect one observation and the next exercise. A timer alone does not complete objectives.

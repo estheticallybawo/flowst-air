@@ -6,13 +6,13 @@ Status: implemented; verification is recorded separately. Applies to independent
 
 New plans choose 5–15 minutes per topic practice block and a 3- or 5-minute break. This is not a total conversation budget. A three-topic plan at five minutes shows 15 minutes of practice plus its breaks. A topic can need another block; elapsed time never proves understanding or completes an assessment. Legacy plans retain their original total-time meaning.
 
-The application owns a persisted, owner-scoped clock. Pause preserves remaining time. Reload restores the actual state and pauses active practice. Breaks finish before an explicit Resume; a completed break permits the next recommended topic only through existing learner confirmation and evidence gates. A take reserved before the deadline can finish; expiry blocks new takes and questions. The final recovery break is available without redefining completion gates.
+The application owns a persisted, owner-scoped clock. Pause preserves remaining time. Reload restores the actual state and pauses active practice. Learners can take the recovery break or explicitly skip it, then resume; a completed or skipped break permits the next recommended topic only through existing learner confirmation and evidence gates. A take reserved before the deadline can finish; expiry blocks new takes and questions. The final recovery break is available without redefining completion gates.
 
 Voice turns are the default: Start conversation, record, review/send, hear feedback. No microphone or live lease starts during planning, approval or welcome. The realtime transport remains an optional compatibility path, not the default.
 
 ## Honest activity and audio
 
-Amina's saved response is held behind a readable full-text disclosure while its audio is prepared. Provider character timestamps and actual audio playback position drive captions. No guessed typewriter timing, artificial minimum wait, private reasoning transcript or fabricated thought process is used. When timing is unavailable, the response appears on playback start. Audio failure or blocked autoplay restores readable text and explicit Replay.
+Amina's saved response is held behind a readable full-text disclosure while its audio is prepared. Provider character timestamps and actual audio playback position drive captions inside the optional Conversation panel. No guessed typewriter timing, private reasoning transcript or fabricated thought process is used. Agent transfers include a ten-second ready transition after preparation succeeds, with Continue now; this is explicitly a moment for the learner, not simulated backend work. When timing is unavailable, the response appears on playback start. Audio failure or blocked autoplay restores readable text. Specific failures distinguish exhausted allowance, pending work and playback problems. Prepared audio is saved privately per turn; Replay reuses it. Failed synthesis is never automatically repeated.
 
 Preparing audio, buffering, speaking and waiting follow request/audio events. Recording progress reports actual transcription, activity selection, reply generation and durable saving; failure is distinct. Safe progress metadata contains identifiers, timestamps and phases, excluding personal context, source text and reasoning.
 
@@ -29,3 +29,5 @@ ElevenLabs uses one bounded `/with-timestamps` synthesis request and reserves ex
 ## Verification boundary
 
 Unit tests cover pacing bounds, legacy compatibility, clocks, pauses, breaks, stale writes, reserved late takes, ownership, caption alignment and synthesis reservation without paid retries. Browser fixtures use a silent WAV to check preparation/playback state; this does not verify live speech quality, account availability or provider latency. Paid provider checks are left for the owner and require the existing spending authorization.
+
+The focused practice screen keeps the timer and microphone primary. Plan, objective checkpoints, practice options and Kai feedback use separate keyboard-accessible dialogs. The avatar journey rail fills only for learner-confirmed checkpoints with validated source-linked evidence. Kai is available after all such objectives are confirmed. Celebrations describe saved activity, not mastery. See [focused practice changes](focused-practice-and-replay.md).

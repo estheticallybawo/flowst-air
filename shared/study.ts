@@ -129,6 +129,7 @@ export interface StudyVoiceUsage {
 }
 
 export interface StudyConversation {
+  journey?: import('./airsJourney').AirsJourney
   id: string
   ownerId: string
   document: StudyDocument

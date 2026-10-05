@@ -31,6 +31,7 @@
 :(literal)components/AirCallRoom.vue
 :(literal)components/AirCitation.vue
 :(literal)components/AirConversation.vue
+:(literal)components/AirFocusDialog.vue
 :(literal)components/AirLanding.vue
 :(literal)components/AirLibraryView.vue
 :(literal)components/AirPublicShell.vue
@@ -42,19 +43,24 @@
 :(literal)components/AirUpgradePanel.vue
 :(literal)components/AirVoiceMeter.vue
 :(literal)components/AirsContextCard.vue
+:(literal)components/AirsJourneyRail.vue
 :(literal)components/AirsKaiReview.vue
+:(literal)components/AirsPlanOverview.vue
 :(literal)components/AirsSetup.vue
 :(literal)components/AuthShell.vue
 :(literal)components/MisuPlanGuide.vue
 :(literal)components/PasswordField.vue
+:(literal)composables/useAgentHandoff.ts
 :(literal)composables/useAirAccess.ts
 :(literal)composables/useAirMediaLifecycle.ts
 :(literal)composables/useAminaLiveCall.ts
 :(literal)composables/useAuth.ts
 :(literal)composables/useStudyPacing.ts
+:(literal)docs/AIRS_FOCUSED_PRACTICE_VERIFICATION.md
 :(literal)docs/design-docs/context-aware-practice.md
 :(literal)docs/design-docs/core-beliefs.md
 :(literal)docs/design-docs/flowst-air-system-design.md
+:(literal)docs/design-docs/focused-practice-and-replay.md
 :(literal)docs/design-docs/index.md
 :(literal)docs/design-docs/misu-led-setup.md
 :(literal)docs/design-docs/source-ingestion.md
@@ -162,6 +168,7 @@
 :(literal)server/api/study/conversations/[id]/plan/recommend.post.ts
 :(literal)server/api/study/conversations/[id]/recorded-turn.get.ts
 :(literal)server/api/study/conversations/[id]/recorded-turn.post.ts
+:(literal)server/api/study/conversations/[id]/review.get.ts
 :(literal)server/api/study/conversations/[id]/review.post.ts
 :(literal)server/api/study/conversations/[id]/speech.post.ts
 :(literal)server/api/study/conversations/[id]/turns.post.ts
@@ -215,6 +222,7 @@
 :(literal)server/services/studyRetrieval.ts
 :(literal)server/services/studySources.ts
 :(literal)server/services/studySpeech.ts
+:(literal)server/services/studySpeechCache.ts
 :(literal)server/services/studyVoice.ts
 :(literal)server/utils/airLiveError.ts
 :(literal)server/utils/airsGuest.ts
@@ -225,6 +233,7 @@
 :(literal)shared/airAccess.ts
 :(literal)shared/airNavigation.ts
 :(literal)shared/airSurface.ts
+:(literal)shared/airsJourney.ts
 :(literal)shared/airsOrchestration.ts
 :(literal)shared/auth.ts
 :(literal)shared/community.ts
@@ -237,6 +246,7 @@
 :(literal)shared/studyPresentation.ts
 :(literal)shared/studyProgression.ts
 :(literal)shared/studySpeech.ts
+:(literal)shared/studySpeechOutcome.ts
 :(literal)shared/userErrors.ts
 :(literal)tests/air-access.test.ts
 :(literal)tests/airs-feedback.test.ts
@@ -258,6 +268,7 @@
 :(literal)tests/study-source-mcp.test.ts
 :(literal)tests/study-source-network.test.ts
 :(literal)tests/study-sources.test.ts
+:(literal)tests/study-speech-cache.test.ts
 :(literal)tests/study-upload-limit.test.ts
 :(literal)tsconfig.json
 :(literal)vendor/thinking-orbs/LICENSE

@@ -8,7 +8,9 @@ import { readStudyPreferencesField } from "../../../services/studyPreferences";
 
 export default defineEventHandler(async (event) => {
   const identity = await requireIdentity(event);
-  const standaloneAir = ['air', 'amira'].includes(useRuntimeConfig(event).public.appSurface);
+  const standaloneAir = ["air", "amira"].includes(
+    useRuntimeConfig(event).public.appSurface,
+  );
   if (standaloneAir) await assertStudyUploadAvailable(identity.userId, event);
   const maxBytes = standaloneAir ? 4_000_000 : 20 * 1024 * 1024;
   const limitMessage = `Choose a document smaller than ${standaloneAir ? "4 MB" : "20 MB"}.`;

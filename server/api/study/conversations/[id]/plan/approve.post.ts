@@ -14,7 +14,12 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id") || "";
   const { version } = schema.parse(await readBody(event));
   const conversation = await getStudyConversation(identity.userId, id, event);
-  if(conversation.plan.status==='APPROVED' && conversation.plan.version===version && conversation.plan.approvedBy===identity.userId)return conversation;
+  if (
+    conversation.plan.status === "APPROVED" &&
+    conversation.plan.version === version &&
+    conversation.plan.approvedBy === identity.userId
+  )
+    return conversation;
   if (
     conversation.plan.status !== "DRAFT" ||
     conversation.plan.version !== version ||
@@ -26,8 +31,11 @@ export default defineEventHandler(async (event) => {
     });
   const capacity = standaloneStudyObjectiveCapacity(conversation, event);
   if (capacity !== undefined && conversation.plan.objectives.length > capacity)
-    throw createError({ statusCode: 409,
-      statusMessage: "This plan has too many objectives for the remaining voice allowance. Regenerate a smaller plan before starting." });
+    throw createError({
+      statusCode: 409,
+      statusMessage:
+        "This plan has too many objectives for the remaining voice allowance. Regenerate a smaller plan before starting.",
+    });
   if (
     conversation.plan.functionRefs?.length !==
       DEFAULT_STUDY_FUNCTION_REFS.length ||

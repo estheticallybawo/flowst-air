@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   );
   if (
     action === "INTRO"
-      ? hasIntroduction || conversation.mode !== "DISCUSSION"
+      ? conversation.turns.some(turn=>turn.kind==="INTRO" && turn.role==="AMIRA" && (turn.objectiveId===conversation.plan.activeObjectiveId || !turn.objectiveId && conversation.plan.activeObjectiveId===conversation.plan.objectives[0]?.id)) || conversation.mode !== "DISCUSSION"
       : !hasIntroduction ||
         conversation.mode !==
           (action === "START_SCENARIO" ? "SCENARIO" : "ORAL_EXAM")

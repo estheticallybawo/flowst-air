@@ -18,6 +18,7 @@ const busy = ref(false);
 const error = ref("");
 const filter = ref("");
 const capabilities = ref({ fixtures: false });
+const sourceReader = ref(false);
 const candidates = computed(() =>
   (draft.value?.candidates || []).filter((item) =>
     item.path.toLowerCase().includes(filter.value.toLowerCase()),
@@ -373,24 +374,33 @@ onBeforeUnmount(() => {
         <p v-if="draft.extraction.provenance?.language">
           Transcript language: {{ draft.extraction.provenance.language }}
         </p>
-        <details open class="source-preview">
-          <summary>Review included text</summary>
-          <article
-            v-for="section in draft.extraction.sections"
-            :key="section.id"
-          >
-            <h4>
-              <a
-                v-if="section.location?.url"
-                :href="section.location.url"
-                target="_blank"
-                rel="noopener noreferrer"
-                >{{ section.label }}</a
-              ><template v-else>{{ section.label }}</template>
-            </h4>
-            <p>{{ section.text }}</p>
-          </article>
-        </details>
+        <button class="air-button" @click="sourceReader = true">
+          Review included text
+        </button>
+        <AirFocusDialog
+          id="link-source-reader"
+          :open="sourceReader"
+          title="Included source text"
+          @close="sourceReader = false"
+        >
+          <div class="source-preview">
+            <article
+              v-for="section in draft.extraction.sections"
+              :key="section.id"
+            >
+              <h4>
+                <a
+                  v-if="section.location?.url"
+                  :href="section.location.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >{{ section.label }}</a
+                ><template v-else>{{ section.label }}</template>
+              </h4>
+              <p>{{ section.text }}</p>
+            </article>
+          </div>
+        </AirFocusDialog>
         <p class="source-help">
           Creating your session plan confirms that you want to study this
           snapshot. The plan will need your approval before practice.
@@ -411,7 +421,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .source-picker {
   display: grid;
-  gap: 1rem;
+  gap: 0.65rem;
   min-width: 0;
   width: 100%;
 }
@@ -462,11 +472,7 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 .source-preview {
-  max-height: 24rem;
-  overflow: auto;
-  border: 1px solid #d6cdc2;
-  padding: 1rem;
-  border-radius: 0.7rem;
+  min-width: 0;
 }
 .source-preview article {
   border-top: 1px solid #e3dbd0;
@@ -498,7 +504,7 @@ onBeforeUnmount(() => {
 }
 .source-fixtures,
 .source-notice {
-  padding: 1rem;
+  padding: 0.7rem;
   background: #eee9df;
   border-radius: 0.6rem;
 }

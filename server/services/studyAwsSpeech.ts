@@ -72,7 +72,7 @@ export async function synthesizeStudySpeech(ownerId: string, conversation: Study
   if (useRuntimeConfig(event).studyVoiceProvider !== 'aws') return (await import('./studyElevenSpeech')).elevenSynthesizeStudySpeech(ownerId, conversation, text, event)
   const config = useRuntimeConfig(event)
   const spoken = text.slice(0, 3000)
-  awsVoiceTrialCheck(conversation, 'POLLY', spoken.length, Number(config.studyAwsVoiceTrialMaxCharacters))
+  awsVoiceTrialCheck(conversation, 'POLLY', spoken.length, undefined, Number(config.studyAwsVoiceTrialMaxCharacters) || 6000)
   polly ||= new PollyClient(awsClientConfig(String(config.awsRegion || 'us-east-1')))
   try {
     const result = await polly.send(new SynthesizeSpeechCommand({

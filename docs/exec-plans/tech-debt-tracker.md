@@ -1,15 +1,15 @@
 # Technical debt and verification gaps
 
-Updated 2026-10-04. Open boundaries, not implementation claims.
+Updated 2026-10-05. Current open boundaries.
 
 | Item | Impact | Next action |
 | --- | --- | --- |
-| Deployed identity migration | Local Air identity is implemented; existing deployment is still the Amina foundation | Deploy reviewed slice, configure AIR_* keys and verify public URL/legacy links |
-| Combined feedback/progression | No separate Kai service | Version/validate packets before separation |
-| Incomplete support-event packet | Cannot substantiate all prompt-dependence observations | Record actual assistance, never invent counts |
-| Cross-session views absent | No longitudinal development view | Add contextual evidence and learner data controls |
-| Delayed retention unmeasured | Immediate practice does not show lasting retention | Define delayed retrieval/application checks |
-| Live transcription/voice pending | Platform/account availability unverified | Owner-run checks with permitted sources/allowance |
-| Deployment access last checked Oct 2 | Check encountered Vercel protection | Recheck judge/webhook access, preserve app/signature auth |
-| English-first | Broader languages unverified | Evaluate languages with speakers/providers |
-| Uncommitted/unpublished, CLI signed out | No public checkout yet | Review allowlist, sign in, commit/publish |
+| Live transcription/voice | Platform/account speech quality and latency remain unverified | Owner-run checks with permitted sources and existing allowance |
+| Hosting protection | Standalone production has required Vercel sign-in during prior checks | Verify current judge access; preserve app/signature authentication |
+| Guest speech object retention | Expiring metadata does not delete private audio objects | Configure and verify object cleanup independently of DynamoDB TTL |
+| Support-event coverage | Some prompt-dependence observations lack evidence | Record actual assistance, never invent counts |
+| Rich versioned packets | Strict richer instruction/evaluation migrations remain incomplete | Extend validated shared contracts without changing old IDs |
+| Longitudinal views and delayed retention | Immediate practice cannot establish lasting development | Add learner-controlled records and delayed retrieval/application checks |
+| English-first | Broader languages unverified | Evaluate with speakers/providers |
+
+Implemented: separate owner-scoped Kai review gated by confirmed source/turn/execution evidence, bounded viewport workspace, optional recovery, private prepared speech Replay, and fresh-history public repository at estheticallybawo/flowst-air. See [current verification](../AIRS_FOCUSED_PRACTICE_VERIFICATION.md).

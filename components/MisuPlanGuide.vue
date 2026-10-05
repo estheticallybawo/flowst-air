@@ -110,8 +110,16 @@ const guidanceAvailable = computed(() =>
         <dt>Scope and time</dt>
         <dd>
           {{ preferences.scope === "FOCUSED" ? "Focused" : "Broad" }} scope ·
-          <template v-if="plan.pacing">{{ plan.pacing.practiceMinutes }} minutes per topic · {{ plan.pacing.breakMinutes }}-minute breaks. {{ plan.estimatedTotalMinutes }} minutes of planned practice; {{ plan.estimatedBreakMinutes }} minutes of breaks, including the final optional recovery break.</template><template v-else>{{ preferences.timeBudgetMinutes }} minutes available.</template> Activity times
-          are estimates.
+          <template v-if="plan.pacing"
+            >{{ plan.pacing.practiceMinutes }} minutes per topic ·
+            {{ plan.pacing.breakMinutes }}-minute breaks.
+            {{ plan.estimatedTotalMinutes }} minutes of planned practice;
+            {{ plan.estimatedBreakMinutes }} minutes of breaks, including the
+            final optional recovery break.</template
+          ><template v-else
+            >{{ preferences.timeBudgetMinutes }} minutes available.</template
+          >
+          Activity times are estimates.
         </dd>
         <dt>Source grounding</dt>
         <dd>

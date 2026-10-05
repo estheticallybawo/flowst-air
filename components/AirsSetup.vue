@@ -26,7 +26,10 @@ const preview = ref<{
   sections: Array<{ label: string; text: string }>;
   omissions: string[];
 } | null>(null);
-const preferences = ref<StudyPreferences>({ ...NEW_STUDY_PREFERENCES, pacing:{...NEW_STUDY_PREFERENCES.pacing!} }),
+const preferences = ref<StudyPreferences>({
+    ...NEW_STUDY_PREFERENCES,
+    pacing: { ...NEW_STUDY_PREFERENCES.pacing! },
+  }),
   busy = ref(false),
   sourceBusy = ref(false),
   sourceLabel = ref(""),
@@ -39,6 +42,8 @@ const eligibility = ref<{
   reason?: string;
 } | null>(null);
 const heading = ref<HTMLElement | null>(null);
+const sourceReader = ref(false),
+  preferenceOptions = ref(false);
 const usable = computed(
   () =>
     !standalone ||
@@ -177,16 +182,22 @@ async function createPlan() {
 }
 </script>
 <template>
-  <AirStudyShell
+  <AirStudyShell workspace
     ><main class="misu-setup">
       <nav class="setup-nav" aria-label="Airs navigation">
         <span>Flowst Airs</span
         ><NuxtLink to="/airs/library">Saved sessions</NuxtLink>
       </nav>
-      <AirSkeleton
+      <AirsJourneyRail
+        stage="MISU"
+        :setup-progress="step === 'context' ? 0 : step === 'source' ? 25 : 50"
+      />
+      <AgentActivity
         v-if="standalone && (accessLoading || eligibilityLoading)"
-        variant="upload"
-        label="Loading your Airs workspace"
+        agent="MISU"
+        :busy="true"
+        state="working"
+        label="Checking your saved workspace."
       />
       <section
         v-else-if="standalone && (!usable || accessError)"
@@ -228,7 +239,7 @@ async function createPlan() {
           v-if="step === 'context'"
           @continue="step = 'source'"
         />
-        <section v-else class="setup-stage">
+        <section v-else class="setup-stage setup-dialog">
           <AgentActivity
             agent="MISU"
             :state="step === 'source' ? 'searching' : 'composing'"
@@ -249,10 +260,10 @@ async function createPlan() {
             {{
               step === "source"
                 ? "What would you like to practise with?"
-                : "What would you like to practise, and for how long?"
+                : "Choose your goal and rhythm."
             }}
           </h1>
-          <div v-show="step === 'source'">
+          <div v-show="step === 'source'" class="setup-body">
             <fieldset>
               <legend>Bring one source</legend>
               <label
@@ -304,9 +315,16 @@ async function createPlan() {
                   {{ preview.sectionCount }} readable sections. Review the
                   included text before continuing.
                 </p>
-                <p>{{ preview.excerpt }}</p>
-                <details>
-                  <summary>Included material</summary>
+                <button class="secondary" @click="sourceReader = true">
+                  Review included material
+                </button>
+                <AirFocusDialog
+                  id="document-source-reader"
+                  :open="sourceReader"
+                  title="Included material"
+                  @close="sourceReader = false"
+                >
+                  <p>{{ preview.excerpt }}</p>
                   <article
                     v-for="section in preview.sections"
                     :key="section.label"
@@ -319,7 +337,7 @@ async function createPlan() {
                     this preview. The plan can reference the extracted source
                     snapshot.
                   </p>
-                </details>
+                </AirFocusDialog>
                 <ul v-if="preview.omissions.length">
                   <li v-for="omission in preview.omissions" :key="omission">
                     {{ omission }}
@@ -327,24 +345,24 @@ async function createPlan() {
                 </ul>
               </section></template
             >
-            <div class="actions">
-              <button
-                :disabled="
-                  busy || sourceBusy || (mode === 'link' ? !ready : !preview)
-                "
-                @click="step = 'preferences'"
-              >
-                Use this source</button
-              ><button
-                class="secondary"
-                :disabled="busy || sourceBusy"
-                @click="step = 'context'"
-              >
-                Edit my context
-              </button>
-            </div>
           </div>
-          <div v-if="step === 'preferences'">
+          <footer v-if="step === 'source'" class="actions">
+            <button
+              :disabled="
+                busy || sourceBusy || (mode === 'link' ? !ready : !preview)
+              "
+              @click="step = 'preferences'"
+            >
+              Use this source</button
+            ><button
+              class="secondary"
+              :disabled="busy || sourceBusy"
+              @click="step = 'context'"
+            >
+              Edit my context
+            </button>
+          </footer>
+          <div v-if="step === 'preferences'" class="setup-body">
             <label class="field"
               >What is this session for?<select v-model="preferences.purpose">
                 <option
@@ -355,20 +373,35 @@ async function createPlan() {
                   {{ label }}
                 </option>
               </select></label
-            ><label class="field"
-              >Practice time per topic<input
-                v-model.number="preferences.pacing!.practiceMinutes"
-                type="number"
-                min="5"
-                max="15"
-                inputmode="numeric"
-              /><small
-                >5–15 minutes for each topic, followed by your chosen break.</small
-              ></label
             >
-            <label class="field">Break length<select v-model.number="preferences.pacing!.breakMinutes"><option :value="3">3 minutes</option><option :value="5">5 minutes</option></select></label>
-            <details :open="preferences.purpose === 'OTHER'">
-              <summary>Adjust scope or add a focus</summary>
+            <div class="timing-fields">
+              <label class="field"
+                >Practice time per topic<input
+                  v-model.number="preferences.pacing!.practiceMinutes"
+                  type="number"
+                  min="5"
+                  max="15"
+                  inputmode="numeric"
+                /><small>5–15 minutes for each topic.</small></label
+              >
+              <label class="field"
+                >Recovery break<select
+                  v-model.number="preferences.pacing!.breakMinutes"
+                >
+                  <option :value="3">3 minutes</option>
+                  <option :value="5">5 minutes</option></select
+                ><small>You can skip a break.</small></label
+              >
+            </div>
+            <button class="secondary" @click="preferenceOptions = true">
+              Adjust scope or add a focus
+            </button>
+            <AirFocusDialog
+              id="setup-preferences"
+              :open="preferenceOptions"
+              title="Scope and focus"
+              @close="preferenceOptions = false"
+            >
               <label class="field"
                 >Coverage<select v-model="preferences.scope">
                   <option value="FOCUSED">One useful goal</option>
@@ -382,22 +415,23 @@ async function createPlan() {
                   :required="preferences.purpose === 'OTHER'"
                 />
               </label>
-            </details>
+            </AirFocusDialog>
             <p v-if="!valid" role="alert">
-              Choose 5–120 whole minutes and add a goal for “Something else.”
+              Choose 5–15 whole minutes per topic and add a goal for “Something
+              else.”
             </p>
-            <div class="actions">
-              <button :disabled="busy || !valid" @click="createPlan">
-                {{ busy ? "Saving source…" : "Draft my plan" }}</button
-              ><button
-                class="secondary"
-                :disabled="busy"
-                @click="step = 'source'"
-              >
-                Review source
-              </button>
-            </div>
           </div>
+          <footer v-if="step === 'preferences'" class="actions">
+            <button :disabled="busy || !valid" @click="createPlan">
+              {{ busy ? "Saving source…" : "Draft my plan" }}</button
+            ><button
+              class="secondary"
+              :disabled="busy"
+              @click="step = 'source'"
+            >
+              Review source
+            </button>
+          </footer>
           <p v-if="error" role="alert">{{ error }}</p>
         </section></template
       >
@@ -405,32 +439,69 @@ async function createPlan() {
   >
 </template>
 <style scoped>
+.setup-dialog {
+  width: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: clamp(16px, 2vw, 24px);
+  border: 1px solid #d8e3dc;
+  border-radius: 18px;
+  background: #fff;
+}
+.setup-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 3px;
+}
+.setup-dialog :deep(.agent-activity) {
+  margin-bottom: 12px;
+  flex: none;
+}
+.timing-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
 .misu-setup {
-  max-width: 760px;
+  max-width: 920px;
   width: 100%;
   box-sizing: border-box;
   margin: 0 auto;
-  padding: 24px clamp(12px, 3vw, 32px) 64px;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
   color: #142924;
 }
 .setup-nav {
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 32px;
+  min-height: 36px;
+  align-items: center;
+  flex: none;
+  margin-bottom: 4px;
   font-size: 0.85rem;
 }
 .setup-nav a {
   color: #234d40;
 }
-.setup-stage {
-  padding: 24px 0;
+.misu-setup :deep(.journey-rail) {
+  flex: none;
+  margin: 0 auto 8px;
+  padding: 0;
 }
 h1 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
   line-height: 1.3;
-  max-width: 28ch;
-  margin: 0 0 28px;
+  margin: 0 0 14px;
+  flex: none;
 }
 h2 {
   font-size: 1.15rem;
@@ -440,20 +511,20 @@ h3 {
 }
 p,
 small {
-  line-height: 1.6;
+  line-height: 1.45;
   color: #46534f;
   overflow-wrap: anywhere;
 }
 fieldset {
   border: 0;
   padding: 0;
-  margin: 0 0 24px;
+  margin: 0 0 8px;
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 16px;
 }
 legend {
-  margin-bottom: 12px;
+  margin-bottom: 0;
   font-weight: 600;
 }
 fieldset label {
@@ -464,7 +535,7 @@ fieldset label {
 }
 .field {
   display: block;
-  margin: 20px 0;
+  margin: 8px 0 14px;
   font-weight: 600;
 }
 .field input:not([type="radio"]),
@@ -474,7 +545,8 @@ textarea {
   margin-top: 8px;
   box-sizing: border-box;
   width: 100%;
-  padding: 14px;
+  padding: 10px 12px;
+  min-height: 44px;
   border: 1px solid #adbab5;
   border-radius: 10px;
   background: white;
@@ -490,7 +562,10 @@ textarea {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  margin-top: 24px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e4ebe6;
+  flex: none;
 }
 button {
   min-height: 44px;

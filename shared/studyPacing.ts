@@ -7,6 +7,7 @@ export interface StudyPacingState {
  remainingMs: number
  startedAt: number
  breakEndsAt?: number
+ breakSkippedAt?: number
  serverNow: number
 }
 export function pacingAt(state: StudyPacingState, now: number): StudyPacingState {

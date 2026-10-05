@@ -16,7 +16,11 @@ defineEmits<{ leave: []; plan: []; conversation: [] }>();
     </button>
     <h1 :title="title">{{ title }}</h1>
   </div>
-  <nav v-else class="session-navigation" aria-label="Flowst Airs session navigation">
+  <nav
+    v-else
+    class="session-navigation"
+    aria-label="Flowst Airs session navigation"
+  >
     <button
       v-if="!controlsOnly"
       type="button"
@@ -121,14 +125,19 @@ button:focus-visible {
 }
 @media (max-width: 767px) {
   .session-context {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
     padding: 0 4px 4px;
   }
   .session-context button {
     font-size: 0.75rem;
-    min-height: 36px;
+    min-height: 44px;
+    width: 44px;
+    padding: 8px;
+  }
+  .session-context button span {
+    display: none;
   }
   .session-context h1 {
     font-size: 0.9rem;
