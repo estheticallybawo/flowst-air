@@ -690,68 +690,68 @@
     },
     {
       "path": "server/api/auth/dev-session.post.ts",
-      "bytes": 662,
-      "sha256": "d997f57a01501e5610f9527e31e96b0a0c9c552210fae16940ec50902a55a724"
+      "bytes": 722,
+      "sha256": "0fc62fc5c9851a0e22b3258f6d920d12488cc22003e4687870a26e8bfb83e07e"
     },
     {
       "path": "server/api/auth/recover-confirm.post.ts",
-      "bytes": 956,
-      "sha256": "1b473d14872c2f536179b94bb49856740b835e6ea7d6e3148c6869938ce9e6b8"
+      "bytes": 1070,
+      "sha256": "c9b9cbf7fc55820e9683fda6e64a30a400c45c3fca1be3aa30e6375bb02a8ec0"
     },
     {
       "path": "server/api/auth/recover.post.ts",
-      "bytes": 710,
-      "sha256": "4c97993aa39493c0576e8e911cd9f11de0576f854de728eee0aefe844847c860"
+      "bytes": 751,
+      "sha256": "0b64d447baba71357db3aa5a7de6af5dba8a1c486f73c5e9301747d36cd2a05f"
     },
     {
       "path": "server/api/auth/register.post.ts",
-      "bytes": 825,
-      "sha256": "ed189d903455e0d5719029eefa16be939b44ed9682262d004101e76cdd337bd7"
+      "bytes": 891,
+      "sha256": "144d9a11edc000cfe44804c2c2b7d4358ccc31a3fe91f0d123005c6ccb17a1ee"
     },
     {
       "path": "server/api/auth/session.get.ts",
-      "bytes": 1581,
-      "sha256": "1983b165ac581d7ee1173909f93ea73ca803a6cfcc1d312b262754ec3a663b80"
+      "bytes": 1986,
+      "sha256": "b7dd2e2f91fc8555f13d3dc0b497b417493c7da0bf7320655bec36ef9c33331e"
     },
     {
       "path": "server/api/auth/sign-in.post.ts",
-      "bytes": 1319,
-      "sha256": "6082cb4cdf6e95f3aa08c4d4af10076ae9b441af00622c3d4d7c85f7b7080429"
+      "bytes": 1422,
+      "sha256": "6e24f5fc637624e912a71fc6d46ae92aecd859a66321f632e98b465c99784141"
     },
     {
       "path": "server/api/auth/sign-out.post.ts",
-      "bytes": 584,
-      "sha256": "cf16b817ef8e7c4a10b8fead3973555f1df66eba8b058434208e8bca79305d19"
+      "bytes": 620,
+      "sha256": "5fa2fa5117d16052f0c11a6800c6eb967f66dbf497ca134ac48d62977be6f688"
     },
     {
       "path": "server/api/auth/verify.post.ts",
-      "bytes": 880,
-      "sha256": "930c8c558bc1c7af5da2379b550201b596ac8ee4f2772ade3ec66bc8f24ec66b"
+      "bytes": 961,
+      "sha256": "3a413e9b0fea275965003413339aacf564df0d8965b92849796c3c6084c9305c"
     },
     {
       "path": "server/api/health.get.ts",
-      "bytes": 134,
-      "sha256": "c30cb1decfbdce868f505427cc01e4af09e0dc78e36d52904f2561268aca55ea"
+      "bytes": 142,
+      "sha256": "52c22a1732e768f1dc0b22dc21a8a300e061cf349758df0a400a9f911c283eed"
     },
     {
       "path": "server/api/me.get.ts",
-      "bytes": 193,
-      "sha256": "0120e17e13454ddf375a04f684e0aaae889c99c9ae83dd73bc71b731a485ca35"
+      "bytes": 202,
+      "sha256": "0dd9348dbaf028adda1cf20754f5e7a3875dafa98570357be38c677b319ec37b"
     },
     {
       "path": "server/api/study/context.get.ts",
-      "bytes": 341,
-      "sha256": "838c73183c2858bf8adee42a28754f51e4b4ad647a7688e92d2e3188d18f96a1"
+      "bytes": 376,
+      "sha256": "2a7f3b78a8b8db7ff4e74f78bab8d06bbd3ac1e8cfd7f7b3046f9c2160ba7067"
     },
     {
       "path": "server/api/study/context.put.ts",
-      "bytes": 342,
-      "sha256": "ff33311fe1a577d7b9ba79fa8cdd26e2c0efe9991a4be1d14855a3d722a53d65"
+      "bytes": 380,
+      "sha256": "db59b4dd5baef3db71cf1400b16b0d71a52967f6a6b8ce9fecdfb602f3349995"
     },
     {
       "path": "server/api/study/context/summary.post.ts",
-      "bytes": 479,
-      "sha256": "a44bb776fa7fb40ff23c62f3db105f4cf41cfd92acce75e51112b8b3cc2fbae1"
+      "bytes": 521,
+      "sha256": "ba8d1cbe2c634ad4138bcc46860f8536b0c066602ffd648b7b09fa578972076a"
     },
     {
       "path": "server/api/study/conversations/[id].delete.ts",
@@ -915,23 +915,23 @@
     },
     {
       "path": "server/api/study/sources/capabilities.get.ts",
-      "bytes": 254,
-      "sha256": "a81092158539dd7e0700329dda5668e21380b579ee0576307526997a8b439cf2"
+      "bytes": 261,
+      "sha256": "35234bf1f638c250fa0bf9a1d1677de411d2ac25496db4478d877dda1c39571e"
     },
     {
       "path": "server/api/study/sources/document-preview.post.ts",
-      "bytes": 1502,
-      "sha256": "73d4b7ff793950b6b28138f0d7268c84b3afd9da63adb6a739297dd7a86117d5"
+      "bytes": 1794,
+      "sha256": "b23f771628b2bdc1e17cbd60fa19251e28ded7d70097ffe7aaf721c10876edb3"
     },
     {
       "path": "server/api/study/sources/inspect.post.ts",
-      "bytes": 364,
-      "sha256": "5df7be9651bc82e3a56ea4e27f8c9126d40db98b86eefd8a33fd270c4887004e"
+      "bytes": 389,
+      "sha256": "6b218d7adee50177b9c63443f7b038237cc5ba8e69924ee01e8755372d16a28b"
     },
     {
       "path": "server/api/study/sources/transcription-webhook.post.ts",
-      "bytes": 297,
-      "sha256": "d157ce3cf70e0f789fa71f2ca7582eeac4dcec87563658e336fd07acec49f059"
+      "bytes": 323,
+      "sha256": "64117906d192e1f1f285ec9c2b2147a164405c3844bb654c77d40a1aaadd5826"
     },
     {
       "path": "server/api/study/upload-eligibility.get.ts",
@@ -1449,5 +1449,5 @@
       "sha256": "e0a3895d66cd71bb2a2339ff44fdd4de0991858415f05a7537d57a3388ad1dba"
     }
   ],
-  "updatedAt": "2026-10-05T02:07:20.197Z"
+  "updatedAt": "2026-10-05T02:18:54.449Z"
 }
