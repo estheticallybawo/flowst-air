@@ -250,8 +250,8 @@
     },
     {
       "path": "docs/AIRS_FOCUSED_PRACTICE_VERIFICATION.md",
-      "bytes": 16365,
-      "sha256": "2f8c197c8235d9ad300e062a2a485f9c7a7133d2b1534197edd3ced57ecf6f0e"
+      "bytes": 20764,
+      "sha256": "98664bc3b6aad05b289b4ce08143953bdfba82e97865cc3b096a11c9ee9ca7d3"
     },
     {
       "path": "docs/design-docs/context-aware-practice.md",
@@ -400,13 +400,13 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 29722,
-      "sha256": "6665c56f0c30b0791bc168bc6f3482101972a9420817793da44fd914cf029433"
+      "bytes": 34121,
+      "sha256": "b392c14f5c0bc267d3bab343abdcf95e87acb30f4583b4fe034ccfdd61815749"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
-      "bytes": 3749,
-      "sha256": "e3febc6dffa4e296cd9956b450581af88bb02206142d06dcdbbf21d92666623c"
+      "bytes": 4790,
+      "sha256": "fab49978e4da5d02ac827686da88a59a2e98271a935d218847d4d7a86ffd6fa7"
     },
     {
       "path": "FLOWST_AIR_SYSTEM_DESIGN.md",
@@ -465,8 +465,8 @@
     },
     {
       "path": "pages/airs/[id].vue",
-      "bytes": 119088,
-      "sha256": "7ea47d7185e0662f130bf78c22feef100000d2fb38ac05a2a3d0c0c7c916c6bd"
+      "bytes": 119151,
+      "sha256": "453cc8cbd9860ef6bb6f0437c1b8ee21dd202ac263c63ca9b1147a1e9a79f1d4"
     },
     {
       "path": "pages/airs/about.vue",
@@ -1065,8 +1065,8 @@
     },
     {
       "path": "server/services/studyElevenSpeech.ts",
-      "bytes": 7915,
-      "sha256": "341e76fe6c603db8e5235a38cbdb463abe75f5054f75666e3bf365a030944a05"
+      "bytes": 10678,
+      "sha256": "1e0edbc6f5a40fb6a241298a81940bc30686abbe1d9cf194c25a797ae5561cf8"
     },
     {
       "path": "server/services/studyExtraction.ts",
@@ -1235,8 +1235,8 @@
     },
     {
       "path": "shared/studySpeechOutcome.ts",
-      "bytes": 1610,
-      "sha256": "c21a40fd5e9360524b0dd68fdb35652138adb4e3a174436abd887d552a265ae4"
+      "bytes": 3725,
+      "sha256": "3e335abcbcc49f5662871fd5ab52768cacab97674dd48364b70488ee9c9be0f0"
     },
     {
       "path": "shared/userErrors.ts",
@@ -1290,8 +1290,8 @@
     },
     {
       "path": "tests/source-e2e/guest-context.spec.ts",
-      "bytes": 20957,
-      "sha256": "036e25091c566df3e586d2f0a1e6aa67b830c2fc1b6e036b0abf01c3ad54c564"
+      "bytes": 23271,
+      "sha256": "3885831b9ab39c44f62c7254f98253c9534284d11872376510dbc3cb48764e53"
     },
     {
       "path": "tests/study-air-history.test.ts",
@@ -1345,8 +1345,8 @@
     },
     {
       "path": "tests/study-speech-cache.test.ts",
-      "bytes": 9334,
-      "sha256": "ad8737a6261017125e10d2bfe1a8a95b5465d9486f73a9fa2e2636ea039b4a17"
+      "bytes": 17766,
+      "sha256": "947b0827396072d6fa42d7f0efa67664f5a264bc69382974976549a66fbfc0b5"
     },
     {
       "path": "tests/study-upload-limit.test.ts",
@@ -1494,5 +1494,5 @@
       "sha256": "3294ffe27e3af64a16f9fbf63b22fe7c3a50a206c8b3719cd0d0b0da9dc3941d"
     }
   ],
-  "updatedAt": "2026-10-05T11:35:09.039Z"
+  "updatedAt": "2026-10-05T13:11:09.336Z"
 }

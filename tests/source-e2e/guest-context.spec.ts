@@ -29,6 +29,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await page.addInitScript(() => {
     (window as any).__micRequests = 0;
     Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
+      configurable: true,
       value: async () => {
         (window as any).__micRequests++;
         throw new DOMException("Test permission denial", "NotAllowedError");
@@ -574,5 +575,35 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await expect(
     page.getByRole("region", { name: "Saved conversation", exact: true }),
   ).toContainText(intro.text);
+  await page.keyboard.press('Escape');
+ await page.getByRole('button',{name:'Conversation',exact:true}).click()
+ await expect(page.getByRole('region',{name:'Saved conversation',exact:true})).toHaveCount(0)
+ // Synthetic microphone audio exercises the retained take; no device or paid request is used.
+ await page.evaluate(()=>{
+  Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:async()=>{
+   const context=new AudioContext(),destination=context.createMediaStreamDestination(),oscillator=context.createOscillator(),gain=context.createGain()
+   gain.gain.value=0;oscillator.connect(gain);gain.connect(destination);oscillator.start();(window as any).__syntheticRecordingContext=context
+   return destination.stream
+  }})
+ })
+ const sentTakeIds:string[]=[]
+ await page.route('**/api/study/conversations/*/recorded-turn',route=>{
+  if(route.request().method()!=='POST')return route.continue()
+  sentTakeIds.push(route.request().postDataBuffer()!.toString('utf8').match(/name="recordingId"\r\n\r\n([a-f0-9-]+)/)![1])
+  return route.fulfill({status:503,json:{statusMessage:'ElevenLabs quota_exceeded: private provider diagnostics',data:{code:'SPEECH_PROVIDER_QUOTA',retryable:false}}})
+ })
+ await page.getByRole('button',{name:'Start recording',exact:true}).click()
+ await expect(page.getByRole('button',{name:'Stop recording',exact:true})).toBeVisible()
+ await page.waitForTimeout(500)
+ await page.getByRole('button',{name:'Stop recording',exact:true}).click()
+ await page.getByRole('button',{name:'Send recording',exact:true}).click()
+ await expect(page.getByRole('region',{name:'Amina voice room',exact:true}).getByText('The speech provider rejected transcription under its quota.',{exact:false})).toBeVisible()
+ await expect(page.getByText('We could not confirm whether your recording was saved.',{exact:false})).toHaveCount(0)
+ await expect(page.getByText('Recording ready to send',{exact:true})).toBeVisible()
+ expect(sentTakeIds).toHaveLength(1)
+ await page.getByRole('button',{name:'Send recording',exact:true}).click()
+ await expect(page.getByRole('button',{name:'Send recording',exact:true})).toBeEnabled()
+ expect(sentTakeIds).toEqual([sentTakeIds[0],sentTakeIds[0]])
+ await page.evaluate(()=> (window as any).__syntheticRecordingContext.close())
   expect(pageErrors).toEqual([]);
 });

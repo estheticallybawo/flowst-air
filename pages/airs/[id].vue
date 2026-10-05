@@ -19,7 +19,7 @@ import {
   Square,
   Trash2,
 } from "lucide-vue-next";
-import { studySpeechOutcome } from "~/shared/studySpeechOutcome";
+import { studySpeechOutcome, studyTranscriptionOutcome } from "~/shared/studySpeechOutcome";
 import {
   spokenCaption,
   validSpeechAlignment,
@@ -1195,7 +1195,7 @@ async function sendRecording() {
     if (disposed || generation !== microphoneRequest) return;
     recorderStatus.value = "REVIEW";
     clearTimeout(voiceProgressPoll);
-    error.value = learnerStudyError(
+    error.value = studyTranscriptionOutcome(cause) || learnerStudyError(
       cause,
       requestStarted
         ? "We could not confirm whether your recording was saved. Your take is still here; check the transcript or retry sending this same take."
