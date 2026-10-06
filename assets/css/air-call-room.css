@@ -922,3 +922,126 @@
     margin-bottom: 6px;
   }
 }
+
+/* Secondary actions sit beside the voice area instead of extending its dock. */
+.call-stage.with-side-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  gap: 12px;
+  overflow: hidden;
+}
+.with-side-controls .call-presence {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  min-height: 0;
+  gap: 8px;
+}
+.with-side-controls .call-control-area {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 100%;
+  padding: 0;
+}
+.call-support,
+.call-session {
+  min-width: 0;
+  position: relative;
+  align-self: end;
+  grid-row: 3;
+  text-align: left;
+}
+.call-support { grid-column: 1; }
+.call-session { grid-column: 2; }
+.call-support > details,
+.call-session > details {
+  border: 1px solid var(--call-line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .8);
+}
+.call-support summary,
+.call-session summary {
+  min-height: 44px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.call-side-content {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  width: min(260px, calc(100vw - 40px));
+  max-height: min(420px, calc(var(--call-stage-height, 100dvh) - 68px));
+  overflow-y: auto;
+  z-index: 5;
+  padding: 14px;
+  border: 1px solid var(--call-line);
+  border-radius: 16px;
+  background: #f8fcff;
+  box-shadow: 0 10px 28px rgba(16, 43, 63, .12);
+  box-sizing: border-box;
+}
+.call-support .call-side-content { left: 0; }
+.call-session .call-side-content { right: 0; }
+.air-call-room :deep(.objective-support),
+.air-call-room :deep(.objective-controls),
+.air-call-room :deep(.objective-session-actions) {
+  display: grid;
+  gap: 8px;
+}
+.air-call-room :deep(.objective-controls p) {
+  margin: 0 0 4px;
+  font-size: .8rem;
+  line-height: 1.5;
+  color: var(--call-muted);
+  overflow-wrap: anywhere;
+}
+.air-call-room :deep(.objective-support button),
+.air-call-room :deep(.objective-controls button) {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--call-line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--call-ink);
+  font: inherit;
+  font-size: .8rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+}
+.air-call-room :deep(.objective-support button:hover:not(:disabled)),
+.air-call-room :deep(.objective-controls button:hover:not(:disabled)) { background: #e8f5ff; }
+.air-call-room :deep(.objective-controls .objective-resume) { background: var(--call-primary); border-color: var(--call-primary); color: #fff; }
+.air-call-room :deep(.objective-controls .objective-end) { color: #9b2929; }
+.air-call-room :deep(.objective-controls .objective-options) { border-color: transparent; background: transparent; text-decoration: underline; text-underline-offset: 3px; }
+.call-stage.with-side-controls.side-controls-wide {
+  grid-template-columns: minmax(160px, 200px) minmax(0, 1fr) minmax(160px, 200px);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 16px 24px;
+}
+.side-controls-wide .call-presence { grid-column: 2; }
+.side-controls-wide .call-control-area { grid-column: 2; }
+.side-controls-wide .call-support { grid-column: 1; }
+.side-controls-wide .call-session { grid-column: 3; }
+.side-controls-wide .call-support,
+.side-controls-wide .call-session {
+  grid-row: 1 / -1;
+  align-self: center;
+}
+.side-controls-wide .call-side-content {
+  position: static;
+  width: auto;
+  max-height: none;
+  overflow: visible;
+  border: 0;
+  padding: 0 12px 12px;
+  background: transparent;
+  box-shadow: none;
+}
+@media (max-height: 680px) {
+  .with-side-controls .call-portrait { width: min(14dvh, 100px); }
+  .with-side-controls .call-presence { gap: 6px; }
+  .with-side-controls .call-state .call-detail { margin-top: 4px; }
+}

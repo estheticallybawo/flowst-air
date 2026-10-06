@@ -2062,7 +2062,7 @@ async function remove() {
               </button>
               <button
                 v-if="
-                  pacing.current.value?.phase === 'PAUSED' ||
+                  (!objectiveFlow && pacing.current.value?.phase === 'PAUSED') ||
                   (pacing.current.value?.phase === 'BREAK' &&
                     pacing.remaining.value === 0 && !journey.checkpointReady)
                 "
@@ -2073,7 +2073,7 @@ async function remove() {
               </button>
               <button
                 v-if="
-                  pacing.current.value?.phase === 'PRACTICE' &&
+                  !objectiveFlow && pacing.current.value?.phase === 'PRACTICE' &&
                   recorderStatus === 'IDLE' &&
                   !busy &&
                   !playingTurnId &&
@@ -2103,23 +2103,31 @@ async function remove() {
               </button>
             </section>
           </template>
-          <template #controls>
-            <section v-if="objectiveFlow" class="objective-controls" aria-label="Objective controls">
+          <template v-if="objectiveFlow && !objectiveClosed" #support>
+            <div class="objective-support">
+              <button :disabled="objectiveCommandBusy || busy || pacingBlocked" @click="sendObjectiveControl('REPEAT')">Repeat question</button>
+              <button :disabled="objectiveCommandBusy || busy || pacingBlocked" @click="sendObjectiveControl('EXPLAIN_AGAIN')">Explain again</button>
+              <button :disabled="objectiveCommandBusy || busy || pacingBlocked" @click="sendObjectiveControl('HINT')">Hint</button>
+              <button :disabled="objectiveCommandBusy || busy || pacingBlocked" @click="sendObjectiveControl('CHANGE_APPROACH')">Change approach</button>
+            </div>
+          </template>
+          <template v-if="objectiveFlow" #session>
+            <section class="objective-controls">
               <p role="status">{{ journey.completedObjectiveIds.length }} of {{ journey.totalObjectives }} objectives covered<span v-if="objectiveClosed"> · {{ objectiveFlow.sessionStatus === 'covered' ? 'session complete' : 'ended with gaps' }}</span></p>
               <p v-if="objectiveFlow.pendingOperationId || objectiveFlow.interruptOperationId" role="alert">{{ objectiveFlow.error || (objectiveFlow.pendingReview ? 'Your answer is saved. Its review is pending.' : 'Your input is saved. Its response is pending.') }}</p>
               <button v-if="objectiveFlow.pendingOperationId || objectiveFlow.interruptOperationId" :disabled="objectiveCommandBusy || busy" @click="retryObjectiveResponse">Retry saved response</button>
-              <details v-if="!objectiveClosed"><summary>Support and session controls</summary><div class="dialog-actions">
-                <button :disabled="objectiveCommandBusy || busy || pacingBlocked" @click="sendObjectiveControl('REPEAT')">Repeat question</button>
-                <button :disabled="objectiveCommandBusy || busy || pacingBlocked" @click="sendObjectiveControl('EXPLAIN_AGAIN')">Explain again</button>
-                <button :disabled="objectiveCommandBusy || busy || pacingBlocked" @click="sendObjectiveControl('HINT')">Hint</button>
-                <button :disabled="objectiveCommandBusy || busy || pacingBlocked" @click="sendObjectiveControl('CHANGE_APPROACH')">Change approach</button>
+              <div v-if="!objectiveClosed" class="objective-session-actions">
                 <button :disabled="Boolean(objectiveCommandBusy || busy || objectiveFlow.pendingOperationId || objectiveFlow.interruptOperationId)" @click="sendObjectiveControl('DEFER')">Defer objective</button>
                 <button :disabled="Boolean(objectiveCommandBusy || busy || objectiveFlow.pendingOperationId || objectiveFlow.interruptOperationId)" @click="sendObjectiveControl('SKIP')">Skip objective</button>
-                <button v-if="objectiveFlow.paused || (paced && pacing.current.value?.phase !== 'PRACTICE')" :disabled="objectiveCommandBusy" @click="sendObjectiveControl('RESUME')">Resume practice</button>
+                <button v-if="objectiveFlow.paused || (paced && pacing.current.value?.phase !== 'PRACTICE')" class="objective-resume" :disabled="objectiveCommandBusy" @click="sendObjectiveControl('RESUME')">Resume practice</button>
                 <button v-else :disabled="objectiveCommandBusy" @click="sendObjectiveControl('PAUSE')">Pause</button>
-                <button :disabled="objectiveCommandBusy" @click="sendObjectiveControl('END')">End session</button>
-              </div></details>
+                <button class="objective-end" :disabled="objectiveCommandBusy" @click="sendObjectiveControl('END')">End session</button>
+              </div>
+              <button v-if="journey.kaiReady" @click="sessionPane = 'review'">Kai’s review</button>
+              <button class="objective-options" @click="sessionPane = 'options'">Practice options</button>
             </section>
+          </template>
+          <template #controls>
             <section v-if="!objectiveFlow && showMisuCheckpoint" class="misu-checkpoint" aria-label="Misu’s next step" aria-live="polite">
               <AgentAvatar agent="MISU" size="compact" />
               <div class="misu-checkpoint-copy">
@@ -2134,7 +2142,7 @@ async function remove() {
                 </div>
               </div>
             </section>
-            <div class="practice-tools">
+            <div v-if="!objectiveFlow" class="practice-tools">
               <button
                 v-if="
                   !objectiveFlow && !study.plan.courseCompletedAt &&

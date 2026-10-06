@@ -28,6 +28,25 @@ const clock = computed(
       .toString()
       .padStart(2, "0")}:${(props.elapsed % 60).toString().padStart(2, "0")}`,
 );
+const stage = ref<HTMLElement | null>(null);
+const wideControls = ref(false);
+let stageObserver: ResizeObserver | undefined;
+onMounted(() => {
+  if (!stage.value) return;
+  stageObserver = new ResizeObserver(([entry]) => {
+    wideControls.value = Boolean(entry && entry.contentRect.width >= 760 && entry.contentRect.height >= 420);
+    if (entry) stage.value?.style.setProperty('--call-stage-height', `${entry.contentRect.height}px`);
+  });
+  stageObserver.observe(stage.value);
+});
+onBeforeUnmount(() => stageObserver?.disconnect());
+function closeCompactMenu(event: MouseEvent) {
+  if (wideControls.value || !(event.target instanceof Element)) return;
+  if (event.target.closest('button')) {
+    const details = event.currentTarget instanceof Element ? event.currentTarget.closest('details') : null;
+    if (details instanceof HTMLDetailsElement) details.open = false;
+  }
+}
 const shortStatus = computed(() =>
   props.liveStatus === "SPEAKING"
     ? "Speaking"
@@ -48,7 +67,10 @@ const shortStatus = computed(() =>
       'recorded-mode': recordedMode,
     }"
   >
-    <section class="call-stage" aria-label="Amina voice room">
+    <section ref="stage" class="call-stage" :class="{ 'with-side-controls': $slots.support || $slots.session, 'side-controls-wide': wideControls }" aria-label="Amina voice room">
+      <aside v-if="!loading && $slots.support" class="call-support" aria-label="Question support">
+        <details :open="wideControls"><summary>Question support</summary><div class="call-side-content" @click="closeCompactMenu"><slot name="support" /></div></details>
+      </aside>
       <AirSkeleton
         v-if="loading"
         variant="room"
@@ -120,6 +142,9 @@ const shortStatus = computed(() =>
           >60-second pilot call</small
         >
       </div>
+      <aside v-if="!loading && $slots.session" class="call-session" role="region" aria-label="Objective controls">
+        <details :open="wideControls"><summary>Session controls</summary><div class="call-side-content" @click="closeCompactMenu"><slot name="session" /></div></details>
+      </aside>
     </section>
     <section
       v-if="conversationOpen"
