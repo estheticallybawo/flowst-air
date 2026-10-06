@@ -54,6 +54,7 @@ const files = [
   "server/api/study/context.put.ts",
   "server/api/study/context/summary.post.ts",
   "server/api/study/conversations/[id].get.ts",
+  "server/api/study/conversations/[id].delete.ts",
   "server/api/study/conversations/[id]/plan.post.ts",
   "server/api/study/conversations/[id]/plan/approve.post.ts",
   "server/api/study/conversations/[id]/welcome.post.ts",
@@ -81,6 +82,7 @@ const files = [
   "components/AirsContextCard.vue",
   "components/AirsKaiReview.vue",
   "components/MisuPlanGuide.vue",
+  "tests/study-deletion.test.ts",
 ];
 const hash = (p) => {
   let source = fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n');

@@ -19,6 +19,8 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   page,
 }) => {
   test.setTimeout(300000);
+  // Exercise the local UI without depending on external font server availability.
+  await page.context().route('https://fonts.googleapis.com/**',route=>route.fulfill({status:200,contentType:'text/css',body:''}));
   const pageErrors: string[] = [];
   page.on("pageerror", (error) => { pageErrors.push(error.message); console.error('Fixture page error:',error.message); });
   page.on('response',response=>{const url=new URL(response.url());if(url.pathname.startsWith('/api/')&&response.status()>=400)console.error('Fixture API failure:',response.status(),url.pathname);});
@@ -697,6 +699,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:async()=>{
    const context=new AudioContext(),destination=context.createMediaStreamDestination(),oscillator=context.createOscillator(),gain=context.createGain()
    gain.gain.value=0;oscillator.connect(gain);gain.connect(destination);oscillator.start();(window as any).__syntheticRecordingContext=context
+   await context.resume()
    return destination.stream
   }})
  })
@@ -710,7 +713,8 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
  })
  await page.getByRole('button',{name:'Start recording',exact:true}).click()
  await expect(page.getByRole('button',{name:'Stop recording',exact:true})).toBeVisible()
- await page.waitForTimeout(500)
+ // Wait for generated audio, rather than wall time on a heavily loaded host.
+ await expect.poll(()=>page.evaluate(()=>(window as any).__syntheticRecordingContext.currentTime),{timeout:15000}).toBeGreaterThanOrEqual(0.5)
  await page.getByRole('button',{name:'Stop recording',exact:true}).click()
  await page.getByRole('button',{name:'Send recording',exact:true}).click()
  await expect(page.getByRole('region',{name:'Amina voice room',exact:true}).getByText('The speech provider rejected transcription under its quota.',{exact:false})).toBeVisible()

@@ -147,8 +147,10 @@ export async function prepareObjectiveOperation(ownerId: string, id: string, inp
     const prompt = [...study.turns].reverse().find(turn => turn.role === 'AMIRA' && turn.nextPrompt?.objectiveId === entry.objectiveId)?.nextPrompt
     const target = prompt ? entry.policy.evidenceTargets.find(item => item.id === prompt.targetId) : entry.policy.evidenceTargets[0]
     const ambiguousRequest = /^(?:stop|wait|again|next|help|i(?:'m| am) confused)[.!?]*$/i.test(input.trim())
+    const pauseClock = control === 'PAUSE' ? await getStudyPacing(ownerId,id,event) : undefined
     operation = {id:operationId,inputHash,planVersion:study.plan.version,objectiveId:entry.objectiveId,targetId:target?.id,status:'PENDING',userTurn:{...incoming,kind:control || ambiguousRequest ? 'CONTROL' : incoming.kind,objectiveId:entry.objectiveId,targetId:target?.id,operationId},traceId:randomUUID(),evidenceId:randomUUID(),control,interruptsOperationId:interrupts,recordingHash:recordedClaim?.audioHash,recordedClaim,createdAt:new Date().toISOString()}
     operation.reviewLeaseId = reviewLeaseId; operation.reviewLeaseUntil = Date.now()+120000
+    if (pauseClock) operation.pauseClock = pauseClock
     if (interrupts) {flow.interruptOperationId = operationId; if (control === 'PAUSE' || control === 'RESUME') flow.paused = control === 'PAUSE'}
     else {flow.pendingOperationId = operationId; flow.pendingReview = operation.userTurn.kind === 'PRACTICE' && !control}
     flow.error = undefined
@@ -324,7 +326,8 @@ export async function finishObjectiveOperation(ownerId: string, id: string, prep
   let pacing: Parameters<typeof saveStudyObjectiveState>[3]['pacing']
   if (clock && (plan.activeObjectiveId !== study.plan.activeObjectiveId || flow.paused || decision.action === 'pause' || objectiveSessionClosed(flow) || operation.control === 'RESUME')) {
     const shouldPause = flow.paused || decision.action === 'pause' || objectiveSessionClosed(flow)
-    const state = {...(shouldPause ? pausePacingState(clock,Date.now()) : clock),revision:randomUUID(),startedAt:Date.now(),serverNow:Date.now()}
+    const pauseClock = operation.pauseClock?.revision === clock.revision ? operation.pauseClock : clock
+    const state = {...(shouldPause ? pausePacingState(pauseClock,operation.pauseClock?.revision === clock.revision ? pauseClock.serverNow : Date.now()) : clock),revision:randomUUID(),startedAt:Date.now(),serverNow:Date.now()}
     if (!shouldPause && operation.control !== 'RESUME' && clock.phase === 'PRACTICE') {state.objectiveId = plan.activeObjectiveId!;state.blockId=randomUUID();state.remainingMs=(plan.pacing?.practiceMinutes || 5)*60000;delete state.recordingId}
     pacing = {state,expectedRevision:clock.revision}
   }

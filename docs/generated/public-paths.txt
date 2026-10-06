@@ -278,6 +278,7 @@
 :(literal)tests/study-aws-voice.test.ts
 :(literal)tests/study-companion.test.ts
 :(literal)tests/study-conversation-progress.test.ts
+:(literal)tests/study-deletion.test.ts
 :(literal)tests/study-live-lease.test.ts
 :(literal)tests/study-misu-progress.test.ts
 :(literal)tests/study-objective-flow.test.ts

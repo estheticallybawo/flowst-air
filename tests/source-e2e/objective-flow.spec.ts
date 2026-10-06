@@ -1,5 +1,47 @@
 import {expect,test} from '@playwright/test'
 
+test('library deletion shows pending and failed states, then removes only the confirmed deleted source',async({page,context})=>{
+ test.setTimeout(300000)
+ await context.route('https://fonts.googleapis.com/**',route=>route.fulfill({status:200,contentType:'text/css',body:''}))
+ const headers={authorization:'Bearer mock:member'},api=context.request
+ await context.setExtraHTTPHeaders(headers)
+ await context.route('**/api/study/**',route=>route.continue({headers:{...route.request().headers(),...headers}}))
+ expect((await api.post('/api/auth/dev-session',{data:{scenario:'member'}})).status()).toBe(200)
+ const inspected=await api.post('/api/study/sources/inspect',{headers,data:{url:'',fixture:'WEB'}})
+ expect(inspected.status()).toBe(200)
+ const source=await inspected.json()
+ const created=await api.post('/api/study/conversations/from-source',{headers,data:{sourceId:source.id,confirmSource:true,preferences:{purpose:'UNDERSTAND',scope:'BROAD',timeBudgetMinutes:15,context:'Library deletion fixture'}}})
+ expect(created.status()).toBe(200)
+ const {id}=await created.json(),base='/api/study/conversations/'+id
+ try{
+  await page.goto('/airs/library',{waitUntil:'domcontentloaded'})
+  const card=page.locator('.chat-card').filter({has:page.locator('a[href="/airs/'+id+'"]')})
+  await expect(card).toBeVisible({timeout:90000})
+  let releaseFailure:()=>void=()=>{throw Error('No pending fixture delete')}
+  const failedDelete=async(route:any)=>{if(route.request().method()!=='DELETE')return route.continue();await new Promise<void>(resolve=>{releaseFailure=resolve});await route.fulfill({status:503,json:{statusMessage:'The library is busy. Try deleting again.'}})}
+  await page.route('**'+base,failedDelete)
+  page.once('dialog',dialog=>dialog.accept())
+  await card.getByRole('button',{name:/Delete /}).click()
+  await expect(card.getByRole('button',{name:/Delete /})).toBeDisabled()
+  await expect(card).toContainText('Deleting…')
+  releaseFailure()
+  await expect(page.getByRole('alert').filter({hasText:'The library is busy. Try deleting again.'})).toBeVisible()
+  await expect(card).toBeVisible()
+  await expect(card.getByRole('button',{name:/Delete /})).toBeEnabled()
+  await page.unroute('**'+base,failedDelete)
+  page.once('dialog',dialog=>dialog.accept())
+  await card.getByRole('button',{name:/Delete /}).click()
+  await expect(card).toHaveCount(0)
+  await expect(page.getByRole('status').filter({hasText:'The document and its saved practice were deleted.'})).toBeVisible()
+  expect((await api.get(base,{headers})).status()).toBe(404)
+ }finally{
+  await api.delete(base,{headers})
+  // Deletion intentionally preserves the standalone unfinished-study gate.
+  // Explicitly abandon this owned fixture before the next journey creates one.
+  await api.post(base+'/abandon',{headers,data:{confirmAbandon:true}})
+ }
+})
+
 // Labelled source fixture + real controller/storage. Speech intentionally fails;
 // this verifies recovery and UI handoff, never provider quality or audibility.
 test('deferred objectives remain gaps and an ended session opens Kai automatically',async({page,context})=>{
@@ -55,7 +97,12 @@ test('deferred objectives remain gaps and an ended session opens Kai automatical
   await controls.getByRole('button',{name:'Pause',exact:true}).click()
   await expect(page.getByText('Practice is paused',{exact:true})).toBeVisible()
   const viewport=page.viewportSize()!
-  if(test.info().project.name==='desktop')await page.setViewportSize({...viewport,height:600})
+  if(test.info().project.name==='desktop'){
+   await page.setViewportSize({...viewport,height:900})
+   await expect(page.locator('.call-stage')).toHaveClass(/side-controls-wide/)
+   await page.screenshot({path:'test-results/objective-paused-wide-desktop.png',fullPage:true})
+   await page.setViewportSize({...viewport,height:600})
+  }
   await expect.poll(()=>page.locator('.call-stage').evaluate(el=>el.scrollHeight-el.clientHeight)).toBeLessThanOrEqual(1)
   expect(await page.locator('.call-stage').evaluate(el=>getComputedStyle(el).overflowY)).toBe('hidden')
   expect(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+1)).toBe(true)

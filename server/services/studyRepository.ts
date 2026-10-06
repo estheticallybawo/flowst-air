@@ -1987,6 +1987,9 @@ export async function deleteStudyConversation(
   await (
     await import("./studySpeechCache")
   ).deleteStudySpeech(ownerId, id, event);
+  // Keep ownership metadata available until every cleanup stage succeeds, so a
+  // failed deletion can be retried without orphaning the remaining records.
+  await (await import("./airsContext")).deleteAirsConversationMemory(ownerId, id, event);
   if (mock) {
     mockRecords.delete(id);
     mockChunks.delete(id);
@@ -2008,18 +2011,26 @@ export async function deleteStudyConversation(
           ExclusiveStartKey: cursor,
         }),
       );
-      for (const item of result.Items || [])
+      for (const item of result.Items || []) {
+        if (item.sk === "META") continue;
         await db.send(
           new DeleteCommand({
             TableName: table,
             Key: { pk: item.pk, sk: item.sk },
           }),
         );
+      }
       cursor = result.LastEvaluatedKey;
     } while (cursor);
     await s3.send(
       new DeleteObjectCommand({ Bucket: bucket, Key: record.objectKey }),
     );
+    await db.send(new DeleteCommand({
+      TableName: table,
+      Key: { pk: record.pk, sk: "META" },
+      ConditionExpression: "ownerId = :owner",
+      ExpressionAttributeValues: { ":owner": ownerId },
+    }));
   }
 }
 

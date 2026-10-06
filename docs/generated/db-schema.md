@@ -30,11 +30,12 @@ Proposed Kai/longitudinal entities are not added here unless implemented in thes
 | [server/services/studyRepository.ts:1739](../../server/services/studyRepository.ts#L1739) | <code>'AIRS_CONTEXT#' + ownerId</code> | <code>'PACING#' + id</code> | <code>Not present in this object</code> |
 | [server/services/studyRepository.ts:1940](../../server/services/studyRepository.ts#L1940) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
 | [server/services/studyRepository.ts:1978](../../server/services/studyRepository.ts#L1978) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:2015](../../server/services/studyRepository.ts#L2015) | <code>item.pk</code> | <code>item.sk</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:2045](../../server/services/studyRepository.ts#L2045) | <code>"STUDY#" + id</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:2089](../../server/services/studyRepository.ts#L2089) | <code>"STUDY#" + id</code> | <code>"META"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:2098](../../server/services/studyRepository.ts#L2098) | <code>"STUDY#" + id</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:2128](../../server/services/studyRepository.ts#L2128) | <code>"STUDY#" + id</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2019](../../server/services/studyRepository.ts#L2019) | <code>item.pk</code> | <code>item.sk</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2030](../../server/services/studyRepository.ts#L2030) | <code>record.pk</code> | <code>"META"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2056](../../server/services/studyRepository.ts#L2056) | <code>"STUDY#" + id</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2100](../../server/services/studyRepository.ts#L2100) | <code>"STUDY#" + id</code> | <code>"META"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2109](../../server/services/studyRepository.ts#L2109) | <code>"STUDY#" + id</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2139](../../server/services/studyRepository.ts#L2139) | <code>"STUDY#" + id</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
 | [server/services/sources/store.ts:14](../../server/services/sources/store.ts#L14) | <code>`STUDY_SOURCE#${id}`</code> | <code>'DRAFT'</code> | <code>Not present in this object</code> |
 | [server/services/sources/store.ts:56](../../server/services/sources/store.ts#L56) | <code>`STUDY_SOURCE_LIMIT#${id}`</code> | <code>'USAGE'</code> | <code>Not present in this object</code> |
 | [server/services/sources/store.ts:59](../../server/services/sources/store.ts#L59) | <code>`STUDY_SOURCE_LIMIT#${id}`</code> | <code>'USAGE'</code> | <code>Not present in this object</code> |
@@ -45,7 +46,7 @@ Proposed Kai/longitudinal entities are not added here unless implemented in thes
 
 ## Source fingerprints
 
-- server/services/studyRepository.ts: 6534d6317fe37b6a124cdd05cb96bdb221743bd94c8d0b4054216afb9d93fae4
+- server/services/studyRepository.ts: 6f05d6d12b8f9e60a1dbd23059ffbb6f9b6afd89c507015c08e8a558acc5d590
 - server/services/sources/store.ts: 09c553ad30a77fa09e552d796d479e1d986ca1a47d7492c6c80830c80dbc17f6
 - server/services/airsContext.ts: a6b138269851bf07c38633d6bc98e5fe39118db250793d677bad34c669ddbbb4
 - server/services/studySpeechCache.ts: d60810807f482c94539aac91427b662d881b88b21d1e51776b4bc32ec84a53b1

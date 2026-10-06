@@ -1,6 +1,7 @@
 import type { StudyPlan, StudyTurn } from './study'
 import type { StudyExecutionTrace, StudyLearningEvidence } from './studyPedagogy'
 import type { ObjectiveControl, ObjectiveDirective, ObjectiveFlowState, SemanticEvidence } from './studyObjectivePolicy'
+import type { StudyPacingState } from './studyPacing'
 export interface StudyObjectiveOperation {
   id: string; inputHash: string; planVersion: number; objectiveId: string; targetId?: string
   recordingHash?: string;
@@ -8,6 +9,7 @@ export interface StudyObjectiveOperation {
   reviewLeaseId?: string; reviewLeaseUntil?: number;
   status: 'PENDING' | 'REVIEWED' | 'COMPLETE' | 'CANCELLED'; userTurn: StudyTurn; traceId: string; evidenceId: string
   control?: ObjectiveControl; semantic?: SemanticEvidence; directive?: ObjectiveDirective
+  pauseClock?: StudyPacingState
   interruptsOperationId?: string
   flowAfter?: ObjectiveFlowState; planAfter?: StudyPlan; trace?: StudyExecutionTrace; evidence?: StudyLearningEvidence; agentTurn?: StudyTurn
   error?: string; createdAt: string

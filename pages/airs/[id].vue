@@ -2132,8 +2132,8 @@ async function remove() {
                 <button :disabled="Boolean(objectiveCommandBusy || busy || objectiveFlow.pendingOperationId || objectiveFlow.interruptOperationId)" @click="sendObjectiveControl('DEFER')">Defer objective</button>
                 <button :disabled="Boolean(objectiveCommandBusy || busy || objectiveFlow.pendingOperationId || objectiveFlow.interruptOperationId)" @click="sendObjectiveControl('SKIP')">Skip objective</button>
                 <button v-if="objectiveFlow.paused || (paced && pacing.current.value?.phase !== 'PRACTICE' && !(pacing.current.value?.phase === 'BREAK' && pacing.remaining.value > 0))" class="objective-resume" :disabled="objectiveCommandBusy" @click="sendObjectiveControl('RESUME')">{{ objectiveResumeLabel }}</button>
-                <button v-else-if="paced && pacing.current.value?.phase === 'BREAK' && pacing.remaining.value > 0" :disabled="objectiveCommandBusy || pacing.busy.value" @click="skipBreak">Skip break &amp; continue</button>
                 <button v-else :disabled="objectiveCommandBusy" @click="sendObjectiveControl('PAUSE')">Pause</button>
+                <button v-if="!objectiveFlow.paused && paced && pacing.current.value?.phase === 'BREAK' && pacing.remaining.value > 0" :disabled="objectiveCommandBusy || pacing.busy.value" @click="skipBreak">Skip break &amp; continue</button>
                 <button class="objective-end" :disabled="objectiveCommandBusy" @click="sendObjectiveControl('END')">End session</button>
               </div>
               <button v-if="journey.kaiReady" @click="sessionPane = 'review'">Kai’s review</button>

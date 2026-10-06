@@ -19,16 +19,34 @@ export async function runAirsAgent(agent:AirsAgent, policy:string, tools:AirsToo
   const deadline=Date.now()+60000
   for(let round=0;round<5;round++){
     if(Date.now()>=deadline) break
-    const response=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+config.groqApiKey,'Content-Type':'application/json'},body:JSON.stringify({model:config.groqModel,messages,tools:tools.map(t=>({type:'function',function:{name:t.name,description:t.description,parameters:t.parameters}})),tool_choice:'required',parallel_tool_calls:false,temperature:0.2,max_completion_tokens:2000}),signal:AbortSignal.timeout(Math.max(1,Math.min(30000,deadline-Date.now())))})
-    if(!response.ok) throw createError({statusCode:503,statusMessage:'The agent connection is unavailable. Your approved records are unchanged.'})
+    let response: Response
+    try {
+      response=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+config.groqApiKey,'Content-Type':'application/json'},body:JSON.stringify({model:config.groqModel,messages,tools:tools.map(t=>({type:'function',function:{name:t.name,description:t.description,parameters:t.parameters}})),tool_choice:'required',parallel_tool_calls:false,temperature:0.2,max_completion_tokens:agent==='MISU' ? 4000 : 2000,...(String(config.groqModel).includes('gpt-oss') ? {reasoning_effort:'low'} : {})}),signal:AbortSignal.timeout(Math.max(1,Math.min(30000,deadline-Date.now())))})
+    } catch {
+      console.error('Airs agent connection failed',{agent,code:'AGENT_CONNECTION_FAILED'})
+      throw createError({statusCode:503,statusMessage:'The learning service could not connect. Your source is still available; try again shortly.',data:{code:'AGENT_CONNECTION_FAILED'}})
+    }
+    if(!response.ok) {
+      console.error('Airs agent provider rejected a request',{agent,providerStatus:response.status,code:'AGENT_PROVIDER_UNAVAILABLE'})
+      throw createError({statusCode:response.status===429 ? 429 : 503,statusMessage:'The learning service is busy or unavailable. Your source is still available; try again shortly.',data:{code:'AGENT_PROVIDER_UNAVAILABLE'}})
+    }
     const json=await response.json() as any
     const message=json.choices?.[0]?.message
+    if(json.choices?.[0]?.finish_reason==='length') {
+      console.error('Airs agent output incomplete',{agent,code:'AGENT_OUTPUT_INCOMPLETE'})
+      throw createError({statusCode:502,statusMessage:'The learning service could not finish the plan or review. Retry this step.',data:{code:'AGENT_OUTPUT_INCOMPLETE'}})
+    }
     if(!message?.tool_calls?.length || message.tool_calls.length!==1) throw createError({statusCode:502,statusMessage:'The agent did not return one permitted function call.'})
     const call=message.tool_calls[0],tool=tools.find(t=>t.name===call.function?.name)
     if(!tool) throw createError({statusCode:502,statusMessage:'The agent requested an unavailable function.'})
     let args:unknown
     try{args=JSON.parse(call.function.arguments)}catch{throw createError({statusCode:502,statusMessage:'The agent returned invalid function arguments.'})}
-    const result=await tool.run(args)
+    let result:unknown
+    try {result=await tool.run(args)} catch(error) {
+      if((error as Error)?.name!=='ZodError') throw error
+      console.error('Airs agent result failed validation',{agent,tool:tool.name,code:'AGENT_RESULT_INVALID'})
+      throw createError({statusCode:502,statusMessage:'The learning service could not prepare a valid plan or review. Retry this step.',data:{code:'AGENT_RESULT_INVALID'}})
+    }
     trace.push({tool:tool.name,status:'CONFIRMED'})
     if(tool.name===proposalTool) return {proposal:result,trace}
     messages.push(message,{role:'tool',tool_call_id:call.id,content:JSON.stringify(result)})
