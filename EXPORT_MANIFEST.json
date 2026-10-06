@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-06T01:51:54.718Z",
+  "createdAt": "2026-10-06T08:30:44.942Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -235,8 +235,8 @@
     },
     {
       "path": "components/AirsKaiReview.vue",
-      "bytes": 5500,
-      "sha256": "8060486311276b1466b8723a4fa7159ee81716c3f31c9e9f82573e770da6db99"
+      "bytes": 5805,
+      "sha256": "e4e1b56dbef8f9cfc424691cfa36599d65b3402e715737475b303c5841ffc236"
     },
     {
       "path": "components/AirsMessage.vue",
@@ -455,8 +455,8 @@
     },
     {
       "path": "docs/references/objective-flow-verification.md",
-      "bytes": 2391,
-      "sha256": "3c0a0c56db65fcaf93f78438969b2d908ef3d944644460e4acdd487cb5025352"
+      "bytes": 2925,
+      "sha256": "78e7ab893699ae71a524f19bc08e716256edb3428c92e58eaad1a2fa67bdbc45"
     },
     {
       "path": "docs/references/provider-reference.md",
@@ -500,8 +500,8 @@
     },
     {
       "path": "nuxt.config.ts",
-      "bytes": 7850,
-      "sha256": "61d34cdcd7aa5c0c887ec02bc103992c8f1ea76e9dafb62c9d6fa3cf3320653e"
+      "bytes": 8410,
+      "sha256": "7f3632e0969bc66e85168f992624adb1c8ad59f22f62e6c65c7d437e07aca3cb"
     },
     {
       "path": "package-lock.json",
@@ -520,8 +520,8 @@
     },
     {
       "path": "pages/airs/[id].vue",
-      "bytes": 130747,
-      "sha256": "bf61195c7a797b136e00aa3957d7ad58da034d31adfe5cda42e3574c1a8195dd"
+      "bytes": 130765,
+      "sha256": "174c6ddd18e8d992cd5de9ced7b3c46425c69230278988a42f60ae8ca17fc1de"
     },
     {
       "path": "pages/airs/about.vue",
@@ -1125,8 +1125,8 @@
     },
     {
       "path": "server/services/studyObjectiveFlow.ts",
-      "bytes": 39303,
-      "sha256": "cd59c9a8a9d4dc049bfbac25f293916dc24e95046f747a0aeb46fd11ddbf0cc3"
+      "bytes": 39494,
+      "sha256": "21de78e3e165272a46bbceecf69923de4b938e0499cf71cfac512bb9af5a9e5b"
     },
     {
       "path": "server/services/studyPacing.ts",
@@ -1355,8 +1355,8 @@
     },
     {
       "path": "tests/amina-live-model.test.ts",
-      "bytes": 3756,
-      "sha256": "04c2de4d638eb02c24e2918fe85a3e4538d22ec6abd00b7258f8cd97a1fadc39"
+      "bytes": 3767,
+      "sha256": "00b9773f1cbd6d8543df6e14cfde13363b8a0e887996ff72a1675bcc2172a6d0"
     },
     {
       "path": "tests/amina-plan-approval.test.ts",
@@ -1370,13 +1370,13 @@
     },
     {
       "path": "tests/source-e2e/guest-context.spec.ts",
-      "bytes": 29634,
-      "sha256": "8d5bb82b38c5005c92f46e3059dbc6417ff4ca35b2d8b2e03f9a8fb68c093ae1"
+      "bytes": 31729,
+      "sha256": "aeee4b24f8d3a97518d353c1568db142f34d9873a78596beaca3b6d09655bc54"
     },
     {
       "path": "tests/source-e2e/objective-flow.spec.ts",
-      "bytes": 4469,
-      "sha256": "3a01321c483afaa3b3540ea73ce9b50d6d2d92c984ebe77c8e2e0f60e671f43c"
+      "bytes": 5577,
+      "sha256": "8a54fad6905857aef361f6f52cf2a2f6cf4066a1f20e909a0b06f6722aa85014"
     },
     {
       "path": "tests/study-air-history.test.ts",
@@ -1410,8 +1410,8 @@
     },
     {
       "path": "tests/study-objective-flow.test.ts",
-      "bytes": 25167,
-      "sha256": "53004581337b38e7b689d4df8e4d86b248f0562cbc26c70dbc77299fe5e8e0bc"
+      "bytes": 25596,
+      "sha256": "e9a3993699f79dae4f1dee8858d324dc1007dd2f1d5b412c3eb7e68871743b8e"
     },
     {
       "path": "tests/study-objective-journey.test.ts",
