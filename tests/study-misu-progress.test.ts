@@ -133,15 +133,16 @@ describe('Misu evidence-based document checkpoints', () => {
 })
 
 describe('published teach-back versions and objective introductions', () => {
-  it('publishes v2 while preserving immutable v1 and compatible existing approvals', async () => {
-    expect(DEFAULT_STUDY_FUNCTION_REFS[1]?.version).toBe('2')
+  it('publishes v3 while preserving immutable v1/v2 and compatible existing approvals', async () => {
+    expect(DEFAULT_STUDY_FUNCTION_REFS[1]?.version).toBe('3')
+    expect(Object.isFrozen(STUDY_FUNCTION_REGISTRY['self-explanation-teach-back@2'])).toBe(true)
     expect(STUDY_FUNCTION_REGISTRY['self-explanation-teach-back@1']?.requiredBehaviors.join(' ')).toContain('one supported strength and one gap')
     expect(Object.isFrozen(STUDY_FUNCTION_REGISTRY['self-explanation-teach-back@1'])).toBe(true)
     const study = await fixture()
     const saved = await getStudyConversation(study.owner, study.id)
     const legacy: StudyConversation = { ...saved, plan: { ...saved.plan, functionRefs: saved.plan.functionRefs!.map(ref => ({ ...ref, version: '1' })) } }
     expect(compileAirStudyPacket(legacy).functionRefs[1]?.version).toBe('1')
-    expect(compileAirStudyPacket(saved).functionRefs[1]?.version).toBe('2')
+    expect(compileAirStudyPacket(saved).functionRefs[1]?.version).toBe('3')
     expect(() => compileAirStudyPacket({ ...saved, plan: { ...saved.plan, functionRefs: saved.plan.functionRefs!.map(ref => ({ ...ref, version: '99' })) } } as StudyConversation)).toThrow(/unpublished/)
   })
 

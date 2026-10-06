@@ -5,9 +5,10 @@ import { assertAirStudyAccess } from "../../../../services/airAccess";
 export default defineEventHandler(async (event) => {
   const identity = await requireIdentity(event);
   const id = getRouterParam(event, "id") || "";
-  await getStudyConversation(identity.userId, id, event);
+  const study = await getStudyConversation(identity.userId, id, event);
   await assertAirStudyAccess(identity.userId, "PRACTISE", event, id);
   const config = useRuntimeConfig(event);
+  if (config.studyVoiceProvider === 'aws' && (config.studyObjectiveFlowEnabled === true || study.objectiveFlow)) return {enabled:false,provider:'aws',socketUrl:'',message:'AWS live calls are not available with objective-driven practice yet. Recorded practice is available.'};
   setHeader(event, "Cache-Control", "private, no-store");
   if (config.studyVoiceProvider !== "aws") {
     try {

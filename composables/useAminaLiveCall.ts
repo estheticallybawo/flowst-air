@@ -20,6 +20,23 @@ export function useAminaLiveCall(
   let availabilityRequest = 0;
   const error = ref("");
   const nextAction = ref("");
+  const cleanupPending = ref(false);
+  let cleanupWork: Promise<void> | undefined;
+  let endingAfterReply = false;
+  let finalSpeechSeen = false;
+  let finalReplyText = '';
+  let finalReplyTimer: ReturnType<typeof setTimeout> | undefined;
+  function endAfterReply(expectedReply = '') {
+    if (endingAfterReply || !running.value) return;
+    endingAfterReply = true;
+    finalReplyText = expectedReply;
+    muted.value = true; agent?.setMicMuted(true);
+    mic?.getAudioTracks().forEach(track => {track.enabled = false;});
+    finalSpeechSeen = status.value === 'SPEAKING';
+    if (savedCaption.value && caption.value === finalReplyText && status.value === 'LISTENING') {void stop(); return;}
+    // If playback fails or the call disconnects, the saved reply still stands.
+    finalReplyTimer = setTimeout(() => void stop(), 30000);
+  }
   const errorCode = ref("");
   const level = ref(0);
   const muted = ref(false);
@@ -97,7 +114,14 @@ export function useAminaLiveCall(
     sources.clear();
     cursor = context?.currentTime || 0;
   }
-  function stop() {
+  async function stop() {
+    if (cleanupWork) return cleanupWork;
+    const shouldRefresh = Boolean(studyToken || agent || socket);
+    const work: Promise<unknown>[] = [];
+    cleanupPending.value = true;
+    endingAfterReply = false;
+    if (finalReplyTimer) clearTimeout(finalReplyTimer);
+    finalReplyTimer = undefined;
     epoch++;
     if (elapsedTimer) clearInterval(elapsedTimer);
     elapsedTimer = undefined;
@@ -106,13 +130,13 @@ export function useAminaLiveCall(
     if (agent) {
       agent.setMicMuted(true);
       agent.setVolume({ volume: 0 });
-      void agent.endSession();
+      work.push(agent.endSession());
       agent = undefined;
     }
     if (studyToken) {
       const token = studyToken;
       studyToken = "";
-      void auth
+      work.push(auth
         .authorizedFetch("/api/study/conversations/" + id.value + "/live/end", {
           method: "POST",
           body: { studyToken: token },
@@ -120,8 +144,7 @@ export function useAminaLiveCall(
         .catch(() => {
           error.value =
             "The call stopped on this device. Its server reservation will expire shortly.";
-        });
-      void onSaved().catch(() => {});
+        }));
     }
     if (timeout) clearTimeout(timeout);
     timeout = undefined;
@@ -139,6 +162,10 @@ export function useAminaLiveCall(
     level.value = 0;
     muted.value = false;
     if (status.value !== "ERROR") status.value = "IDLE";
+    cleanupWork = Promise.allSettled(work).then(async () => {if (shouldRefresh) await onSaved().catch(() => {});}).finally(() => {
+      cleanupPending.value = false; cleanupWork = undefined;
+    });
+    return cleanupWork;
   }
   function fail(message: string) {
     error.value = safeProductMessage(message, "The call could not continue. Check your connection and try again.");
@@ -178,7 +205,7 @@ export function useAminaLiveCall(
   }
   async function start() {
     if (running.value) return;
-    stop();
+    await stop();
     const request = ++epoch;
     error.value = "";
     caption.value = "";
@@ -244,8 +271,11 @@ export function useAminaLiveCall(
             }
           },
           onModeChange: ({ mode }) => {
-            if (request === epoch)
+            if (request === epoch) {
               status.value = mode === "speaking" ? "SPEAKING" : "LISTENING";
+              if (endingAfterReply && mode === 'speaking') finalSpeechSeen = true;
+              if (endingAfterReply && finalSpeechSeen && mode !== 'speaking' && (!finalReplyText || caption.value === finalReplyText)) void stop();
+            }
           },
           onMessage: ({ message }) => {
             if (request === epoch && message !== STUDY_LIVE_START_MESSAGE) {
@@ -463,6 +493,8 @@ export function useAminaLiveCall(
     captionsVisible,
     savedCaption,
     running,
+    cleanupPending,
+    endAfterReply,
     checkAvailability,
     start,
     stop,

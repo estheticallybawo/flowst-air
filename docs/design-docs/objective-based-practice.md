@@ -1,5 +1,7 @@
 # Objective-based Amina practice
 
+Historical checkpoint flow. [Objective-driven session policy v0.2](amina-objective-flow.md) supersedes confirmation and live-lease advancement rules for current discussion sessions. This document describes retained historical execution records and compatibility behavior.
+
 The unit of progress is an approved learning outcome with saved learner evidence. A spoken turn, a timer finishing, or Amina's praise does not complete an objective.
 
 ## Interaction contract

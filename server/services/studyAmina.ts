@@ -1,4 +1,7 @@
 import { assertStudyPacingOpen } from "./studyPacing";
+import { prepareObjectiveOperation, finishObjectiveOperation, usesObjectiveFlow } from './studyObjectiveFlow';
+import { objectiveReplyUsesModel, type StudyObjectiveOperation } from '../../shared/studyObjectiveOperation';
+import { explicitObjectiveControl, type ObjectiveControl } from '../../shared/studyObjectivePolicy';
 import { reserveGuestAllowance } from "./airsContext";
 import { selectAminaActivity } from "./airsAminaFunctions";
 import { createHash, randomUUID } from "node:crypto";
@@ -191,6 +194,8 @@ export async function prepareAminaTurn(
   event?: H3Event,
   live = false,
   recordingId?: string,
+  recordedClaim?: StudyRecordedTurnClaim,
+  requestedControl?: ObjectiveControl,
 ) {
   const conversation = await getStudyConversation(
     ownerId,
@@ -198,7 +203,9 @@ export async function prepareAminaTurn(
     event,
   );
   assertStudyConversationActive(conversation);
-  const pacingClock = await assertStudyPacingOpen(
+  const objectiveControl = usesObjectiveFlow(conversation,event) ? requestedControl || explicitObjectiveControl(input) : undefined;
+  const recoveringSavedInput = recordingId && [conversation.objectiveFlow?.pendingOperationId,conversation.objectiveFlow?.interruptOperationId].includes(recordingId);
+  const pacingClock = recoveringSavedInput || ['END','PAUSE','RESUME','SKIP','DEFER'].includes(objectiveControl || '') || usesObjectiveFlow(conversation,event) && /\?$|^(?:what|why|how|where|when|who|can you|could you|please explain)\b/i.test(input.trim()) ? undefined : await assertStudyPacingOpen(
     conversation,
     event,
     recordingId,
@@ -220,12 +227,29 @@ export async function prepareAminaTurn(
   if (
     !conversation.turns.some((turn) => turn.role === "USER") &&
     input !== "I'm ready" &&
+    !objectiveControl &&
     !live
   )
     throw createError({
       statusCode: 409,
       statusMessage: "Press “I’m ready” to begin the lesson.",
     });
+  const openingLiveCall = live && input === STUDY_LIVE_START_MESSAGE;
+  const kind = openingLiveCall
+    ? "CONTROL"
+    : input === "I'm ready" ||
+        (live && !conversation.turns.some((turn) => turn.role === "AMIRA" && turn.kind === "INTRO"))
+      ? "INTRO"
+      : /^Please start (?:a scenario|my five-question oral exam)/.test(input) || isStudySocialInput(input)
+        ? "CONTROL"
+        : /\?$/.test(input.trim()) || /^(what|why|how|where|when|who|can you|could you|please explain|give me a hint)\b/i.test(input.trim())
+          ? "QUESTION"
+          : "PRACTICE";
+  const userTurn: StudyTurn = {
+    id: randomUUID(), role: "USER", text: input, createdAt: new Date().toISOString(),
+    mode: conversation.mode, sources: [], objectiveId: conversation.plan.activeObjectiveId, kind,
+  };
+  if (usesObjectiveFlow(conversation, event)) return prepareObjectiveOperation(ownerId, conversationId, input, userTurn, event, recordingId, recordedClaim, requestedControl);
   const packet = compileMisuStudyPacket(conversation);
   const chunks = await getStudyChunks(ownerId, conversationId, event);
   const allowed = new Set(packet.sourceIds);
@@ -251,7 +275,6 @@ export async function prepareAminaTurn(
     if (contextual.sources.length)
       retrieval = { sources: contextual.sources, coverage: "PARTIAL" };
   }
-  const openingLiveCall = live && input === STUDY_LIVE_START_MESSAGE;
   if (input === "I'm ready" || openingLiveCall)
     retrieval = {
       sources: objectiveChunks.slice(0, 4).map((chunk) => ({
@@ -280,33 +303,6 @@ export async function prepareAminaTurn(
       coverage: "PARTIAL",
     };
   }
-  const kind = openingLiveCall
-    ? "CONTROL"
-    : input === "I'm ready" ||
-        (live &&
-          !conversation.turns.some(
-            (turn) => turn.role === "AMIRA" && turn.kind === "INTRO",
-          ))
-      ? "INTRO"
-      : /^Please start (?:a scenario|my five-question oral exam)/.test(input) ||
-          isStudySocialInput(input)
-        ? "CONTROL"
-        : /\?$/.test(input.trim()) ||
-            /^(what|why|how|where|when|who|can you|could you|please explain|give me a hint)\b/i.test(
-              input.trim(),
-            )
-          ? "QUESTION"
-          : "PRACTICE";
-  const userTurn: StudyTurn = {
-    id: randomUUID(),
-    role: "USER",
-    text: input,
-    createdAt: new Date().toISOString(),
-    mode: conversation.mode,
-    sources: [],
-    objectiveId: conversation.plan.activeObjectiveId,
-    kind,
-  };
   const config = useRuntimeConfig(event);
   if (config.studySourceFixtureMode !== true)
     await reserveGuestAllowance(ownerId, "MODEL", event);
@@ -347,6 +343,7 @@ export async function prepareAminaTurn(
     event,
   );
   return {
+    objectiveOperation: undefined as StudyObjectiveOperation | undefined,
     conversation,
     retrieval,
     userTurn,
@@ -402,8 +399,15 @@ export async function* streamAminaText(
   input: string,
   event?: H3Event,
   sourceContext?: string,
+  objectiveOperation?: StudyObjectiveOperation,
 ): AsyncGenerator<string> {
+  if (objectiveOperation && !objectiveReplyUsesModel(objectiveOperation)) { yield '{}'; return; }
   const config = useRuntimeConfig(event);
+  let fixture = false;
+  try {fixture = JSON.parse(sourceContext || '{}').provenance?.fixture === true;} catch {}
+  if (fixture && config.studySourceFixtureMode === true && config.flowstAuthMode === 'mock' && process.env.NODE_ENV !== 'production' && system.startsWith('[AMINA_OBJECTIVE_POLICY_0.2]')) {
+    yield JSON.stringify({acknowledgement:'Scripted demonstration: the configured target is satisfied. Live understanding is not assessed.',explanation:'',sourceIds:[]}); return;
+  }
   if (config.studyTextProvider !== "aws") {
     yield await groqStudyText(
       system,
@@ -460,6 +464,7 @@ export async function finishAminaTurn(
   evaluatePractice = true,
   recommendProgress = true,
 ) {
+  if (prepared.objectiveOperation) return finishObjectiveOperation(ownerId, conversationId, {...prepared, objectiveOperation:prepared.objectiveOperation}, reply, event, recordedClaim);
   if (!reply.trim())
     throw createError({
       statusCode: 502,
@@ -559,6 +564,14 @@ export async function failAminaTurn(
   error: unknown,
   event?: H3Event,
 ) {
+  if (prepared.objectiveOperation) {
+    const latest = await getStudyConversation(ownerId, conversationId, event);
+    if (latest.objectiveFlow?.pendingOperationId === prepared.objectiveOperation.id || latest.objectiveFlow?.interruptOperationId === prepared.objectiveOperation.id) {
+      const {saveStudyObjectiveState} = await import('./studyRepository');
+      await saveStudyObjectiveState(ownerId,conversationId,latest.revision,{flow:{...latest.objectiveFlow,pendingReview:false,error:'Misu’s review is saved. Retry Amina’s response or end the session.'}},event).catch(() => undefined);
+    }
+    return;
+  }
   const code = String(
     (error as { name?: string })?.name || "ExecutionError",
   ).slice(0, 100);

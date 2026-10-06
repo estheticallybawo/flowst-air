@@ -30,6 +30,7 @@ import {
   DEFAULT_STUDY_PREFERENCES,
   STUDY_PURPOSE_LABELS,
 } from "~/shared/study";
+import type { ObjectiveControl } from "~/shared/studyObjectivePolicy";
 import { STUDY_LIVE_START_MESSAGE } from "~/shared/studyLive";
 import { microphoneError } from "~/shared/userErrors";
 import { learnerStudyError } from "~/shared/studyPresentation";
@@ -107,8 +108,11 @@ const voiceInputUsed = computed(() => study.value?.voiceUsage?.transcribeSeconds
 const voiceOutputUsed = computed(() => study.value?.voiceUsage?.pollyCharacters || 0);
 const pacing = useStudyPacing(id);
 const paced = computed(() => Boolean(study.value?.plan.pacing));
+const objectiveFlow = computed(() => study.value?.mode === "DISCUSSION" ? study.value?.objectiveFlow : undefined);
+const objectiveClosed = computed(() => Boolean(objectiveFlow.value?.endedAt));
+const objectiveCommandBusy = ref(false);
 const pacingBlocked = computed(
-  () => paced.value && pacing.current.value?.phase !== "PRACTICE",
+  () => objectiveClosed.value || Boolean(objectiveFlow.value?.paused || objectiveFlow.value?.pendingOperationId || objectiveFlow.value?.interruptOperationId) || paced.value && pacing.current.value?.phase !== "PRACTICE",
 );
 const deferredReplyId = ref(""),
   captionTurnId = ref(""),
@@ -121,11 +125,13 @@ async function skipBreak() {
   }
 }
 async function pausePractice() {
-  live.stop();
+  if (objectiveFlow.value) {await sendObjectiveControl("PAUSE"); return;}
+  await live.stop();
   stopMicrophone();
   await pacing.change("PAUSE");
 }
 async function resumePractice() {
+  if (objectiveFlow.value) {await sendObjectiveControl("RESUME"); return;}
   if (!paced.value || (await pacing.change("RESUME"))) {
     if (recordedPracticeMode.value && !introductionTurn.value)
       await beginLesson();
@@ -354,6 +360,7 @@ let meterFrame = 0;
 let recordingTimer: ReturnType<typeof setInterval> | undefined;
 let recordedAudio: Blob | undefined;
 let recordingId: string | undefined;
+let recordingBinding: {planVersion:number;objectiveId:string} | undefined;
 let playback: HTMLAudioElement | undefined;
 let playbackPrimed = false;
 let playbackRequest = 0;
@@ -380,7 +387,7 @@ watch(
       !microphoneRequesting.value &&
       !pacing.busy.value
     ) {
-      if (live.running.value) live.stop();
+      if (live.running.value) await live.stop();
       stopMicrophone();
       await pacing.change("BREAK");
     }
@@ -428,7 +435,8 @@ const introductionTurn = computed(() =>
     (turn) =>
       turn.kind === "INTRO" &&
       turn.role === "AMIRA" &&
-      (turn.objectiveId === study.value?.plan.activeObjectiveId ||
+      (turn.nextPrompt?.objectiveId === study.value?.plan.activeObjectiveId || turn.objectiveId === study.value?.plan.activeObjectiveId ||
+        (objectiveFlow.value?.lastTransition?.toObjectiveId && objectiveFlow.value.lastTransition.toObjectiveId === study.value?.plan.activeObjectiveId && turn.objectiveId === objectiveFlow.value.lastTransition.fromObjectiveId) ||
         (!turn.objectiveId && objectiveIndex.value === 0)),
   ),
 );
@@ -451,6 +459,7 @@ const objectiveExplanations = computed(
     ) || [],
 );
 const lessonStep = computed(() =>
+  objectiveFlow.value ? objectiveClosed.value ? "Session ended · review your evidence with Kai" : "Cover the approved objectives at your pace; Amina moves forward when your meaning is demonstrated" :
   study.value?.progression?.stage === "COMPLETE"
     ? "Keep practicing what you learned"
     : study.value?.progression?.stage === "SCENARIO"
@@ -958,6 +967,46 @@ onBeforeUnmount(() => {
   study.value = null;
 });
 
+
+async function sendObjectiveControl(action: ObjectiveControl) {
+  if (!study.value || objectiveCommandBusy.value || disposed || !canStudy.value) return;
+  if (!['END','PAUSE','RESUME','SKIP','DEFER'].includes(action) && (busy.value || recorderStatus.value !== 'IDLE' || pacingBlocked.value)) return;
+  if (['SKIP','DEFER'].includes(action) && (busy.value || recorderStatus.value !== 'IDLE' || objectiveFlow.value?.pendingOperationId || objectiveFlow.value?.interruptOperationId)) return;
+  objectiveCommandBusy.value = true; error.value = '';
+  try {
+    if (live.running.value || live.cleanupPending.value) await live.stop();
+    if (['END','PAUSE'].includes(action)) {if (action === 'END' && recorder) {recorder.onstop = null;recorder.ondataavailable = null;} stopMicrophone(); stopCurrentPlayback(); if (action === 'END') discardRecording();}
+    await load();
+    const response = await auth.authorizedFetch<{agentTurn?:StudyTurn}>(
+      '/api/study/conversations/' + id.value + '/control', {method:'POST',body:{action,expectedRevision:study.value!.revision,objectiveId:study.value!.plan.activeObjectiveId,operationId:crypto.randomUUID()}});
+    await load();
+    if (response.agentTurn && action !== 'PAUSE') await playSpeech(response.agentTurn.id,true);
+  } catch (cause) {await load().catch(() => {}); error.value = learnerStudyError(cause,'Your saved progress stays available. Retry the response or resume practice.');}
+  finally {objectiveCommandBusy.value = false;}
+}
+async function retryObjectiveResponse() {
+  if (objectiveCommandBusy.value || busy.value) return;
+  objectiveCommandBusy.value = true;
+  try {
+    const response = await auth.authorizedFetch<{agentTurn?:StudyTurn}>('/api/study/conversations/'+id.value+'/objective/retry',{method:'POST'});
+    await load(); if (response.agentTurn) await playSpeech(response.agentTurn.id,true);
+  } catch (cause) {await load().catch(() => {});error.value = learnerStudyError(cause,'Your answer is still saved. Retry when ready.');}
+  finally {objectiveCommandBusy.value = false;}
+}
+let automaticReviewShown = '';
+watch(() => [objectiveFlow.value?.paused,objectiveFlow.value?.pendingOperationId,objectiveFlow.value?.interruptOperationId,live.running.value,latestReply.value?.id], () => {
+  if (objectiveFlow.value?.paused && !objectiveFlow.value.pendingOperationId && !objectiveFlow.value.interruptOperationId && live.running.value) live.endAfterReply(latestReply.value?.text || "");
+});
+watch(() => [journey.value.kaiReady, objectiveClosed.value, busy.value, objectiveCommandBusy.value, live.running.value, live.cleanupPending.value, playingTurnId.value, preparingSpeechTurnId.value, deferredReplyId.value, recorderStatus.value], async () => {
+  if (!objectiveClosed.value || !journey.value.kaiReady) return;
+  if (live.running.value) {live.endAfterReply(latestReply.value?.text || ""); return;}
+  if (busy.value || objectiveCommandBusy.value || live.cleanupPending.value || playingTurnId.value || preparingSpeechTurnId.value || deferredReplyId.value || recorderStatus.value !== 'IDLE') return;
+  const closure = objectiveFlow.value?.endedAt || '';
+  if (automaticReviewShown === closure) return;
+  automaticReviewShown = closure; stopMicrophone();
+  if (await kaiTransition.prepare() && !disposed) sessionPane.value = 'review';
+});
+
 async function sendControl(
   action: "INTRO" | "START_SCENARIO" | "START_ORAL_EXAM",
 ) {
@@ -1092,6 +1141,7 @@ async function startRecording() {
     }
     microphone = stream;
     recordingId = crypto.randomUUID();
+    recordingBinding = {planVersion:study.value!.plan.version,objectiveId:study.value!.plan.activeObjectiveId!};
     if (paced.value && !(await pacing.change("RECORD", recordingId))) {
       stopMicrophone();
       return;
@@ -1157,6 +1207,7 @@ function stopRecording() {
 }
 
 function discardRecording() {
+  recordingBinding = undefined;
   recordedAudio = undefined;
   recordingId = undefined;
   recorderStatus.value = "IDLE";
@@ -1185,6 +1236,7 @@ async function sendRecording() {
     // One ID belongs to one recording, including retries after an uncertain POST.
     // The server uses it to return the saved turn instead of creating a duplicate.
     body.append("recordingId", (recordingId ||= crypto.randomUUID()));
+    if (recordingBinding) {body.append("planVersion",String(recordingBinding.planVersion));body.append("objectiveId",recordingBinding.objectiveId);}
     const context = new AudioContext();
     try {
       const decoded = await context.decodeAudioData(
@@ -1684,6 +1736,7 @@ async function remove() {
             }}
           </p>
           <AirsPlanOverview
+            :ledger="study.objectiveFlow?.ledger"
             v-if="study.plan.status === 'DRAFT'"
             :plan="study.plan"
             :preferences="preferences"
@@ -1974,13 +2027,13 @@ async function remove() {
           @close-conversation="conversationVisible = false"
         >
           <template #plan>
-            <AirsPlanOverview :plan="study.plan" :preferences="preferences" :completed-objective-ids="journey.completedObjectiveIds" :active-objective-id="study.plan.activeObjectiveId" />
+            <AirsPlanOverview :plan="study.plan" :preferences="preferences" :completed-objective-ids="journey.completedObjectiveIds" :active-objective-id="study.plan.activeObjectiveId" :ledger="objectiveFlow?.ledger" />
             <details>
               <summary>What this plan is based on</summary>
               <MisuPlanGuide :plan="study.plan" :preferences="preferences" />
             </details>
           </template>
-          <template v-if="paced" #timing>
+          <template v-if="paced && !objectiveClosed" #timing>
             <section
               class="practice-pacing"
               aria-label="Practice and break timer"
@@ -2051,7 +2104,23 @@ async function remove() {
             </section>
           </template>
           <template #controls>
-            <section v-if="showMisuCheckpoint" class="misu-checkpoint" aria-label="Misu’s next step" aria-live="polite">
+            <section v-if="objectiveFlow" class="objective-controls" aria-label="Objective controls">
+              <p role="status">{{ journey.completedObjectiveIds.length }} of {{ journey.totalObjectives }} objectives covered<span v-if="objectiveClosed"> · {{ objectiveFlow.sessionStatus === 'covered' ? 'session complete' : 'ended with gaps' }}</span></p>
+              <p v-if="objectiveFlow.pendingOperationId || objectiveFlow.interruptOperationId" role="alert">{{ objectiveFlow.error || (objectiveFlow.pendingReview ? 'Your answer is saved. Its review is pending.' : 'Your input is saved. Its response is pending.') }}</p>
+              <button v-if="objectiveFlow.pendingOperationId || objectiveFlow.interruptOperationId" :disabled="objectiveCommandBusy || busy" @click="retryObjectiveResponse">Retry saved response</button>
+              <details v-if="!objectiveClosed"><summary>Support and session controls</summary><div class="dialog-actions">
+                <button :disabled="objectiveCommandBusy || busy || pacingBlocked" @click="sendObjectiveControl('REPEAT')">Repeat question</button>
+                <button :disabled="objectiveCommandBusy || busy || pacingBlocked" @click="sendObjectiveControl('EXPLAIN_AGAIN')">Explain again</button>
+                <button :disabled="objectiveCommandBusy || busy || pacingBlocked" @click="sendObjectiveControl('HINT')">Hint</button>
+                <button :disabled="objectiveCommandBusy || busy || pacingBlocked" @click="sendObjectiveControl('CHANGE_APPROACH')">Change approach</button>
+                <button :disabled="Boolean(objectiveCommandBusy || busy || objectiveFlow.pendingOperationId || objectiveFlow.interruptOperationId)" @click="sendObjectiveControl('DEFER')">Defer objective</button>
+                <button :disabled="Boolean(objectiveCommandBusy || busy || objectiveFlow.pendingOperationId || objectiveFlow.interruptOperationId)" @click="sendObjectiveControl('SKIP')">Skip objective</button>
+                <button v-if="objectiveFlow.paused || (paced && pacing.current.value?.phase !== 'PRACTICE')" :disabled="objectiveCommandBusy" @click="sendObjectiveControl('RESUME')">Resume practice</button>
+                <button v-else :disabled="objectiveCommandBusy" @click="sendObjectiveControl('PAUSE')">Pause</button>
+                <button :disabled="objectiveCommandBusy" @click="sendObjectiveControl('END')">End session</button>
+              </div></details>
+            </section>
+            <section v-if="!objectiveFlow && showMisuCheckpoint" class="misu-checkpoint" aria-label="Misu’s next step" aria-live="polite">
               <AgentAvatar agent="MISU" size="compact" />
               <div class="misu-checkpoint-copy">
                 <strong>{{ currentMisuRecommendation?.action === 'REVISIT' ? 'One more focused try' : currentMisuRecommendation ? 'Your checkpoint is ready to review' : 'Your explanation is saved' }}</strong>
@@ -2068,7 +2137,7 @@ async function remove() {
             <div class="practice-tools">
               <button
                 v-if="
-                  !study.plan.courseCompletedAt &&
+                  !objectiveFlow && !study.plan.courseCompletedAt &&
                   (journey.checkpointReady ||
                     study.plan.recommendationError ||
                     canReviewProgress)
@@ -2443,7 +2512,8 @@ async function remove() {
       >
         <AirsKaiReview
           :conversation-id="id"
-          :can-review="journey.kaiReady && !live.running.value"
+          :can-review="journey.kaiReady && !live.running.value && !live.cleanupPending.value"
+          :auto-generate="Boolean(objectiveFlow)"
         />
       </AirFocusDialog>
       <AirFocusDialog

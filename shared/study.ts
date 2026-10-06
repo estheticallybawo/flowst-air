@@ -1,5 +1,6 @@
 import type { ContextSnapshot, AirsOperation } from "./airsOrchestration";
 import type { StudyFunctionRef } from "./studyPedagogy";
+import type { ObjectivePolicy, ObjectiveFlowState } from "./studyObjectivePolicy";
 import type {
   StudyLocation,
   StudyMaterialKind,
@@ -74,6 +75,9 @@ export interface StudyTurn {
   sources: StudySource[];
   provenance?: "DOCUMENT" | "GENERAL" | "MIXED";
   objectiveId?: string;
+  targetId?: string;
+  operationId?: string;
+  nextPrompt?: { objectiveId: string; targetId: string; text: string };
   kind?: "WELCOME" | "INTRO" | "CONTROL" | "QUESTION" | "PRACTICE";
 }
 
@@ -82,6 +86,7 @@ export interface StudyObjective {
   title: string;
   outcome: string;
   sources: StudySource[];
+  policy?: ObjectivePolicy;
   /** Planner-proposed effort, validated against the learner's available time. */
   /** A short planner explanation of the proposed objective, not private reasoning. */
   planningNote?: string;
@@ -110,7 +115,7 @@ export interface StudyPlan {
   /** Sum of the validated objective estimates; completion is never inferred from it. */
   estimatedTotalMinutes?: number;
   activeObjectiveId?: string;
-  /** Set only after the learner confirms Misu's COMPLETE recommendation on the final objective. */
+  /** All objectives covered by validated evidence; v0.2 transitions automatically. */
   courseCompletedAt?: string;
   courseCompletedBy?: string;
   generationStartedAt?: string;
@@ -140,6 +145,7 @@ export interface StudyPractice {
     mode?: StudyMode;
     traceId?: string;
     evidenceId?: string;
+    targetId?: string;
   }>;
 }
 
@@ -174,6 +180,7 @@ export interface StudyVoiceUsage {
 }
 
 export interface StudyConversation {
+  objectiveFlow?: ObjectiveFlowState;
   journey?: import("./airsJourney").AirsJourney;
   id: string;
   ownerId: string;

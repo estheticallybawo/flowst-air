@@ -7,6 +7,20 @@ if (index < 0 || !process.argv[index + 1])
   throw new Error("Supply --flowst-path with the Flowst checkout.");
 const host = path.resolve(process.argv[index + 1]);
 const files = [
+  "shared/studyObjectivePolicy.ts",
+  "shared/studyObjectiveOperation.ts",
+  "shared/studyPedagogy.ts",
+  "shared/studyCompletion.ts",
+  "server/services/studyObjectiveFlow.ts",
+  "server/services/airsContext.ts",
+  "server/services/aminaRealtime.ts",
+  "server/api/study/conversations/[id]/objective/retry.post.ts",
+  "server/api/study/conversations/[id]/mode.post.ts",
+  "server/api/study/conversations/[id]/live.get.ts",
+  "server/api/study/llm/v1/chat/completions.post.ts",
+  "composables/useAminaLiveCall.ts",
+  "tests/study-objective-flow.test.ts",
+  "tests/amina-live-client.test.ts",
   "components/AirFocusDialog.vue",
   "components/AirsJourneyRail.vue",
   "components/AirsPlanOverview.vue",
@@ -70,6 +84,9 @@ const files = [
 ];
 const hash = (p) => {
   let source = fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
+  if (p.endsWith(path.join('server','api','study','llm','v1','chat','completions.post.ts'))) source = source.replaceAll('assertAmiraStudyAccess','assertAirStudyAccess').replaceAll('/amiraAccess','/airAccess').replaceAll('prepareAmiraTurn','prepareAminaTurn').replaceAll('streamAmiraText','streamAminaText').replaceAll('finishAmiraTurn','finishAminaTurn').replaceAll('failAmiraTurn','failAminaTurn').replaceAll('/studyAmira','/studyAmina');
+  // Flowst exercises the retained client alias; its implementation delegates unchanged.
+  if (p.endsWith(path.join('tests','amina-live-client.test.ts'))) source = source.replaceAll('useAmiraLiveCall','useAminaLiveCall');
   // Flowst retains this exact compatibility export for its legacy callers.
   if (p.endsWith(path.join('server', 'domain', 'neuromap', 'studyFunctions.ts')))
     source = source.replace(/\nexport const compileAmiraStudyPacket = compileAirStudyPacket\s*$/, '');

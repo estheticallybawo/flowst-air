@@ -60,6 +60,7 @@
 :(literal)composables/useAuth.ts
 :(literal)composables/useStudyPacing.ts
 :(literal)docs/AIRS_FOCUSED_PRACTICE_VERIFICATION.md
+:(literal)docs/design-docs/amina-objective-flow.md
 :(literal)docs/design-docs/context-aware-practice.md
 :(literal)docs/design-docs/core-beliefs.md
 :(literal)docs/design-docs/flowst-air-system-design.md
@@ -88,6 +89,7 @@
 :(literal)docs/references/development-and-verification.md
 :(literal)docs/references/identity-migration.md
 :(literal)docs/references/index.md
+:(literal)docs/references/objective-flow-verification.md
 :(literal)docs/references/provider-reference.md
 :(literal)docs/references/public-repository.md
 :(literal)docs/references/verification.md
@@ -163,6 +165,7 @@
 :(literal)server/api/study/conversations/[id]/live/start.post.ts
 :(literal)server/api/study/conversations/[id]/mode.post.ts
 :(literal)server/api/study/conversations/[id]/next-practice.post.ts
+:(literal)server/api/study/conversations/[id]/objective/retry.post.ts
 :(literal)server/api/study/conversations/[id]/pacing.get.ts
 :(literal)server/api/study/conversations/[id]/pacing.post.ts
 :(literal)server/api/study/conversations/[id]/pedagogy.get.ts
@@ -220,6 +223,7 @@
 :(literal)server/services/studyExtraction.ts
 :(literal)server/services/studyInference.ts
 :(literal)server/services/studyMisu.ts
+:(literal)server/services/studyObjectiveFlow.ts
 :(literal)server/services/studyPacing.ts
 :(literal)server/services/studyPreferences.ts
 :(literal)server/services/studyRepository.ts
@@ -248,6 +252,8 @@
 :(literal)shared/studyConversation.ts
 :(literal)shared/studyLive.ts
 :(literal)shared/studyMaterial.ts
+:(literal)shared/studyObjectiveOperation.ts
+:(literal)shared/studyObjectivePolicy.ts
 :(literal)shared/studyPacing.ts
 :(literal)shared/studyPedagogy.ts
 :(literal)shared/studyPresentation.ts
@@ -267,12 +273,14 @@
 :(literal)tests/amina-plan-approval.test.ts
 :(literal)tests/source-e2e/bring-source.spec.ts
 :(literal)tests/source-e2e/guest-context.spec.ts
+:(literal)tests/source-e2e/objective-flow.spec.ts
 :(literal)tests/study-air-history.test.ts
 :(literal)tests/study-aws-voice.test.ts
 :(literal)tests/study-companion.test.ts
 :(literal)tests/study-conversation-progress.test.ts
 :(literal)tests/study-live-lease.test.ts
 :(literal)tests/study-misu-progress.test.ts
+:(literal)tests/study-objective-flow.test.ts
 :(literal)tests/study-objective-journey.test.ts
 :(literal)tests/study-pacing.test.ts
 :(literal)tests/study-preferences.test.ts

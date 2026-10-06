@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import type { KaiReview } from "~/shared/airsOrchestration";
-const props = defineProps<{ conversationId: string; canReview: boolean }>();
+const props = defineProps<{ conversationId: string; canReview: boolean; autoGenerate?: boolean }>();
 const auth = useAuth(),
   review = ref<KaiReview | null>(null),
   busy = ref(false),
   reviewing = ref(false),
   error = ref("");
 const page = ref(0);
+function outcomeReason(reason: string) {
+  return ({ learner_skipped: "You skipped this objective.", learner_deferred: "You deferred this objective for later practice.", learner_ended: "The session ended before this objective was covered." } as Record<string, string>)[reason] || reason;
+}
 watch(
   () => props.canReview,
   async (allowed) => {
-    if (!allowed || review.value) return;
+    if (!allowed || review.value || busy.value) return;
     try {
       review.value = (
         await auth.authorizedFetch<{ review: KaiReview | null }>(
@@ -20,10 +23,12 @@ watch(
     } catch {
       /* The learner can still request a review. */
     }
+    if (!review.value && props.autoGenerate) await generate();
   },
   { immediate: true },
 );
 async function generate() {
+  if (busy.value || !props.canReview) return;
   busy.value = true;
   reviewing.value = true;
   error.value = "";
@@ -79,7 +84,7 @@ async function choose(status: "ACCEPTED" | "DISMISSED") {
     </button>
     <p role="status">{{ error }}</p>
     <template v-if="review"
-      ><article
+      ><section v-if="review.objectiveOutcomes?.length" aria-label="Session outcomes"><h3>{{ review.sessionStatus === "covered" ? "Objectives covered this session" : "Session ended with gaps" }}</h3><p v-if="review.closureOnly">No learning evidence was recorded. Understanding was not assessed.</p><ul><li v-for="outcome in review.objectiveOutcomes" :key="outcome.objectiveId"><strong>{{ outcome.title }}</strong>: {{ outcome.status === "met_for_session" ? "covered this session" : "deferred · gap retained" }}<p v-if="outcome.reason">{{ outcomeReason(outcome.reason) }}</p></li></ul></section><article
         v-for="(observation, index) in review.observations.slice(
           page,
           page + 1,
@@ -87,7 +92,7 @@ async function choose(status: "ACCEPTED" | "DISMISSED") {
         :key="index"
       >
         <h3>{{ observation.criterionId.toLowerCase() }}</h3>
-        <p>{{ observation.text }}</p>
+        <p v-if="observation.kind === 'inference'">Inference from saved evidence</p><p>{{ observation.text }}</p><p v-if="observation.uncertainty">{{ observation.uncertainty }}</p>
         <details>
           <summary>Recorded evidence</summary>
           <p v-for="evidenceId in observation.evidenceIds" :key="evidenceId">

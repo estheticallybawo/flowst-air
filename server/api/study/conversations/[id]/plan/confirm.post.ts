@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
   const { objectiveId } = schema.parse(await readBody(event));
   const conversation = await getStudyConversation(identity.userId, id, event);
   assertStudyConversationActive(conversation);
+  if (conversation.objectiveFlow) return conversation;
   if (await studyLiveLease(id, event)) throw createError({ statusCode: 409, statusMessage: "End the live call before continuing to another objective." });
   const recommendation = conversation.plan.recommendation;
   if (

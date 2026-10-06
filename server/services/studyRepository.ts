@@ -39,6 +39,11 @@ import type {
 } from "../../shared/studyPedagogy";
 import type { StudyExtraction } from "./studyExtraction";
 import { awsClientConfig } from "./awsClientConfig";
+import type { ObjectiveFlowState } from '../../shared/studyObjectivePolicy';
+import { objectiveSessionClosed } from '../../shared/studyObjectivePolicy';
+import type { StudyObjectiveOperation } from '../../shared/studyObjectiveOperation';
+import type { StudyPacingState } from '../../shared/studyPacing';
+import { commitMockAirsArtifact } from './airsContext';
 
 interface StudyRecord extends Omit<
   StudyConversation,
@@ -82,6 +87,7 @@ const mockVoiceUsage = new Map<string, StudyVoiceUsageEvent[]>();
 const mockTraces = new Map<string, StudyExecutionTrace[]>();
 const mockEvidence = new Map<string, StudyLearningEvidence[]>();
 const mockRecordedRequests = new Map<string, StudyRecordedRequest>();
+const mockObjectiveOperations = new Map<string, StudyObjectiveOperation>();
 interface StudyUploadGate {
   conversationId: string;
   completed: boolean;
@@ -142,7 +148,7 @@ async function studyUploadGate(
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
     if (!latest) return undefined;
     const study = await getStudyConversation(ownerId, latest.id, event);
-    const complete = studyDocumentObjectivesComplete(
+    const complete = objectiveSessionClosed(study.objectiveFlow) || studyDocumentObjectivesComplete(
       study,
       await getStudyPedagogyHistory(ownerId, latest.id, event),
     );
@@ -198,7 +204,7 @@ async function studyUploadGate(
   let complete = false;
   try {
     const study = await getStudyConversation(ownerId, id, event);
-    complete = studyDocumentObjectivesComplete(
+    complete = objectiveSessionClosed(study.objectiveFlow) || studyDocumentObjectivesComplete(
       study,
       await getStudyPedagogyHistory(ownerId, id, event),
     );
@@ -1665,6 +1671,82 @@ export async function getStudyPedagogyHistory(
   };
 }
 
+export async function getStudyObjectiveOperation(ownerId: string, id: string, operationId: string, event?: H3Event) {
+  await getStudyConversation(ownerId, id, event);
+  const storage = resources(event);
+  if (storage.mock) return structuredClone(mockObjectiveOperations.get(id + '#' + operationId));
+  return (await storage.db.send(new GetCommand({TableName: storage.table, Key: {pk: 'STUDY#' + id, sk: 'FLOW#' + operationId}, ConsistentRead: true}))).Item?.operation as StudyObjectiveOperation | undefined;
+}
+
+/** Input, review and output each commit with the conversation revision; output also commits the pointer, evidence and clock. */
+export async function saveStudyObjectiveState(ownerId: string, id: string, expectedRevision: number, change: {
+  flow: ObjectiveFlowState; plan?: StudyPlan; practice?: StudyConversation['practice']; userTurn?: StudyTurn; agentTurn?: StudyTurn;
+  operation?: StudyObjectiveOperation; expectedOperationStatus?: StudyObjectiveOperation['status']; trace?: StudyExecutionTrace; evidence?: StudyLearningEvidence;
+  recordedClaim?: StudyRecordedTurnClaim; pacing?: {state: StudyPacingState; expectedRevision: string};
+}, event?: H3Event) {
+  const current = await getStudyConversation(ownerId, id, event);
+  assertStudyConversationActive(current);
+  if (current.revision !== expectedRevision || current.plan.status !== 'APPROVED' || current.plan.approvedBy !== ownerId || change.flow.planVersion !== current.plan.version || change.plan && change.plan.version !== current.plan.version)
+    throw createError({statusCode:409,statusMessage:'Your study changed. Reload before continuing.'});
+  const {mock, db, table} = resources(event), pk = 'STUDY#' + id, now = new Date().toISOString();
+  const plan = change.plan || current.plan, practice = change.practice || current.practice;
+  const closed = objectiveSessionClosed(change.flow);
+  const gate = closed && standalonePilot(event) ? await studyUploadGate(ownerId, event) : undefined;
+  const operationKey = id + '#' + change.operation?.id;
+  if (mock) {
+    const record = mockRecords.get(id)!;
+    if (record.revision !== expectedRevision || (change.operation && mockObjectiveOperations.get(operationKey)?.status !== change.expectedOperationStatus))
+      throw createError({statusCode:409,statusMessage:'This turn changed. Reload before continuing.'});
+    const recorded = change.recordedClaim && mockRecordedRequests.get(id + '#' + change.recordedClaim.recordingId);
+    if (change.recordedClaim && (!recorded || recorded.claimId !== change.recordedClaim.claimId || recorded.audioHash !== change.recordedClaim.audioHash || !['PROCESSING','FAILED'].includes(recorded.status))) throw recordedTurnConflict();
+    if (change.pacing) commitMockAirsArtifact(ownerId, 'PACING#' + id, change.pacing.state, change.pacing.expectedRevision);
+    mockRecords.set(id, {...record, plan, practice, objectiveFlow: structuredClone(change.flow), revision: expectedRevision + 1, updatedAt: now});
+    const turns = mockTurns.get(id) || [];
+    mockTurns.set(id, [...turns, ...[change.userTurn, change.agentTurn].filter((turn): turn is StudyTurn => Boolean(turn))]);
+    if (change.operation) mockObjectiveOperations.set(operationKey, structuredClone(change.operation));
+    if (change.trace) mockTraces.set(id, [...(mockTraces.get(id) || []), change.trace]);
+    if (change.evidence) mockEvidence.set(id, [...(mockEvidence.get(id) || []), change.evidence]);
+    if (recorded && change.agentTurn && change.operation) {
+      recorded.status = 'COMPLETE'; recorded.userTurnSk = `TURN#${change.operation.userTurn.createdAt}#${change.operation.userTurn.id}`;
+      recorded.agentTurnSk = `TURN#${change.agentTurn.createdAt}#${change.agentTurn.id}`; recorded.transcript = undefined;
+    }
+    if (gate?.conversationId === id) mockPilotUploads.set(ownerId, {...gate, completed: true});
+  } else {
+    const put = (sk: string, value: Record<string, unknown>) => ({Put: {TableName: table, Item: {pk, sk, ...value}, ConditionExpression: 'attribute_not_exists(pk)'}});
+    const items: NonNullable<TransactWriteCommandInput['TransactItems']> = [{Update: {
+      TableName: table, Key: {pk, sk: 'META'},
+      UpdateExpression: 'SET #flow = :flow, #plan = :plan, #practice = :practice, #revision = :next, updatedAt = :now',
+      ConditionExpression: 'ownerId = :owner AND #revision = :expected AND #plan.#version = :version AND attribute_not_exists(abandonedAt)',
+      ExpressionAttributeNames: {'#flow':'objectiveFlow','#plan':'plan','#practice':'practice','#revision':'revision','#version':'version'},
+      ExpressionAttributeValues: {':flow':change.flow,':plan':plan,':practice':practice,':next':expectedRevision + 1,':now':now,':owner':ownerId,':expected':expectedRevision,':version':current.plan.version},
+    }}];
+    if (change.userTurn) items.push(put(`TURN#${change.userTurn.createdAt}#${change.userTurn.id}`, {turn: change.userTurn}));
+    if (change.agentTurn) items.push(put(`TURN#${change.agentTurn.createdAt}#${change.agentTurn.id}`, {turn: change.agentTurn}));
+    if (change.trace) items.push(put(`TRACE#${change.trace.id}#EXECUTED`, {trace: change.trace}));
+    if (change.evidence) items.push(put('EVIDENCE#' + change.evidence.id, {evidence: change.evidence}));
+    if (change.operation) items.push({Put: {
+      TableName: table, Item: {pk, sk: 'FLOW#' + change.operation.id, operation: change.operation},
+      ConditionExpression: change.expectedOperationStatus ? '#operation.#status = :status AND #operation.inputHash = :hash' : 'attribute_not_exists(pk)',
+      ...(change.expectedOperationStatus ? {ExpressionAttributeNames:{'#operation':'operation','#status':'status'},ExpressionAttributeValues:{':status':change.expectedOperationStatus,':hash':change.operation.inputHash}} : {}),
+    }});
+    if (change.recordedClaim && change.agentTurn && change.operation) items.push({Update: {
+      TableName: table, Key: recordedTurnKey(id, change.recordedClaim.recordingId),
+      UpdateExpression: 'SET #status = :complete, userTurnSk = :userSk, agentTurnSk = :agentSk REMOVE transcript, leaseUntil',
+      ConditionExpression: 'ownerId = :owner AND claimId = :claim AND audioHash = :hash AND (#status = :processing OR #status = :failed)',
+      ExpressionAttributeNames: {'#status':'status'}, ExpressionAttributeValues: {':complete':'COMPLETE',':userSk':`TURN#${change.operation.userTurn.createdAt}#${change.operation.userTurn.id}`,':agentSk':`TURN#${change.agentTurn.createdAt}#${change.agentTurn.id}`,':owner':ownerId,':claim':change.recordedClaim.claimId,':hash':change.recordedClaim.audioHash,':processing':'PROCESSING',':failed':'FAILED'},
+    }});
+    if (change.pacing) items.push({Put: {
+      TableName: table, Item: {pk: 'AIRS_CONTEXT#' + ownerId, sk: 'PACING#' + id, value: change.pacing.state, entityType:'AirsContext'},
+      ConditionExpression: change.pacing.expectedRevision ? '#v.#r = :r' : 'attribute_not_exists(#v.#r)',
+      ExpressionAttributeNames:{'#v':'value','#r':'revision'}, ...(change.pacing.expectedRevision ? {ExpressionAttributeValues:{':r':change.pacing.expectedRevision}} : {}),
+    }});
+    if (gate?.conversationId === id) items.push({Update: {TableName: table, Key: pilotMarker(ownerId), UpdateExpression:'SET completed = :yes',ConditionExpression:'ownerId = :owner AND conversationId = :id',ExpressionAttributeValues:{':yes':true,':owner':ownerId,':id':id}}});
+    try { await db.send(new TransactWriteCommand({TransactItems:items})); }
+    catch (error) { if ((error as Error).name === 'TransactionCanceledException') throw createError({statusCode:409,statusMessage:'Your study or timer changed. Reload before continuing.'}); throw error; }
+  }
+  return getStudyConversation(ownerId, id, event);
+}
+
 export async function appendStudyExecution(
   ownerId: string,
   id: string,
@@ -1914,6 +1996,7 @@ export async function deleteStudyConversation(
     mockEvidence.delete(id);
     for (const key of mockRecordedRequests.keys())
       if (key.startsWith(`${id}#`)) mockRecordedRequests.delete(key);
+    for (const key of mockObjectiveOperations.keys()) if (key.startsWith(`${id}#`)) mockObjectiveOperations.delete(key);
   } else {
     let cursor: Record<string, unknown> | undefined;
     do {

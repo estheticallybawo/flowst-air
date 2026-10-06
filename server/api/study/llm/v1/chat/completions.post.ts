@@ -94,20 +94,24 @@ export default defineEventHandler(async (event) => {
     });
   let reply = result.status === "COMPLETE" ? result.agentTurn.text : "";
   if (result.status === "CLAIMED") {
-    const prepared = await prepareAminaTurn(
+    let prepared: Awaited<ReturnType<typeof prepareAminaTurn>> | undefined;
+    try {
+    prepared = await prepareAminaTurn(
       token.ownerId,
       token.conversationId,
       input,
       event,
       true,
+      'live-' + hash,
+      result.claim,
     );
-    try {
       for await (const text of streamAminaText(
         prepared.system,
         prepared.conversation.turns,
         input,
         event,
         prepared.sourceContext,
+        prepared.objectiveOperation,
       ))
         reply += text;
       await reserveStudyLiveOutput(
@@ -118,9 +122,8 @@ export default defineEventHandler(async (event) => {
         event,
       );
       // Save generated replies without assuming the learner heard the entire response.
-      // Review the durable attempt, just as recorded practice does. A recommendation
-      // can end the repetition loop; the learner still controls the checkpoint.
-      await finishAminaTurn(
+      // The shared objective controller reviews durable input before it governs the next prompt.
+      const savedReply = await finishAminaTurn(
         token.ownerId,
         token.conversationId,
         prepared,
@@ -130,8 +133,9 @@ export default defineEventHandler(async (event) => {
         true,
         true,
       );
+      reply = savedReply.text;
     } catch (cause) {
-      await failAminaTurn(
+      if (prepared) await failAminaTurn(
         token.ownerId,
         token.conversationId,
         prepared,

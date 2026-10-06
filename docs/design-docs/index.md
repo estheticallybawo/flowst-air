@@ -18,3 +18,5 @@ See [verification](../references/verification.md). Updating a specification does
 - [Focused practice, optional recovery and private replay](focused-practice-and-replay.md) — implemented; see the linked verification record for limits.
 
 - [Objective-based Amina practice](objective-based-practice.md) — saved semantic review, learner-confirmed next objectives and Kai evidence cards; fixture verification and live-provider limits are documented.
+
+- [Objective-driven session flow v0.2](amina-objective-flow.md): saved semantic evidence, governed progression, interruption recovery and honest closure.

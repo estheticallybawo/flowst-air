@@ -20,11 +20,32 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
 }) => {
   test.setTimeout(300000);
   const pageErrors: string[] = [];
-  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("pageerror", (error) => { pageErrors.push(error.message); console.error('Fixture page error:',error.message); });
+  page.on('response',response=>{const url=new URL(response.url());if(url.pathname.startsWith('/api/')&&response.status()>=400)console.error('Fixture API failure:',response.status(),url.pathname);});
   let voiceStarts = 0,
     welcomeReads = 0, speechRequests = 0;
   await page.addInitScript(() => {
     (window as any).__micRequests = 0;
+    const NativeAudio = window.Audio;
+    (window as any).__fixtureAudios = [];
+    (window as any).Audio = function (src?: string) {
+      const audio = new NativeAudio(src);
+      let fixturePaused = true;
+      Object.defineProperty(audio, "paused", { get: () => fixturePaused });
+      audio.play = async () => {
+        fixturePaused = false;
+        audio.dispatchEvent(new Event("playing"));
+      };
+      audio.pause = () => {
+        fixturePaused = true;
+        audio.dispatchEvent(new Event("pause"));
+      };
+      (window as any).__fixtureAudios.push(audio);
+      return audio;
+    };
+    (window as any).Audio.prototype = NativeAudio.prototype;
+    // Init scripts also run in the initial blank document, before secure APIs exist.
+    if (!navigator.mediaDevices) Object.defineProperty(navigator, "mediaDevices", { configurable: true, value: {} });
     Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
       configurable: true,
       value: async () => {
@@ -241,6 +262,14 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await page
     .getByRole("button", { name: "Retry after account update", exact: true })
     .click();
+  await expect(page.getByRole("button", { name: "Stop welcome", exact: true })).toBeVisible({ timeout: 30000 });
+  // Exercise the completion callback explicitly; fixture playback does not
+  // validate an audio device, synthesis quality, or whether anything was heard.
+  await page.evaluate(() => {
+    const audio = (window as any).__fixtureAudios.at(-1) as HTMLAudioElement;
+    audio.pause();
+    audio.dispatchEvent(new Event("ended"));
+  });
   await expect(
     page.getByRole("button", { name: "Replay welcome", exact: true }),
   ).toBeVisible();
@@ -280,6 +309,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     async (route) => {
       const response = await route.fetch();
       const data = await response.json();
+      delete data.objectiveFlow; // This test deliberately retains the historical checkpoint UI.
       sourceStudySnapshot = structuredClone(data);
       if (introduced && !data.turns.some((t: any) => t.id === introId))
         data.turns.push(intro);
@@ -315,6 +345,12 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   ).toContainText("Practice");
   releaseAudio();
   await starting;
+  await expect(page.getByText("Amina is speaking", { exact: true })).toBeVisible();
+  await page.evaluate(() => {
+    const audio = (window as any).__fixtureAudios.at(-1) as HTMLAudioElement;
+    audio.pause();
+    audio.dispatchEvent(new Event("ended"));
+  });
   await expect(
     page.getByText("Amina is waiting for your turn", { exact: true }),
   ).toBeVisible({ timeout: 15000 });
@@ -457,7 +493,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
  await expect(page.locator('.objective-celebration')).toContainText('1 of 2 checkpoints completed')
  await page.keyboard.press('Escape')
  await page.getByRole('navigation',{name:'Your learning journey'}).getByRole('button',{name:/Misu/}).click()
- await expect(page.getByRole('dialog',{name:'Your session plan'}).locator('.plan-progress')).toContainText('1 of 2 practice checkpoints completed')
+ await expect(page.getByRole('dialog',{name:'Your session plan'}).locator('.plan-progress')).toContainText('1 of 2 objectives covered')
  await page.keyboard.press('Escape')
  await page.unroute('**/api/study/conversations/*/plan/confirm')
  await page.unroute(/\/api\/study\/conversations\/[a-f0-9-]+$/)
@@ -607,6 +643,12 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await page
     .getByRole("button", { name: "Listen to reply", exact: true })
     .click();
+  await expect(page.getByText("Amina is speaking", { exact: true })).toBeVisible();
+  await page.evaluate(() => {
+    const audio = (window as any).__fixtureAudios.at(-1) as HTMLAudioElement;
+    audio.pause();
+    audio.dispatchEvent(new Event("ended"));
+  });
   await expect(
     page.getByText("Amina is waiting for your turn", { exact: true }),
   ).toBeVisible({ timeout: 15000 });
