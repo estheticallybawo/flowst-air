@@ -4,6 +4,8 @@ import {expect,test} from '@playwright/test'
 // this verifies recovery and UI handoff, never provider quality or audibility.
 test('deferred objectives remain gaps and an ended session opens Kai automatically',async({page,context})=>{
  test.setTimeout(300000)
+ // Keep these local fixtures independent of external font server availability.
+ await context.route('https://fonts.googleapis.com/**',route=>route.fulfill({status:200,contentType:'text/css',body:''}))
  const errors:string[]=[];let liveStarts=0
  page.on('pageerror',error=>errors.push(error.message))
  page.on('request',request=>{if(request.method()==='POST' && /\/live\/start/.test(request.url()))liveStarts++})

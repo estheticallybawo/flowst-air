@@ -1033,8 +1033,8 @@
 .side-controls-wide .call-side-content {
   position: static;
   width: auto;
-  max-height: none;
-  overflow: visible;
+  max-height: calc(var(--call-stage-height, 100dvh) - 68px);
+  overflow-y: auto;
   border: 0;
   padding: 0 12px 12px;
   background: transparent;

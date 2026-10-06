@@ -32,6 +32,7 @@ import {
 } from "~/shared/study";
 import type { ObjectiveControl } from "~/shared/studyObjectivePolicy";
 import { STUDY_LIVE_START_MESSAGE } from "~/shared/studyLive";
+import { pacingResumePhase } from "~/shared/studyPacing";
 import { microphoneError } from "~/shared/userErrors";
 import { learnerStudyError } from "~/shared/studyPresentation";
 import type { AirAccess } from "~/shared/airAccess";
@@ -111,6 +112,11 @@ const paced = computed(() => Boolean(study.value?.plan.pacing));
 const objectiveFlow = computed(() => study.value?.mode === "DISCUSSION" ? study.value?.objectiveFlow : undefined);
 const objectiveClosed = computed(() => Boolean(objectiveFlow.value?.endedAt));
 const objectiveCommandBusy = ref(false);
+const objectiveResumeLabel = computed(() => {
+  const clock=pacing.current.value;
+  const phase=clock && pacingResumePhase(clock);
+  return phase === 'BREAK' && clock!.remainingMs > 0 ? 'Resume break' : phase === 'BREAK_DUE' ? 'Take recovery break' : 'Resume practice';
+});
 const pacingBlocked = computed(
   () => objectiveClosed.value || Boolean(objectiveFlow.value?.paused || objectiveFlow.value?.pendingOperationId || objectiveFlow.value?.interruptOperationId) || paced.value && pacing.current.value?.phase !== "PRACTICE",
 );
@@ -368,6 +374,8 @@ const speechUrls = new Map<string, string>();
 watch(
   () => [
     pacing.current.value?.phase,
+    objectiveFlow.value?.paused,
+    objectiveCommandBusy.value,
     recorderStatus.value,
     busy.value,
     playingTurnId.value,
@@ -379,6 +387,8 @@ watch(
   async () => {
     if (
       pacing.current.value?.phase === "BREAK_DUE" &&
+      !objectiveFlow.value?.paused &&
+      !objectiveCommandBusy.value &&
       recorderStatus.value === "IDLE" &&
       !busy.value &&
       !playingTurnId.value &&
@@ -481,6 +491,7 @@ const lessonStep = computed(() =>
                   : "Review your saved explanation",
 );
 const conversationActivity = computed(() => {
+  if (objectiveFlow.value?.paused) return {phase:'ready',label:'Practice is paused',detail:'Your progress is saved. Use session controls to resume when you are ready.'};
   if (!recordedPracticeMode.value && !live.running.value) {
     if (live.error.value || live.availability.value?.enabled === false)
       return {
@@ -980,6 +991,7 @@ async function sendObjectiveControl(action: ObjectiveControl) {
     const response = await auth.authorizedFetch<{agentTurn?:StudyTurn}>(
       '/api/study/conversations/' + id.value + '/control', {method:'POST',body:{action,expectedRevision:study.value!.revision,objectiveId:study.value!.plan.activeObjectiveId,operationId:crypto.randomUUID()}});
     await load();
+    pacing.error.value = '';
     if (response.agentTurn && action !== 'PAUSE') await playSpeech(response.agentTurn.id,true);
   } catch (cause) {await load().catch(() => {}); error.value = learnerStudyError(cause,'Your saved progress stays available. Retry the response or resume practice.');}
   finally {objectiveCommandBusy.value = false;}
@@ -2119,7 +2131,8 @@ async function remove() {
               <div v-if="!objectiveClosed" class="objective-session-actions">
                 <button :disabled="Boolean(objectiveCommandBusy || busy || objectiveFlow.pendingOperationId || objectiveFlow.interruptOperationId)" @click="sendObjectiveControl('DEFER')">Defer objective</button>
                 <button :disabled="Boolean(objectiveCommandBusy || busy || objectiveFlow.pendingOperationId || objectiveFlow.interruptOperationId)" @click="sendObjectiveControl('SKIP')">Skip objective</button>
-                <button v-if="objectiveFlow.paused || (paced && pacing.current.value?.phase !== 'PRACTICE')" class="objective-resume" :disabled="objectiveCommandBusy" @click="sendObjectiveControl('RESUME')">Resume practice</button>
+                <button v-if="objectiveFlow.paused || (paced && pacing.current.value?.phase !== 'PRACTICE' && !(pacing.current.value?.phase === 'BREAK' && pacing.remaining.value > 0))" class="objective-resume" :disabled="objectiveCommandBusy" @click="sendObjectiveControl('RESUME')">{{ objectiveResumeLabel }}</button>
+                <button v-else-if="paced && pacing.current.value?.phase === 'BREAK' && pacing.remaining.value > 0" :disabled="objectiveCommandBusy || pacing.busy.value" @click="skipBreak">Skip break &amp; continue</button>
                 <button v-else :disabled="objectiveCommandBusy" @click="sendObjectiveControl('PAUSE')">Pause</button>
                 <button class="objective-end" :disabled="objectiveCommandBusy" @click="sendObjectiveControl('END')">End session</button>
               </div>

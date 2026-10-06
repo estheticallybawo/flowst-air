@@ -9,7 +9,6 @@ import {
 import { getStudyConversation } from "../../../../services/studyRepository";
 import { objectiveControlSchema } from '../../../../../shared/studyObjectivePolicy';
 import { cancelPendingObjectiveOperation, ensureObjectiveFlow, usesObjectiveFlow } from '../../../../services/studyObjectiveFlow';
-import { getStudyPacing, changeStudyPacing } from '../../../../services/studyPacing';
 
 const schema = z
   .object({ action: z.enum(["INTRO", "START_SCENARIO", "START_ORAL_EXAM", ...objectiveControlSchema.options]), expectedRevision:z.number().int().nonnegative().optional(), objectiveId:z.string().min(1).optional(), operationId:z.string().regex(/^[\w:-]{1,160}$/).optional() })
@@ -31,10 +30,6 @@ export default defineEventHandler(async (event) => {
     conversation = await ensureObjectiveFlow(conversation,event);
     if (!['END','PAUSE','RESUME'].includes(action) && (body.expectedRevision !== conversation.revision || body.objectiveId !== conversation.plan.activeObjectiveId)) throw createError({statusCode:409,statusMessage:'Your active objective changed. Reload before choosing an activity.'});
     if (action === 'END') conversation = await cancelPendingObjectiveOperation(conversation,event);
-    if (action === 'PAUSE' || action === 'RESUME') {
-      const clock = await getStudyPacing(identity.userId,id,event);
-      if (clock) await changeStudyPacing(identity.userId,id,action,clock.revision,event);
-    }
     const input = ({REPEAT:'Repeat the question',EXPLAIN_AGAIN:'Explain that again',CHANGE_APPROACH:'Change approach',HINT:'Give me a hint',SKIP:'Skip this objective',DEFER:'Revisit this later',PAUSE:'Pause the session',RESUME:"I'm ready",END:'End the session'} as const)[control.data];
     const prepared = await prepareAminaTurn(identity.userId,id,input,event,false,body.operationId,undefined,control.data);
     try {

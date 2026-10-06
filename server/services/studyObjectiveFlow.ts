@@ -13,6 +13,7 @@ import { compileAirStudyPacket } from '../domain/neuromap/studyFunctions'
 import { getStudyChunks, getStudyConversation, getStudyObjectiveOperation, getStudyPedagogyHistory, saveStudyObjectiveState, type StudyRecordedTurnClaim } from './studyRepository'
 import { reviewObjectiveEvidence } from './studyMisu'
 import { getStudyPacing } from './studyPacing'
+import { pausePacingState, resumePacingState } from '../../shared/studyPacing'
 import { contextDescription } from '../../shared/airsOrchestration'
 
 export function usesObjectiveFlow(study: StudyConversation, event?: H3Event) {
@@ -98,7 +99,7 @@ function controlDecision(flow: ObjectiveFlowState, plan: StudyPlan, entry: Objec
     return moveForward(flow, plan, entry, control === 'END' ? 'We’ll finish here and keep the remaining objectives visible for later practice.' : 'We’ll leave this objective for later practice and keep that gap visible.', turnId, hold)
   }
   if (control === 'PAUSE') {flow.paused = true; return directive('pause', entry, 'We can pause here. Your saved progress stays available.')}
-  if (control === 'RESUME') {flow.paused = false; return entry.targets.every(target => target.promptsUsed === 0) ? issueQuestion(entry, 'ask', '') : directive('respond', entry, 'We can continue from your saved question.')}
+  if (control === 'RESUME') {flow.paused = false; return hold ? directive('respond', entry, 'Your recovery break is running. We’ll continue from your saved progress when it finishes, or you can choose to skip the break.') : entry.targets.every(target => target.promptsUsed === 0) ? issueQuestion(entry, 'ask', '') : directive('respond', entry, 'We can continue from your saved question.')}
   if (control === 'REPEAT') {
     return directive('replay', entry, '', replayPrompt?.text, replayPrompt?.targetId)
   }
@@ -163,8 +164,9 @@ export async function prepareObjectiveOperation(ownerId: string, id: string, inp
     flow = structuredClone(study.objectiveFlow!)
     const current = entryFor(flow, operation.objectiveId), plan = structuredClone(study.plan)
     const replayPrompt = [...study.turns].reverse().find(turn => turn.role === 'AMIRA' && turn.nextPrompt?.objectiveId === current.objectiveId && current.policy.evidenceTargets.some(target => target.id === turn.nextPrompt?.targetId))?.nextPrompt
-    const clock = await getStudyPacing(ownerId, id, event)
-    let hold = Boolean(flow.paused || clock && clock.phase !== 'PRACTICE')
+    const savedClock = await getStudyPacing(ownerId, id, event)
+    const clock = operation.control === 'RESUME' && savedClock && plan.pacing ? resumePacingState(savedClock,plan.pacing,plan.activeObjectiveId!,Date.now(),randomUUID()) : savedClock
+    let hold = Boolean(operation.control !== 'RESUME' && flow.paused || clock && clock.phase !== 'PRACTICE')
     let decision: ObjectiveDirective
     let semantic: SemanticEvidence | undefined
     const legacyAnswers = current.legacyReviewPending ? study.turns.filter(turn => turn.role === 'USER' && turn.objectiveId === current.objectiveId && turn.kind === 'PRACTICE' && turn.id !== operation!.userTurn.id).map(turn => ({turnId:turn.id,text:turn.text})) : []
@@ -286,7 +288,8 @@ export async function finishObjectiveOperation(ownerId: string, id: string, prep
   if (interrupt) delete flow.interruptOperationId
   else {delete flow.pendingOperationId; flow.pendingReview = false; flow.interruptOperationId = study.objectiveFlow?.interruptOperationId}
   flow.error = undefined
-  const decision = structuredClone(operation.directive!), clock = await getStudyPacing(ownerId,id,event)
+  const decision = structuredClone(operation.directive!), savedClock = await getStudyPacing(ownerId,id,event)
+  const clock = operation.control === 'RESUME' && savedClock && plan.pacing ? resumePacingState(savedClock,plan.pacing,plan.activeObjectiveId!,Date.now(),randomUUID()) : savedClock
   if (decision.action === 'pause') flow.paused = true
   else if (study.objectiveFlow?.paused !== undefined) flow.paused = study.objectiveFlow.paused
   if (interrupt && !flow.pendingOperationId && !flow.paused && flow.sessionStatus === 'active' && (!clock || clock.phase === 'PRACTICE')) {
@@ -319,10 +322,10 @@ export async function finishObjectiveOperation(ownerId: string, id: string, prep
   }
   const trace = studyExecutionTraceSchema.parse({...operation.trace,packet,packetHash:createHash('sha256').update(JSON.stringify(packet)).digest('hex'),inputTurnId:evidence ? learnerTurn.id : operation.userTurn.id,status:'EXECUTED',outputTurnId:agentTurn.id,evidenceRefs:evidence ? [evidence.id] : []})
   let pacing: Parameters<typeof saveStudyObjectiveState>[3]['pacing']
-  if (clock && (plan.activeObjectiveId !== study.plan.activeObjectiveId || flow.paused || decision.action === 'pause' || objectiveSessionClosed(flow))) {
-    const state = {...clock,revision:randomUUID(),startedAt:Date.now(),serverNow:Date.now()}
-    if (flow.paused || decision.action === 'pause' || objectiveSessionClosed(flow)) state.phase = 'PAUSED'
-    else if (clock.phase === 'PRACTICE') {state.objectiveId = plan.activeObjectiveId!;state.blockId=randomUUID();state.remainingMs=(plan.pacing?.practiceMinutes || 5)*60000;delete state.recordingId}
+  if (clock && (plan.activeObjectiveId !== study.plan.activeObjectiveId || flow.paused || decision.action === 'pause' || objectiveSessionClosed(flow) || operation.control === 'RESUME')) {
+    const shouldPause = flow.paused || decision.action === 'pause' || objectiveSessionClosed(flow)
+    const state = {...(shouldPause ? pausePacingState(clock,Date.now()) : clock),revision:randomUUID(),startedAt:Date.now(),serverNow:Date.now()}
+    if (!shouldPause && operation.control !== 'RESUME' && clock.phase === 'PRACTICE') {state.objectiveId = plan.activeObjectiveId!;state.blockId=randomUUID();state.remainingMs=(plan.pacing?.practiceMinutes || 5)*60000;delete state.recordingId}
     pacing = {state,expectedRevision:clock.revision}
   }
   await saveStudyObjectiveState(ownerId,id,study.revision,{flow,plan,practice,operation:{...effectiveOperation,status:'COMPLETE',agentTurn,evidence,error:undefined},expectedOperationStatus:'REVIEWED',agentTurn,trace,evidence,recordedClaim,pacing},event)
