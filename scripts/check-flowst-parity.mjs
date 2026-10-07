@@ -7,6 +7,16 @@ if (index < 0 || !process.argv[index + 1])
   throw new Error("Supply --flowst-path with the Flowst checkout.");
 const host = path.resolve(process.argv[index + 1]);
 const files = [
+  "shared/kaiAssessment.ts",
+  "server/api/study/conversations/[id]/review.post.ts",
+  "tests/kai-assessment.test.ts",
+  "components/AirsSessionCompletion.vue",
+  "shared/studyCompletionInvitation.ts",
+  "server/services/studyRepeat.ts",
+  "server/api/study/conversations/[id]/repeat.post.ts",
+  "tests/study-repeat.test.ts",
+  "tests/study-completion-invitation.test.ts",
+  "tests/source-e2e/session-completion.spec.ts",
   "shared/studyObjectivePolicy.ts",
   "shared/studyObjectiveOperation.ts",
   "shared/studyPedagogy.ts",
@@ -77,6 +87,7 @@ const files = [
   "tests/airs-orchestration.test.ts",
   "tests/airs-provider-failure.test.ts",
   "tests/study-misu-output-contract.test.ts",
+  "tests/airs-kai-recovery.test.ts",
   "server/services/airsPlanning.ts",
   "server/services/airsAminaFunctions.ts",
   "server/services/airsKai.ts",

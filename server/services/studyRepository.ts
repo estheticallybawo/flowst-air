@@ -783,10 +783,11 @@ export async function createStudyConversation(
   event?: H3Event,
   preferences?: StudyPreferences,
   sourceId?: string,
+  sourceSnapshot?: { chunks: StudyChunk[]; sectionCount: number },
 ) {
   const id = sourceId || randomUUID();
   const now = new Date().toISOString();
-  const chunks = indexStudySections(extraction);
+  const chunks = sourceSnapshot ? structuredClone(sourceSnapshot.chunks) : indexStudySections(extraction);
   if (!chunks.length)
     throw createError({
       statusCode: 422,
@@ -810,7 +811,7 @@ export async function createStudyConversation(
       kind: extraction.kind,
       createdAt: now,
       excerpt: extraction.excerpt,
-      sectionCount: extraction.sections.length,
+      sectionCount: sourceSnapshot?.sectionCount ?? extraction.sections.length,
       ...(extraction.provenance ? { provenance: extraction.provenance } : {}),
     },
     mode: "DISCUSSION",
@@ -1004,6 +1005,7 @@ export async function getStudyConversation(
     throw createError({
       statusCode: 503,
       statusMessage: "Your source is still being saved. Check again shortly.",
+      data: { code: "STUDY_SOURCE_PREPARING" },
     });
   if (mock)
     return publicRecord(
@@ -1045,6 +1047,61 @@ export async function getStudyConversation(
     cursor = result.LastEvaluatedKey;
   } while (cursor);
   return publicRecord(record, turns, usage);
+}
+
+/** Repair only the initial, owned source copy; never replace a ready session or its learning records. */
+export async function resumePreparingStudySource(
+  ownerId: string,
+  id: string,
+  bytes: Buffer,
+  contentType: string,
+  chunks: StudyChunk[],
+  event?: H3Event,
+) {
+  const { mock, table, bucket, db, s3 } = resources(event);
+  const record = mock ? mockRecords.get(id) : (await db.send(new GetCommand({
+    TableName: table, Key: { pk: `STUDY#${id}`, sk: "META" }, ConsistentRead: true,
+  }))).Item as StudyRecord | undefined;
+  if (!record) return undefined;
+  if (record.ownerId !== ownerId) throw createError({ statusCode: 404, statusMessage: "Study chat not found." });
+  if (!record.sourcePreparing) return getStudyConversation(ownerId, id, event);
+  const changed = record.abandonedAt || record.revision !== 0 || record.plan.status !== "PENDING" || record.plan.version !== 0
+    || record.objectiveFlow || record.practice.attempts.length || record.practice.awaitingAnswer;
+  const turns = mock ? mockTurns.get(id) || [] : (await db.send(new QueryCommand({
+    TableName: table, KeyConditionExpression: "pk = :pk AND begins_with(sk, :turn)",
+    ExpressionAttributeValues: { ":pk": record.pk, ":turn": "TURN#" }, ConsistentRead: true, Limit: 1,
+  }))).Items || [];
+  if (changed || turns.length) throw createError({ statusCode: 409, statusMessage: "This session changed. Its saved records were not replaced." });
+  if (mock) {
+    mockChunks.set(id, structuredClone(chunks));
+    const ready = { ...record }; delete ready.sourcePreparing; mockRecords.set(id, ready);
+  } else {
+    await s3.send(new PutObjectCommand({ Bucket: bucket, Key: record.objectKey, Body: bytes, ContentType: contentType, ServerSideEncryption: "AES256" }));
+    for (let offset = 0; offset < chunks.length; offset += 25) {
+      let pending = { [table]: chunks.slice(offset, offset + 25).map(chunk => ({ PutRequest: { Item: {
+        pk: record.pk, sk: `CHUNK#${String(chunk.position).padStart(4, "0")}`, ...chunk,
+      } } })) };
+      let retries = 0;
+      do {
+        const response = await db.send(new BatchWriteCommand({ RequestItems: pending }));
+        pending = (response.UnprocessedItems || {}) as typeof pending;
+        if (pending[table]?.length && ++retries >= 5) throw createError({ statusCode: 503, statusMessage: "Source storage is busy. Retry this same session copy shortly." });
+      } while (pending[table]?.length);
+    }
+    try {
+      await db.send(new UpdateCommand({
+        TableName: table, Key: { pk: record.pk, sk: "META" }, UpdateExpression: "REMOVE sourcePreparing",
+        ConditionExpression: "ownerId = :owner AND sourcePreparing = :yes AND revision = :zero AND #plan.#status = :pending AND #plan.#version = :zero AND attribute_not_exists(abandonedAt)",
+        ExpressionAttributeNames: { "#plan": "plan", "#status": "status", "#version": "version" },
+        ExpressionAttributeValues: { ":owner": ownerId, ":yes": true, ":zero": 0, ":pending": "PENDING" },
+      }));
+    } catch (cause) {
+      if ((cause as Error).name !== "ConditionalCheckFailedException") throw cause;
+      // Another completed repair or learner change remains authoritative.
+      return getStudyConversation(ownerId, id, event);
+    }
+  }
+  return getStudyConversation(ownerId, id, event);
 }
 
 type VoiceUsageReservation = Omit<StudyVoiceUsageEvent, "id" | "createdAt">;
@@ -1506,6 +1563,7 @@ export async function getStudyChunks(
         excerpt: item.excerpt,
         text: item.text,
         position: item.position,
+        ...(item.location ? { location: item.location } : {}),
       })),
     );
     cursor = result.LastEvaluatedKey;

@@ -36,6 +36,7 @@ import { pacingResumePhase } from "~/shared/studyPacing";
 import { microphoneError } from "~/shared/userErrors";
 import { learnerStudyError } from "~/shared/studyPresentation";
 import type { AirAccess } from "~/shared/airAccess";
+import type { KaiReview } from "~/shared/airsOrchestration";
 
 const route = useRoute();
 const auth = useAuth();
@@ -411,6 +412,52 @@ const activeObjective = computed(() =>
 const sessionPane = ref<
   "plan" | "context" | "checkpoint" | "review" | "options" | ""
 >("");
+const completionReadyReview = ref<KaiReview | null>(null);
+const completionReview = ref<KaiReview | null>(null);
+const completionOpen = ref(false), completionBusy = ref(false), completionError = ref("");
+let repeatRequestId = "";
+const shownCompletionInvitations = new Set<string>();
+function kaiCompletionReady(review: KaiReview | null) {
+  completionReadyReview.value = review?.conversationId === id.value && review.planVersion === study.value?.plan.version ? review : null;
+  if (completionReadyReview.value) completionReview.value = completionReadyReview.value;
+}
+async function openSessionCompletion(review: KaiReview | null, explicit = false) {
+  sessionPane.value = "";
+  if (!review || completionReadyReview.value?.id !== review.id) return;
+  const key = `airs-completion-invitation:${id.value}:${review.id}`;
+  let seen = shownCompletionInvitations.has(key);
+  try { seen ||= sessionStorage.getItem(key) === "shown"; } catch { /* Optional visit memory. */ }
+  if (seen && !explicit) return;
+  shownCompletionInvitations.add(key);
+  try { sessionStorage.setItem(key, "shown"); } catch { /* In-memory suppression still applies. */ }
+  completionReview.value = review;
+  completionError.value = "";
+  await nextTick();
+  completionOpen.value = true;
+}
+function closeKaiReview() {
+  void openSessionCompletion(completionReadyReview.value);
+}
+async function repeatSession() {
+  if (completionBusy.value || !completionReview.value) return;
+  completionBusy.value = true;
+  completionError.value = "";
+  repeatRequestId ||= crypto.randomUUID();
+  try {
+    const fresh = await auth.authorizedFetch<StudyConversation>(`/api/study/conversations/${id.value}/repeat`, {
+      method: "POST", body: { requestId: repeatRequestId, reviewId: completionReview.value.id },
+    });
+    completionOpen.value = false;
+    await navigateTo(`/airs/${fresh.id}`);
+  } catch (cause) {
+    completionError.value = learnerStudyError(cause, "Your fresh session could not be confirmed. Retry this same action; your previous session stays saved.");
+  } finally { completionBusy.value = false; }
+}
+async function startNewSession() {
+  if (completionBusy.value) return;
+  completionOpen.value = false;
+  await navigateTo("/airs");
+}
 const conversationVisible = ref(false);
 let shownCheckpoint = "";
 watch(
@@ -2137,6 +2184,7 @@ async function remove() {
                 <button class="objective-end" :disabled="objectiveCommandBusy" @click="sendObjectiveControl('END')">End session</button>
               </div>
               <button v-if="journey.kaiReady" @click="sessionPane = 'review'">Kai’s review</button>
+              <button v-if="completionReadyReview" @click="openSessionCompletion(completionReadyReview, true)">Next session</button>
               <button class="objective-options" @click="sessionPane = 'options'">Practice options</button>
             </section>
           </template>
@@ -2174,6 +2222,7 @@ async function remove() {
               <button v-if="journey.kaiReady" @click="sessionPane = 'review'">
                 Kai’s review
               </button>
+              <button v-if="completionReadyReview" @click="openSessionCompletion(completionReadyReview, true)">Next session</button>
               <button @click="sessionPane = 'options'">Practice options</button>
             </div>
             <div
@@ -2529,12 +2578,30 @@ async function remove() {
       <AirFocusDialog
         :open="sessionPane === 'review'"
         title="Kai’s practice review"
-        @close="sessionPane = ''"
+        @close="closeKaiReview"
       >
         <AirsKaiReview
           :conversation-id="id"
           :can-review="journey.kaiReady && !live.running.value && !live.cleanupPending.value"
           :auto-generate="Boolean(objectiveFlow)"
+          @completion-ready="kaiCompletionReady"
+          @finished="openSessionCompletion($event, true)"
+        />
+      </AirFocusDialog>
+      <AirFocusDialog
+        :open="completionOpen"
+        title="Your next session"
+        :dismissible="!completionBusy"
+        @close="completionOpen = false"
+      >
+        <AirsSessionCompletion
+          v-if="completionOpen && completionReview"
+          :review="completionReview"
+          :busy="completionBusy"
+          :error="completionError"
+          @repeat="repeatSession"
+          @new-session="startNewSession"
+          @dismiss="completionOpen = false"
         />
       </AirFocusDialog>
       <AirFocusDialog
