@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-06T16:58:55.707Z",
+  "createdAt": "2026-10-07T18:22:53.395Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -395,8 +395,8 @@
     },
     {
       "path": "docs/generated/public-paths.txt",
-      "bytes": 13312,
-      "sha256": "1286939250f9a825d65d43eddf091b42dd7e7fb6c09d2b4031c59e57096d3452"
+      "bytes": 13513,
+      "sha256": "27aadf5207299bb1dc9a215787a672faad82e9d3d055fd84c660d7a7c8b72aea"
     },
     {
       "path": "docs/index.md",
@@ -452,6 +452,11 @@
       "path": "docs/references/index.md",
       "bytes": 561,
       "sha256": "9825a4b018f3498513f3a63a9fada547dfc522dd6333e5a2c88feeeaacee6dea"
+    },
+    {
+      "path": "docs/references/misu-provider-reliability.md",
+      "bytes": 3303,
+      "sha256": "b8df2df66c6aa3b76453f48d430d96b85215c43ad4b2cf94b45b068bb3568cf4"
     },
     {
       "path": "docs/references/objective-flow-verification.md",
@@ -685,8 +690,8 @@
     },
     {
       "path": "scripts/check-flowst-parity.mjs",
-      "bytes": 4976,
-      "sha256": "be5ed178acebd7f60b40380dbd0aa9311e77206e13d2fd6ec8179cefc6970d0a"
+      "bytes": 5145,
+      "sha256": "8e8ad17d6a3037b01549efa0a56aa26ec4f4db17763354581d9ec17c6587b00d"
     },
     {
       "path": "scripts/check-public-export.mjs",
@@ -1010,8 +1015,8 @@
     },
     {
       "path": "server/services/airsAgentRunner.ts",
-      "bytes": 5100,
-      "sha256": "6f3a433a53b7a4c996537dc4cbb639843728401f86ad7350a59c7dcddb8dc364"
+      "bytes": 5849,
+      "sha256": "023b28a611c53f4607f9aab6c3664c57c7c98ddfae8d6f5cabd925e423fcfa13"
     },
     {
       "path": "server/services/airsAminaFunctions.ts",
@@ -1037,6 +1042,11 @@
       "path": "server/services/airsPlanning.ts",
       "bytes": 3331,
       "sha256": "d884b32e543a1834c97ba42262ce2b5827676e2a0e7b278947c7053fa690af4a"
+    },
+    {
+      "path": "server/services/airsProviderFailure.ts",
+      "bytes": 3874,
+      "sha256": "6b8967b62a98acf010a5a5c183fda2da17093d2534723733718dfdbea2050580"
     },
     {
       "path": "server/services/aminaRealtime.ts",
@@ -1120,8 +1130,8 @@
     },
     {
       "path": "server/services/studyMisu.ts",
-      "bytes": 35437,
-      "sha256": "1138b9d0a867b80eeafba349e10d5e32177a5d9be40c7ffd6c4b85c6b3c4c0ce"
+      "bytes": 36658,
+      "sha256": "f131c3f4adb8d57e0dcec5d0f585ae01f06da96bd0a4dac9e49978f7472ea276"
     },
     {
       "path": "server/services/studyObjectiveFlow.ts",
@@ -1335,8 +1345,13 @@
     },
     {
       "path": "tests/airs-orchestration.test.ts",
-      "bytes": 6489,
-      "sha256": "ba26144ed463530a627878546a3bb9c343f665f9e21fa4f739baaa125c48b4a4"
+      "bytes": 12396,
+      "sha256": "8d093a80dd2fcdaca2b96f642e071e33a9d9d57ab79591c7a15ef4447aa6cd38"
+    },
+    {
+      "path": "tests/airs-provider-failure.test.ts",
+      "bytes": 2830,
+      "sha256": "4c39600a8c2538e20844780a643c70f1443f830e3581b36bacc77a31e9e7af3d"
     },
     {
       "path": "tests/airs-quota.test.ts",
@@ -1407,6 +1422,11 @@
       "path": "tests/study-live-lease.test.ts",
       "bytes": 3653,
       "sha256": "12861588e47e583f381b8785be400daa7db1a597ef07727947d3ff5ac832590b"
+    },
+    {
+      "path": "tests/study-misu-output-contract.test.ts",
+      "bytes": 1992,
+      "sha256": "bc6f8488706c3e24412887339b2d3beae0761b6d3fedce1f85756ce3591ad9aa"
     },
     {
       "path": "tests/study-misu-progress.test.ts",

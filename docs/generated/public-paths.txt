@@ -89,6 +89,7 @@
 :(literal)docs/references/development-and-verification.md
 :(literal)docs/references/identity-migration.md
 :(literal)docs/references/index.md
+:(literal)docs/references/misu-provider-reliability.md
 :(literal)docs/references/objective-flow-verification.md
 :(literal)docs/references/provider-reference.md
 :(literal)docs/references/public-repository.md
@@ -206,6 +207,7 @@
 :(literal)server/services/airsContextSummary.ts
 :(literal)server/services/airsKai.ts
 :(literal)server/services/airsPlanning.ts
+:(literal)server/services/airsProviderFailure.ts
 :(literal)server/services/aminaRealtime.ts
 :(literal)server/services/authRepository.ts
 :(literal)server/services/awsClientConfig.ts
@@ -266,6 +268,7 @@
 :(literal)tests/airs-handoff.test.ts
 :(literal)tests/airs-message.test.ts
 :(literal)tests/airs-orchestration.test.ts
+:(literal)tests/airs-provider-failure.test.ts
 :(literal)tests/airs-quota.test.ts
 :(literal)tests/airs-setup.test.ts
 :(literal)tests/amina-live-client.test.ts
@@ -280,6 +283,7 @@
 :(literal)tests/study-conversation-progress.test.ts
 :(literal)tests/study-deletion.test.ts
 :(literal)tests/study-live-lease.test.ts
+:(literal)tests/study-misu-output-contract.test.ts
 :(literal)tests/study-misu-progress.test.ts
 :(literal)tests/study-objective-flow.test.ts
 :(literal)tests/study-objective-journey.test.ts
