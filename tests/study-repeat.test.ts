@@ -155,7 +155,7 @@ it('rejects other owners, active sessions, malformed requests and a mismatched r
   expect(createStudyConversation).toHaveBeenCalledTimes(2)
 })
 
-it('repairs a partially persisted source under the same ID and leaves any later learner changes intact', async () => {
+it.each(['partial-write', 'delayed-failure', 'delayed-success', 'META-collision'] as const)('preserves the owned repeat copy across %s and leaves later learner changes intact', async scenario => {
   const before = await fixture(false, true, 'The canonical reference records the system design. '.repeat(70))
   const request = { requestId: randomUUID(), reviewId: before.review!.id }
   const rows = new Map<string, Record<string, any>>()
@@ -170,6 +170,10 @@ it('repairs a partially persisted source under the same ID and leaves any later 
   const originalBytes = Buffer.from('Independent owned original file')
   const objects = new Map([[`study/${owner}/${before.id}/original.web`, originalBytes]])
   let interrupt = true, createdId = '', metadataCreates = 0
+  let releaseDelayed!: () => void, delayedStarted!: () => void
+  const delayedGate = new Promise<void>(resolve => { releaseDelayed = resolve })
+  const started = new Promise<void>(resolve => { delayedStarted = resolve })
+  let objectWrites = 0
   type Command = { constructor: { name: string }; input: Record<string, any> }
   const dbSend = vi.fn(async (value: unknown) => {
     const command = value as Command, input = command.input
@@ -182,11 +186,13 @@ it('repairs a partially persisted source under the same ID and leaves any later 
       return { Items: structuredClone(items) }
     }
     if (command.constructor.name === 'PutCommand') {
+      if (rows.has(rowKey(input.Item.pk, input.Item.sk)) && input.ConditionExpression === 'attribute_not_exists(pk)') throw Object.assign(new Error('Fixture condition'), { name: 'ConditionalCheckFailedException' })
+      const old = rows.get(rowKey(input.Item.pk, input.Item.sk))
+      if (input.ConditionExpression?.includes('expiresAt < :now') && old && old.expiresAt >= input.ExpressionAttributeValues[':now']) throw Object.assign(new Error('Fixture active lease'), { name: 'ConditionalCheckFailedException' })
       if (input.Item.sk === 'META' && input.Item.pk !== originalPk) {
         createdId = input.Item.id; metadataCreates++
         expect(input.Item.sourcePreparing).toBe(true)
       }
-      if (rows.has(rowKey(input.Item.pk, input.Item.sk)) && input.ConditionExpression === 'attribute_not_exists(pk)') throw Object.assign(new Error('Fixture condition'), { name: 'ConditionalCheckFailedException' })
       store(input.Item)
       return {}
     }
@@ -194,7 +200,12 @@ it('repairs a partially persisted source under the same ID and leaves any later 
       const writes = input.RequestItems[config.dynamoTable]
       if (interrupt && writes[0].PutRequest.Item.pk === 'STUDY#' + createdId) {
         store(writes[0].PutRequest.Item)
-        throw new Error('Fixture interrupted after META and one chunk')
+        if (scenario === 'partial-write') throw new Error('Fixture interrupted after META and one chunk')
+        if (scenario !== 'META-collision') {
+          delayedStarted()
+          await delayedGate
+          if (scenario === 'delayed-failure') throw new Error('Fixture delayed creator failed after its lease expired')
+        }
       }
       for (const write of writes) store(write.PutRequest.Item)
       return { UnprocessedItems: {} }
@@ -207,9 +218,9 @@ it('repairs a partially persisted source under the same ID and leaves any later 
     }
     if (command.constructor.name === 'UpdateCommand') {
       const record = rows.get(rowKey(input.Key.pk, input.Key.sk))!
-      expect(record.sourcePreparing).toBe(true)
       expect(input.ConditionExpression).toContain('revision = :zero')
       expect(input.ConditionExpression).toContain('#plan.#status = :pending')
+      if (!record.sourcePreparing || record.revision !== 0 || record.plan.status !== 'PENDING') throw Object.assign(new Error('Fixture changed session'), { name: 'ConditionalCheckFailedException' })
       delete record.sourcePreparing
       return {}
     }
@@ -221,7 +232,16 @@ it('repairs a partially persisted source under the same ID and leaves any later 
       const bytes = objects.get(input.Key)!
       return { ContentType: 'text/plain', Body: { transformToByteArray: async () => bytes } }
     }
-    if (command.constructor.name === 'PutObjectCommand') { objects.set(input.Key, Buffer.from(input.Body)); return {} }
+    if (command.constructor.name === 'PutObjectCommand') {
+      objects.set(input.Key, Buffer.from(input.Body))
+      objectWrites++
+      if (scenario === 'META-collision' && objectWrites === 1) {
+        createdId = input.Key.split('/')[2]
+        delayedStarted()
+        await delayedGate
+      }
+      return {}
+    }
     if (command.constructor.name === 'DeleteObjectCommand') {
       if (interrupt) throw new Error('Fixture object cleanup interrupted')
       objects.delete(input.Key)
@@ -234,19 +254,43 @@ it('repairs a partially persisted source under the same ID and leaves any later 
   config.flowstAuthMode = 'aws'
   config.public.appSurface = 'flowst'
 
-  await expect(repeatStudySession(owner, before.id, request)).rejects.toThrow('Fixture interrupted after META and one chunk')
-  expect(createdId).not.toBe('')
-  expect(rows.get(rowKey('STUDY#' + createdId, 'META'))?.sourcePreparing).toBe(true)
-  expect([...rows.values()].filter(item => item.pk === 'STUDY#' + createdId && item.sk.startsWith('CHUNK#'))).toHaveLength(1)
-  expect(before.chunks.length).toBeGreaterThan(1)
-  interrupt = false
-  const repaired = await repeatStudySession(owner, before.id, request)
+  let repaired
+  if (scenario === 'partial-write') {
+    await expect(repeatStudySession(owner, before.id, request)).rejects.toThrow('Fixture interrupted after META and one chunk')
+    expect(createdId).not.toBe('')
+    expect(rows.get(rowKey('STUDY#' + createdId, 'META'))?.sourcePreparing).toBe(true)
+    expect([...rows.values()].filter(item => item.pk === 'STUDY#' + createdId && item.sk.startsWith('CHUNK#'))).toHaveLength(1)
+    expect(before.chunks.length).toBeGreaterThan(1)
+    interrupt = false
+    repaired = await repeatStudySession(owner, before.id, request)
+  } else {
+    const first = repeatStudySession(owner, before.id, request)
+    await started
+    // The old worker still runs after its durable 120-second lease has expired.
+    const lease = rows.get(rowKey('AIRS_CONTEXT#' + owner, `LOCK#REPEAT#${before.id}#${request.requestId}`))!
+    lease.expiresAt = Math.floor(Date.now() / 1000) - 1
+    interrupt = false
+    repaired = await repeatStudySession(owner, before.id, request)
+    const ready = rows.get(rowKey('STUDY#' + repaired.id, 'META'))!
+    ready.revision = 1
+    ready.plan = { ...before.study.plan }
+    store({ pk: ready.pk, sk: 'TURN#later', turn: { ...before.study.turns[0], id: 'later', text: 'A later saved learner explanation.', kind: 'PRACTICE' } })
+    const savedRows = structuredClone([...rows.entries()])
+    releaseDelayed()
+    const late = await first
+    expect(late.id).toBe(repaired.id)
+    expect(late.plan.status).toBe('APPROVED')
+    expect(late.turns.at(-1)?.text).toBe('A later saved learner explanation.')
+    expect([...rows.entries()]).toEqual(savedRows)
+  }
   expect(repaired.id).toBe(createdId)
   expect(repaired.plan.status).toBe('PENDING')
   expect(metadataCreates).toBe(1)
   expect(rows.get(rowKey('STUDY#' + createdId, 'META'))?.sourcePreparing).toBeUndefined()
   expect(await getStudyChunks(owner, createdId)).toEqual(before.chunks)
   expect(objects.get(`study/${owner}/${createdId}/original.web`)).toEqual(originalBytes)
+  expect(s3Send.mock.calls.filter(([value]) => (value as Command).constructor.name === 'DeleteObjectCommand')).toHaveLength(0)
+  expect(dbSend.mock.calls.filter(([value]) => (value as Command).constructor.name === 'DeleteCommand' && (value as Command).input.Key.pk === 'STUDY#' + createdId)).toHaveLength(0)
   for (const [key, value] of originalRows) expect(rows.get(key)).toEqual(value)
 
   const ready = rows.get(rowKey('STUDY#' + createdId, 'META'))!

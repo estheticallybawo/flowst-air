@@ -7,6 +7,9 @@ if (index < 0 || !process.argv[index + 1])
   throw new Error("Supply --flowst-path with the Flowst checkout.");
 const host = path.resolve(process.argv[index + 1]);
 const files = [
+  "shared/aminaWelcome.ts",
+  "tests/amina-welcome.test.ts",
+  "tests/airs-setup.test.ts",
   "shared/kaiAssessment.ts",
   "server/api/study/conversations/[id]/review.post.ts",
   "tests/kai-assessment.test.ts",

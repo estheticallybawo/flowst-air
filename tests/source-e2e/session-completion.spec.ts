@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { expect, test, type BrowserContext, type Page } from '@playwright/test'
+import { kaiSessionAssessmentSchema } from '../../shared/kaiAssessment'
 
 const headers = { authorization: 'Bearer mock:member' }
 async function browserGuards(page: Page) {
@@ -100,18 +101,45 @@ test('Misu offers factual next steps after the review, supports dismissal, and r
     await reopenInvitation(page)
     await expect(invitation).toBeVisible()
     await page.screenshot({ path: test.info().outputPath('misu-next-session-' + test.info().project.name + '.png'), fullPage: true })
-    const response = page.waitForResponse(response => response.request().method() === 'POST' && response.url().endsWith(original.base + '/repeat'))
+    const requestIds: string[] = []
+    let firstCommittedId = '', firstCommittedStatus = 0
+    await page.route('**' + original.base + '/repeat', async route => {
+      if (route.request().method() !== 'POST') return route.continue()
+      requestIds.push(route.request().postDataJSON().requestId)
+      if (requestIds.length !== 1) return route.continue()
+      const committed = await route.fetch()
+      firstCommittedStatus = committed.status()
+      if (committed.status() !== 201) return route.fulfill({ response: committed })
+      firstCommittedId = (await committed.json()).id
+      freshId = firstCommittedId
+      return route.fulfill({ status: 503, json: { statusMessage: 'Fixture: the new session was saved, but its response was lost.' } })
+    })
+    const lostResponse = page.waitForResponse(response => response.request().method() === 'POST' && response.url().endsWith(original.base + '/repeat'))
     await invitation.getByRole('button', { name: 'Practise again', exact: true }).click()
+    expect((await lostResponse).status()).toBe(503)
+    expect(firstCommittedStatus).toBe(201)
+    expect(firstCommittedId).toBeTruthy()
+    expect(requestIds[0]).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+    await expect(page).toHaveURL(new RegExp('/airs/' + original.id + '$'))
+    expect(await page.evaluate(id => sessionStorage.getItem('airs-repeat-request:' + id), original.id)).toBe(requestIds[0])
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    const recoveredInvitation = await finishReview(page)
+    await expect(recoveredInvitation).toBeVisible()
+    const response = page.waitForResponse(response => response.request().method() === 'POST' && response.url().endsWith(original.base + '/repeat'))
+    await recoveredInvitation.getByRole('button', { name: 'Practise again', exact: true }).click()
     const repeated = await response
     expect(repeated.status()).toBe(201)
     const fresh = await repeated.json()
     freshId = fresh.id
+    expect(freshId).toBe(firstCommittedId)
+    expect(requestIds).toEqual([requestIds[0], requestIds[0]])
     expect(freshId).not.toBe(original.id)
     expect(fresh.plan.status).toBe('PENDING')
     expect(fresh.plan.approvedAt).toBeUndefined()
     expect(fresh.turns).toEqual([])
     expect(fresh.practice.attempts).toEqual([])
     await expect(page).toHaveURL(new RegExp('/airs/' + freshId + '$'))
+    expect(await page.evaluate(id => sessionStorage.getItem('airs-repeat-request:' + id), original.id)).toBeNull()
     const current = await (await context.request.get('/api/study/conversations/' + freshId, { headers })).json()
     expect(['PENDING', 'DRAFT']).toContain(current.plan.status)
     expect(current.plan.approvedAt).toBeUndefined()
@@ -130,14 +158,30 @@ test('covered-review confetti waits until the assessment is read and honors redu
   test.setTimeout(300000)
   const failures = await browserGuards(page)
   const original = await closedFixture(context)
-  const evidenceId = randomUUID()
+  const evidenceId = randomUUID(), partialEvidenceId = randomUUID()
+  const observedQuote = 'A saved design reference gives us one agreed point to explain.'
+  const partialQuote = 'I would check the reference before adding a new claim.'
+  const observedUncertainty = 'Scripted presentation: one fixture transcript word may be uncertain; durable mastery is not assessed.'
+  const partialUncertainty = 'Scripted presentation: only one written explanation is available.'
   const review = {
     ...original.review, closureOnly: false, sessionStatus: 'covered', assessmentVersion: '0.3',
     objectiveOutcomes: original.review.objectiveOutcomes.map((item: object) => ({ ...item, status: 'met_for_session' })),
-    evidence: [{ id: evidenceId, attempt: 'Scripted presentation: the authoritative design reference.' }],
-    observations: [{ text: 'Scripted presentation: a saved explanation is linked to this objective.', evidenceIds: [evidenceId], criterionId: 'ACCURACY', kind: 'observation' }],
+    evidence: [
+      { id: evidenceId, attempt: 'Scripted presentation: ' + observedQuote, promptsUsed: 2, hintsUsed: 1, transcriptionUncertainty: ['One fixture transcript word may be uncertain.'] },
+      { id: partialEvidenceId, attempt: 'Scripted presentation: ' + partialQuote, promptsUsed: null, hintsUsed: null },
+    ],
+    observations: [{ text: 'Scripted presentation: a saved explanation is linked to this objective.', evidenceIds: [evidenceId], criterionId: 'ACCURACY', kind: 'inference', uncertainty: observedUncertainty, learnerQuotes: [{ evidenceId, text: observedQuote }] }],
     nextPractice: { goal: 'Apply the reference', exercise: 'Use a different example in a future session.', evidenceIds: [evidenceId] },
+    sessionAssessment: {
+      scope: 'THIS_SESSION', basis: 'SAVED_LEARNER_TEXT', domains: [
+        { domain: 'understanding', status: 'observed', summary: 'Scripted presentation: the explanation links the reference to a shared point.', kind: 'inference', uncertainty: observedUncertainty, evidenceIds: [evidenceId], learnerQuotes: [{ evidenceId, text: observedQuote }] },
+        { domain: 'clarity', status: 'partial', summary: 'Scripted presentation: the reference is named, while the next connection could be clearer.', kind: 'inference', uncertainty: partialUncertainty, evidenceIds: [partialEvidenceId], learnerQuotes: [{ evidenceId: partialEvidenceId, text: partialQuote }] },
+        { domain: 'vocabulary', status: 'not_assessed', summary: 'Scripted presentation: word choice was not assessed.', kind: 'observation', evidenceIds: [], learnerQuotes: [] },
+        { domain: 'reasoning', status: 'not_assessed', summary: 'Scripted presentation: reasoning was not elicited.', kind: 'observation', evidenceIds: [], learnerQuotes: [] },
+      ],
+    },
   }
+  kaiSessionAssessmentSchema.parse(review.sessionAssessment)
   try {
     await page.route('**' + original.base + '/review', route => route.fulfill({ json: route.request().method() === 'GET' ? { review } : review }))
     await page.goto('/airs/' + original.id, { waitUntil: 'domcontentloaded' })
@@ -147,6 +191,33 @@ test('covered-review confetti waits until the assessment is read and honors redu
     const invitation = page.getByRole('dialog', { name: 'Your next session', exact: true })
     await expect(invitation).toBeHidden()
     await page.getByRole('button', { name: 'Kai: view feedback', exact: true }).click()
+    const understanding = kai.getByRole('article', { name: 'Understanding feedback', exact: true })
+    await expect(understanding).toBeVisible()
+    await expect(understanding).toContainText('Observed in this session')
+    await expect(understanding).toContainText('Inference from saved evidence')
+    await expect(understanding).toContainText(observedUncertainty)
+    const openEvidence = async (card: ReturnType<Page['locator']>) => {
+      const details = card.locator('details')
+      if (!await details.evaluate(node => (node as HTMLDetailsElement).open)) await details.locator('summary').click()
+    }
+    await openEvidence(understanding)
+    await expect(understanding.getByText(observedQuote, { exact: true })).toBeVisible()
+    await expect(understanding.locator('figure[data-evidence-id="' + evidenceId + '"]')).toContainText('Saved answer 1')
+    await expect(understanding).toContainText('App hints recorded: 1. Saved prompts: 2.')
+    await expect(understanding).toContainText('Transcription uncertainty: One fixture transcript word may be uncertain.')
+    await understanding.locator('figure').scrollIntoViewIfNeeded()
+    await page.screenshot({ path: test.info().outputPath('kai-observed-skill-' + test.info().project.name + '.png'), fullPage: true })
+    await kai.getByRole('button', { name: 'Next skill', exact: true }).click()
+    const clarity = kai.getByRole('article', { name: 'Clarity feedback', exact: true })
+    await expect(clarity).toBeVisible()
+    await expect(clarity).toContainText('Partly demonstrated')
+    await expect(clarity).toContainText(partialUncertainty)
+    await openEvidence(clarity)
+    await expect(clarity.getByText(partialQuote, { exact: true })).toBeVisible()
+    await expect(clarity.locator('figure[data-evidence-id="' + partialEvidenceId + '"]')).toContainText('Saved answer 2')
+    await expect(clarity).toContainText('App hints recorded: unknown. Saved prompts: unknown.')
+    await clarity.locator('figure').scrollIntoViewIfNeeded()
+    await page.screenshot({ path: test.info().outputPath('kai-partial-skill-' + test.info().project.name + '.png'), fullPage: true })
     await finishReview(page)
     await expect(invitation).toBeVisible()
     await expect(invitation).toContainText('You covered your session objectives')

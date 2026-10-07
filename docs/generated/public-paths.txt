@@ -250,6 +250,7 @@
 :(literal)shared/airsJourney.ts
 :(literal)shared/airsMessage.ts
 :(literal)shared/airsOrchestration.ts
+:(literal)shared/aminaWelcome.ts
 :(literal)shared/auth.ts
 :(literal)shared/community.ts
 :(literal)shared/kaiAssessment.ts
@@ -280,6 +281,7 @@
 :(literal)tests/amina-live-client.test.ts
 :(literal)tests/amina-live-model.test.ts
 :(literal)tests/amina-plan-approval.test.ts
+:(literal)tests/amina-welcome.test.ts
 :(literal)tests/kai-assessment.test.ts
 :(literal)tests/source-e2e/bring-source.spec.ts
 :(literal)tests/source-e2e/guest-context.spec.ts

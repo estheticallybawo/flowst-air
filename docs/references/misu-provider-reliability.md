@@ -36,6 +36,14 @@ After the final Kai page is read, Misu invites the learner to practise again or 
 
 Practise again creates an independent source copy and fresh pending plan with the original source snapshot and preferences. It preserves the previous ledger, attempts and review, requires new plan approval, and does not bypass microphone consent. The same request ID reuses the fresh session; an interrupted source copy can resume only while owned, pristine and source-preparing. [Repeat regressions](../../tests/study-repeat.test.ts), [invitation regressions](../../tests/study-completion-invitation.test.ts) and [desktop/mobile browser journeys](../../tests/source-e2e/session-completion.spec.ts) verify these controls without paid voice/model calls.
 
+## Amina’s personal welcome
+
+New welcome notes use a concise second-person account of the confirmed Misu summary instead of quoting a truncated context block. A learner name is accepted only from an explicit self-identification in the learner’s original saved text. Unconfirmed summaries and instruction-like content do not establish personal facts. Conservative legacy wording keeps supported background and goals; missing details are omitted. The welcome uses no extra model call, keeps plan approval and microphone consent, and preserves previously saved welcome turns. See [welcome regressions](../../tests/amina-welcome.test.ts).
+
+## Assessment scope and future progress
+
+The current review uses up to twelve recent saved learning-evidence items plus the objective ledger and executed pedagogy trace. Skill feedback describes the cited sample. It does not establish a standardized score or improvement across sessions. A future progress feature would require a stable versioned rubric, comparable task difficulty and skill opportunities, recorded assistance and transcription uncertainty, and quoted before/after evidence. Repeating an easier or familiar question alone would not establish general improvement. This longitudinal comparison is proposed, not implemented.
+
 ## Verification
 
 Focused tests cover distinct output contracts, confirmed reads, forced-choice enforcement, schema validation, safe error categories, bounded body inspection and retry metadata. The public export manifest and parity check include the new classifier and regression tests.

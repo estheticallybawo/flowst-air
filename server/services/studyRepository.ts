@@ -783,7 +783,7 @@ export async function createStudyConversation(
   event?: H3Event,
   preferences?: StudyPreferences,
   sourceId?: string,
-  sourceSnapshot?: { chunks: StudyChunk[]; sectionCount: number },
+  sourceSnapshot?: { chunks: StudyChunk[]; sectionCount: number; retainForRepeatRecovery?: true },
 ) {
   const id = sourceId || randomUUID();
   const now = new Date().toISOString();
@@ -938,13 +938,26 @@ export async function createStudyConversation(
             TableName: table,
             Key: { pk: record.pk, sk: "META" },
             UpdateExpression: "REMOVE sourcePreparing",
-            ConditionExpression: "ownerId = :owner",
-            ExpressionAttributeValues: { ":owner": ownerId },
+            ConditionExpression: "ownerId = :owner AND sourcePreparing = :yes AND revision = :zero AND #plan.#status = :pending AND #plan.#version = :zero AND attribute_not_exists(abandonedAt)",
+            ExpressionAttributeNames: { "#plan": "plan", "#status": "status", "#version": "version" },
+            ExpressionAttributeValues: { ":owner": ownerId, ":yes": true, ":zero": 0, ":pending": "PENDING" },
           }),
         );
         delete record.sourcePreparing;
       }
     } catch (error) {
+      if (sourceId && sourceSnapshot?.retainForRepeatRecovery === true) {
+        // Another request may have repaired this deterministic copy after the
+        // first lease expired. Never delete its META, chunks or shared object.
+        // Partial copies remain available for the next owned repair instead.
+        try { return await getStudyConversation(ownerId, id, event); }
+        catch (lookupError) {
+          const failure = lookupError as { statusCode?: number; data?: { code?: string } };
+          if (failure.statusCode !== 404 && !(failure.statusCode === 503 && failure.data?.code === "STUDY_SOURCE_PREPARING")) throw lookupError;
+        }
+        if (marker && (error as Error).name === "TransactionCanceledException") await assertStudyUploadAvailable(ownerId, event, new Date(now));
+        throw error;
+      }
       if (metadataSaved) {
         const removed = await deleteStudyConversation(ownerId, id, event)
           .then(() => true)

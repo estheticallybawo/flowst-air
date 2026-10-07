@@ -69,6 +69,6 @@ export async function repeatStudySession(ownerId: string, id: string, input: unk
     }
     const repaired = await resumePreparingStudySource(ownerId, nextId, bytes, contentType, chunks, event)
     if (repaired) return repaired
-    return await createStudyConversation(ownerId, study.document.name, contentType, bytes, extraction, event, structuredClone(study.preferences), nextId, { chunks, sectionCount: study.document.sectionCount })
+    return await createStudyConversation(ownerId, study.document.name, contentType, bytes, extraction, event, structuredClone(study.preferences), nextId, { chunks, sectionCount: study.document.sectionCount, retainForRepeatRecovery: true })
   } finally { await release() }
 }

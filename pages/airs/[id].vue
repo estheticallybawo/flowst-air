@@ -39,6 +39,7 @@ import type { AirAccess } from "~/shared/airAccess";
 import type { KaiReview } from "~/shared/airsOrchestration";
 
 const route = useRoute();
+const router = useRouter();
 const auth = useAuth();
 const mediaLifecycle = useAirMediaLifecycle();
 let disposed = false;
@@ -442,14 +443,31 @@ async function repeatSession() {
   if (completionBusy.value || !completionReview.value) return;
   completionBusy.value = true;
   completionError.value = "";
+  const pendingKey = `airs-repeat-request:${id.value}`;
+  if (!repeatRequestId) {
+    try {
+      const stored = sessionStorage.getItem(pendingKey);
+      if (stored && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(stored)) repeatRequestId = stored;
+      else if (stored) sessionStorage.removeItem(pendingKey);
+    } catch { /* Optional persistence; the current visit still reuses its ID. */ }
+  }
   repeatRequestId ||= crypto.randomUUID();
+  try { sessionStorage.setItem(pendingKey, repeatRequestId); } catch { /* Optional persistence. */ }
   try {
     const fresh = await auth.authorizedFetch<StudyConversation>(`/api/study/conversations/${id.value}/repeat`, {
       method: "POST", body: { requestId: repeatRequestId, reviewId: completionReview.value.id },
     });
     completionOpen.value = false;
     await navigateTo(`/airs/${fresh.id}`);
+    if (String(router.currentRoute.value.params.id || "") !== fresh.id) {
+      completionOpen.value = true;
+      completionError.value = "Your fresh session is saved. Try Practise again to open it.";
+      return;
+    }
+    try { sessionStorage.removeItem(pendingKey); } catch { /* Optional persistence. */ }
+    repeatRequestId = "";
   } catch (cause) {
+    completionOpen.value = true;
     completionError.value = learnerStudyError(cause, "Your fresh session could not be confirmed. Retry this same action; your previous session stays saved.");
   } finally { completionBusy.value = false; }
 }

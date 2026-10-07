@@ -16,29 +16,29 @@ Proposed Kai/longitudinal entities are not added here unless implemented in thes
 | [server/services/studyRepository.ts:799](../../server/services/studyRepository.ts#L799) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>gsi2pk=`USER#${ownerId}`; gsi2sk=`STUDY#${now}#${id}`</code> |
 | [server/services/studyRepository.ts:913](../../server/services/studyRepository.ts#L913) | <code>record.pk</code> | <code>`CHUNK#${String(chunk.position).padStart(4, "0")}`</code> | <code>Not present in this object</code> |
 | [server/services/studyRepository.ts:939](../../server/services/studyRepository.ts#L939) | <code>record.pk</code> | <code>"META"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:994](../../server/services/studyRepository.ts#L994) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1063](../../server/services/studyRepository.ts#L1063) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1081](../../server/services/studyRepository.ts#L1081) | <code>record.pk</code> | <code>`CHUNK#${String(chunk.position).padStart(4, "0")}`</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1093](../../server/services/studyRepository.ts#L1093) | <code>record.pk</code> | <code>"META"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1238](../../server/services/studyRepository.ts#L1238) | <code>`STUDY#${id}`</code> | <code>"VOICE#ALLOWANCE"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1268](../../server/services/studyRepository.ts#L1268) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1302](../../server/services/studyRepository.ts#L1302) | <code>`STUDY#${id}`</code> | <code>`USAGE#${item.createdAt}#${item.id}`</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1315](../../server/services/studyRepository.ts#L1315) | <code>`STUDY#${id}`</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1324](../../server/services/studyRepository.ts#L1324) | <code>`STUDY#${id}`</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1463](../../server/services/studyRepository.ts#L1463) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1588](../../server/services/studyRepository.ts#L1588) | <code>`STUDY#${id}`</code> | <code>`TURN#${turn.createdAt}#${turn.id}`</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1622](../../server/services/studyRepository.ts#L1622) | <code>`STUDY#${id}`</code> | <code>`TURN#${turn.createdAt}#${turn.id}`</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1676](../../server/services/studyRepository.ts#L1676) | <code>`STUDY#${id}`</code> | <code>`TRACE#${trace.id}#${trace.status}`</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1736](../../server/services/studyRepository.ts#L1736) | <code>'STUDY#' + id</code> | <code>'FLOW#' + operationId</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1797](../../server/services/studyRepository.ts#L1797) | <code>'AIRS_CONTEXT#' + ownerId</code> | <code>'PACING#' + id</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:1998](../../server/services/studyRepository.ts#L1998) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:2036](../../server/services/studyRepository.ts#L2036) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:2077](../../server/services/studyRepository.ts#L2077) | <code>item.pk</code> | <code>item.sk</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:2088](../../server/services/studyRepository.ts#L2088) | <code>record.pk</code> | <code>"META"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:2114](../../server/services/studyRepository.ts#L2114) | <code>"STUDY#" + id</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:2158](../../server/services/studyRepository.ts#L2158) | <code>"STUDY#" + id</code> | <code>"META"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:2167](../../server/services/studyRepository.ts#L2167) | <code>"STUDY#" + id</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
-| [server/services/studyRepository.ts:2197](../../server/services/studyRepository.ts#L2197) | <code>"STUDY#" + id</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1007](../../server/services/studyRepository.ts#L1007) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1076](../../server/services/studyRepository.ts#L1076) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1094](../../server/services/studyRepository.ts#L1094) | <code>record.pk</code> | <code>`CHUNK#${String(chunk.position).padStart(4, "0")}`</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1106](../../server/services/studyRepository.ts#L1106) | <code>record.pk</code> | <code>"META"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1251](../../server/services/studyRepository.ts#L1251) | <code>`STUDY#${id}`</code> | <code>"VOICE#ALLOWANCE"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1281](../../server/services/studyRepository.ts#L1281) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1315](../../server/services/studyRepository.ts#L1315) | <code>`STUDY#${id}`</code> | <code>`USAGE#${item.createdAt}#${item.id}`</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1328](../../server/services/studyRepository.ts#L1328) | <code>`STUDY#${id}`</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1337](../../server/services/studyRepository.ts#L1337) | <code>`STUDY#${id}`</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1476](../../server/services/studyRepository.ts#L1476) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1601](../../server/services/studyRepository.ts#L1601) | <code>`STUDY#${id}`</code> | <code>`TURN#${turn.createdAt}#${turn.id}`</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1635](../../server/services/studyRepository.ts#L1635) | <code>`STUDY#${id}`</code> | <code>`TURN#${turn.createdAt}#${turn.id}`</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1689](../../server/services/studyRepository.ts#L1689) | <code>`STUDY#${id}`</code> | <code>`TRACE#${trace.id}#${trace.status}`</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1749](../../server/services/studyRepository.ts#L1749) | <code>'STUDY#' + id</code> | <code>'FLOW#' + operationId</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:1810](../../server/services/studyRepository.ts#L1810) | <code>'AIRS_CONTEXT#' + ownerId</code> | <code>'PACING#' + id</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2011](../../server/services/studyRepository.ts#L2011) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2049](../../server/services/studyRepository.ts#L2049) | <code>`STUDY#${id}`</code> | <code>"META"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2090](../../server/services/studyRepository.ts#L2090) | <code>item.pk</code> | <code>item.sk</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2101](../../server/services/studyRepository.ts#L2101) | <code>record.pk</code> | <code>"META"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2127](../../server/services/studyRepository.ts#L2127) | <code>"STUDY#" + id</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2171](../../server/services/studyRepository.ts#L2171) | <code>"STUDY#" + id</code> | <code>"META"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2180](../../server/services/studyRepository.ts#L2180) | <code>"STUDY#" + id</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
+| [server/services/studyRepository.ts:2210](../../server/services/studyRepository.ts#L2210) | <code>"STUDY#" + id</code> | <code>"LIVE#VOICE"</code> | <code>Not present in this object</code> |
 | [server/services/sources/store.ts:14](../../server/services/sources/store.ts#L14) | <code>`STUDY_SOURCE#${id}`</code> | <code>'DRAFT'</code> | <code>Not present in this object</code> |
 | [server/services/sources/store.ts:56](../../server/services/sources/store.ts#L56) | <code>`STUDY_SOURCE_LIMIT#${id}`</code> | <code>'USAGE'</code> | <code>Not present in this object</code> |
 | [server/services/sources/store.ts:59](../../server/services/sources/store.ts#L59) | <code>`STUDY_SOURCE_LIMIT#${id}`</code> | <code>'USAGE'</code> | <code>Not present in this object</code> |
@@ -49,7 +49,7 @@ Proposed Kai/longitudinal entities are not added here unless implemented in thes
 
 ## Source fingerprints
 
-- server/services/studyRepository.ts: 32d515c19f4537c0fd4c52edbcb60c990a3d6abbc3ac13fba7b5eb9f2255b45a
+- server/services/studyRepository.ts: 1eee4530caaaf2151b9f577b711160c1f8c29d36a8093d465e15d99507eb0fd9
 - server/services/sources/store.ts: 09c553ad30a77fa09e552d796d479e1d986ca1a47d7492c6c80830c80dbc17f6
 - server/services/airsContext.ts: a6b138269851bf07c38633d6bc98e5fe39118db250793d677bad34c669ddbbb4
 - server/services/studySpeechCache.ts: d60810807f482c94539aac91427b662d881b88b21d1e51776b4bc32ec84a53b1
