@@ -63,7 +63,9 @@ export function classifyAirsProviderFailure(input: {
     code = "AGENT_PROVIDER_REQUEST_INVALID";
     statusCode = 502;
     retryable = false;
-    statusMessage = `The learning service could not accept this request. ${retained} The app owner needs to check the request configuration.`;
+    statusMessage = providerStatus === 413
+      ? `The learning request is larger than the model service allows. ${retained} The app owner needs to reduce the request size or adjust the model limits.`
+      : `The learning service could not accept this request. ${retained} The app owner needs to check the request configuration.`;
   }
   const retryAfterSeconds =
     providerStatus === 429

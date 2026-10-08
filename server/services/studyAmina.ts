@@ -6,10 +6,6 @@ import { reserveGuestAllowance } from "./airsContext";
 import { selectAminaActivity } from "./airsAminaFunctions";
 import { createHash, randomUUID } from "node:crypto";
 import { createError } from "h3";
-import {
-  BedrockRuntimeClient,
-  ConverseStreamCommand,
-} from "@aws-sdk/client-bedrock-runtime";
 import type { H3Event } from "h3";
 import type {
   StudyConversation,
@@ -25,7 +21,6 @@ import {
   studyLearningEvidenceSchema,
   type StudyInstructionPacket,
 } from "../../shared/studyPedagogy";
-import { awsClientConfig } from "./awsClientConfig";
 import {
   appendStudyExecution,
   appendStudyTrace,
@@ -38,13 +33,11 @@ import { retrieveStudyPassages } from "./studyRetrieval";
 import {
   compileMisuStudyPacket,
   refreshMisuRecommendation,
-  studyBedrockError,
 } from "./studyMisu";
 import { groqStudyText } from "./studyInference";
 import { STUDY_LIVE_START_MESSAGE } from "../../shared/studyLive";
 import { validateStudyPreferences } from "./studyPreferences";
 
-let bedrock: BedrockRuntimeClient | undefined;
 
 export function nextPracticeState(
   conversation: StudyConversation,
@@ -408,50 +401,15 @@ export async function* streamAminaText(
   if (fixture && config.studySourceFixtureMode === true && config.flowstAuthMode === 'mock' && process.env.NODE_ENV !== 'production' && system.startsWith('[AMINA_OBJECTIVE_POLICY_0.2]')) {
     yield JSON.stringify({acknowledgement:'Scripted demonstration: the configured target is satisfied. Live understanding is not assessed.',explanation:'',sourceIds:[]}); return;
   }
-  if (config.studyTextProvider !== "aws") {
-    yield await groqStudyText(
-      system,
-      buildAminaModelMessages(history, input, sourceContext).map((message) => ({
-        role: message.role,
-        content: message.content.map((part) => part.text).join("\n\n"),
-      })),
-      600,
-      event,
-    );
-    return;
-  }
-  bedrock ||= new BedrockRuntimeClient(
-    awsClientConfig(String(config.awsRegion || "us-east-1")),
+  yield await groqStudyText(
+    system,
+    buildAminaModelMessages(history, input, sourceContext).map(message => ({
+      role: message.role,
+      content: message.content.map(part => part.text).join("\n\n"),
+    })),
+    600,
+    event,
   );
-  const messages = buildAminaModelMessages(history, input, sourceContext);
-  let response;
-  try {
-    response = await bedrock.send(
-      new ConverseStreamCommand({
-        modelId: String(
-          config.studyBedrockModelId || "us.amazon.nova-2-lite-v1:0",
-        ),
-        system: [{ text: system }],
-        messages,
-        inferenceConfig: { maxTokens: 600, temperature: 0.35 },
-      }),
-    );
-  } catch (error) {
-    console.error("Amina Bedrock request failed", error);
-    throw createError({
-      statusCode: 503,
-      statusMessage: studyBedrockError(error),
-    });
-  }
-  if (!response.stream)
-    throw createError({
-      statusCode: 503,
-      statusMessage: "Amina could not start a response.",
-    });
-  for await (const eventChunk of response.stream) {
-    const text = eventChunk.contentBlockDelta?.delta?.text;
-    if (text) yield text;
-  }
 }
 
 export async function finishAminaTurn(

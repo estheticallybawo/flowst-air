@@ -8,10 +8,6 @@ import {
   writeAirsArtifact,
 } from "./airsContext";
 import { createError } from "h3";
-import {
-  BedrockRuntimeClient,
-  ConverseCommand,
-} from "@aws-sdk/client-bedrock-runtime";
 import type { H3Event } from "h3";
 import {
   DEFAULT_STUDY_PREFERENCES,
@@ -21,7 +17,6 @@ import {
   type StudyPlan,
   type StudyPreferences,
 } from "../../shared/study";
-import { awsClientConfig } from "./awsClientConfig";
 import {
   compileAirStudyPacket,
   DEFAULT_STUDY_FUNCTION_REFS,
@@ -41,7 +36,6 @@ import { buildMisuSourceInventory } from "./studyPlanningInventory";
 import { validateStudyPreferences } from "./studyPreferences";
 import { defaultObjectivePolicy, objectivePolicySchema, semanticEvidenceSchema, type ObjectiveLedgerEntry, type SemanticEvidence } from '../../shared/studyObjectivePolicy';
 
-let bedrock: BedrockRuntimeClient | undefined;
 
 /** Misu resolves approved, published NeuroMap functions into Amina's validated packet. */
 export function compileMisuStudyPacket(conversation: StudyConversation) {
@@ -67,41 +61,7 @@ export async function askMisu(
   maxTokens: number,
   event?: H3Event,
 ) {
-  const config = useRuntimeConfig(event);
-  if (config.studyTextProvider !== "aws")
-    return groqStudyText(
-      system,
-      [{ role: "user", content: input }],
-      maxTokens,
-      event,
-    );
-  bedrock ||= new BedrockRuntimeClient(
-    awsClientConfig(String(config.awsRegion || "us-east-1")),
-  );
-  try {
-    const response = await bedrock.send(
-      new ConverseCommand({
-        modelId: String(
-          config.studyBedrockModelId || "us.amazon.nova-2-lite-v1:0",
-        ),
-        system: [{ text: system }],
-        messages: [{ role: "user", content: [{ text: input }] }],
-        inferenceConfig: { maxTokens, temperature: 0.2 },
-      }),
-    );
-    return (
-      response.output?.message?.content
-        ?.map((part) => part.text || "")
-        .join("")
-        .trim() || ""
-    );
-  } catch (error) {
-    console.error("Study Bedrock request failed", error);
-    throw createError({
-      statusCode: 503,
-      statusMessage: studyBedrockError(error),
-    });
-  }
+  return groqStudyText(system, [{ role: "user", content: input }], maxTokens, event);
 }
 
 function parseJson(text: string): unknown {

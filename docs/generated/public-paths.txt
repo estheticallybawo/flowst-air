@@ -223,11 +223,13 @@
 :(literal)server/services/sources/web.ts
 :(literal)server/services/studyAmina.ts
 :(literal)server/services/studyAwsSpeech.ts
+:(literal)server/services/studyBedrockTransport.ts
 :(literal)server/services/studyElevenAgent.ts
 :(literal)server/services/studyElevenSpeech.ts
 :(literal)server/services/studyExtraction.ts
 :(literal)server/services/studyInference.ts
 :(literal)server/services/studyMisu.ts
+:(literal)server/services/studyModelBudget.ts
 :(literal)server/services/studyObjectiveFlow.ts
 :(literal)server/services/studyPacing.ts
 :(literal)server/services/studyPlanningInventory.ts
@@ -293,6 +295,7 @@
 :(literal)tests/source-e2e/session-completion.spec.ts
 :(literal)tests/study-air-history.test.ts
 :(literal)tests/study-aws-voice.test.ts
+:(literal)tests/study-bedrock-transport.test.ts
 :(literal)tests/study-companion.test.ts
 :(literal)tests/study-completion-invitation.test.ts
 :(literal)tests/study-conversation-progress.test.ts

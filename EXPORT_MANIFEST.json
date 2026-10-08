@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-08T11:28:58.657Z",
+  "createdAt": "2026-10-08T13:28:54.464Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -10,8 +10,8 @@
     },
     {
       "path": ".env.example",
-      "bytes": 998,
-      "sha256": "4e7aa72d49b7cd814ffba181b75c0156d69ac5dd146d21f237877fad0d313c8d"
+      "bytes": 1341,
+      "sha256": "2d2b10890e4f9938c87bd96eb6130601f425b9c8241515368a0ad5fb1f35fbdb"
     },
     {
       "path": ".gitattributes",
@@ -405,8 +405,8 @@
     },
     {
       "path": "docs/generated/public-paths.txt",
-      "bytes": 14306,
-      "sha256": "7a7c953696b01834df4b0e419351db44f7e93de427cc609b27d9465723a6fd2f"
+      "bytes": 14451,
+      "sha256": "0fb0cedc43521470312aa16baa7c4313773e23def263ec0def2365ff5a3b8319"
     },
     {
       "path": "docs/index.md",
@@ -465,8 +465,8 @@
     },
     {
       "path": "docs/references/misu-provider-reliability.md",
-      "bytes": 9687,
-      "sha256": "675bae2edf7882e0e703fed2ee140567db3850e50c5263650aebf56a8c0bc6ab"
+      "bytes": 13624,
+      "sha256": "2c783c84f735e33b0ac6223e57f7d4bcf633b683d1fa1f87f70cbf52a4e58b7a"
     },
     {
       "path": "docs/references/objective-flow-verification.md",
@@ -515,8 +515,8 @@
     },
     {
       "path": "nuxt.config.ts",
-      "bytes": 8468,
-      "sha256": "ec1cff16ed83ddbe6eaf7702f9974c3d96b0102f54e17fd13b7df5f48e9daa7e"
+      "bytes": 8572,
+      "sha256": "e2cf38807c3049adc71284648f81636b7679332170c7c5e7c61c1eb62c7d040e"
     },
     {
       "path": "package-lock.json",
@@ -700,8 +700,8 @@
     },
     {
       "path": "scripts/check-flowst-parity.mjs",
-      "bytes": 5973,
-      "sha256": "fd53ee7656b5dda7cf828307455600ef8a2d489c55e121246322c344732b3dda"
+      "bytes": 6241,
+      "sha256": "d671c32123613adc26a6f9400b27b817fbd8394c2d8602bd50045e1fc39019df"
     },
     {
       "path": "scripts/check-public-export.mjs",
@@ -955,8 +955,8 @@
     },
     {
       "path": "server/api/study/llm/v1/chat/completions.post.ts",
-      "bytes": 5268,
-      "sha256": "6d30c338ca3d563cfbb3175906b3ff273de80081e79f758826d06d355f7c742d"
+      "bytes": 5526,
+      "sha256": "9c7bd220b24510984ab2a992100ea2b26528a8685dd7cf7a98a817d3b28f1b6e"
     },
     {
       "path": "server/api/study/sources/[id].delete.ts",
@@ -1030,13 +1030,13 @@
     },
     {
       "path": "server/services/airsAgentRunner.ts",
-      "bytes": 7539,
-      "sha256": "405cb9fce4ec4d0cef6c3a0de839ca224cdda75d8c568f3939611386b06b7e89"
+      "bytes": 8205,
+      "sha256": "b5e33ff9ccff4422440b10a575232d4ed64cfddab9bdbbe7ce3374cdfa86767d"
     },
     {
       "path": "server/services/airsAminaFunctions.ts",
-      "bytes": 3367,
-      "sha256": "43d684cb6282647fdbcfa37836b667b99566fa24794c14614b0bd40439d86534"
+      "bytes": 3385,
+      "sha256": "635d7bb00c4d832facb7b6b212198bf95f9802f474fb6e999adc34271ec0ac6b"
     },
     {
       "path": "server/services/airsContext.ts",
@@ -1060,8 +1060,8 @@
     },
     {
       "path": "server/services/airsProviderFailure.ts",
-      "bytes": 4018,
-      "sha256": "fd025a1706ed001c8be06dfaa275764cc6c1b13f7d9d4f8c43013aaef5c85fd1"
+      "bytes": 4208,
+      "sha256": "212ab2ebbf11a0455e1fb168cdb57f142033678de966fd715ecde52377bd0a29"
     },
     {
       "path": "server/services/aminaRealtime.ts",
@@ -1115,8 +1115,8 @@
     },
     {
       "path": "server/services/studyAmina.ts",
-      "bytes": 30187,
-      "sha256": "8e0f99924f54b6af2187ae82ecab0ffedf7182aadff963cea9fe70a32a0fd371"
+      "bytes": 29499,
+      "sha256": "f1c39c13895a1187de0d5beafa24e48364c0867abf7706e419dc9b2bd2537ad1"
     },
     {
       "path": "server/services/studyAwsSpeech.ts",
@@ -1124,9 +1124,14 @@
       "sha256": "b7ef6d739918a15cdcb30fbf55f7c0bf25b8d197b027e1f35d595894e621164b"
     },
     {
+      "path": "server/services/studyBedrockTransport.ts",
+      "bytes": 5836,
+      "sha256": "5861465160ee1b7841c06ec0d615401ded65cfa6eafe74490ccb773d72527ed3"
+    },
+    {
       "path": "server/services/studyElevenAgent.ts",
-      "bytes": 2635,
-      "sha256": "ee058915660ae7de8519e773eab3640efd717689db0329c83fdaf4844a14c496"
+      "bytes": 2705,
+      "sha256": "3754d5bb271e2cee9aa66493e0013e05d192e640af7b1a85fcdad9ca93b93d5e"
     },
     {
       "path": "server/services/studyElevenSpeech.ts",
@@ -1140,13 +1145,18 @@
     },
     {
       "path": "server/services/studyInference.ts",
-      "bytes": 2233,
-      "sha256": "96c2670f7750d745e70d83a9aea2e035a32671b5e78b9b44be2ae6b748372548"
+      "bytes": 2602,
+      "sha256": "093c01f43bf8234baac3ae34cb78e11167a758347e3c05dc87e0a3f1899a331f"
     },
     {
       "path": "server/services/studyMisu.ts",
-      "bytes": 35774,
-      "sha256": "d0ccf1298882d5cc379b4c047d40774d939958f5f1203cd2499d5d39abc7e6f0"
+      "bytes": 33900,
+      "sha256": "5946a6935516a5f63f86ff106598021e4e01695341c1419e15330024ce78e2be"
+    },
+    {
+      "path": "server/services/studyModelBudget.ts",
+      "bytes": 3038,
+      "sha256": "29d4633d11e74f429c32da8dd88db1f62e49fea89b550dedb2dd8a5838ca00dd"
     },
     {
       "path": "server/services/studyObjectiveFlow.ts",
@@ -1420,8 +1430,8 @@
     },
     {
       "path": "tests/amina-live-model.test.ts",
-      "bytes": 3767,
-      "sha256": "00b9773f1cbd6d8543df6e14cfde13363b8a0e887996ff72a1675bcc2172a6d0"
+      "bytes": 4404,
+      "sha256": "ad1e4d7e080f33b4c81b58988f8bfc5f6f67bf13c48bb1130b21b766ddba1349"
     },
     {
       "path": "tests/amina-plan-approval.test.ts",
@@ -1472,6 +1482,11 @@
       "path": "tests/study-aws-voice.test.ts",
       "bytes": 14413,
       "sha256": "208515702d16a0bc2c04053a6128135f450328aae4475bff5d10208c926f4de5"
+    },
+    {
+      "path": "tests/study-bedrock-transport.test.ts",
+      "bytes": 10136,
+      "sha256": "822b2a5440769d14ff51250848902c0ac07ad0f02336a49c118acf324d1d1196"
     },
     {
       "path": "tests/study-companion.test.ts",

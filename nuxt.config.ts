@@ -146,6 +146,7 @@ export default defineNuxtConfig({
     studyAwsPollyUsdPerMillion: Number(
       process.env.FLOWST_STUDY_AWS_POLLY_ESTIMATE_USD_PER_MILLION || 16,
     ),
+    studyBedrockApiKey: process.env.AWS_BEARER_TOKEN_BEDROCK || process.env.AWS_BEDROCK_APIKEY || "",
     studyBedrockModelId:
       process.env.FLOWST_STUDY_BEDROCK_MODEL_ID || "us.amazon.nova-2-lite-v1:0",
     dynamoTable: process.env.FLOWST_DYNAMO_TABLE || "",
@@ -162,7 +163,7 @@ export default defineNuxtConfig({
     public: {
       studySourceFixtureMode:
         airEnv("AIR_SOURCE_FIXTURE_MODE", "AMINA_SOURCE_FIXTURE_MODE") ===
-        "true" &&
+          "true" &&
         process.env.FLOWST_AUTH_MODE === "mock" &&
         process.env.NODE_ENV !== "production",
       appSurface: "air",

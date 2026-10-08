@@ -1,17 +1,19 @@
 import { createError } from 'h3'
 import type { H3Event } from 'h3'
 import { airsProviderFailureReason, classifyAirsProviderFailure } from './airsProviderFailure'
+import { requestStudyBedrock } from './studyBedrockTransport'
 
-/** Study inference is independent of AWS persistence. Never fall back across paid providers. */
+/** Legacy export name retained. Explicit provider selection; never fall back or retry paid dispatch. */
 export async function groqStudyText(system: string, messages: { role: 'user' | 'assistant'; content: string }[], maxTokens: number, event?: H3Event) {
   const config = useRuntimeConfig(event)
-  if (!config.groqApiKey) throw createError({ statusCode: 503, statusMessage: 'Amina’s model connection is not configured.' })
+  if (config.studyTextProvider !== 'aws' && !config.groqApiKey) throw createError({ statusCode: 503, statusMessage: 'Amina’s model connection is not configured.' })
   let response: Response
-  try { response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  try { response = config.studyTextProvider === 'aws' ? await requestStudyBedrock({ messages: [{ role: 'system', content: system }, ...messages], max_completion_tokens: maxTokens, temperature: 0.3 }, event) : await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST', headers: { Authorization: `Bearer ${config.groqApiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ model: config.groqModel, messages: [{ role: 'system', content: system }, ...messages], max_completion_tokens: maxTokens, temperature: 0.3, stream: false, ...(String(config.groqModel).includes('gpt-oss') ? { reasoning_effort: 'low' } : {}) }),
     signal: AbortSignal.timeout(45_000),
-  }) } catch {
+  }) } catch (error) {
+    if ((error as { statusCode?: number })?.statusCode) throw error
     throw createError({ statusCode: 503, statusMessage: 'The learning service could not connect. Your source is still available; try again shortly.', data: { code: 'AGENT_CONNECTION_FAILED' } })
   }
   if (!response.ok) {

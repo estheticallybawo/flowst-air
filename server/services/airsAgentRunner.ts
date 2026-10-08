@@ -1,5 +1,6 @@
 import { createError } from "h3";
 import type { H3Event } from "h3";
+import { requestStudyBedrock } from './studyBedrockTransport';
 import { AIRS_TOOL_ALLOWLIST } from "../../shared/airsOrchestration";
 import {
   airsProviderFailureReason,
@@ -30,7 +31,7 @@ export async function runAirsAgent(
   )
     throw new Error("Invalid agent tool catalog.");
   const config = useRuntimeConfig(event);
-  if (!config.groqApiKey)
+  if (config.studyTextProvider !== 'aws' && !config.groqApiKey)
     throw createError({
       statusCode: 503,
       statusMessage: "The learning model is not configured.",
@@ -94,7 +95,13 @@ export async function runAirsAgent(
     if (Date.now() >= deadline) break;
     let response: Response;
     try {
-      response = await fetch(
+      response = config.studyTextProvider === 'aws' ? await requestStudyBedrock({
+        messages,
+        tools: tools.map(t => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } })),
+        tool_choice: proposalReady ? { type: 'function', function: { name: proposalTool } } : 'required',
+        max_completion_tokens: agent === 'MISU' ? 4000 : 2000,
+        temperature: 0.2,
+      }, event, Math.max(1, Math.min(30000, deadline - Date.now()))) : await fetch(
         "https://api.groq.com/openai/v1/chat/completions",
         {
           method: "POST",
@@ -128,7 +135,8 @@ export async function runAirsAgent(
           ),
         },
       );
-    } catch {
+    } catch (error) {
+      if ((error as { statusCode?: number })?.statusCode) throw error;
       console.error("Airs agent connection failed", {
         agent,
         code: "AGENT_CONNECTION_FAILED",

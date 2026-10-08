@@ -1,6 +1,6 @@
 # Misu provider reliability
 
-Misu planning runs in the deployed Nuxt server and calls Groq directly. AWS stores the owned lesson and session data through Vercel workload identity. Signing into a personal AWS session does not refresh Groq authentication or limits.
+Misu planning runs in the deployed Nuxt server. Explicit text-provider selection routes Misu planning/evaluation, Amina activity selection/replies, context preparation and Kai review to either Groq or Amazon Bedrock. AWS stores owned lesson and session data through Vercel workload identity. Signing into a personal AWS session does not refresh a deployed model key or quota.
 
 The function-planning path uses the complete `propose_session_plan` schema as its output contract. Once all declared Misu read tools have confirmed results, the runner requests that proposal directly. A model that returns another read instead is rejected before that read executes again. Approval, source references and proposal validation remain required.
 
@@ -18,7 +18,7 @@ Use Vercel's project Runtime Logs and find the static event `Airs agent provider
 
 Network failures remain `AGENT_CONNECTION_FAILED`; they are separate from an HTTP rejection. Unknown provider error prose is discarded. Only an allowlisted tool-failure code is inspected, from at most 8 KiB of error body. Retry delays are bounded to one day.
 
-These changes resolve contradictory planning instructions and redundant read rounds. They do not establish the cause of a historical production failure whose provider status was not retrieved. They also do not increase an account's quota or silently switch providers. Mocked tests do not prove live model availability. Paid model and voice checks remain owner-run.
+These changes resolve contradictory planning instructions and redundant read rounds. They do not establish the cause of a historical production failure whose provider status was not retrieved. They also do not increase an account's quota or silently switch providers. Mocked tests do not prove live model availability. Paid checks require explicit owner authorization. The owner authorized up to $20 for Bedrock model testing on 8 October 2026; voice checks remain owner-run.
 
 ## Kai review recovery
 
@@ -52,7 +52,21 @@ The previous inventory step used a 550-token summary output cap. Its exact incom
 
 The plain text adapter and function runner retain safe provider classifications, including bounded retry delays and incomplete-output detection. Plan and review controls retain a provider-limit cooldown across refresh: Retry-After when supplied, otherwise a sixty-second UI delay. Expiry enables an explicit retry; it never sends one automatically or guarantees the provider quota has reset. [Recovery regressions](../../tests/study-provider-recovery.test.ts) and [retry browser journey](../../tests/source-e2e/provider-retry.spec.ts) use fixtures without paid calls.
 
-The Groq text and function paths share GROQ_MODEL, defaulting to openai/gpt-oss-20b. AWS text mode changes Misu semantic evaluation and Amina drafting, while final Misu planning and Kai still use the Groq function runner. Speech services are separate. Distinct role/model routing and provider failover remain future configuration work; this repair changes no credentials, provider selection or account quotas.
+The Groq paths share GROQ_MODEL, defaulting to openai/gpt-oss-20b. Explicit AWS mode now routes both text and validated function calls through Bedrock Converse. ElevenLabs callbacks retain signed session tokens, owning leases and commit-before-delivery while accepting AWS-backed replies. Voice services remain separate. No automatic provider fallback or inference retry is performed.
+
+### Bedrock testing configuration
+
+Set AIR_TEXT_PROVIDER=aws for standalone or AMINA_TEXT_PROVIDER=aws for Flowst. Set FLOWST_STUDY_BEDROCK_MODEL_ID=us.amazon.nova-2-lite-v1:0 and AWS_REGION=us-east-1. AWS_BEARER_TOKEN_BEDROCK is the canonical server-only key; AWS_BEDROCK_APIKEY is supported as a compatibility alias. AWS_BEDROCK_NAME is a key label and is not used as a model ID. With no key, the SDK uses workload identity and maxAttempts=1. Local .env.local changes do not configure Vercel; production needs its own encrypted environment settings and a redeploy. Never commit a real key. On-demand Nova needs no provisioned Marketplace endpoint.
+
+The [Bedrock adapter](../../server/services/studyBedrockTransport.ts) translates confirmed tool calls/results into Converse blocks, requests the named proposal, and returns tool inputs through the existing allowlist, Zod and citation validators. The complete encoded request is limited to 96,000 UTF-8 bytes and 4,000 output tokens before dispatch. This is a conservative request-size bound, not a claim about the account's token quota. Bedrock truncation, access, throttling, network and unusable outputs remain explicit failures. Requests and raw provider error bodies are not logged.
+
+The [testing allowance](../../server/services/studyModelBudget.ts) atomically reserves against $15 for Flowst and $5 for standalone (server-configured air/amira surface) in their separate persistent study tables under AIRS_CONTEXT#study-bedrock-testing / MODEL_BUDGET#nova-2-lite-v1. Production configuration checks confirmed separate tables; these fixed allocations total $20 without merging learner data or expanding IAM permissions. Local Flowst testing uses the Flowst table and shares its $15 allocation. Reservations use conservative accounting rates of $1 per million input bytes plus a 4,096-byte framing allowance, and $10 per million permitted output tokens, above current Nova 2 Lite text rates. They are not actual AWS charges. The allowance supports only Nova 2 Lite, does not reset on deployment, and is retained after uncertain requests. No automatic refunds or increases occur. Missing persistent storage or an exhausted allowance blocks dispatch. The cap covers this adapter's model calls, not voice, storage, unrelated AWS services or calls outside the app. AWS promotional-credit eligibility and remaining balance must be checked in the account.
+
+[Bedrock regressions](../../tests/study-bedrock-transport.test.ts) exercise text/function routing, confirmed reads, validation, provider errors, output truncation, no retry, concurrent reservations and refusal before dispatch when persistence or budget is unavailable. [AWS API-key documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/api-keys-use.html), [Nova tool use](https://docs.aws.amazon.com/nova/latest/nova2-userguide/using-tools.html) and [AWS pricing](https://aws.amazon.com/bedrock/pricing/) describe the service contracts. Live-check results must be reported separately from fixtures.
+
+### Confirmed October request-size failure
+
+The Anthropology source imported from Wikipedia contained 334 indexed sections; the card excerpt was only the opening paragraph. Its session requested broad coverage. Production logs and the failed /plan response both reported providerStatus=413. This establishes an oversized provider request, not a judgment about the definition or an AWS login failure. The prior 32,000-character preview did not bound the full Groq prompt and tool schema against the account quota. The UI now describes a 413 as a size failure. For a definition-only session, paste that passage or explicitly choose a focused goal; importing a URL captures the readable page.
 
 Workbox navigation fallback is disabled for server-rendered authenticated pages: neither /home nor / is a precached HTML shell. Static asset caching remains enabled. A fallback may be restored only with an actual public precached offline document. See [Groq limits](https://console.groq.com/docs/rate-limits) and [Workbox configuration](https://developer.chrome.com/docs/workbox/modules/workbox-build).
 

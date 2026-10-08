@@ -7,6 +7,11 @@ if (index < 0 || !process.argv[index + 1])
   throw new Error("Supply --flowst-path with the Flowst checkout.");
 const host = path.resolve(process.argv[index + 1]);
 const files = [
+  "server/services/studyBedrockTransport.ts",
+  "server/services/studyModelBudget.ts",
+  "server/services/studyElevenAgent.ts",
+  "tests/study-bedrock-transport.test.ts",
+  "tests/amina-live-model.test.ts",
   "server/services/studyPlanningInventory.ts",
   "tests/study-planning-inventory.test.ts",
   "server/services/studyInference.ts",
@@ -111,7 +116,7 @@ const files = [
 ];
 const hash = (p) => {
   let source = fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
-  if (p.endsWith(path.join('server','api','study','llm','v1','chat','completions.post.ts'))) source = source.replaceAll('assertAmiraStudyAccess','assertAirStudyAccess').replaceAll('/amiraAccess','/airAccess').replaceAll('prepareAmiraTurn','prepareAminaTurn').replaceAll('streamAmiraText','streamAminaText').replaceAll('finishAmiraTurn','finishAminaTurn').replaceAll('failAmiraTurn','failAminaTurn').replaceAll('/studyAmira','/studyAmina');
+  if (p.endsWith(path.join('server','api','study','llm','v1','chat','completions.post.ts')) || p.endsWith(path.join('tests','amina-live-model.test.ts'))) source = source.replaceAll('assertAmiraStudyAccess','assertAirStudyAccess').replaceAll('/amiraAccess','/airAccess').replaceAll('prepareAmiraTurn','prepareAminaTurn').replaceAll('streamAmiraText','streamAminaText').replaceAll('finishAmiraTurn','finishAminaTurn').replaceAll('failAmiraTurn','failAminaTurn').replaceAll('/studyAmira','/studyAmina');
   // Flowst exercises the retained client alias; its implementation delegates unchanged.
   if (p.endsWith(path.join('tests','amina-live-client.test.ts'))) source = source.replaceAll('useAmiraLiveCall','useAminaLiveCall');
   // Flowst retains this exact compatibility export for its legacy callers.

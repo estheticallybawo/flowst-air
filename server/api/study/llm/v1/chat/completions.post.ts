@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
   const actual = getHeader(event, "authorization") || "";
   const expected = `Bearer ${config.elevenLabsStudyLlmSecret}`;
   if (
-    config.studyTextProvider !== "groq" ||
+    !['groq', 'aws'].includes(String(config.studyTextProvider)) ||
     String(config.elevenLabsStudyLlmSecret).length < 32 ||
     Buffer.byteLength(actual) !== Buffer.byteLength(expected) ||
     !timingSafeEqual(Buffer.from(actual), Buffer.from(expected))
@@ -161,7 +161,7 @@ export default defineEventHandler(async (event) => {
   setHeader(event, "Content-Type", "text/event-stream");
   setHeader(event, "Cache-Control", "no-store");
   const chunk = (delta: object, finish_reason: string | null = null) =>
-    `data: ${JSON.stringify({ id: "chatcmpl-" + hash, object: "chat.completion.chunk", created: Math.floor(Date.now() / 1000), model: config.groqModel, choices: [{ index: 0, delta, finish_reason }] })}\n\n`;
+    `data: ${JSON.stringify({ id: "chatcmpl-" + hash, object: "chat.completion.chunk", created: Math.floor(Date.now() / 1000), model: config.studyTextProvider === 'aws' ? config.studyBedrockModelId : config.groqModel, choices: [{ index: 0, delta, finish_reason }] })}\n\n`;
   return (
     chunk({ role: "assistant", content: reply }) +
     chunk({}, "stop") +
