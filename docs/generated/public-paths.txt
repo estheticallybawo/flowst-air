@@ -230,6 +230,7 @@
 :(literal)server/services/studyMisu.ts
 :(literal)server/services/studyObjectiveFlow.ts
 :(literal)server/services/studyPacing.ts
+:(literal)server/services/studyPlanningInventory.ts
 :(literal)server/services/studyPreferences.ts
 :(literal)server/services/studyRepeat.ts
 :(literal)server/services/studyRepository.ts
@@ -302,6 +303,7 @@
 :(literal)tests/study-objective-flow.test.ts
 :(literal)tests/study-objective-journey.test.ts
 :(literal)tests/study-pacing.test.ts
+:(literal)tests/study-planning-inventory.test.ts
 :(literal)tests/study-preferences.test.ts
 :(literal)tests/study-presentation.test.ts
 :(literal)tests/study-provider-recovery.test.ts

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { groqStudyText } from '../server/services/studyInference'
-import { documentInventory } from '../server/services/studyMisu'
+import { buildMisuSourceInventory } from '../server/services/studyPlanningInventory'
 import { studyRetryAt } from '../shared/studyRetry'
 import { runAirsAgent } from '../server/services/airsAgentRunner'
 
@@ -21,16 +21,18 @@ describe('provider limit recovery', () => {
     expect(JSON.stringify(vi.mocked(console.error).mock.calls)).not.toContain('private')
     expect(fetcher).toHaveBeenCalledTimes(1)
   })
-  it('stops a large document inventory after the first rejection instead of dispatching sibling batches', async () => {
+  it('prepares a large document inventory without any model request', () => {
     const fetcher = vi.fn(async () => new Response('', { status: 429 }))
     vi.stubGlobal('fetch', fetcher)
     const chunks = Array.from({ length: 74 }, (_, position) => ({ id: 'chunk-' + position, label: 'Section ' + position, text: 'A source-backed idea.', excerpt: 'A source-backed idea.', position }))
-    await expect(documentInventory(chunks)).rejects.toMatchObject({ statusCode: 429 })
-    expect(fetcher).toHaveBeenCalledTimes(1)
+    const result = buildMisuSourceInventory(chunks)
+    expect(result.chunks).toHaveLength(74)
+    expect(result.text).toContain('"id":"chunk-73"')
+    expect(fetcher).not.toHaveBeenCalled()
   })
   it('keeps small document inventories local and preserves exact source references', async () => {
     const fetcher = vi.fn(); vi.stubGlobal('fetch', fetcher)
-    expect(await documentInventory([{ id: 'p-1', label: 'Page 1', position: 0, text: 'Read the original.', excerpt: 'Read the original.' }])).toBe('[p-1; Page 1] Read the original.')
+    expect(buildMisuSourceInventory([{ id: 'p-1', label: 'Page 1', position: 0, text: 'Read the original.', excerpt: 'Read the original.' }]).text).toContain('{"id":"p-1","label":"Page 1","text":"Read the original."}')
     expect(fetcher).not.toHaveBeenCalled()
   })
   it('does not accept a truncated output or retry a timed-out dispatch', async () => {

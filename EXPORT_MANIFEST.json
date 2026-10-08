@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-08T10:50:54.250Z",
+  "createdAt": "2026-10-08T11:28:58.657Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -405,8 +405,8 @@
     },
     {
       "path": "docs/generated/public-paths.txt",
-      "bytes": 14205,
-      "sha256": "49589d2d156623008594f6c122370c1777571f240b1a88ed2bafdacf758206a9"
+      "bytes": 14306,
+      "sha256": "7a7c953696b01834df4b0e419351db44f7e93de427cc609b27d9465723a6fd2f"
     },
     {
       "path": "docs/index.md",
@@ -465,8 +465,8 @@
     },
     {
       "path": "docs/references/misu-provider-reliability.md",
-      "bytes": 8900,
-      "sha256": "8eea435962e003f22d40c85f50c3ab9180f5c6916b6b9ae225a8e474c7a4eb03"
+      "bytes": 9687,
+      "sha256": "675bae2edf7882e0e703fed2ee140567db3850e50c5263650aebf56a8c0bc6ab"
     },
     {
       "path": "docs/references/objective-flow-verification.md",
@@ -700,8 +700,8 @@
     },
     {
       "path": "scripts/check-flowst-parity.mjs",
-      "bytes": 5882,
-      "sha256": "0d6f832c7153cd00d7d2aaaaa3c719be8f794ed4e490f6b26022ff50439fcfa1"
+      "bytes": 5973,
+      "sha256": "fd53ee7656b5dda7cf828307455600ef8a2d489c55e121246322c344732b3dda"
     },
     {
       "path": "scripts/check-public-export.mjs",
@@ -1145,8 +1145,8 @@
     },
     {
       "path": "server/services/studyMisu.ts",
-      "bytes": 36682,
-      "sha256": "65d8355d3b2669becf1027b00c0c6216805cb570ba91293dd51448cd2b59c406"
+      "bytes": 35774,
+      "sha256": "d0ccf1298882d5cc379b4c047d40774d939958f5f1203cd2499d5d39abc7e6f0"
     },
     {
       "path": "server/services/studyObjectiveFlow.ts",
@@ -1157,6 +1157,11 @@
       "path": "server/services/studyPacing.ts",
       "bytes": 4932,
       "sha256": "351762ed30bcb6d7340ed312dbaa9d32644db59681d93c4ffde8090ebcc7fcd0"
+    },
+    {
+      "path": "server/services/studyPlanningInventory.ts",
+      "bytes": 2964,
+      "sha256": "b128e849b6322a6eec254ada8d68def3eaa8a75c7f4a38ff19168386667c20ff"
     },
     {
       "path": "server/services/studyPreferences.ts",
@@ -1519,6 +1524,11 @@
       "sha256": "1466f291ab9ee8e31aca12b91234b2347fa61d476e57d0dfd5ff7ad3019d80df"
     },
     {
+      "path": "tests/study-planning-inventory.test.ts",
+      "bytes": 6055,
+      "sha256": "1e0bc5c630f99ee133ac15544a762931255d404f1dad658bc8e69019514e84fe"
+    },
+    {
       "path": "tests/study-preferences.test.ts",
       "bytes": 11555,
       "sha256": "abfb4cff36c5454d3076c083582d2c0661c95294f4dbbfe158ae57db1cb269ac"
@@ -1530,8 +1540,8 @@
     },
     {
       "path": "tests/study-provider-recovery.test.ts",
-      "bytes": 5043,
-      "sha256": "de5767c9ed52ca85c832bccf6100dcfade36c8b5f5b371213f7561eff43ecdf0"
+      "bytes": 5116,
+      "sha256": "532afb3ec83df0501f0b76e183c81984779107613bbfc027c81bdca98e3fe780"
     },
     {
       "path": "tests/study-repeat.test.ts",
