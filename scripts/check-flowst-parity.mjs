@@ -7,6 +7,11 @@ if (index < 0 || !process.argv[index + 1])
   throw new Error("Supply --flowst-path with the Flowst checkout.");
 const host = path.resolve(process.argv[index + 1]);
 const files = [
+  "server/services/studyInference.ts",
+  "shared/studyRetry.ts",
+  "composables/useStudyRetry.ts",
+  "tests/study-provider-recovery.test.ts",
+  "tests/source-e2e/provider-retry.spec.ts",
   "shared/aminaWelcome.ts",
   "tests/amina-welcome.test.ts",
   "tests/airs-setup.test.ts",

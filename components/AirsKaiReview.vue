@@ -2,6 +2,7 @@
 import type { KaiReview } from "~/shared/airsOrchestration";
 import { KAI_ASSESSMENT_VERSION, KAI_VERBAL_LABELS } from "~/shared/kaiAssessment";
 const props = defineProps<{ conversationId: string; canReview: boolean; autoGenerate?: boolean }>();
+const reviewRetry = useStudyRetry(computed(() => `airs-review-retry:${props.conversationId}`));
 const emit = defineEmits<{ "completion-ready": [review: KaiReview | null]; finished: [review: KaiReview] }>();
 const auth = useAuth(), review = ref<KaiReview | null>(null), busy = ref(false), reviewing = ref(false), loading = ref(false), error = ref("");
 const page = ref(0);
@@ -46,7 +47,7 @@ watch(
   { immediate: true },
 );
 async function generate(refresh = false) {
-  if (busy.value || !props.canReview || (refresh && !earlierReview.value)) return;
+  if (busy.value || reviewRetry.remaining.value || !props.canReview || (refresh && !earlierReview.value)) return;
   const epoch = conversationEpoch, id = props.conversationId;
   busy.value = true; reviewing.value = true; error.value = "";
   try {
@@ -56,7 +57,10 @@ async function generate(refresh = false) {
     if (epoch !== conversationEpoch) return;
     review.value = result; page.value = 0;
   } catch (cause: any) {
-    if (epoch === conversationEpoch) error.value = cause?.data?.statusMessage || "Kai could not prepare feedback. Your saved practice remains available.";
+    if (epoch === conversationEpoch) {
+      reviewRetry.retain(cause);
+      error.value = cause?.data?.statusMessage || "Kai could not prepare feedback. Your saved practice remains available.";
+    }
   } finally {
     if (epoch === conversationEpoch) { busy.value = false; reviewing.value = false; }
   }
@@ -79,7 +83,7 @@ function finish() { if (completionReady.value) emit("finished", completionReady.
     <AgentActivity agent="KAI" state="weaving" :busy="reviewing" :label="reviewing ? 'I’m reviewing your saved evidence.' : loading ? 'Loading your saved feedback.' : busy ? 'Saving your next practice choice.' : 'Your practice feedback'" />
     <template v-if="!review">
       <p>I’ll review your saved explanations against your approved goals.</p>
-      <button :disabled="!canReview || busy" @click="generate()">{{ busy ? "Preparing…" : "Review my saved practice" }}</button>
+      <button :disabled="!canReview || busy || !!reviewRetry.remaining.value" @click="generate()">{{ busy ? "Preparing…" : reviewRetry.remaining.value ? `Retry available in ${reviewRetry.remaining.value}s` : "Review my saved practice" }}</button>
     </template>
     <p v-if="error" role="alert">{{ error }}</p>
     <button v-if="error && review" :disabled="busy" @click="error = ''; page = 0">Return to this saved review</button>
@@ -91,7 +95,7 @@ function finish() { if (completionReady.value) emit("finished", completionReady.
       </section>
       <aside v-if="earlierReview" class="earlier-review" aria-label="Earlier saved review">
         <p>This earlier review is still available. Refresh asks Kai to prepare verbal skills feedback from your saved answers and keeps the earlier review.</p>
-        <button :disabled="busy || !canReview" @click="generate(true)">{{ reviewing ? "Preparing…" : "Refresh for verbal skills feedback" }}</button>
+        <button :disabled="busy || !canReview || !!reviewRetry.remaining.value" @click="generate(true)">{{ reviewing ? "Preparing…" : reviewRetry.remaining.value ? `Retry available in ${reviewRetry.remaining.value}s` : "Refresh for verbal skills feedback" }}</button>
       </aside>
       <p v-if="review.sessionAssessment" class="assessment-scope">Feedback uses your saved answers from this session. Audio delivery and durable mastery were not assessed.</p>
       <article v-if="domain" class="skill-card" :aria-label="KAI_VERBAL_LABELS[domain.domain] + ' feedback'">

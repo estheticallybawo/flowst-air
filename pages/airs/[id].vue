@@ -106,6 +106,7 @@ async function refreshStudyAccess() {
   }
 }
 const id = computed(() => String(route.params.id || ""));
+const planRetry = useStudyRetry(computed(() => `airs-plan-retry:${id.value}`));
 const study = ref<StudyConversation | null>(null);
 const voiceInputUsed = computed(() => study.value?.voiceUsage?.transcribeSeconds || 0);
 const voiceOutputUsed = computed(() => study.value?.voiceUsage?.pollyCharacters || 0);
@@ -838,7 +839,7 @@ function schedulePlanPoll() {
 
 async function preparePlan(regenerate = false, adjust = false) {
   if (!canStudy.value || disposed || live.running.value) return;
-  if (planBusy.value) return;
+  if (planBusy.value || planRetry.remaining.value) return;
   planBusy.value = true;
   planPreparing.value = true;
   error.value = "";
@@ -863,6 +864,7 @@ async function preparePlan(regenerate = false, adjust = false) {
     if (prepared.plan.status === "DRAFT") adjustingPlan.value = false;
     if (prepared.plan.status === "PENDING") schedulePlanPoll();
   } catch (cause: any) {
+    planRetry.retain(cause);
     error.value = learnerStudyError(
       cause,
       "Your plan could not be prepared. Try again in a moment.",
@@ -1911,7 +1913,7 @@ async function remove() {
             "
             type="button"
             class="secondary"
-            :disabled="planBusy || !canStudy"
+            :disabled="planBusy || !canStudy || !!planRetry.remaining.value"
             @click="
               study.plan.status === 'FAILED'
                 ? preparePlan(true)
@@ -1928,7 +1930,8 @@ async function remove() {
                   (adjustingPlan = true))
             "
           >
-            <span v-if="study.plan.status === 'FAILED'">Retry plan</span>
+            <span v-if="planRetry.remaining.value">Retry available in {{ planRetry.remaining.value }}s</span>
+            <span v-else-if="study.plan.status === 'FAILED'">Retry plan</span>
             <span v-else>Adjust plan</span>
           </button>
         </div>

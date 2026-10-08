@@ -60,6 +60,7 @@
 :(literal)composables/useAminaLiveCall.ts
 :(literal)composables/useAuth.ts
 :(literal)composables/useStudyPacing.ts
+:(literal)composables/useStudyRetry.ts
 :(literal)docs/AIRS_FOCUSED_PRACTICE_VERIFICATION.md
 :(literal)docs/design-docs/amina-objective-flow.md
 :(literal)docs/design-docs/context-aware-practice.md
@@ -266,6 +267,7 @@
 :(literal)shared/studyPedagogy.ts
 :(literal)shared/studyPresentation.ts
 :(literal)shared/studyProgression.ts
+:(literal)shared/studyRetry.ts
 :(literal)shared/studySpeech.ts
 :(literal)shared/studySpeechOutcome.ts
 :(literal)shared/userErrors.ts
@@ -286,6 +288,7 @@
 :(literal)tests/source-e2e/bring-source.spec.ts
 :(literal)tests/source-e2e/guest-context.spec.ts
 :(literal)tests/source-e2e/objective-flow.spec.ts
+:(literal)tests/source-e2e/provider-retry.spec.ts
 :(literal)tests/source-e2e/session-completion.spec.ts
 :(literal)tests/study-air-history.test.ts
 :(literal)tests/study-aws-voice.test.ts
@@ -301,6 +304,7 @@
 :(literal)tests/study-pacing.test.ts
 :(literal)tests/study-preferences.test.ts
 :(literal)tests/study-presentation.test.ts
+:(literal)tests/study-provider-recovery.test.ts
 :(literal)tests/study-repeat.test.ts
 :(literal)tests/study-source-mcp.test.ts
 :(literal)tests/study-source-network.test.ts

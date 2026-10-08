@@ -194,7 +194,8 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      navigateFallback: "/",
+      // Authenticated SSR pages are not precached HTML.
+      navigateFallback: null,
       // Keep the install lightweight. Large agent artwork loads normally on demand.
       globPatterns: ["**/*.{js,css,html,svg,woff2}"],
     },

@@ -44,6 +44,14 @@ New welcome notes use a concise second-person account of the confirmed Misu summ
 
 The current review uses up to twelve recent saved learning-evidence items plus the objective ledger and executed pedagogy trace. Skill feedback describes the cited sample. It does not establish a standardized score or improvement across sessions. A future progress feature would require a stable versioned rubric, comparable task difficulty and skill opportunities, recorded assistance and transcription uncertainty, and quoted before/after evidence. Repeating an easier or familiar question alone would not establish general improvement. This longitudinal comparison is proposed, not implemented.
 
+## Provider limits and offline routing
+
+A long source with more than twenty indexed chunks requests inventory summaries in batches of twenty-four before the proposal. Previously up to three batches ran concurrently, so sibling requests could continue after a rejection. Summaries now run serially and stop at the first failure. This reduces burst pressure, not total successful summary tokens or account quotas. Approved agent reads are bootstrapped once; when every read is confirmed, Kai and Amina now request the proposal directly as Misu already did. Evidence and proposal validation still apply.
+
+The plain text/inventory adapter now uses the same bounded safe provider classifications as the function runner, including a validated retry delay and incomplete-output detection. Plan and review controls retain a provider-limit cooldown across refresh: Retry-After when supplied, otherwise a sixty-second UI delay. Expiry enables an explicit retry; it never sends one automatically or guarantees the provider quota has reset. No provider switch, allowance increase or credential change is made. [Recovery regressions](../../tests/study-provider-recovery.test.ts) and [retry browser journey](../../tests/source-e2e/provider-retry.spec.ts) cover these cases without paid calls.
+
+Workbox navigation fallback is disabled for server-rendered authenticated pages: neither /home nor / is a precached HTML shell. Static asset caching remains enabled. A fallback may be restored only with an actual public precached offline document. See [Groq limits](https://console.groq.com/docs/rate-limits) and [Workbox configuration](https://developer.chrome.com/docs/workbox/modules/workbox-build).
+
 ## Verification
 
 Focused tests cover distinct output contracts, confirmed reads, forced-choice enforcement, schema validation, safe error categories, bounded body inspection and retry metadata. The public export manifest and parity check include the new classifier and regression tests.

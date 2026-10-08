@@ -81,10 +81,9 @@ export async function runAirsAgent(
     );
     trace.push({ tool: tool.name, status: "CONFIRMED" });
   }
-  // Misu's no-argument reads are already confirmed above. Request the proposal
+  // No-argument reads are already confirmed above. Request the proposal
   // directly only when no remaining read capability still needs model arguments.
   const proposalReady =
-    agent === "MISU" &&
     tools.every(
       (tool) =>
         tool.name === proposalTool ||

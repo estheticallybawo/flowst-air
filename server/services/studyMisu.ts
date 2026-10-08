@@ -313,7 +313,7 @@ export function validateMisuStudyTitle(
   return objectives[0]?.title.slice(0, 90) || "Your study material";
 }
 
-async function documentInventory(chunks: StudyChunk[], event?: H3Event) {
+export async function documentInventory(chunks: StudyChunk[], event?: H3Event) {
   if (chunks.length <= 20)
     return chunks
       .map(
@@ -324,11 +324,9 @@ async function documentInventory(chunks: StudyChunk[], event?: H3Event) {
   for (let i = 0; i < chunks.length; i += 24)
     batches.push(chunks.slice(i, i + 24));
   const summaries: string[] = new Array(batches.length);
-  let next = 0;
-  await Promise.all(
-    Array.from({ length: Math.min(3, batches.length) }, async () => {
-      while (next < batches.length) {
-        const index = next++;
+  // A rejected batch stops the inventory. Parallel workers previously continued
+  // dispatching paid summaries after another worker hit a provider limit.
+  for (let index = 0; index < batches.length; index++) {
         const passages = batches[index]!.map(
           (chunk) =>
             `[${chunk.id}; ${chunk.label}] ${chunk.text.slice(0, 450)}`,
@@ -339,9 +337,7 @@ async function documentInventory(chunks: StudyChunk[], event?: H3Event) {
           550,
           event,
         );
-      }
-    }),
-  );
+  }
   return summaries.join("\n");
 }
 
