@@ -215,6 +215,7 @@
 :(literal)server/services/authRepository.ts
 :(literal)server/services/awsClientConfig.ts
 :(literal)server/services/cognito.ts
+:(literal)server/services/misuPlanFailure.ts
 :(literal)server/services/sources/fixtures.ts
 :(literal)server/services/sources/github.ts
 :(literal)server/services/sources/network.ts
@@ -288,6 +289,8 @@
 :(literal)tests/amina-plan-approval.test.ts
 :(literal)tests/amina-welcome.test.ts
 :(literal)tests/kai-assessment.test.ts
+:(literal)tests/misu-plan-errors.test.ts
+:(literal)tests/misu-plan-recovery.test.ts
 :(literal)tests/source-e2e/bring-source.spec.ts
 :(literal)tests/source-e2e/guest-context.spec.ts
 :(literal)tests/source-e2e/objective-flow.spec.ts

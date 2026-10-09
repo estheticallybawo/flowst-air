@@ -1,6 +1,7 @@
 import { createError } from "h3";
 import type { H3Event } from "h3";
 import { requestStudyBedrock } from './studyBedrockTransport';
+import { misuPlanValidationFailure } from './misuPlanFailure';
 import { AIRS_TOOL_ALLOWLIST } from "../../shared/airsOrchestration";
 import {
   airsProviderFailureReason,
@@ -213,16 +214,19 @@ export async function runAirsAgent(
       result = await tool.run(args);
     } catch (error) {
       if ((error as Error)?.name !== "ZodError") throw error;
+      const failure = agent === 'MISU' && tool.name === 'propose_session_plan'
+        ? misuPlanValidationFailure(error, args) : undefined;
       console.error("Airs agent result failed validation", {
         agent,
         tool: tool.name,
         code: "AGENT_RESULT_INVALID",
+        ...(failure ? { validationIssues: failure.validationIssues, validationIssueCount: failure.validationIssueCount } : {}),
       });
       throw createError({
         statusCode: 502,
-        statusMessage:
+        statusMessage: failure?.statusMessage ||
           "The learning service could not prepare a valid plan or review. Retry this step.",
-        data: { code: "AGENT_RESULT_INVALID" },
+        data: { code: "AGENT_RESULT_INVALID", ...(failure ? { validationIssues: failure.validationIssues, validationIssueCount: failure.validationIssueCount } : {}) },
       });
     }
     trace.push({ tool: tool.name, status: "CONFIRMED" });

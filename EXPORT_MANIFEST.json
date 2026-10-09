@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-08T13:28:54.464Z",
+  "createdAt": "2026-10-09T16:24:38.320Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -405,8 +405,8 @@
     },
     {
       "path": "docs/generated/public-paths.txt",
-      "bytes": 14451,
-      "sha256": "0fb0cedc43521470312aa16baa7c4313773e23def263ec0def2365ff5a3b8319"
+      "bytes": 14580,
+      "sha256": "d57254139bf81a462204b8768cd5e6453cb4706c3f789c6f148057734367a18d"
     },
     {
       "path": "docs/index.md",
@@ -1030,8 +1030,8 @@
     },
     {
       "path": "server/services/airsAgentRunner.ts",
-      "bytes": 8205,
-      "sha256": "b5e33ff9ccff4422440b10a575232d4ed64cfddab9bdbbe7ce3374cdfa86767d"
+      "bytes": 8683,
+      "sha256": "0ab2ef8da6a94c42365645fb67e07907bec837902d4160a3f9dd74099172f8ab"
     },
     {
       "path": "server/services/airsAminaFunctions.ts",
@@ -1055,8 +1055,8 @@
     },
     {
       "path": "server/services/airsPlanning.ts",
-      "bytes": 3331,
-      "sha256": "d884b32e543a1834c97ba42262ce2b5827676e2a0e7b278947c7053fa690af4a"
+      "bytes": 4621,
+      "sha256": "4409e108f4484d67ebdcce80375cde01aa76e70e06e80c0ca1349326dd02581b"
     },
     {
       "path": "server/services/airsProviderFailure.ts",
@@ -1082,6 +1082,11 @@
       "path": "server/services/cognito.ts",
       "bytes": 3155,
       "sha256": "3f210746043f9ddce22a04eda81eb8109c2b333c74afa361810fe73657cd1ed9"
+    },
+    {
+      "path": "server/services/misuPlanFailure.ts",
+      "bytes": 4909,
+      "sha256": "d5fcc359bef87047d8e8923828e8b9915a0e3b2380f19da32648569baa520314"
     },
     {
       "path": "server/services/sources/fixtures.ts",
@@ -1150,8 +1155,8 @@
     },
     {
       "path": "server/services/studyMisu.ts",
-      "bytes": 33900,
-      "sha256": "5946a6935516a5f63f86ff106598021e4e01695341c1419e15330024ce78e2be"
+      "bytes": 34138,
+      "sha256": "326f5afd352200d42397a54041311637277ca4ef04fe03dcd13cac5c06df00e3"
     },
     {
       "path": "server/services/studyModelBudget.ts",
@@ -1449,6 +1454,16 @@
       "sha256": "d51e82a1d7f76430b0d528bcfa24bdc14ae9949e018b794f082254a29ef3ee17"
     },
     {
+      "path": "tests/misu-plan-errors.test.ts",
+      "bytes": 6366,
+      "sha256": "6b00899fe9e85cc5c0e167360ccc624269206ca7e825b77e6d65a896e7096c2a"
+    },
+    {
+      "path": "tests/misu-plan-recovery.test.ts",
+      "bytes": 5085,
+      "sha256": "1722bdfd7cfc233ae4e994aa2ac7d7d3850c09c8a1410674641961ae2c49b401"
+    },
+    {
       "path": "tests/source-e2e/bring-source.spec.ts",
       "bytes": 2520,
       "sha256": "470a724fdd30df8802fb80d45f657fd0334d0e87f2ac9500d4382afe45d985d4"
@@ -1515,8 +1530,8 @@
     },
     {
       "path": "tests/study-misu-output-contract.test.ts",
-      "bytes": 1992,
-      "sha256": "bc6f8488706c3e24412887339b2d3beae0761b6d3fedce1f85756ce3591ad9aa"
+      "bytes": 2101,
+      "sha256": "e8d59b0cb18e17ba5e59947c18190c87edd97995d451c15b53938fefef1ff261"
     },
     {
       "path": "tests/study-misu-progress.test.ts",
