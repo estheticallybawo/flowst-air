@@ -605,6 +605,17 @@
   font-size: 0.8rem;
   color: #475569;
   max-width: 48ch;
+  margin-inline: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.air-call-room :deep(.voice-recovery p) {
+  flex-basis: 100%;
+  margin: 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 .air-call-room :deep(.voice-recovery button) {
   min-height: 44px;
@@ -927,15 +938,19 @@
 .call-stage.with-side-controls {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) auto auto;
+  grid-template-rows: minmax(min-content, 1fr) max-content max-content;
   gap: 12px;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .with-side-controls .call-presence {
   grid-column: 1 / -1;
   grid-row: 1;
   min-height: 0;
   gap: 8px;
+}
+.with-side-controls .call-presence > * {
+  flex-shrink: 0;
 }
 .with-side-controls .call-control-area {
   grid-column: 1 / -1;
@@ -1018,7 +1033,7 @@
 .air-call-room :deep(.objective-controls .objective-options) { border-color: transparent; background: transparent; text-decoration: underline; text-underline-offset: 3px; }
 .call-stage.with-side-controls.side-controls-wide {
   grid-template-columns: minmax(160px, 200px) minmax(0, 1fr) minmax(160px, 200px);
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(min-content, 1fr) max-content;
   gap: 16px 24px;
 }
 .side-controls-wide .call-presence { grid-column: 2; }

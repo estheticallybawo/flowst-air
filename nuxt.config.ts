@@ -42,7 +42,7 @@ export default defineNuxtConfig({
         },
       ],
       link: [
-        { rel: "icon", href: "/air-icon.svg", type: "image/svg+xml" },
+        { rel: "icon", href: "/amira-icon.png", type: "image/png" },
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
         {
           rel: "preconnect",

@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-09T16:24:38.320Z",
+  "createdAt": "2026-10-09T21:40:44.147Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -100,13 +100,13 @@
     },
     {
       "path": "app.vue",
-      "bytes": 1978,
-      "sha256": "ca0c159fcce2efaafa54e358fdf95efacb69eb0da2a320b2089fc8fe2e19c3a5"
+      "bytes": 2001,
+      "sha256": "407ee6c640518427a3fe2af6e4ecbba2aad356698dc985cfcd6a6cefd265e7d8"
     },
     {
       "path": "assets/css/air-call-room.css",
-      "bytes": 22267,
-      "sha256": "ebccc23b25a728abf6d9ced2936f8233d0a2d760628201312e021503dcc56a49"
+      "bytes": 22613,
+      "sha256": "7cdc5e644918349ad9db6ed90386b54d3c538b18078aaa66eb06c82a4e32ba81"
     },
     {
       "path": "assets/css/air.css",
@@ -150,8 +150,8 @@
     },
     {
       "path": "components/AirCallRoom.vue",
-      "bytes": 6026,
-      "sha256": "0e58715db9ca3a35299a75a129f9c7b83f2fa8c6102213d8c299e212cc2e2967"
+      "bytes": 6044,
+      "sha256": "61d5e7e2ae488b1718e32a66e4017b5110911ccead228319364f8cc32afd6934"
     },
     {
       "path": "components/AirCitation.vue",
@@ -205,8 +205,8 @@
     },
     {
       "path": "components/AirStudyShell.vue",
-      "bytes": 2049,
-      "sha256": "dc42f43851f2a4d827bcc26ac49d2878f25c597dc319eadb579ace463391b40a"
+      "bytes": 5838,
+      "sha256": "91727658647094773f78074fa94bd42a3af029e4522e1458adfc3103c37e9332"
     },
     {
       "path": "components/AirUpgradePanel.vue",
@@ -405,8 +405,8 @@
     },
     {
       "path": "docs/generated/public-paths.txt",
-      "bytes": 14580,
-      "sha256": "d57254139bf81a462204b8768cd5e6453cb4706c3f789c6f148057734367a18d"
+      "bytes": 14665,
+      "sha256": "c01ac549093fea6676787989377e9d28cac51c490a71006c3dda29bc68554f57"
     },
     {
       "path": "docs/index.md",
@@ -485,8 +485,8 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 41644,
-      "sha256": "b0dad31b05466f299fee2edd75ed75d023781cbd13566aa7ebe3af8fde8ab7b2"
+      "bytes": 43547,
+      "sha256": "16a211b88341fc08bda5fab8929deee11535ff0cafe498feab8a5cde938d2478"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
@@ -515,8 +515,8 @@
     },
     {
       "path": "nuxt.config.ts",
-      "bytes": 8572,
-      "sha256": "e2cf38807c3049adc71284648f81636b7679332170c7c5e7c61c1eb62c7d040e"
+      "bytes": 8570,
+      "sha256": "1b2691b0e563ba89d79ec396dfda9e35ff983415a55b2f6693fceb5c14cbf7b2"
     },
     {
       "path": "package-lock.json",
@@ -612,6 +612,11 @@
       "path": "public/air-voice-capture.js",
       "bytes": 974,
       "sha256": "8e81ab0fffd82117677cd1241cc618b014e2796ad7b56d2560ddf24b337e374d"
+    },
+    {
+      "path": "public/amira-icon.png",
+      "bytes": 270472,
+      "sha256": "cfb28c7a138b21b8152afbab87ee4deda8eafd64fa939836a15c037c74960c4e"
     },
     {
       "path": "public/brand/flowst-mark-blue.png",
@@ -1470,8 +1475,13 @@
     },
     {
       "path": "tests/source-e2e/guest-context.spec.ts",
-      "bytes": 32158,
-      "sha256": "bed415256fe157a929a971dd4c2e8509680373fd7e4de0dc37a2d526f3ef3005"
+      "bytes": 32666,
+      "sha256": "bce8ad6ee25b0c3a24a21bea4e575eb310592d7d9ca74a3fa46769074fd86bd1"
+    },
+    {
+      "path": "tests/source-e2e/mobile-onboarding.spec.ts",
+      "bytes": 7744,
+      "sha256": "009ef509e72b89bb56ee4f22743e29b9e0f491ea5acd44905b453ccdd3a352a4"
     },
     {
       "path": "tests/source-e2e/objective-flow.spec.ts",

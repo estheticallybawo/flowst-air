@@ -16,7 +16,7 @@ async function expectPrimaryInWorkspace(page: any, name: string) {
 }
 
 test("Misu guides setup and prepares Amina without starting a microphone or voice lease", async ({
-  page,
+  page, isMobile,
 }) => {
   test.setTimeout(300000);
   // Exercise the local UI without depending on external font server availability.
@@ -687,7 +687,16 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   });
   expect(layout.panel.overflow).toBe("hidden");
   expect(layout.controls.overflow).toBe("visible");
-  expect(layout.stage.extraHeight).toBeLessThanOrEqual(1);
+  if (isMobile) {
+    // Mobile conversation replaces the voice stage. Its hidden content may
+    // exceed a short screen; the visible transcript must remain the scroller.
+    await expect(page.locator(".call-stage")).toBeHidden();
+    const conversation = await page.locator(".call-conversation").boundingBox();
+    expect(conversation!.y).toBeGreaterThanOrEqual(0);
+    expect(conversation!.y + conversation!.height).toBeLessThanOrEqual(await page.evaluate(() => innerHeight));
+  } else {
+    expect(layout.stage.extraHeight).toBeLessThanOrEqual(1);
+  }
   await page.screenshot({ path: "test-results/airs-conversation-space-" + test.info().project.name + ".png", fullPage: true });
   await expect(page.locator(".call-timing")).toBeVisible();
 

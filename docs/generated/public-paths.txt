@@ -121,6 +121,7 @@
 :(literal)playwright.sources.config.ts
 :(literal)public/air-icon.svg
 :(literal)public/air-voice-capture.js
+:(literal)public/amira-icon.png
 :(literal)public/brand/flowst-mark-blue.png
 :(literal)public/mascots/amina-avatar.png
 :(literal)public/mascots/amina.png
@@ -293,6 +294,7 @@
 :(literal)tests/misu-plan-recovery.test.ts
 :(literal)tests/source-e2e/bring-source.spec.ts
 :(literal)tests/source-e2e/guest-context.spec.ts
+:(literal)tests/source-e2e/mobile-onboarding.spec.ts
 :(literal)tests/source-e2e/objective-flow.spec.ts
 :(literal)tests/source-e2e/provider-retry.spec.ts
 :(literal)tests/source-e2e/session-completion.spec.ts

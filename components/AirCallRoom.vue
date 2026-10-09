@@ -130,7 +130,7 @@ const shortStatus = computed(() =>
             >
           </p>
           <p
-            v-if="!recordedMode || activity.phase !== 'ready'"
+            v-if="!recordedMode || !['ready', 'error'].includes(activity.phase)"
             class="call-detail"
           >
             {{ activity.detail }}
