@@ -1,6 +1,7 @@
 <script setup lang="ts">
 definePageMeta({})
-const fixtureGrowth = useRuntimeConfig().public.studySourceFixtureMode === true
+const config = useRuntimeConfig().public
+const fixtureGrowth = config.studySourceFixtureMode === true || config.airGrowthPreview === true
 useHead({ title: fixtureGrowth ? 'Your Growth · Flowst Airs' : 'Flowst Airs' })
 </script>
 <template><AirsGrowthHome v-if="fixtureGrowth" /><AirsSetup v-else /></template>

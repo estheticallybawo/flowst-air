@@ -1,6 +1,14 @@
+import { growthPreviewEnabled } from "./shared/airGrowthPreview";
+
 // Air keys take precedence; legacy deployment keys are read only as migration aliases.
 const airEnv = (key: string, legacy: string) =>
   process.env[key] ?? process.env[legacy];
+
+const airGrowthPreview = growthPreviewEnabled(
+  process.env.AIR_GROWTH_PREVIEW_MODE,
+  process.env.VERCEL_ENV,
+  process.env.NODE_ENV,
+);
 
 export default defineNuxtConfig({
   compatibilityDate: "2026-08-24",
@@ -57,6 +65,7 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
+    airGrowthPreview,
     airsGuestSecret: process.env.AIRS_GUEST_SECRET || "",
     airsGuestDailyModelLimit: Number(
       process.env.AIRS_GUEST_DAILY_MODEL_LIMIT || 30,
@@ -161,6 +170,7 @@ export default defineNuxtConfig({
     ),
     awsRegion: process.env.AWS_REGION || "us-east-1",
     public: {
+      airGrowthPreview,
       studySourceFixtureMode:
         airEnv("AIR_SOURCE_FIXTURE_MODE", "AMINA_SOURCE_FIXTURE_MODE") ===
           "true" &&

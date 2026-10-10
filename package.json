@@ -23,7 +23,8 @@
     "pretest": "node scripts/check-flowst-parity.mjs",
     "parity:check": "node scripts/check-flowst-parity.mjs",
     "parity:update": "node scripts/check-flowst-parity.mjs --write-baseline",
-    "release:check": "node scripts/check-flowst-parity.mjs --require-flowst"
+    "release:check": "node scripts/check-flowst-parity.mjs --require-flowst",
+    "test:growth-preview:e2e": "playwright test --config playwright.growth-preview.config.ts"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-agentcore": "^3.1117.0",

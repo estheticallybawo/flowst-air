@@ -5,7 +5,8 @@
   "git": {
     "deploymentEnabled": {
       "**": false,
-      "codex/context-aware-practice": true
+      "codex/context-aware-practice": true,
+      "flowst-airs-rewards": true
     }
   }
 }

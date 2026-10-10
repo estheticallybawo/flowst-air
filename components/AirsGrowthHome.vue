@@ -10,6 +10,7 @@ import {
 import type { GrowthDimensionId, GrowthScenario } from "~/shared/airGrowth";
 import { growthDate } from "~/shared/airGrowthPrototype";
 
+const hostedDemo = useRuntimeConfig().public.airGrowthPreview === true;
 const prototype = useAirGrowthPrototype();
 const { state, selected, capabilities } = prototype;
 const selectedCapability = computed(
@@ -122,8 +123,8 @@ const dialogTitle = computed(
             See what your learning conversations are building over time.
           </p>
         </div>
-        <NuxtLink class="air-button growth-primary" to="/airs/new"
-          >Start a new session <ArrowUpRight :size="17" :stroke-width="1.5"
+        <NuxtLink class="air-button growth-primary" :to="hostedDemo ? '/airs/demo-info' : '/airs/new'"
+          >{{ hostedDemo ? "About this demo" : "Start a new session" }} <ArrowUpRight :size="17" :stroke-width="1.5"
         /></NuxtLink>
       </header>
 

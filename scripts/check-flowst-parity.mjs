@@ -132,10 +132,15 @@ const hash = (p) => {
 };
 
 export const intentionalDifferences = {
+  "components/AirAppShell.vue": {
+    "reason": "Label the isolated hosted Growth demo instead of presenting account actions",
+    "flowst": "6f54f8dbe17f2fb6c2f74ac0179333ad12084d381450b683d1a6991d037a2b64",
+    "standalone": "1a2774c24d5536e63c9be6b82ceb5da75cb0b1f8848886d135db5990f02c872c"
+  },
   "pages/airs/index.vue": {
-    "reason": "Fixture-only Growth prototype Home; production retains Misu setup",
+    "reason": "Growth fixture/Preview Home; Production retains Misu setup",
     "flowst": "1af03a0c32da2c6a931dee021fd058111473b54c10f2612e2b893861e8115d56",
-    "standalone": "f90c6c1befd099d980a1d8f925fea6d990a8a2c67fa220ce75623b18026e292c"
+    "standalone": "4e8f8bf29183c5dc1ae76f4653462819fc184763b5b7b70e5c926df882df9f52"
   },
   "components/AirCallRoom.vue": {
     "reason": "Standalone audio failure layout and short-screen scrolling",

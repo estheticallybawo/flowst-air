@@ -115,6 +115,7 @@
 :(literal)pages/air/[...path].vue
 :(literal)pages/airs/[id].vue
 :(literal)pages/airs/about.vue
+:(literal)pages/airs/demo-info.vue
 :(literal)pages/airs/index.vue
 :(literal)pages/airs/library.vue
 :(literal)pages/airs/new.vue
@@ -126,6 +127,7 @@
 :(literal)pages/auth/verify.vue
 :(literal)pages/index.vue
 :(literal)playwright.airs.config.ts
+:(literal)playwright.growth-preview.config.ts
 :(literal)playwright.sources.config.ts
 :(literal)public/air-icon.svg
 :(literal)public/air-voice-capture.js
@@ -157,6 +159,7 @@
 :(literal)scripts/check-public-export.mjs
 :(literal)scripts/generate-docs.mjs
 :(literal)scripts/review-source-mcp.mjs
+:(literal)scripts/run-growth-preview.mjs
 :(literal)scripts/run-source-fixtures.mjs
 :(literal)scripts/start-github-study-mcp.mjs
 :(literal)server/api/air/access.get.ts
@@ -214,6 +217,7 @@
 :(literal)server/api/study/sources/transcription-webhook.post.ts
 :(literal)server/api/study/upload-eligibility.get.ts
 :(literal)server/domain/neuromap/studyFunctions.ts
+:(literal)server/middleware/00.air-growth-preview.ts
 :(literal)server/middleware/air-access.ts
 :(literal)server/middleware/air-surface.ts
 :(literal)server/middleware/airs-guest-boundary.ts
@@ -258,6 +262,7 @@
 :(literal)server/services/studySpeech.ts
 :(literal)server/services/studySpeechCache.ts
 :(literal)server/services/studyVoice.ts
+:(literal)server/utils/airGrowthPreview.ts
 :(literal)server/utils/airLiveError.ts
 :(literal)server/utils/airsGuest.ts
 :(literal)server/utils/auth.ts
@@ -266,6 +271,7 @@
 :(literal)shared/agents.ts
 :(literal)shared/airAccess.ts
 :(literal)shared/airGrowth.ts
+:(literal)shared/airGrowthPreview.ts
 :(literal)shared/airGrowthPrototype.ts
 :(literal)shared/airNavigation.ts
 :(literal)shared/airSurface.ts
@@ -295,6 +301,7 @@
 :(literal)shared/studySpeechOutcome.ts
 :(literal)shared/userErrors.ts
 :(literal)tests/air-access.test.ts
+:(literal)tests/air-growth-preview.test.ts
 :(literal)tests/airs-feedback.test.ts
 :(literal)tests/airs-handoff.test.ts
 :(literal)tests/airs-kai-recovery.test.ts
@@ -307,6 +314,7 @@
 :(literal)tests/amina-live-model.test.ts
 :(literal)tests/amina-plan-approval.test.ts
 :(literal)tests/amina-welcome.test.ts
+:(literal)tests/growth-preview/hosted-growth.spec.ts
 :(literal)tests/kai-assessment.test.ts
 :(literal)tests/misu-evidence-contract.test.ts
 :(literal)tests/misu-plan-errors.test.ts

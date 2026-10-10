@@ -84,3 +84,9 @@ Run npx playwright test --config playwright.airs.config.ts for the guest journey
 ## Growth preview
 
 Run `npm run demo` and open `/airs`. Home opens a labelled Growth prototype with seven capabilities, sample evidence and a session-to-Flowmark walkthrough. Select a scenario or Reset preview to explore other states. Progress lives only in app memory and resets on reload. Choose **New session** for the existing Misu setup. No real assessment, reward, public sharing or download is created. Production Home remains the study setup. See [the prototype record](docs/exec-plans/completed/growth-home-prototype.md).
+
+## Hosted Growth sample preview
+
+The `flowst-airs-rewards` branch can host a labelled Growth demo on Vercel Preview. Set the nonsecret `AIR_GROWTH_PREVIEW_MODE=true` for Preview, scoped to that branch, then deploy it. Production cannot enable this flag. This mode requires no guest signing key, database, model or speech credentials: it skips account initialization and blocks every `/api` request before application handlers. Home displays the sample Growth dashboard. New session, Library and Settings lead to an explanation of the demo boundary; no real sessions are offered. The normal production app and local source-fixture journey retain their existing behavior.
+
+To reproduce hosted behavior locally, run `npm run build` followed by `npm run test:growth-preview:e2e`. The browser harness starts the production build with Preview flags and no inherited application credentials. It is separate from the local source-fixture tests.

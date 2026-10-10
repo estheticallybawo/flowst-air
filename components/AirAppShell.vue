@@ -10,6 +10,7 @@ import {
 const props = defineProps<{ session?: boolean; focusMode?: boolean }>();
 const route = useRoute();
 const auth = useAuth();
+const growthDemo = useRuntimeConfig().public.airGrowthPreview === true;
 const signingOut = ref(false);
 const logoutError = ref("");
 const accountMenu = ref<HTMLDetailsElement>();
@@ -86,7 +87,9 @@ async function signOut() {
           }}</span></NuxtLink
         >
       </nav>
+      <span v-if="growthDemo" class="air-demo-label">Demo</span>
       <details
+        v-else
         ref="accountMenu"
         class="air-account"
         @keydown.esc="accountMenu && (accountMenu.open = false)"
@@ -117,6 +120,15 @@ async function signOut() {
 </template>
 
 <style scoped>
+.air-demo-label {
+  padding: 8px 12px;
+  border: 1px solid var(--air-line);
+  border-radius: 12px;
+  background: var(--air-accent-soft);
+  color: var(--air-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
 .call-brand {
   display: flex;
   align-items: center;

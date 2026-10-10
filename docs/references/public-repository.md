@@ -45,3 +45,9 @@ The owner authorized automatic deployments from `codex/context-aware-practice` i
 Verify the application, generated documentation and reviewed export hashes before a release push. Confirm the remote commit and a Ready production deployment with the same SHA afterward. The private Flowst demonstration uses its own repository, project and release branch. Keep private Flowst history and host components outside this public slice.
 
 Branch-rule semantics: [Vercel Git configuration](https://vercel.com/docs/project-configuration/git-configuration).
+
+## Growth rewards Preview branch — 10 October 2026
+
+The owner selected a hosted Growth demo with sample data for `flowst-airs-rewards`. That exact branch is enabled alongside the existing release branch in vercel.json; it produces Preview deployments, without changing the production branch. Configure `AIR_GROWTH_PREVIEW_MODE=true` in Vercel Preview for this branch only. Preview does not inherit Production variables. The former guest-session-key error occurred because the ordinary application tried to initialize a guest while Preview had no configured variables. The sample-only mode instead skips account initialization, rejects every API request and offers the local Growth walkthrough. It requires no production secrets or provider credentials.
+
+The flag is rejected for Production and for a generic production-mode server outside Vercel Preview. Rebuild/redeploy after changing the flag; an existing deployment does not acquire new variables. Preserve labelled sample data, reviewed export files and the independent private/public repository boundary.
