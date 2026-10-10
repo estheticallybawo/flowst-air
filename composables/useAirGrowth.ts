@@ -16,14 +16,14 @@ import {
  * Example transitions never consume Kai feedback or write learner records.
  */
 export function useAirGrowth() {
-  const example = useState("air-growth-example-v2", () =>
+  const example = useState("air-growth-example-v3", () =>
     createGrowthPrototype(),
   );
   const snapshot = computed<GrowthSnapshot>(() => ({
     source: example.value.source,
     reviewStatus: example.value.reviewStatus,
     dimensions: example.value.dimensions,
-    flowmarks: example.value.flowmarks,
+    tides: example.value.tides,
     sessionChanges: example.value.sessionChanges,
     completion: example.value.completion,
   }));

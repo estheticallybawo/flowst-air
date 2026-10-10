@@ -33,8 +33,10 @@
 :(literal)components/AirConversation.vue
 :(literal)components/AirFocusDialog.vue
 :(literal)components/AirLanding.vue
+:(literal)components/AirLandingTides.vue
 :(literal)components/AirLibraryView.vue
 :(literal)components/AirPublicShell.vue
+:(literal)components/AirScrollStory.vue
 :(literal)components/AirSessionNavigation.vue
 :(literal)components/AirSkeleton.vue
 :(literal)components/AirSourcePicker.vue
@@ -216,9 +218,9 @@
 :(literal)server/api/study/sources/transcription-webhook.post.ts
 :(literal)server/api/study/upload-eligibility.get.ts
 :(literal)server/domain/neuromap/studyFunctions.ts
+:(literal)server/middleware/00.air-session-boundary.ts
 :(literal)server/middleware/air-access.ts
 :(literal)server/middleware/air-surface.ts
-:(literal)server/middleware/airs-guest-boundary.ts
 :(literal)server/middleware/study-live-lease.ts
 :(literal)server/services/airAccess.ts
 :(literal)server/services/airsAgentRunner.ts
@@ -303,6 +305,7 @@
 :(literal)tests/airs-kai-recovery.test.ts
 :(literal)tests/airs-message.test.ts
 :(literal)tests/airs-orchestration.test.ts
+:(literal)tests/airs-production-auth.test.ts
 :(literal)tests/airs-provider-failure.test.ts
 :(literal)tests/airs-quota.test.ts
 :(literal)tests/airs-setup.test.ts

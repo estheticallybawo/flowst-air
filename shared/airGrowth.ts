@@ -29,7 +29,7 @@ export interface GrowthEvidenceSummary {
 export interface GrowthCycleHistory {
   number: number;
   completedAt: string;
-  flowmarkId: string;
+  tideId: string;
 }
 export interface GrowthDimensionProgress {
   dimensionId: GrowthDimensionId;
@@ -38,11 +38,11 @@ export interface GrowthDimensionProgress {
   evidence: GrowthEvidenceSummary[];
   history: GrowthCycleHistory[];
 }
-export interface GrowthFlowmark {
+export interface GrowthTide {
   id: string;
   dimensionId: GrowthDimensionId;
   cycle: number;
-  completedAt: string;
+  earnedAt: string;
   conversations: number;
   contexts: number;
   evidence: string[];
@@ -58,13 +58,13 @@ export interface GrowthCycleCompletion {
   dimensionId: GrowthDimensionId;
   completedCycle: number;
   progress: 100;
-  flowmarkId: string;
+  tideId: string;
 }
 export interface GrowthSnapshot {
   source: GrowthDataSource;
   reviewStatus: GrowthReviewStatus;
   dimensions: GrowthDimensionProgress[];
-  flowmarks: GrowthFlowmark[];
+  tides: GrowthTide[];
   sessionChanges: GrowthSessionChange[];
   completion: GrowthCycleCompletion | null;
 }

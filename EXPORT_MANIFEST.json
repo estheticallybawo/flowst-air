@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-10T20:46:48.610Z",
+  "createdAt": "2026-10-10T23:26:28.583Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -10,8 +10,8 @@
     },
     {
       "path": ".env.example",
-      "bytes": 1453,
-      "sha256": "d85b973ac54d82764ddcc5616366daa3502b140b6379f0c69d148bb2b6b254a2"
+      "bytes": 1591,
+      "sha256": "cc43318abaa9079d000e564194ffb15516f6913412918dc59491bd0388ab4b5a"
     },
     {
       "path": ".gitattributes",
@@ -35,8 +35,8 @@
     },
     {
       "path": "ARCHITECTURE.md",
-      "bytes": 2784,
-      "sha256": "ab3aa25e242c4c3eea2da4b91d53af92e02c13cb2c94103d3a2f1c319e5118fe"
+      "bytes": 2903,
+      "sha256": "682bd30cb6cc156bf1012dd5b86fecfd6e562f2c7fb29a1b2f67767f108c5878"
     },
     {
       "path": "CAPSTONE_SPEC.md",
@@ -65,8 +65,8 @@
     },
     {
       "path": "FRONTEND.md",
-      "bytes": 2829,
-      "sha256": "8cc71483dfe7b2b8cb988a9cfa539f407cb6861214b09a882a8d69e79f649d2a"
+      "bytes": 5821,
+      "sha256": "4aef7c1f180c98947a4795374be9e71abed30cd416b29650792681c16239a6d2"
     },
     {
       "path": "LICENSE",
@@ -90,8 +90,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 11535,
-      "sha256": "82a396c295ae3fe294dd13b69428d8e3bdc80a93ffe89aa86cb0c06c96160836"
+      "bytes": 12504,
+      "sha256": "eac0d8d8177b66816042901e57421e17fb2e75ade4fa75f5bd941ccf8fe227ec"
     },
     {
       "path": "VALIDATION.md",
@@ -170,8 +170,13 @@
     },
     {
       "path": "components/AirLanding.vue",
-      "bytes": 7538,
-      "sha256": "948393b40a914346a1d31c2e90f664aa3f6631950add50c3a6cce2562f651e64"
+      "bytes": 20040,
+      "sha256": "50aac6aff54d4b23e89dfc532ac0d90311dbd7317876efeeea07871c1ef3dedc"
+    },
+    {
+      "path": "components/AirLandingTides.vue",
+      "bytes": 3319,
+      "sha256": "a192d567558e71aed5d7043f8d274658df3aa7d044383697dedda912b6c43c4c"
     },
     {
       "path": "components/AirLibraryView.vue",
@@ -180,8 +185,13 @@
     },
     {
       "path": "components/AirPublicShell.vue",
-      "bytes": 1048,
-      "sha256": "97d2439a8e8a48e594c9fa5d8cd446db422b55a15a9081c794c4115742bb2226"
+      "bytes": 1809,
+      "sha256": "8693b2747acf531cc29b36fea8fcd3d87518b98634ec9584689fe4b90b11e6ae"
+    },
+    {
+      "path": "components/AirScrollStory.vue",
+      "bytes": 6682,
+      "sha256": "b6211be3a04c4a697a689b8a2fd69b6f3975f206b69f937ef4b0cf68765a0aea"
     },
     {
       "path": "components/AirSessionNavigation.vue",
@@ -230,8 +240,8 @@
     },
     {
       "path": "components/AirsGrowthHome.vue",
-      "bytes": 35634,
-      "sha256": "e4f0a2fa1207e9e84ec12c04ec312f618989c2b04a70f0e05aa5de4bf88a2279"
+      "bytes": 35547,
+      "sha256": "c271dab917a67e0eb89196c7807becd80e570fda7bb17fab3c554fd381de05dd"
     },
     {
       "path": "components/AirsJourneyRail.vue",
@@ -270,8 +280,8 @@
     },
     {
       "path": "components/AuthShell.vue",
-      "bytes": 3980,
-      "sha256": "846e9fdf3d598aec9259e78b396e7d13a50a8f538565b746e2df86f67b6ed0fe"
+      "bytes": 3988,
+      "sha256": "829e429f2f738daf62ac1a55e0eb781f53470fd2e551ae5cfa3606121e695281"
     },
     {
       "path": "components/GrowthCapabilityArt.vue",
@@ -285,8 +295,8 @@
     },
     {
       "path": "components/GrowthDimensionDetail.vue",
-      "bytes": 8852,
-      "sha256": "29ec0a8377d45e6c73486cf9003f5040449641fad3dac8c934889cf8035122b7"
+      "bytes": 8848,
+      "sha256": "e63d7ea0925d39d771b982115b5edaef30937943b10e3a6aa3e5a0dc2ed62c83"
     },
     {
       "path": "components/GrowthProgressRing.vue",
@@ -315,8 +325,8 @@
     },
     {
       "path": "composables/useAirGrowth.ts",
-      "bytes": 2037,
-      "sha256": "7d8c22848c5730dc0a564d9867977582829df2938153a09034ceebacdbfdc5a9"
+      "bytes": 2029,
+      "sha256": "41e828e63f304f86a8e4ef568e54404a2c1080f3e7d45ac7dc0438dc2446c394"
     },
     {
       "path": "composables/useAirMediaLifecycle.ts",
@@ -355,8 +365,8 @@
     },
     {
       "path": "docs/design-docs/context-aware-practice.md",
-      "bytes": 2960,
-      "sha256": "49d886c6633fb5a6d84353c19162cd2c033f81a4ff846cfa8f3eb3b3dc214402"
+      "bytes": 3151,
+      "sha256": "7574889c961a7ca1185ac252e40949cc7a351c06cbcef35851dcd37dd8836304"
     },
     {
       "path": "docs/design-docs/core-beliefs.md",
@@ -380,8 +390,8 @@
     },
     {
       "path": "docs/design-docs/misu-led-setup.md",
-      "bytes": 2532,
-      "sha256": "cf4e9c61da0db7fb7035d99bbffe12f0b933bddac76e283434d44bcf634f431c"
+      "bytes": 2622,
+      "sha256": "f53bfcfdd233ca6ad24214e669952fdbfda378f7858907d1d1ceac428ced055b"
     },
     {
       "path": "docs/design-docs/objective-based-practice.md",
@@ -410,8 +420,8 @@
     },
     {
       "path": "docs/exec-plans/completed/growth-home-prototype.md",
-      "bytes": 7116,
-      "sha256": "ea723379a84d7d72bee577d52e9a972ae7598d86b3adab526fd4281525076b53"
+      "bytes": 9899,
+      "sha256": "a1f564d63a73267eaf356adb2807c27b673245ab94eef05cd26e28a4a2b719d9"
     },
     {
       "path": "docs/exec-plans/completed/source-and-misu-foundation.md",
@@ -440,8 +450,8 @@
     },
     {
       "path": "docs/generated/public-paths.txt",
-      "bytes": 15942,
-      "sha256": "3689a2fa74ad179201ffe00146185322947f571446896b157d2095c317939181"
+      "bytes": 16072,
+      "sha256": "c5af74d0a2821e52315608a0b150d68c57fedb7c776cc9442bb94b6c77de49f1"
     },
     {
       "path": "docs/generated/shared-parity.json",
@@ -480,8 +490,8 @@
     },
     {
       "path": "docs/references/deployed-video-checklist.md",
-      "bytes": 5289,
-      "sha256": "233441a22caf5bf5ab176660db95a44e64d3d0f61e1e46f657eb4a5c3159f338"
+      "bytes": 5419,
+      "sha256": "6627776838a28e2ea315c350daa61cf909b90ce01621615e038b8305fa60bab8"
     },
     {
       "path": "docs/references/design-system-reference.md",
@@ -520,18 +530,18 @@
     },
     {
       "path": "docs/references/public-repository.md",
-      "bytes": 5129,
-      "sha256": "d546ad23b0bf6de1ecc36c938ac35f8ff8ecace1bc8678299edf0c9fe754b39f"
+      "bytes": 5405,
+      "sha256": "a07458f61497e86c6574d296dd1c57a5a4ea5af842468a44ce286f29d7aa0f80"
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 61430,
-      "sha256": "5af180bdab799558ac512e9cae56861265b691c13331038c00b7ee3e8f899f50"
+      "bytes": 66832,
+      "sha256": "2b41b23c378df874f4f4098be0588bb112e484333e05d0b5a241e83ebb86f7f8"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
-      "bytes": 5831,
-      "sha256": "8cb29876aff429fee1452b7d7d397be4658c17db0f9f5aaee4c48882facaae9e"
+      "bytes": 5839,
+      "sha256": "9b8269f0886d9e961f29f903a97cb0cc6f6da753afd56d1a87cf37328616e2d4"
     },
     {
       "path": "mcp/codex-config.example.toml",
@@ -550,23 +560,23 @@
     },
     {
       "path": "middleware/auth.global.ts",
-      "bytes": 1387,
-      "sha256": "3aff8d1d9d04827e3118f26ca8d55b95c3e606397f142b8221726178d2979a52"
+      "bytes": 1622,
+      "sha256": "2f5ef3b0836b11f144fdbfc81a4301531491c08f00ad35a864b9ab5f4edb9eba"
     },
     {
       "path": "nuxt.config.ts",
-      "bytes": 9036,
-      "sha256": "d4a7eb876f5c271f4282b117598af81972f7a202928c2e75eb99ce43a462b209"
+      "bytes": 9084,
+      "sha256": "152adef75af5218670cc581a136c0b54970aff5f1823385a93d57e21110bbd49"
     },
     {
       "path": "package-lock.json",
-      "bytes": 647610,
-      "sha256": "84c9a5793155c61c96b6ba9d37d30bac1ea3b1670705b2c4b545e4c32ae8bb65"
+      "bytes": 647971,
+      "sha256": "5f12bddb74caf737bdb8a59eed072636602b6d75908b2c2cc6efcbbfdfb958f4"
     },
     {
       "path": "package.json",
-      "bytes": 2683,
-      "sha256": "b2ccf0c36a6049cf4b2dd8be838219ed4a399823347e6a4a69af4645d85f3326"
+      "bytes": 2706,
+      "sha256": "0967412bbc268a3945cecb5f71428e5105fe96c15bf8495fd0aec3d31c88123b"
     },
     {
       "path": "pages/air/[...path].vue",
@@ -600,8 +610,8 @@
     },
     {
       "path": "pages/airs/pricing.vue",
-      "bytes": 2570,
-      "sha256": "6cdaacd862b5c4cdd289a1e4aae2a2a518fbb63e32704d648c63af4c016d622d"
+      "bytes": 2748,
+      "sha256": "19bb75a8a8190b25becf42b089aa4337065e1e6d60db5ccba05f7d4403ca53f5"
     },
     {
       "path": "pages/airs/settings.vue",
@@ -620,8 +630,8 @@
     },
     {
       "path": "pages/auth/sign-in.vue",
-      "bytes": 2742,
-      "sha256": "ec4720b2a63f3b73f11b3e9bab4287f4eb18d00f6cd3f1f960bc0db1526310b2"
+      "bytes": 2740,
+      "sha256": "2359753e4e4f5ef3c3c6ad567d81c62fc23a86c34b21d22e10b04872fdc78c46"
     },
     {
       "path": "pages/auth/verify.vue",
@@ -630,8 +640,8 @@
     },
     {
       "path": "pages/index.vue",
-      "bytes": 319,
-      "sha256": "03ca283cb9641b597341a3282e87b2110e5959f779ea94a7ed1740b148e890d1"
+      "bytes": 809,
+      "sha256": "2891d8f02505d407bc834a88b2546a7a4725e9bf5ce7c29743b2c9016ce692de"
     },
     {
       "path": "playwright.airs.config.ts",
@@ -800,8 +810,8 @@
     },
     {
       "path": "scripts/run-growth-preview.mjs",
-      "bytes": 923,
-      "sha256": "7ad9be2e2c659cafb0d2b2b40f5948e520d1e8ac3b34c3da77d03037d9ac9222"
+      "bytes": 1018,
+      "sha256": "ceebdc25712535a171f418eba09ba31a1e1345f9e1b15cfd1be5f81e3b021dcf"
     },
     {
       "path": "scripts/run-source-fixtures.mjs",
@@ -1089,6 +1099,11 @@
       "sha256": "d99af424beb165122c21961da749322dadd21ee90df7fd6f33f1f29be7da6a88"
     },
     {
+      "path": "server/middleware/00.air-session-boundary.ts",
+      "bytes": 1428,
+      "sha256": "e4bf7f21fb6786d6e60a0c42a48d62382779da2b706bce817689acd81821977b"
+    },
+    {
       "path": "server/middleware/air-access.ts",
       "bytes": 1051,
       "sha256": "246fa22b55d5e7f4f203872d18ff43170fd32d63f5a57c3f25c0c38d24509d7f"
@@ -1097,11 +1112,6 @@
       "path": "server/middleware/air-surface.ts",
       "bytes": 503,
       "sha256": "b11d36030a72c8897c2f972b52754ee9ea7ceb951bbb8bc0ab01889e22aeb530"
-    },
-    {
-      "path": "server/middleware/airs-guest-boundary.ts",
-      "bytes": 872,
-      "sha256": "6e0c2fcfe5a163573f097100528ac9024805b8ff9366bfb0b99c5a44dbb55da3"
     },
     {
       "path": "server/middleware/study-live-lease.ts",
@@ -1315,8 +1325,8 @@
     },
     {
       "path": "server/utils/airsGuest.ts",
-      "bytes": 2079,
-      "sha256": "f48d3e0bc62c1c387ef1e591d45c7049c674de5fb9c3dce81b3109a9e3142882"
+      "bytes": 2306,
+      "sha256": "b521458d3231bb4ddc8d5b4282d86849fe6e0853b70968bf3664c7b1c148d902"
     },
     {
       "path": "server/utils/auth.ts",
@@ -1345,8 +1355,8 @@
     },
     {
       "path": "shared/airGrowth.ts",
-      "bytes": 2584,
-      "sha256": "7a780ed624bea5cdd4595ea68b0c91609afc8f9eba59c64335e2b9aa00f2aec1"
+      "bytes": 2561,
+      "sha256": "04ece3563e27069193837706845b17792aaa4ced4b088deccdc9d918dbccfd19"
     },
     {
       "path": "shared/airGrowthCapabilities.ts",
@@ -1355,8 +1365,8 @@
     },
     {
       "path": "shared/airGrowthPrototype.ts",
-      "bytes": 6838,
-      "sha256": "0d98c7a6b3c37ac067d1edeac4967085c027684d84cc3847832b450f2d7f0dba"
+      "bytes": 6789,
+      "sha256": "21c6d5c310e39b402015920bb06862b48cd73f6f1d274ee2e81c9a6c0979c48c"
     },
     {
       "path": "shared/airNavigation.ts",
@@ -1524,6 +1534,11 @@
       "sha256": "8d093a80dd2fcdaca2b96f642e071e33a9d9d57ab79591c7a15ef4447aa6cd38"
     },
     {
+      "path": "tests/airs-production-auth.test.ts",
+      "bytes": 4731,
+      "sha256": "d1567b7492c0b8d2a16724d5c554dd17406c8d3bd767bd20a49d4ae729bde721"
+    },
+    {
       "path": "tests/airs-provider-failure.test.ts",
       "bytes": 2830,
       "sha256": "4c39600a8c2538e20844780a643c70f1443f830e3581b36bacc77a31e9e7af3d"
@@ -1560,13 +1575,13 @@
     },
     {
       "path": "tests/growth-data.test.ts",
-      "bytes": 2557,
-      "sha256": "c5a6a2e62b9097601b41f1ae15ea6f9bf387b51846ba96b63f75d66be9d0d371"
+      "bytes": 2525,
+      "sha256": "2d9d17236dc09d9aadb454d761090b5e3c27bb17b1be551a2e8d546492fd1700"
     },
     {
       "path": "tests/growth-preview/hosted-growth.spec.ts",
-      "bytes": 4308,
-      "sha256": "6512cc84085afec34a9cee2d79016fbf255838c0d159af11f13964055bdac910"
+      "bytes": 16875,
+      "sha256": "26cfddc6599e6f7ec271787b07c660f3b1c623531bddd1594aa09b25d1e58e62"
     },
     {
       "path": "tests/kai-assessment.test.ts",
@@ -1600,8 +1615,8 @@
     },
     {
       "path": "tests/source-e2e/growth-prototype.spec.ts",
-      "bytes": 13056,
-      "sha256": "13e25f7ae99913aafb736aea53804d47778c210a02cda43046fbb13525e17489"
+      "bytes": 13044,
+      "sha256": "31ba764fcbc333096c142409bc2938efbcc80e9028a53d03418f78c3e084737d"
     },
     {
       "path": "tests/source-e2e/guest-context.spec.ts",

@@ -1,8 +1,9 @@
 import { spawn } from "node:child_process";
 import { randomBytes } from "node:crypto";
 
-// Exercise the production application with normal guest auth. Data reads in the
-// browser tests are intercepted fixtures; no provider/storage credentials are inherited.
+// Exercise production authentication even with obsolete guest/auth flags enabled.
+// Browser account/provider responses are explicit fixtures; server anonymous checks
+// are real. No provider/storage credentials are inherited.
 const env = {};
 for (const key of [
   "PATH",
@@ -18,6 +19,7 @@ for (const key of [
 Object.assign(env, {
   NODE_ENV: "production",
   NUXT_PUBLIC_AIRS_GUEST_ENABLED: "true",
+  NUXT_PUBLIC_AUTH_REQUIRED: "false",
   NUXT_AIRS_GUEST_SECRET: randomBytes(32).toString("hex"),
   HOST: "127.0.0.1",
   PORT: "4324",

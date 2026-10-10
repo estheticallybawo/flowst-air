@@ -12,7 +12,7 @@ Automated fixtures have not verified real provider availability, speech quality 
 
 Record deployment/date, provider, whether captions matched actual speech, a measured latency observation and any error message. Keep recordings, context and provider keys private. Delete unwanted test records.
 
-The standalone guest slice uses the same shared flow, but its existing hosting protection currently blocks signed-out access. Use local labelled fixtures for reproducibility; a silent browser fixture is not evidence of real Amina speech.
+Production standalone Airs uses the same shared flow behind its existing Cognito sign-in. Development-only private guest sessions and local labelled fixtures support reproducibility; a silent browser fixture is not evidence of real Amina speech.
 
 8. Replay a prepared response, reload and Replay again. It should reuse stored audio without dispatching or recording another synthesis request. If a provider, pending-work or playback error occurs, check the specific outcome and read the saved reply; an uncertain paid result must not trigger an automatic retry.
 9. Confirm a source-evidenced checkpoint. Only successful saved confirmation should celebrate and fill the journey rail. Kai becomes available after every objective is confirmed with evidence.

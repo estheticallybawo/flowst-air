@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const auth = useAuth();
+const authenticated = computed(() => auth.status.value === "AUTHENTICATED");
 definePageMeta({ middleware: [] });
 useHead({ title: "Access & plans · Flowst Airs" });
 </script>
@@ -43,7 +45,7 @@ useHead({ title: "Access & plans · Flowst Airs" });
             can call the speech provider. The timer is separate from each recording.
           </p>
         </details>
-        <NuxtLink class="air-button" to="/airs">Open my study space</NuxtLink>
+        <NuxtLink class="air-button" :to="authenticated ? '/airs' : '/auth/sign-in?redirect=/airs'">{{ authenticated ? "Continue" : "Sign in" }}</NuxtLink>
       </section>
       <section>
         <h2>Paid plans are coming later</h2>

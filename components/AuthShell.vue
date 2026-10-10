@@ -10,9 +10,9 @@ const standaloneAir = true
         <AirBrand v-if="standaloneAir" />
         <div class="auth-story-copy">
           <template v-if="standaloneAir">
-            <p class="eyebrow">Study out loud</p>
-            <h1>Bring your notes. Find your voice.</h1>
-            <p>Upload a resource and practise it aloud in a guided conversation. Your AI study assistant, at your pace.</p>
+            <p class="eyebrow">Keep growing</p>
+            <h1>Your learning. In your own words.</h1>
+            <p>Shape a plan with Misu, practise with Amina, and review your evidence with Kai. Pick up your learning at your pace.</p>
           </template>
         </div>
         <img v-if="standaloneAir" class="auth-art" src="/mascots/amina.png" alt="Amina, your AI study companion" width="410" height="558">

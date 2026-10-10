@@ -1,6 +1,6 @@
 # Misu-led setup and prepared handoff
 
-Implemented in authenticated Flowst first, then extracted into this independent slice. Flowst uses its existing account boundary; this slice retains its signed guest boundary. No authentication settings were disabled.
+Implemented in authenticated Flowst first, then extracted into this independent slice. Production Flowst and Airs use their existing Cognito account boundary. This independent slice retains signed guest access only in local development/testing; production always requires a real account for learning routes.
 
 ## Journey
 

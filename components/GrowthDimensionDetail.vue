@@ -9,7 +9,7 @@ defineProps<{
   capability: GrowthCapability;
   dimension: GrowthDimensionProgress;
 }>();
-defineEmits<{ flowmark: [id: string] }>();
+defineEmits<{ tide: [id: string] }>();
 </script>
 <template>
   <section
@@ -33,9 +33,9 @@ defineEmits<{ flowmark: [id: string] }>();
       /><span class="cycle-count"
         >{{ dimension.completedCycles }}
         {{
-          dimension.completedCycles === 1 ? "cycle" : "cycles"
+          dimension.completedCycles === 1 ? "Tide" : "Tides"
         }}
-        completed</span
+        earned</span
       >
     </div>
     <div class="detail-progress">
@@ -88,14 +88,14 @@ defineEmits<{ flowmark: [id: string] }>();
     <div class="detail-section">
       <h3>Cycle history</h3>
       <p v-if="!dimension.history.length" class="detail-empty">
-        Your first completed cycle will appear here.
+        Complete your first growth cycle to earn a Tide.
       </p>
       <ol v-else class="cycle-history">
         <li v-for="cycle in dimension.history" :key="cycle.number">
           <button
             type="button"
-            :aria-label="`View ${capability.title} cycle ${cycle.number} Flowmark`"
-            @click="$emit('flowmark', cycle.flowmarkId)"
+            :aria-label="`View ${capability.title} cycle ${cycle.number} Tide`"
+            @click="$emit('tide', cycle.tideId)"
           >
             <span class="history-icon">{{ cycle.number }}</span
             ><strong>Cycle {{ cycle.number }}</strong
@@ -118,13 +118,14 @@ defineEmits<{ flowmark: [id: string] }>();
     <button
       v-if="dimension.history.length"
       type="button"
-      class="latest-flowmark"
-      @click="$emit('flowmark', dimension.history.at(-1)!.flowmarkId)"
+      class="latest-tide"
+      @click="$emit('tide', dimension.history.at(-1)!.tideId)"
     >
-      View latest Flowmark <ArrowUpRight :size="17" />
+      View your latest Tide <ArrowUpRight :size="17" />
     </button>
     <p class="detail-footnote">
-      Each completed cycle records fresh evidence across learning conversations.
+      Each completed growth cycle earns a Tide, backed by fresh evidence
+      from your learning conversations.
     </p>
   </section>
 </template>
@@ -340,7 +341,7 @@ defineEmits<{ flowmark: [id: string] }>();
   margin: 7px 0 0;
   color: var(--air-muted);
 }
-.latest-flowmark {
+.latest-tide {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -357,7 +358,7 @@ defineEmits<{ flowmark: [id: string] }>();
   margin-top: 16px;
   cursor: pointer;
 }
-.latest-flowmark:hover {
+.latest-tide:hover {
   background: var(--air-accent-soft);
 }
 .detail-footnote,

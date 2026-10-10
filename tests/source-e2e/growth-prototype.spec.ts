@@ -10,7 +10,7 @@ async function openGrowth(page: Page) {
   );
   await page.goto("/airs", { waitUntil: "domcontentloaded" });
   await expect(
-    page.getByRole("heading", { name: "Your growth", exact: true }),
+    page.getByRole("heading", { name: "The reward is in seeing your growth", exact: true }),
   ).toBeVisible({ timeout: 90000 });
   await expect(page.locator(".growth-home")).toHaveAttribute(
     "data-growth-ready",
@@ -30,7 +30,7 @@ const capabilityArtwork = {
 const card = (page: Page, name: string) =>
   page.getByRole("button", { name: `Explore ${name}`, exact: true });
 
-test("Growth walkthrough keeps sample updates single-use and creates one evolved Flowmark", async ({
+test("Growth walkthrough keeps sample updates single-use and creates one evolved Tide", async ({
   page,
   isMobile,
 }) => {
@@ -84,7 +84,7 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
   );
   await expect(card(page, "Clear Explanation")).toContainText("72%");
   await expect(card(page, "Reasoning Aloud")).toContainText(
-    "4 cycles completed",
+    "4 Tides earned",
   );
   await page.screenshot({
     path: `test-results/growth-home-${test.info().project.name}.png`,
@@ -187,7 +187,7 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
     page.getByRole("button", { name: "View reflection", exact: true }),
   ).toBeFocused();
   await expect(card(page, "Reasoning Aloud")).toContainText(
-    "5 cycles completed",
+    "5 Tides earned",
   );
   await expect(card(page, "Reasoning Aloud")).toContainText("toward cycle 6");
   await expect(
@@ -201,16 +201,16 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
   ).toBeDisabled();
   await expect(
     page
-      .locator(".recent-flowmarks")
+      .locator(".recent-tides")
       .getByRole("button", {
-        name: "View Reasoning Aloud cycle 5 Flowmark",
+        name: "View Reasoning Aloud cycle 5 Tide",
         exact: true,
       }),
   ).toHaveCount(1);
   await page
-    .locator(".recent-flowmarks")
+    .locator(".recent-tides")
     .getByRole("button", {
-      name: "View Reasoning Aloud cycle 5 Flowmark",
+      name: "View Reasoning Aloud cycle 5 Tide",
       exact: true,
     })
     .click();
@@ -230,7 +230,7 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
     page.getByRole("dialog").locator(".share-brand"),
   ).toBeInViewport();
   await page.screenshot({
-    path: `test-results/growth-flowmark-${test.info().project.name}.png`,
+    path: `test-results/growth-tide-${test.info().project.name}.png`,
   });
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -265,7 +265,7 @@ test("Growth scenarios preserve established sample progress and reset the walkth
       .locator(".capability-card")
       .filter({ hasText: "No evidence collected yet" }),
   ).toHaveCount(7);
-  await expect(page.locator(".flowmark-tile")).toHaveCount(0);
+  await expect(page.locator(".tide-tile")).toHaveCount(0);
   await expect(
     card(page, "Clear Explanation").locator("[data-badge-stage]"),
   ).toHaveAttribute("data-badge-stage", "0");

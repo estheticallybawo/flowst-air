@@ -1,6 +1,6 @@
 import type {
   GrowthDimensionId,
-  GrowthFlowmark,
+  GrowthTide,
   GrowthPrototypeState,
   GrowthScenario,
 } from "./airGrowth";
@@ -53,16 +53,16 @@ const evidenceText: Record<GrowthDimensionId, [string, string, string]> = {
   ],
 };
 const dates = ["2026-08-16", "2026-09-08", "2026-09-29", "2026-10-05"];
-function sampleFlowmark(
+function sampleTide(
   dimensionId: GrowthDimensionId,
   cycle: number,
-  completedAt: string,
-): GrowthFlowmark {
+  earnedAt: string,
+): GrowthTide {
   return {
     id: `sample-${dimensionId}-${cycle}`,
     dimensionId,
     cycle,
-    completedAt,
+    earnedAt,
     conversations: cycle === 5 ? 6 : 4,
     contexts: 3,
     source: "example",
@@ -82,7 +82,7 @@ export function createGrowthPrototype(
     const history = Array.from({ length: completedCycles! }, (_, i) => ({
       number: i + 1,
       completedAt: dates[i]!,
-      flowmarkId: `sample-${capability.id}-${i + 1}`,
+      tideId: `sample-${capability.id}-${i + 1}`,
     }));
     return {
       dimensionId: capability.id,
@@ -116,9 +116,9 @@ export function createGrowthPrototype(
     scenario,
     selectedDimension: "clear_explanation",
     dimensions,
-    flowmarks: dimensions.flatMap((d) =>
+    tides: dimensions.flatMap((d) =>
       d.history.map((h) =>
-        sampleFlowmark(d.dimensionId, h.number, h.completedAt),
+        sampleTide(d.dimensionId, h.number, h.completedAt),
       ),
     ),
     sessionChanges: [],
@@ -190,22 +190,22 @@ export function completeGrowthCycle(state: GrowthPrototypeState) {
   )!;
   dimension.completedCycles++;
   dimension.progress = 0;
-  const mark = sampleFlowmark(
+  const tide = sampleTide(
     dimension.dimensionId,
     dimension.completedCycles,
     "2026-10-10",
   );
-  state.flowmarks.unshift(mark);
+  state.tides.unshift(tide);
   state.completion = {
     dimensionId: dimension.dimensionId,
-    completedCycle: mark.cycle,
+    completedCycle: tide.cycle,
     progress: 100,
-    flowmarkId: mark.id,
+    tideId: tide.id,
   };
   dimension.history.push({
-    number: mark.cycle,
-    completedAt: mark.completedAt,
-    flowmarkId: mark.id,
+    number: tide.cycle,
+    completedAt: tide.earnedAt,
+    tideId: tide.id,
   });
   dimension.evidence = [];
   state.selectedDimension = dimension.dimensionId;

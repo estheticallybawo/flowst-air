@@ -28,4 +28,4 @@ Kai now provides an evidence-linked review and next-practice proposal. Richer ph
 
 ## Context-aware practice
 
-Application-owned context and memory feed bounded Misu functions, approved Amina guidance and a separate Kai evidence review. See [context orchestration](docs/design-docs/context-aware-practice.md). Standalone uses expiring signed guest sessions. The Flowst host uses existing sign-in and native Airs routes. Longitudinal improvement and acoustic assessment remain unverified.
+Application-owned context and memory feed bounded Misu functions, approved Amina guidance and a separate Kai evidence review. See [context orchestration](docs/design-docs/context-aware-practice.md). Production Airs and the Flowst host use existing Cognito sign-in and native Airs routes. Private signed guest sessions are development/testing-only. Production rejects old guest cookies and tokens regardless of deployment flags. Longitudinal improvement and acoustic assessment remain unverified.

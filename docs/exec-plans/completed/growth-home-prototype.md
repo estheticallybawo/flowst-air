@@ -8,7 +8,7 @@ Growth is the default Home in development and production and displays seven capa
 
 Product definitions live separately from the example adapter, which owns starting values, evidence, history and scripted transitions. Nuxt request-isolated state survives client navigation, resets on reload, and resets when a scenario or Reset example is selected. Returning learner, New learner, Review pending and Review failed are inspectable. Pending/failed presets retain the returning learner's established sample progress; retry restores the ready preset.
 
-The walkthrough applies one session update (Clear Explanation +12, Reasoning Aloud +8, Self-Monitoring +6; Transfer unchanged), then one Reasoning Aloud completion. The completion shows 100%, five completed cycles, an evolved badge frame and a sample Flowmark. Continuing shows 0% toward cycle 6. Reopening a reflection never reapplies its update. Flowmark sharing is a local card preview only.
+The walkthrough applies one session update (Clear Explanation +12, Reasoning Aloud +8, Self-Monitoring +6; Transfer unchanged), then one Reasoning Aloud completion. The completion shows 100%, five completed cycles, an evolved badge frame and a sample Tide. Continuing shows 0% toward cycle 6. Reopening a reflection never reapplies its update. Tide sharing is a local card preview only.
 
 Desktop selection updates a detail panel. Mobile selection opens a native modal dialog with keyboard dismissal and focus restoration. Badge frame stages begin at 0, 1, 3, 5 and 10 cycles. Reduced motion disables progress transitions. Counts describe completed evidence cycles, never ability grades.
 
@@ -18,22 +18,22 @@ Presentation contracts and fixtures remain independent of Kai's existing four-do
 
 ## Next milestone
 
-After visual/product review, specify seven-capability evidence assessment and support-event packets, versioned deterministic cycle policies, durable duplicate-credit prevention, atomic cycle/Flowmark storage, private learner history and controlled publication. Stable criteria require fresh evidence and varied contexts in later cycles. These backend capabilities and real longitudinal improvement are not implemented by this prototype.
+After visual/product review, specify seven-capability evidence assessment and support-event packets, versioned deterministic cycle policies, durable duplicate-credit prevention, atomic cycle/Tide storage, private learner history and controlled publication. Stable criteria require fresh evidence and varied contexts in later cycles. These backend capabilities and real longitudinal improvement are not implemented by this prototype.
 
 ## Backend proposal after prototype review
 
 1. Define versioned policies for the seven capabilities, separately from Kai's four-domain session review. Specify accepted evidence, support levels, minimum fresh examples and varied-context requirements; later cycles keep stable criteria.
 2. Produce assessment packets referencing owned saved learner turns, approved source snapshots, context and support events. Validate attribution and confidence before accepting evidence. Pending or failed assessments preserve earlier progress and support explicit retry.
 3. Apply deterministic progression in the backend. Persist a unique credit key for learner, evidence item and capability across all cycles; store policy version and cycle attribution as metadata rather than making old evidence eligible again. Retries, replay and policy changes cannot award duplicate credit. Corrections need an explicit audit/reversal path. One conversation may support multiple capabilities only with distinct qualifying evidence.
-4. Complete a cycle and create its private Flowmark in one transaction, with concurrency/version checks and unique completion identity. Advance to a fresh cycle at zero while retaining immutable completion history. Keep policy versions and the credited evidence available for explanation and correction.
-5. Serve learner-owned progress, evidence, cycle history and private Flowmarks through authorized reads. Publication requires a separate learner-controlled action and revocation; a share preview alone never publishes. Decide consent, exposed evidence, moderation and deletion behavior before implementing public links.
+4. Complete a cycle and create its private Tide in one transaction, with concurrency/version checks and unique completion identity. Advance to a fresh cycle at zero while retaining immutable completion history. Keep policy versions and the credited evidence available for explanation and correction.
+5. Serve learner-owned progress, evidence, cycle history and private Tides through authorized reads. Publication requires a separate learner-controlled action and revocation; a share preview alone never publishes. Decide consent, exposed evidence, moderation and deletion behavior before implementing public links.
 6. Verify duplicate/reordered events, concurrent completion, authorization, review failure and correction, then compare judgments with reviewed human examples before enabling real credit. Roll out behind a separate backend feature flag. No part of this proposal is implemented or authorized for deployment by the prototype milestone.
 
 ## Airs brand and owner-supplied artwork
 
 The visual refinement uses Airs' existing blue accent, pale-blue canvas, white panels, Albert Sans body text and Unbounded headings. Buttons reuse the Airs controls; Amina uses the existing avatar. The seven capability accent colours are retained. Botanical ornament and the oversized motivational hero have been removed. Styling remains scoped to Growth.
 
-Seven owner-supplied transparent 3D PNGs represent Verbal Retrieval (teal voice chat), Clear Explanation (purple lightbulb), Conceptual Precision (orange bullseye), Reasoning Aloud (teal megaphone), Self-Monitoring, Transfer (blue water exchange) and Conversation Flow (purple chat exchange). Source images live unchanged in public/growth. Artwork is configured in shared/airGrowthCapabilities.ts. Badge frames evolve at 0, 1, 3, 5 and 10 completed cycles. Cards, evidence details and Flowmarks share the same capability image. The owner’s lighter accents are retained; progress text uses Airs dark ink for contrast.
+Seven owner-supplied transparent 3D PNGs represent Verbal Retrieval (teal voice chat), Clear Explanation (purple lightbulb), Conceptual Precision (orange bullseye), Reasoning Aloud (teal megaphone), Self-Monitoring, Transfer (blue water exchange) and Conversation Flow (purple chat exchange). Source images live unchanged in public/growth. Artwork is configured in shared/airGrowthCapabilities.ts. Badge frames evolve at 0, 1, 3, 5 and 10 completed cycles. Cards, evidence details and Tides share the same capability image. The owner’s lighter accents are retained; progress text uses Airs dark ink for contrast.
 
 ## Product integration correction
 
@@ -42,3 +42,19 @@ The owner clarified that example data should demonstrate future progression insi
 Moved scenario/reset and scripted progression into a collapsed **Explore example progress** section, reduced repeated sample wording, and retained a compact provenance notice. Product capability definitions and formatting now live separately from example records. The UI consumes a source-independent GrowthSnapshot; example-only walkthrough state stays behind useAirGrowth. This prepares the UI boundary, while real backend assessment, transactions and learner-owned records remain outstanding as described above.
 
 The owner confirmed there is no separate Preview backend and explicitly requested the integrated Growth Home in live production. Release through the existing production environment and release branch after verification. The missing Preview signing key was a deployment configuration issue; provider or Production credentials are not copied into Preview. See the verification record for actual checks and deployment status.
+
+## Tides reward language
+
+The owner renamed Flowmarks to **Tides** and requested incentive-focused language: “You earn Tides as you progress.” One completed growth cycle earns one Tide. Cards and the total show Tides earned; the next-cycle percentage and cycle history retain the progression context. Completion celebrates the earned Tide, and its card displays the earned date and supporting evidence. Product contracts and the example adapter use Tide terminology consistently; existing example IDs are retained. The existing owner heading is preserved. This naming change adds no currency balance, award persistence, model assessment or publication.
+
+## Production account entry correction
+
+The owner clarified that private guest sessions are only for development/testing. Production Airs uses its existing Cognito account session. Anonymous landing calls to action offer Sign in and preserve the Airs return destination; authenticated accounts see Continue. Protected learning pages redirect anonymous visitors to the existing sign-in form. Production ignores old guest-enable/auth-bypass flags and rejects previously signed guest cookies and bearer tokens. Guest records remain stored under their original owner; this change neither deletes nor attaches them to an account.
+
+The standalone session boundary now enforces request-origin checks independently of guest mode, before account/study mutations reach entitlement or storage handlers. Account-aware pages and API responses use private, no-store. Local guest fixtures remain available. No new identity provider or reward backend was added.
+
+## Launch landing narrative
+
+The owner requested a public landing page for the complete intended Airs journey, including Growth and earnable Tides, without future-feature or prototype framing. The landing now leads with “Make what you learn your own,” identifies independent adult learners, recent graduates and people building with AI, and explains the product, supported sources, six session steps, seven capabilities and first-session expectations. Tides are integrated into the learning narrative. The trycrush.ai reference informed the outcome → learner problem → product → audience → steps → expectations → FAQ → action sequence; Airs retains its own brand, mascots, colours and controls. No third-party claims, testimonials or assets were copied.
+
+Sign-in and returning-account calls to action connect to the existing account/session flow. The auth shell, public navigation, access-page action and metadata use the same direction. This marketing change follows the owner’s planned launch proposition; it does not implement seven-capability assessment or durable rewards. Current data origin and engineering limits remain recorded in the product and technical documentation.

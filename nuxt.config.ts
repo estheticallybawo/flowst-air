@@ -176,8 +176,9 @@ export default defineNuxtConfig({
         process.env.FLOWST_AUTH_MODE === "mock" &&
         process.env.NODE_ENV !== "production",
       appSurface: "air",
-      airsGuestEnabled: process.env.AIRS_GUEST_ENABLED !== "false",
-      authRequired: false,
+      airsGuestEnabled: process.env.NODE_ENV !== "production" &&
+        process.env.AIRS_GUEST_ENABLED !== "false",
+      authRequired: true,
       apiBaseUrl: "/api",
       schoolId: process.env.NUXT_PUBLIC_SCHOOL_ID || "school-aster",
       demoMode: process.env.NUXT_PUBLIC_DEMO_MODE !== "false",

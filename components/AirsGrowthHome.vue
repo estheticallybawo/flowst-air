@@ -16,18 +16,18 @@ const selectedCapability = computed(
   () => capabilities.find((c) => c.id === selectedDimension.value)!,
 );
 const dialog = ref<
-  "detail" | "session" | "completion" | "flowmark" | "share" | null
+  "detail" | "session" | "completion" | "tide" | "share" | null
 >(null);
-const markId = ref("");
-const mark = computed(() =>
-  state.value.flowmarks.find((m) => m.id === markId.value),
+const tideId = ref("");
+const tide = computed(() =>
+  state.value.tides.find((m) => m.id === tideId.value),
 );
-const markCapability = computed(() =>
-  capabilities.find((c) => c.id === mark.value?.dimensionId),
+const tideCapability = computed(() =>
+  capabilities.find((c) => c.id === tide.value?.dimensionId),
 );
-const recentMarks = computed(() =>
-  [...state.value.flowmarks]
-    .sort((a, b) => b.completedAt.localeCompare(a.completedAt))
+const recentTides = computed(() =>
+  [...state.value.tides]
+    .sort((a, b) => b.earnedAt.localeCompare(a.earnedAt))
     .slice(0, 3),
 );
 const mobile = ref(false);
@@ -81,21 +81,21 @@ function previewSession() {
 }
 function previewCompletion() {
   examples.completeCycle();
-  markId.value = state.value.completion?.flowmarkId || "";
+  tideId.value = state.value.completion?.tideId || "";
   dialog.value = "completion";
 }
-function showFlowmark(id: string) {
-  markId.value = id;
-  dialog.value = "flowmark";
+function showTide(id: string) {
+  tideId.value = id;
+  dialog.value = "tide";
 }
 const dialogTitle = computed(
   () =>
     ({
       detail: selectedCapability.value.title,
       session: "Session reflection",
-      completion: "Cycle complete",
-      flowmark: "Your Flowmark",
-      share: "Flowmark card",
+      completion: "You've earned a Tide",
+      tide: "Your Tide",
+      share: "Tide card",
     })[dialog.value || "detail"],
 );
 </script>
@@ -106,9 +106,9 @@ const dialogTitle = computed(
       <header class="growth-heading">
         <div>
           <p class="growth-eyebrow">Your verbal growth</p>
-          <h1>Your growth</h1>
+          <h1>The reward is in seeing your growth</h1>
           <p class="growth-subtitle">
-            See what your learning conversations are building over time.
+            You earn Tides as you progress. Each completed growth cycle earns a Tide.
           </p>
         </div>
         <NuxtLink class="air-button growth-primary" to="/airs/new"
@@ -161,7 +161,7 @@ const dialogTitle = computed(
                 </p>
               </div>
               <span class="cycle-total"
-                >{{ totalCycles }} cycles completed</span
+                >{{ totalCycles }} {{ totalCycles === 1 ? "Tide" : "Tides" }} earned</span
               >
             </header>
             <div class="capability-grid">
@@ -211,9 +211,9 @@ const dialogTitle = computed(
                 <span class="card-cycle"
                   >{{ dimension.completedCycles }}
                   {{
-                    dimension.completedCycles === 1 ? "cycle" : "cycles"
+                    dimension.completedCycles === 1 ? "Tide" : "Tides"
                   }}
-                  completed</span
+                  earned</span
                 >
                 <p class="card-progress">
                   <strong>{{ dimension.progress }}%</strong>
@@ -232,23 +232,23 @@ const dialogTitle = computed(
             </div>
           </section>
 
-          <section class="recent-flowmarks" aria-labelledby="flowmarks-title">
+          <section class="recent-tides" aria-labelledby="tides-title">
             <header class="section-heading">
               <div>
-                <h2 id="flowmarks-title">Your Flowmarks</h2>
+                <h2 id="tides-title">Your Tides</h2>
                 <p>
-                  A record of the evidence behind each completed cycle.
+                  Tides you’ve earned through completed growth cycles.
                 </p>
               </div>
             </header>
-            <div v-if="recentMarks.length" class="flowmark-grid">
+            <div v-if="recentTides.length" class="tide-grid">
               <button
-                v-for="item in recentMarks"
+                v-for="item in recentTides"
                 :key="item.id"
                 type="button"
-                class="flowmark-tile"
-                :aria-label="`View ${capabilities.find((c) => c.id === item.dimensionId)!.title} cycle ${item.cycle} Flowmark`"
-                @click="showFlowmark(item.id)"
+                class="tide-tile"
+                :aria-label="`View ${capabilities.find((c) => c.id === item.dimensionId)!.title} cycle ${item.cycle} Tide`"
+                @click="showTide(item.id)"
               >
                 <GrowthCapabilityArt
                   :dimension="item.dimensionId"
@@ -264,17 +264,16 @@ const dialogTitle = computed(
                     capabilities.find((c) => c.id === item.dimensionId)!.title
                   }}</strong
                   ><small
-                    >Cycle {{ item.cycle }} ·
-                    {{ growthDate(item.completedAt) }}</small
+                    >Earned {{ growthDate(item.earnedAt) }} · Cycle {{ item.cycle }}
+                    </small
                   ></span
                 ><ArrowUpRight :size="17" />
               </button>
             </div>
-            <div v-else class="flowmarks-empty">
-              <span class="empty-mark" aria-hidden="true">F</span>
+            <div v-else class="tides-empty">
+              <span class="empty-tide" aria-hidden="true">T</span>
               <p>
-                Your first Flowmark will appear after a completed evidence
-                cycle.
+                Complete a growth cycle to earn your first Tide.
               </p>
             </div>
           </section>
@@ -303,12 +302,12 @@ const dialogTitle = computed(
               <AgentAvatar agent="AMIRA" size="standard" />
               <div>
                 <p class="growth-eyebrow">After a learning conversation</p>
-                <h2 id="walkthrough-title">From conversation to Flowmark</h2>
+                <h2 id="walkthrough-title">From conversation to your next Tide</h2>
               </div>
             </div>
             <p>
-              Apply an example assessment update to see how evidence contributes
-              to capabilities and completed cycles become Flowmarks.
+              See how new evidence moves you closer to a Tide. Complete a growth
+              cycle to earn one.
             </p>
             <div class="walkthrough-steps">
               <span :class="{ done: sessionApplied }"
@@ -369,7 +368,7 @@ const dialogTitle = computed(
           <GrowthDimensionDetail
             :capability="selectedCapability"
             :dimension="selected"
-            @flowmark="showFlowmark"
+            @tide="showTide"
           />
         </aside>
       </div>
@@ -386,7 +385,7 @@ const dialogTitle = computed(
           v-if="dialog === 'detail'"
           :capability="selectedCapability"
           :dimension="selected"
-          @flowmark="showFlowmark"
+          @tide="showTide"
         />
         <section v-else-if="dialog === 'session'" class="session-reflection">
           <p class="modal-intro">
@@ -452,8 +451,8 @@ const dialogTitle = computed(
             >{{ state.completion.completedCycle }} cycles completed</strong
           >
           <p>
-            Fresh independent evidence completed this cycle. Your badge
-            has evolved, and a Flowmark is ready.
+            You’ve earned a new {{ completedCapability.title }} Tide. Fresh
+            evidence completed this cycle, and your badge has evolved.
           </p>
           <p class="modal-note">
             The next ring begins at 0% toward cycle
@@ -469,17 +468,17 @@ const dialogTitle = computed(
           ><button
             type="button"
             class="air-button air-button-secondary growth-secondary"
-            @click="dialog = 'flowmark'"
+            @click="dialog = 'tide'"
           >
-            View Flowmark <ArrowUpRight :size="16" />
+            View your Tide <ArrowUpRight :size="16" />
           </button>
         </section>
-        <section v-else-if="mark && markCapability" class="flowmark-preview">
+        <section v-else-if="tide && tideCapability" class="tide-preview">
           <div
             class="share-card"
             :style="{
-              '--flowmark-color': markCapability.color,
-              '--flowmark-tint': markCapability.tint,
+              '--tide-color': tideCapability.color,
+              '--tide-tint': tideCapability.tint,
             }"
             :class="{ 'share-card-expanded': dialog === 'share' }"
           >
@@ -490,39 +489,40 @@ const dialogTitle = computed(
                 width="28"
                 height="28"
               /><strong>Flowst <span>Airs</span></strong
-              ><span v-if="mark.source === 'example'" class="specimen">Example</span>
+              ><span v-if="tide.source === 'example'" class="specimen">Example</span>
             </div>
             <GrowthCapabilityArt
               class="share-art"
-              :dimension="mark.dimensionId"
-              :cycles="mark.cycle"
-              :color="markCapability.color"
-              :tint="markCapability.tint"
+              :dimension="tide.dimensionId"
+              :cycles="tide.cycle"
+              :color="tideCapability.color"
+              :tint="tideCapability.tint"
             />
-            <p class="growth-eyebrow">A completed evidence cycle</p>
-            <h3>{{ markCapability.title }}</h3>
-            <span class="share-cycle">Cycle {{ mark.cycle }}</span>
-            <p class="share-message">Learning, made visible.</p>
+            <p class="growth-eyebrow">You earned a new Tide</p>
+            <h3>{{ tideCapability.title }}</h3>
+            <span class="share-cycle">Cycle {{ tide.cycle }}</span>
+            <p class="share-message">Earned through your progress.</p>
             <div class="share-stats">
               <span
-                ><strong>{{ mark.conversations }}</strong> conversations</span
+                ><strong>{{ tide.conversations }}</strong> conversations</span
               ><span
-                ><strong>{{ mark.contexts }}</strong> contexts</span
+                ><strong>{{ tide.contexts }}</strong> contexts</span
               >
             </div>
             <p class="share-date">
-              {{ growthDate(mark.completedAt) }}
+              Earned {{ growthDate(tide.earnedAt) }}
             </p>
           </div>
-          <template v-if="dialog === 'flowmark'"
-            ><h4>Evidence behind this Flowmark</h4>
-            <ul class="flowmark-evidence">
-              <li v-for="text in mark.evidence" :key="text">
+          <template v-if="dialog === 'tide'"
+            ><h4>Evidence behind this Tide</h4>
+            <ul class="tide-evidence">
+              <li v-for="text in tide.evidence" :key="text">
                 <Check :size="17" />{{ text }}
               </li>
             </ul>
             <p class="modal-note">
-              This Flowmark records the evidence collected across conversations.
+              You earned this Tide by completing a growth cycle. The evidence
+              behind it stays here for you to revisit.
             </p>
             <button
               type="button"
@@ -537,9 +537,9 @@ const dialogTitle = computed(
             <button
               type="button"
               class="air-button air-button-secondary growth-secondary"
-              @click="dialog = 'flowmark'"
+              @click="dialog = 'tide'"
             >
-              Back to Flowmark
+              Back to Tide
             </button></template
           >
         </section>
@@ -881,14 +881,14 @@ const dialogTitle = computed(
   font-size: 0.75rem !important;
   margin-bottom: 0 !important;
 }
-.recent-flowmarks {
+.recent-tides {
   margin-top: 32px;
 }
-.flowmark-grid {
+.tide-grid {
   display: grid;
   gap: 10px;
 }
-.flowmark-tile {
+.tide-tile {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -900,32 +900,32 @@ const dialogTitle = computed(
   cursor: pointer;
   color: var(--air-ink);
 }
-.flowmark-tile > .growth-art {
+.tide-tile > .growth-art {
   width: 58px;
   height: 58px;
   flex: none;
 }
-.flowmark-tile > svg:last-child {
+.tide-tile > svg:last-child {
   margin-left: auto;
   flex: none;
   color: var(--air-accent-strong);
 }
-.flowmark-tile strong {
+.tide-tile strong {
   display: block;
   font-size: 0.84rem;
   font-weight: 700;
 }
-.flowmark-tile small {
+.tide-tile small {
   display: block;
   color: var(--air-muted);
   font-size: 0.73rem;
   margin-top: 5px;
 }
-.flowmark-tile:hover {
+.tide-tile:hover {
   border-color: var(--air-accent);
   background: #f8fcff;
 }
-.flowmarks-empty {
+.tides-empty {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -936,7 +936,7 @@ const dialogTitle = computed(
   font-size: 0.84rem;
   line-height: 1.6;
 }
-.empty-mark {
+.empty-tide {
   display: grid;
   place-items: center;
   flex: none;
@@ -1088,7 +1088,7 @@ const dialogTitle = computed(
   width: 100%;
   max-width: 320px;
 }
-.flowmark-preview h4 {
+.tide-preview h4 {
   font-size: 0.9rem;
   margin: 24px 0 16px;
 }
@@ -1099,7 +1099,7 @@ const dialogTitle = computed(
   border-radius: 16px;
   padding: 24px 26px;
   text-align: center;
-  background: color-mix(in srgb, var(--flowmark-tint) 65%, white);
+  background: color-mix(in srgb, var(--tide-tint) 65%, white);
 }
 .share-brand {
   display: flex;
@@ -1175,14 +1175,14 @@ const dialogTitle = computed(
   color: var(--air-muted);
   margin: 22px 0 0;
 }
-.flowmark-evidence {
+.tide-evidence {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
   gap: 12px;
 }
-.flowmark-evidence li {
+.tide-evidence li {
   display: flex;
   align-items: flex-start;
   gap: 8px;
@@ -1190,7 +1190,7 @@ const dialogTitle = computed(
   line-height: 1.7;
   color: var(--air-muted);
 }
-.flowmark-evidence svg {
+.tide-evidence svg {
   flex: none;
   margin-top: 3px;
   color: var(--air-accent-strong);
