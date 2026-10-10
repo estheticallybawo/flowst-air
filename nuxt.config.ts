@@ -1,21 +1,21 @@
-import { growthPreviewEnabled } from "./shared/airGrowthPreview";
-
 // Air keys take precedence; legacy deployment keys are read only as migration aliases.
 const airEnv = (key: string, legacy: string) =>
   process.env[key] ?? process.env[legacy];
 
-const airGrowthPreview = growthPreviewEnabled(
-  process.env.AIR_GROWTH_PREVIEW_MODE,
-  process.env.VERCEL_ENV,
-  process.env.NODE_ENV,
-);
+// Growth is the normal Airs Home. An explicit false retains setup for rollback.
+// This changes presentation only; normal authentication and backend access remain.
+const airGrowthEnabled = (process.env.AIR_GROWTH_ENABLED ??
+  process.env.AIR_GROWTH_PREVIEW_MODE ?? "true") === "true";
+// Keep the normal development server separate from production/type-check artifacts.
+const airBuildDir = process.env.FLOWST_BUILD_DIR ||
+  (process.env.NODE_ENV === "development" ? ".nuxt-air-dev" : ".nuxt");
 
 export default defineNuxtConfig({
   compatibilityDate: "2026-08-24",
   srcDir: ".",
-  buildDir: process.env.FLOWST_BUILD_DIR || ".nuxt",
+  buildDir: airBuildDir,
   // Separate local Flowst Air, Flowst and browser-check optimizer artifacts.
-  vite: { cacheDir: `${process.env.FLOWST_BUILD_DIR || ".nuxt"}/vite-cache` },
+  vite: { cacheDir: `${airBuildDir}/vite-cache` },
   ignore: [
     "**/.nuxt-*",
     "**/.tmp",
@@ -65,7 +65,6 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
-    airGrowthPreview,
     airsGuestSecret: process.env.AIRS_GUEST_SECRET || "",
     airsGuestDailyModelLimit: Number(
       process.env.AIRS_GUEST_DAILY_MODEL_LIMIT || 30,
@@ -170,7 +169,7 @@ export default defineNuxtConfig({
     ),
     awsRegion: process.env.AWS_REGION || "us-east-1",
     public: {
-      airGrowthPreview,
+      airGrowthEnabled,
       studySourceFixtureMode:
         airEnv("AIR_SOURCE_FIXTURE_MODE", "AMINA_SOURCE_FIXTURE_MODE") ===
           "true" &&
@@ -197,9 +196,9 @@ export default defineNuxtConfig({
       start_url: "/",
       icons: [
         {
-          src: "/air-icon.svg",
-          sizes: "any",
-          type: "image/svg+xml",
+          src: "/amira-icon.png",
+          sizes: "500x500",
+          type: "image/png",
           purpose: "any maskable",
         },
       ],

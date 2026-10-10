@@ -4,17 +4,16 @@ import {
   ArrowUpRight,
   Check,
   ChevronRight,
-  FlaskConical,
   RotateCcw,
 } from "lucide-vue-next";
 import type { GrowthDimensionId, GrowthScenario } from "~/shared/airGrowth";
-import { growthDate } from "~/shared/airGrowthPrototype";
+import { growthDate } from "~/shared/airGrowth";
 
-const hostedDemo = useRuntimeConfig().public.airGrowthPreview === true;
-const prototype = useAirGrowthPrototype();
-const { state, selected, capabilities } = prototype;
+const growth = useAirGrowth();
+const { snapshot: state, selected, selectedDimension, capabilities, examples } = growth;
+const { scenario, sessionApplied, completionApplied } = examples;
 const selectedCapability = computed(
-  () => capabilities.find((c) => c.id === state.value.selectedDimension)!,
+  () => capabilities.find((c) => c.id === selectedDimension.value)!,
 );
 const dialog = ref<
   "detail" | "session" | "completion" | "flowmark" | "share" | null
@@ -36,7 +35,7 @@ const ready = ref(false);
 const totalCycles = computed(() =>
   state.value.dimensions.reduce((sum, d) => sum + d.completedCycles, 0),
 );
-const canWalkThrough = computed(() => state.value.scenario === "returning");
+const canWalkThrough = computed(() => scenario.value === "returning");
 const changedDimensions = computed(() =>
   state.value.sessionChanges.filter(
     (change) => change.next !== change.previous,
@@ -63,25 +62,25 @@ onMounted(() => {
 });
 onBeforeUnmount(() => media?.removeEventListener("change", viewportChanged));
 function selectDimension(id: GrowthDimensionId) {
-  prototype.select(id);
+  growth.select(id);
   if (mobile.value) dialog.value = "detail";
 }
 function changeScenario(event: Event) {
   dialog.value = null;
-  prototype.setScenario(
+  examples.setScenario(
     (event.target as HTMLSelectElement).value as GrowthScenario,
   );
 }
 function reset() {
   dialog.value = null;
-  prototype.reset();
+  examples.reset();
 }
 function previewSession() {
-  prototype.applySession();
+  examples.applySession();
   dialog.value = "session";
 }
 function previewCompletion() {
-  prototype.completeCycle();
+  examples.completeCycle();
   markId.value = state.value.completion?.flowmarkId || "";
   dialog.value = "completion";
 }
@@ -93,28 +92,17 @@ const dialogTitle = computed(
   () =>
     ({
       detail: selectedCapability.value.title,
-      session: "Your sample session reflection",
-      completion: "Your sample cycle is complete",
-      flowmark: "Your sample Flowmark",
-      share: "Local share-card preview",
+      session: "Session reflection",
+      completion: "Cycle complete",
+      flowmark: "Your Flowmark",
+      share: "Flowmark card",
     })[dialog.value || "detail"],
 );
 </script>
 
 <template>
   <AirAppShell>
-    <div class="growth-home" :data-prototype-ready="ready">
-      <div class="prototype-bar">
-        <div>
-          <FlaskConical :size="16" /><strong>Prototype · Sample data</strong
-          ><span
-            >Explore the experience. Your learning records are unchanged.</span
-          >
-        </div>
-        <button type="button" @click="reset">
-          <RotateCcw :size="14" /> Reset preview
-        </button>
-      </div>
+    <div class="growth-home" :data-growth-ready="ready">
       <header class="growth-heading">
         <div>
           <p class="growth-eyebrow">Your verbal growth</p>
@@ -123,53 +111,36 @@ const dialogTitle = computed(
             See what your learning conversations are building over time.
           </p>
         </div>
-        <NuxtLink class="air-button growth-primary" :to="hostedDemo ? '/airs/demo-info' : '/airs/new'"
-          >{{ hostedDemo ? "About this demo" : "Start a new session" }} <ArrowUpRight :size="17" :stroke-width="1.5"
+        <NuxtLink class="air-button growth-primary" to="/airs/new"
+          >Start a new session <ArrowUpRight :size="17" :stroke-width="1.5"
         /></NuxtLink>
       </header>
 
-      <section class="growth-toolbar" aria-label="Prototype scenarios">
-        <div>
-          <span class="toolbar-dot" />
-          <p>Every capability is available from day one.</p>
-        </div>
-        <label for="growth-scenario"
-          >Preview scenario<select
-            id="growth-scenario"
-            :value="state.scenario"
-            @change="changeScenario"
-          >
-            <option value="returning">Returning learner</option>
-            <option value="new">New learner</option>
-            <option value="pending">Review pending</option>
-            <option value="failed">Review failed</option>
-          </select></label
-        >
-      </section>
+      <p v-if="state.source === 'example'" class="growth-data-note">Example growth data · Your sessions continue as usual.</p>
 
       <section
-        v-if="state.scenario === 'pending' || state.scenario === 'failed'"
+        v-if="state.reviewStatus === 'pending' || state.reviewStatus === 'failed'"
         class="review-status"
-        :class="{ 'review-failed': state.scenario === 'failed' }"
+        :class="{ 'review-failed': state.reviewStatus === 'failed' }"
         role="status"
       >
         <div>
           <strong>{{
-            state.scenario === "pending"
-              ? "Sample growth review pending"
-              : "Sample growth review could not be completed"
+            state.reviewStatus === "pending"
+              ? "Growth review pending"
+              : "Growth review could not be completed"
           }}</strong>
           <p>
             {{
-              state.scenario === "pending"
-                ? "The preview keeps earlier progress visible while a review is pending."
-                : "Earlier progress stays visible. Retry this preview without submitting another answer."
+              state.reviewStatus === "pending"
+                ? "Your earlier progress stays visible while this review is pending."
+                : "Your earlier progress stays visible. Retry the review without submitting another answer."
             }}
           </p>
         </div>
-        <button type="button" @click="prototype.retry()">
+        <button type="button" @click="examples.retry()">
           {{
-            state.scenario === "failed" ? "Retry preview" : "Show ready preview"
+            state.reviewStatus === "failed" ? "Retry review" : "Show completed review"
           }}
           <ArrowRight :size="16" />
         </button>
@@ -183,7 +154,7 @@ const dialogTitle = computed(
                 <h2 id="growth-path-title">Your growth path</h2>
                 <p>
                   {{
-                    state.scenario === "new"
+                    state.dimensions.every(d => !d.completedCycles && !d.evidence.length)
                       ? "All seven capabilities are ready. Your first evidence begins with a conversation."
                       : "Choose a capability to explore its evidence."
                   }}
@@ -200,10 +171,10 @@ const dialogTitle = computed(
                 type="button"
                 class="capability-card"
                 :class="{
-                  selected: dimension.dimensionId === state.selectedDimension,
+                  selected: dimension.dimensionId === selectedDimension,
                 }"
                 :aria-pressed="
-                  dimension.dimensionId === state.selectedDimension
+                  dimension.dimensionId === selectedDimension
                 "
                 :aria-label="`Explore ${capabilities.find((c) => c.id === dimension.dimensionId)!.title}`"
                 :style="{
@@ -219,7 +190,7 @@ const dialogTitle = computed(
                 <span class="card-topline"
                   ><span class="card-number">0{{ index + 1 }}</span
                   ><span
-                    v-if="dimension.dimensionId === state.selectedDimension"
+                    v-if="dimension.dimensionId === selectedDimension"
                     class="card-selected"
                     >Selected</span
                   ><ArrowUpRight v-else :size="15" :stroke-width="1.5" /></span
@@ -261,76 +232,14 @@ const dialogTitle = computed(
             </div>
           </section>
 
-          <section class="walkthrough" aria-labelledby="walkthrough-title">
-            <div class="walkthrough-top">
-              <AgentAvatar agent="AMIRA" size="standard" />
-              <div>
-                <p class="growth-eyebrow">Try the sample journey</p>
-                <h2 id="walkthrough-title">From conversation to Flowmark</h2>
-              </div>
-            </div>
-            <p>
-              Preview how a conversation can contribute evidence, then see a
-              completed cycle become a Flowmark.
-            </p>
-            <div class="walkthrough-steps">
-              <span :class="{ done: state.sessionApplied }"
-                ><Check v-if="state.sessionApplied" :size="14" /><span v-else
-                  >1</span
-                >
-                Session reflection</span
-              ><ChevronRight :size="15" /><span
-                :class="{ done: state.completionApplied }"
-                ><Check v-if="state.completionApplied" :size="14" /><span v-else
-                  >2</span
-                >
-                Completed cycle</span
-              >
-            </div>
-            <div class="walkthrough-actions">
-              <button
-                id="growth-session-preview"
-                type="button"
-                class="air-button growth-primary"
-                :disabled="!canWalkThrough"
-                @click="previewSession"
-              >
-                {{
-                  state.sessionApplied
-                    ? "View sample reflection"
-                    : "Preview a session update"
-                }}
-                <ArrowRight :size="16" /></button
-              ><button
-                type="button"
-                class="air-button air-button-secondary growth-secondary"
-                :disabled="
-                  !canWalkThrough ||
-                  !state.sessionApplied ||
-                  state.completionApplied
-                "
-                @click="previewCompletion"
-              >
-                Preview cycle completion <ArrowUpRight :size="16" />
-              </button>
-            </div>
-            <p v-if="!canWalkThrough" class="walkthrough-help">
-              Choose Returning learner to explore the full walkthrough.
-            </p>
-            <p v-else-if="state.completionApplied" class="walkthrough-help">
-              Sample cycle complete. Reset preview to walk through it again.
-            </p>
-          </section>
-
           <section class="recent-flowmarks" aria-labelledby="flowmarks-title">
             <header class="section-heading">
               <div>
                 <h2 id="flowmarks-title">Your Flowmarks</h2>
                 <p>
-                  Your sample Flowmarks. A record of completed evidence cycles.
+                  A record of the evidence behind each completed cycle.
                 </p>
               </div>
-              <span class="sample-tag">Sample collection</span>
             </header>
             <div v-if="recentMarks.length" class="flowmark-grid">
               <button
@@ -338,7 +247,7 @@ const dialogTitle = computed(
                 :key="item.id"
                 type="button"
                 class="flowmark-tile"
-                :aria-label="`View ${capabilities.find((c) => c.id === item.dimensionId)!.title} cycle ${item.cycle} sample Flowmark`"
+                :aria-label="`View ${capabilities.find((c) => c.id === item.dimensionId)!.title} cycle ${item.cycle} Flowmark`"
                 @click="showFlowmark(item.id)"
               >
                 <GrowthCapabilityArt
@@ -369,6 +278,86 @@ const dialogTitle = computed(
               </p>
             </div>
           </section>
+          <details v-if="state.source === 'example'" class="walkthrough growth-example-tools">
+            <summary>Explore example progress</summary>
+                  <section class="growth-toolbar" aria-label="Example progress controls">
+        <div>
+          <span class="toolbar-dot" />
+          <p>Every capability is available from day one.</p>
+        </div>
+        <label for="growth-scenario"
+          >Example scenario<select
+            id="growth-scenario"
+            :value="scenario"
+            @change="changeScenario"
+          >
+            <option value="returning">Returning learner</option>
+            <option value="new">New learner</option>
+            <option value="pending">Review pending</option>
+            <option value="failed">Review failed</option>
+          </select></label
+        >
+      </section>
+            <button type="button" class="growth-reset" @click="reset"><RotateCcw :size="14" /> Reset example</button>
+            <div class="walkthrough-top">
+              <AgentAvatar agent="AMIRA" size="standard" />
+              <div>
+                <p class="growth-eyebrow">After a learning conversation</p>
+                <h2 id="walkthrough-title">From conversation to Flowmark</h2>
+              </div>
+            </div>
+            <p>
+              Apply an example assessment update to see how evidence contributes
+              to capabilities and completed cycles become Flowmarks.
+            </p>
+            <div class="walkthrough-steps">
+              <span :class="{ done: sessionApplied }"
+                ><Check v-if="sessionApplied" :size="14" /><span v-else
+                  >1</span
+                >
+                Session reflection</span
+              ><ChevronRight :size="15" /><span
+                :class="{ done: completionApplied }"
+                ><Check v-if="completionApplied" :size="14" /><span v-else
+                  >2</span
+                >
+                Completed cycle</span
+              >
+            </div>
+            <div class="walkthrough-actions">
+              <button
+                id="growth-session-preview"
+                type="button"
+                class="air-button growth-primary"
+                :disabled="!canWalkThrough"
+                @click="previewSession"
+              >
+                {{
+                  sessionApplied
+                    ? "View reflection"
+                    : "Apply example session"
+                }}
+                <ArrowRight :size="16" /></button
+              ><button
+                type="button"
+                class="air-button air-button-secondary growth-secondary"
+                :disabled="
+                  !canWalkThrough ||
+                  !sessionApplied ||
+                  completionApplied
+                "
+                @click="previewCompletion"
+              >
+                Complete example cycle <ArrowUpRight :size="16" />
+              </button>
+            </div>
+            <p v-if="!canWalkThrough" class="walkthrough-help">
+              Choose Returning learner to explore the progression.
+            </p>
+            <p v-else-if="completionApplied" class="walkthrough-help">
+              Cycle complete. Reset the example to explore it again.
+            </p>
+          </details>
           <footer class="growth-footer">
             <span
               >Every capability grows through fresh evidence. Move at your own
@@ -385,9 +374,10 @@ const dialogTitle = computed(
         </aside>
       </div>
 
-      <GrowthPrototypeDialog
+      <GrowthDialog
         fallback-focus-id="growth-session-preview"
         :open="!!dialog"
+        :example-data="state.source === 'example'"
         :title="dialogTitle"
         :full-screen="dialog === 'detail'"
         @close="dialog = null"
@@ -400,8 +390,7 @@ const dialogTitle = computed(
         />
         <section v-else-if="dialog === 'session'" class="session-reflection">
           <p class="modal-intro">
-            In this scripted example, one conversation contributes to three
-            capabilities.
+            One conversation contributed evidence to three capabilities.
           </p>
           <article
             v-for="change in changedDimensions"
@@ -434,8 +423,8 @@ const dialogTitle = computed(
             <p>{{ change.reason }}</p>
           </div>
           <p class="modal-note">
-            These are scripted cycle-progress changes, not assessment scores.
-            Reopening this reflection will not apply them again.
+            Progress reflects evidence toward the next cycle, rather than a
+            session score. Each update is counted once.
           </p>
           <button
             type="button"
@@ -457,13 +446,13 @@ const dialogTitle = computed(
             :progress="state.completion.progress"
             :label="`${completedCapability.title}: cycle ${state.completion.completedCycle} complete`"
           />
-          <p class="growth-eyebrow">Sample cycle complete</p>
+          <p class="growth-eyebrow">Cycle complete</p>
           <h3>{{ completedCapability.title }}</h3>
           <strong class="celebration-count"
             >{{ state.completion.completedCycle }} cycles completed</strong
           >
           <p>
-            A fresh independent example completed this sample cycle. Your badge
+            Fresh independent evidence completed this cycle. Your badge
             has evolved, and a Flowmark is ready.
           </p>
           <p class="modal-note">
@@ -482,7 +471,7 @@ const dialogTitle = computed(
             class="air-button air-button-secondary growth-secondary"
             @click="dialog = 'flowmark'"
           >
-            View sample Flowmark <ArrowUpRight :size="16" />
+            View Flowmark <ArrowUpRight :size="16" />
           </button>
         </section>
         <section v-else-if="mark && markCapability" class="flowmark-preview">
@@ -501,7 +490,7 @@ const dialogTitle = computed(
                 width="28"
                 height="28"
               /><strong>Flowst <span>Airs</span></strong
-              ><span class="specimen">Sample</span>
+              ><span v-if="mark.source === 'example'" class="specimen">Example</span>
             </div>
             <GrowthCapabilityArt
               class="share-art"
@@ -516,26 +505,24 @@ const dialogTitle = computed(
             <p class="share-message">Learning, made visible.</p>
             <div class="share-stats">
               <span
-                ><strong>{{ mark.conversations }}</strong> sample
-                conversations</span
+                ><strong>{{ mark.conversations }}</strong> conversations</span
               ><span
-                ><strong>{{ mark.contexts }}</strong> sample contexts</span
+                ><strong>{{ mark.contexts }}</strong> contexts</span
               >
             </div>
             <p class="share-date">
-              {{ growthDate(mark.completedAt) }} · Prototype specimen
+              {{ growthDate(mark.completedAt) }}
             </p>
           </div>
           <template v-if="dialog === 'flowmark'"
-            ><h4>Sample evidence behind this Flowmark</h4>
+            ><h4>Evidence behind this Flowmark</h4>
             <ul class="flowmark-evidence">
               <li v-for="text in mark.evidence" :key="text">
                 <Check :size="17" />{{ text }}
               </li>
             </ul>
             <p class="modal-note">
-              This sample represents a completed evidence cycle, not a formal
-              certification.
+              This Flowmark records the evidence collected across conversations.
             </p>
             <button
               type="button"
@@ -545,18 +532,18 @@ const dialogTitle = computed(
               Preview share card <ArrowUpRight :size="16" /></button></template
           ><template v-else
             ><p class="modal-note">
-              Local preview only. Nothing has been published or shared.
+              Nothing has been published or shared.
             </p>
             <button
               type="button"
               class="air-button air-button-secondary growth-secondary"
               @click="dialog = 'flowmark'"
             >
-              Back to sample Flowmark
+              Back to Flowmark
             </button></template
           >
         </section>
-      </GrowthPrototypeDialog>
+      </GrowthDialog>
     </div>
   </AirAppShell>
 </template>
@@ -568,48 +555,27 @@ const dialogTitle = computed(
   color: var(--air-ink);
 }
 .growth-home button,
-.growth-home select {
+.growth-home select,
+.growth-home summary {
   font-family: inherit;
 }
-.prototype-bar {
-  position: sticky;
-  top: 12px;
-  z-index: 10;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  border: 1px solid var(--air-line);
-  background: #e0f2fe;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  color: var(--air-accent-strong);
-}
-.prototype-bar > div {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.prototype-bar strong {
-  font-weight: 700;
-}
-.prototype-bar > div > span {
-  margin-left: 8px;
+.growth-data-note {
+  margin: -12px 0 28px;
+  font-size: 0.78rem;
+  line-height: 1.6;
   color: var(--air-muted);
 }
-.prototype-bar button {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: 0;
-  color: var(--air-accent-strong);
-  font-size: 0.75rem;
-  min-height: 32px;
-  cursor: pointer;
-  flex: none;
+.growth-example-tools { margin-top: 28px; }
+.growth-example-tools > summary {
+  cursor: pointer; font-size: 0.85rem; font-weight: 600;
+  min-height: 44px; align-content: center;
+}
+.growth-example-tools[open] > summary { margin-bottom: 20px; }
+.growth-reset {
+  display: flex; align-items: center; gap: 6px;
+  color: var(--air-accent-strong); background: #fff;
+  border: 1px solid var(--air-line); border-radius: 8px;
+  padding: 10px 12px; cursor: pointer; margin-bottom: 22px;
 }
 .growth-heading {
   display: flex;
@@ -835,6 +801,7 @@ const dialogTitle = computed(
   font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
   color: var(--air-ink);
+  margin-right: 0.25em;
 }
 .card-evidence-label {
   font-size: 0.68rem;
@@ -916,11 +883,6 @@ const dialogTitle = computed(
 }
 .recent-flowmarks {
   margin-top: 32px;
-}
-.sample-tag {
-  font-size: 0.7rem;
-  color: var(--air-muted);
-  white-space: nowrap;
 }
 .flowmark-grid {
   display: grid;
@@ -1233,7 +1195,7 @@ const dialogTitle = computed(
   margin-top: 3px;
   color: var(--air-accent-strong);
 }
-.growth-home :is(button, select, a):focus-visible {
+.growth-home :is(button, select, a, summary):focus-visible {
   outline: 3px solid var(--air-accent-strong);
   outline-offset: 3px;
 }
@@ -1276,9 +1238,6 @@ const dialogTitle = computed(
   .growth-heading > a {
     flex: none;
   }
-  .prototype-bar > div > span {
-    display: none;
-  }
   .card-ring {
     width: 135px;
   }
@@ -1287,17 +1246,6 @@ const dialogTitle = computed(
   }
 }
 @media (max-width: 599px) {
-  .prototype-bar {
-    padding: 8px 10px;
-    gap: 8px;
-    font-size: 0.68rem;
-  }
-  .prototype-bar > div {
-    gap: 6px;
-  }
-  .prototype-bar button {
-    font-size: 0.68rem;
-  }
   .growth-heading {
     flex-direction: column;
     align-items: flex-start;
@@ -1351,10 +1299,7 @@ const dialogTitle = computed(
   .cycle-total {
     display: none;
   }
-  .sample-tag {
-    font-size: 0.65rem;
-  }
-  .walkthrough {
+    .walkthrough {
     padding: 22px 18px;
   }
   .walkthrough h2 {
@@ -1399,9 +1344,6 @@ const dialogTitle = computed(
   }
   .capability-card {
     padding-inline: 9px;
-  }
-  .prototype-bar > div > svg {
-    display: none;
   }
   .walkthrough-steps {
     gap: 5px;

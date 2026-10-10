@@ -1,8 +1,8 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import crypto from 'node:crypto';
-import {fileURLToPath} from 'node:url';
-const root=path.resolve(import.meta.dirname,'..');
+import fs from "node:fs";
+import path from "node:path";
+import crypto from "node:crypto";
+import { fileURLToPath } from "node:url";
+const root = path.resolve(import.meta.dirname, "..");
 export const files = [
   "server/services/studyBedrockTransport.ts",
   "server/services/studyModelBudget.ts",
@@ -121,77 +121,175 @@ export const files = [
   "tests/source-e2e/saved-response-recovery.spec.ts",
 ];
 const hash = (p) => {
-  let source = fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
-  if (p.endsWith(path.join('server','api','study','llm','v1','chat','completions.post.ts')) || p.endsWith(path.join('tests','amina-live-model.test.ts'))) source = source.replaceAll('assertAmiraStudyAccess','assertAirStudyAccess').replaceAll('/amiraAccess','/airAccess').replaceAll('prepareAmiraTurn','prepareAminaTurn').replaceAll('streamAmiraText','streamAminaText').replaceAll('finishAmiraTurn','finishAminaTurn').replaceAll('failAmiraTurn','failAminaTurn').replaceAll('/studyAmira','/studyAmina');
+  let source = fs.readFileSync(p, "utf8").replace(/\r\n/g, "\n");
+  if (
+    p.endsWith(
+      path.join(
+        "server",
+        "api",
+        "study",
+        "llm",
+        "v1",
+        "chat",
+        "completions.post.ts",
+      ),
+    ) ||
+    p.endsWith(path.join("tests", "amina-live-model.test.ts"))
+  )
+    source = source
+      .replaceAll("assertAmiraStudyAccess", "assertAirStudyAccess")
+      .replaceAll("/amiraAccess", "/airAccess")
+      .replaceAll("prepareAmiraTurn", "prepareAminaTurn")
+      .replaceAll("streamAmiraText", "streamAminaText")
+      .replaceAll("finishAmiraTurn", "finishAminaTurn")
+      .replaceAll("failAmiraTurn", "failAminaTurn")
+      .replaceAll("/studyAmira", "/studyAmina");
   // Flowst exercises the retained client alias; its implementation delegates unchanged.
-  if (p.endsWith(path.join('tests','amina-live-client.test.ts'))) source = source.replaceAll('useAmiraLiveCall','useAminaLiveCall');
+  if (p.endsWith(path.join("tests", "amina-live-client.test.ts")))
+    source = source.replaceAll("useAmiraLiveCall", "useAminaLiveCall");
   // Flowst retains this exact compatibility export for its legacy callers.
-  if (p.endsWith(path.join('server', 'domain', 'neuromap', 'studyFunctions.ts')))
-    source = source.replace(/\nexport const compileAmiraStudyPacket = compileAirStudyPacket\s*$/, '');
-  return crypto.createHash('sha256').update(source.trimEnd()).digest('hex');
+  if (
+    p.endsWith(path.join("server", "domain", "neuromap", "studyFunctions.ts"))
+  )
+    source = source.replace(
+      /\nexport const compileAmiraStudyPacket = compileAirStudyPacket\s*$/,
+      "",
+    );
+  return crypto.createHash("sha256").update(source.trimEnd()).digest("hex");
 };
 
 export const intentionalDifferences = {
-  "components/AirAppShell.vue": {
-    "reason": "Label the isolated hosted Growth demo instead of presenting account actions",
-    "flowst": "6f54f8dbe17f2fb6c2f74ac0179333ad12084d381450b683d1a6991d037a2b64",
-    "standalone": "1a2774c24d5536e63c9be6b82ceb5da75cb0b1f8848886d135db5990f02c872c"
+  "composables/useStudyRetry.ts": {
+    reason: "Owner formatting only; retry tokens and behavior match Flowst",
+    flowst: "3ccc25f72f887b7c51110074a4a52b097850cb44300e6cc51d7cd704e76e145c",
+    standalone: "c81b3cb89284583fe00357220357d01c6cea1e767bd201e8431e268828dd4177"
   },
   "pages/airs/index.vue": {
-    "reason": "Growth fixture/Preview Home; Production retains Misu setup",
-    "flowst": "1af03a0c32da2c6a931dee021fd058111473b54c10f2612e2b893861e8115d56",
-    "standalone": "4e8f8bf29183c5dc1ae76f4653462819fc184763b5b7b70e5c926df882df9f52"
+    reason:
+      "Growth Home rollout uses the normal Airs shell, authentication and setup routes",
+    flowst: "1af03a0c32da2c6a931dee021fd058111473b54c10f2612e2b893861e8115d56",
+    standalone:
+      "319d6f6e7658803b9fcde452d2ca7268e652d242dc9c4e084e862768c2b00aaf",
   },
   "components/AirCallRoom.vue": {
-    "reason": "Standalone audio failure layout and short-screen scrolling",
-    "flowst": "635ea038c70a364175fd0c7c7039f23195b3a2a98b64a84f17cf9893454b183b",
-    "standalone": "4fb0443434df2e979819612a89750853578b7f538609f5e87b2828da19ec07a9"
+    reason: "Standalone audio failure layout and short-screen scrolling",
+    flowst: "635ea038c70a364175fd0c7c7039f23195b3a2a98b64a84f17cf9893454b183b",
+    standalone:
+      "4fb0443434df2e979819612a89750853578b7f538609f5e87b2828da19ec07a9",
   },
   "assets/css/air-call-room.css": {
-    "reason": "Standalone audio failure layout and short-screen scrolling",
-    "flowst": "5de0cc99c74c7e4cd3f16427497f4a23b81f150bbb17c72367a69b0c7900f539",
-    "standalone": "6acd144dd073c00084e63d1be6e1d84adb72c852a0b6aa89977b9f0fb938d340"
+    reason: "Standalone audio failure layout and short-screen scrolling",
+    flowst: "5de0cc99c74c7e4cd3f16427497f4a23b81f150bbb17c72367a69b0c7900f539",
+    standalone:
+      "6acd144dd073c00084e63d1be6e1d84adb72c852a0b6aa89977b9f0fb938d340",
   },
   "components/AirStudyShell.vue": {
-    "reason": "Standalone mobile keyboard viewport handling",
-    "flowst": "7d3453dd07a7de72f98271d09aa316ac4888729c3316556089d8b41b6aa80cff",
-    "standalone": "2d3414ae2ed95dcb73b9acaa30e150eaa27132bee15c86cd0d02f00838c333c6"
-  }
+    reason: "Standalone mobile keyboard viewport handling",
+    flowst: "7d3453dd07a7de72f98271d09aa316ac4888729c3316556089d8b41b6aa80cff",
+    standalone:
+      "2d3414ae2ed95dcb73b9acaa30e150eaa27132bee15c86cd0d02f00838c333c6",
+  },
 };
-const baselinePath = 'docs/generated/shared-parity.json';
+const baselinePath = "docs/generated/shared-parity.json";
 export function checkAgainstFlowst(host, target = root) {
   const problems = [];
   for (const file of files) {
-    if (!fs.existsSync(path.join(host,file)) || !fs.existsSync(path.join(target,file))) { problems.push('Missing shared file: '+file); continue; }
-    const left=hash(path.join(host,file)),right=hash(path.join(target,file)),allowed=intentionalDifferences[file];
-    if (left!==right && (!allowed || allowed.flowst!==left || allowed.standalone!==right)) problems.push('Shared Airs mismatch: '+file);
+    if (
+      !fs.existsSync(path.join(host, file)) ||
+      !fs.existsSync(path.join(target, file))
+    ) {
+      problems.push("Missing shared file: " + file);
+      continue;
+    }
+    const left = hash(path.join(host, file)),
+      right = hash(path.join(target, file)),
+      allowed = intentionalDifferences[file];
+    if (
+      left !== right &&
+      (!allowed || allowed.flowst !== left || allowed.standalone !== right)
+    )
+      problems.push("Shared Airs mismatch: " + file);
   }
   return problems;
 }
 export function writeBaseline(target = root) {
-  const baseline={version:1,files:files.map(file=>({path:file,sha256:hash(path.join(target,file))})),intentionalDifferences};
-  fs.mkdirSync(path.join(target,'docs/generated'),{recursive:true});
-  fs.writeFileSync(path.join(target,baselinePath),JSON.stringify(baseline,null,2)+'\n');
+  const baseline = {
+    version: 1,
+    files: files.map((file) => ({
+      path: file,
+      sha256: hash(path.join(target, file)),
+    })),
+    intentionalDifferences,
+  };
+  fs.mkdirSync(path.join(target, "docs/generated"), { recursive: true });
+  fs.writeFileSync(
+    path.join(target, baselinePath),
+    JSON.stringify(baseline, null, 2) + "\n",
+  );
 }
 export function verifyBaseline(target = root) {
   let baseline;
-  try {baseline=JSON.parse(fs.readFileSync(path.join(target,baselinePath),'utf8'));}
-  catch {return ['Shared parity baseline missing or unreadable. Compare both checkouts with npm run parity:update -- --flowst-path <checkout>.'];}
-  const problems=[];
-  if (baseline.version!==1 || !Array.isArray(baseline.files) || baseline.files.length!==files.length || new Set(baseline.files.map(item=>item.path)).size!==files.length || JSON.stringify(baseline.intentionalDifferences)!==JSON.stringify(intentionalDifferences)) return ['Shared parity baseline does not match the reviewed file list/adaptations.'];
+  try {
+    baseline = JSON.parse(
+      fs.readFileSync(path.join(target, baselinePath), "utf8"),
+    );
+  } catch {
+    return [
+      "Shared parity baseline missing or unreadable. Compare both checkouts with npm run parity:update -- --flowst-path <checkout>.",
+    ];
+  }
+  const problems = [];
+  if (
+    baseline.version !== 1 ||
+    !Array.isArray(baseline.files) ||
+    baseline.files.length !== files.length ||
+    new Set(baseline.files.map((item) => item.path)).size !== files.length ||
+    JSON.stringify(baseline.intentionalDifferences) !==
+      JSON.stringify(intentionalDifferences)
+  )
+    return [
+      "Shared parity baseline does not match the reviewed file list/adaptations.",
+    ];
   for (const file of files) {
-    const expected=baseline.files.find(item=>item.path===file);
-    if (!expected || !fs.existsSync(path.join(target,file)) || hash(path.join(target,file))!==expected.sha256) problems.push('Unverified shared change: '+file);
+    const expected = baseline.files.find((item) => item.path === file);
+    if (
+      !expected ||
+      !fs.existsSync(path.join(target, file)) ||
+      hash(path.join(target, file)) !== expected.sha256
+    )
+      problems.push("Unverified shared change: " + file);
   }
   return problems;
 }
 function main() {
-  const index=process.argv.indexOf('--flowst-path'),host=index>=0 ? process.argv[index+1] : undefined;
-  const update=process.argv.includes('--write-baseline');
-  if ((update || process.argv.includes('--require-flowst')) && !host) throw new Error('Updating the baseline requires --flowst-path. Compare the two checkouts first.');
-  const problems=host ? checkAgainstFlowst(path.resolve(host)) : verifyBaseline();
-  if (problems.length) {console.error(problems.join('\n'));process.exitCode=1;return;}
+  const index = process.argv.indexOf("--flowst-path"),
+    host = index >= 0 ? process.argv[index + 1] : undefined;
+  const update = process.argv.includes("--write-baseline");
+  if ((update || process.argv.includes("--require-flowst")) && !host)
+    throw new Error(
+      "Updating the baseline requires --flowst-path. Compare the two checkouts first.",
+    );
+  const problems = host
+    ? checkAgainstFlowst(path.resolve(host))
+    : verifyBaseline();
+  if (problems.length) {
+    console.error(problems.join("\n"));
+    process.exitCode = 1;
+    return;
+  }
   if (update) writeBaseline();
-  console.log('Shared Airs '+(host?'cross-repository parity':'verified release snapshot')+' passed: '+files.length+' files; '+Object.keys(intentionalDifferences).length+' pinned standalone adaptations.');
+  console.log(
+    "Shared Airs " +
+      (host ? "cross-repository parity" : "verified release snapshot") +
+      " passed: " +
+      files.length +
+      " files; " +
+      Object.keys(intentionalDifferences).length +
+      " pinned standalone adaptations.",
+  );
 }
-if (process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)) main();
+if (
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+)
+  main();

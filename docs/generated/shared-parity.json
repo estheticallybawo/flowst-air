@@ -39,7 +39,7 @@
     },
     {
       "path": "composables/useStudyRetry.ts",
-      "sha256": "3ccc25f72f887b7c51110074a4a52b097850cb44300e6cc51d7cd704e76e145c"
+      "sha256": "c81b3cb89284583fe00357220357d01c6cea1e767bd201e8431e268828dd4177"
     },
     {
       "path": "tests/study-provider-recovery.test.ts",
@@ -335,11 +335,11 @@
     },
     {
       "path": "components/AirAppShell.vue",
-      "sha256": "1a2774c24d5536e63c9be6b82ceb5da75cb0b1f8848886d135db5990f02c872c"
+      "sha256": "6f54f8dbe17f2fb6c2f74ac0179333ad12084d381450b683d1a6991d037a2b64"
     },
     {
       "path": "pages/airs/index.vue",
-      "sha256": "4e8f8bf29183c5dc1ae76f4653462819fc184763b5b7b70e5c926df882df9f52"
+      "sha256": "319d6f6e7658803b9fcde452d2ca7268e652d242dc9c4e084e862768c2b00aaf"
     },
     {
       "path": "pages/airs/new.vue",
@@ -463,15 +463,15 @@
     }
   ],
   "intentionalDifferences": {
-    "components/AirAppShell.vue": {
-      "reason": "Label the isolated hosted Growth demo instead of presenting account actions",
-      "flowst": "6f54f8dbe17f2fb6c2f74ac0179333ad12084d381450b683d1a6991d037a2b64",
-      "standalone": "1a2774c24d5536e63c9be6b82ceb5da75cb0b1f8848886d135db5990f02c872c"
+    "composables/useStudyRetry.ts": {
+      "reason": "Owner formatting only; retry tokens and behavior match Flowst",
+      "flowst": "3ccc25f72f887b7c51110074a4a52b097850cb44300e6cc51d7cd704e76e145c",
+      "standalone": "c81b3cb89284583fe00357220357d01c6cea1e767bd201e8431e268828dd4177"
     },
     "pages/airs/index.vue": {
-      "reason": "Growth fixture/Preview Home; Production retains Misu setup",
+      "reason": "Growth Home rollout uses the normal Airs shell, authentication and setup routes",
       "flowst": "1af03a0c32da2c6a931dee021fd058111473b54c10f2612e2b893861e8115d56",
-      "standalone": "4e8f8bf29183c5dc1ae76f4653462819fc184763b5b7b70e5c926df882df9f52"
+      "standalone": "319d6f6e7658803b9fcde452d2ca7268e652d242dc9c4e084e862768c2b00aaf"
     },
     "components/AirCallRoom.vue": {
       "reason": "Standalone audio failure layout and short-screen scrolling",

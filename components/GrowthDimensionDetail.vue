@@ -4,7 +4,7 @@ import type {
   GrowthCapability,
   GrowthDimensionProgress,
 } from "~/shared/airGrowth";
-import { growthDate } from "~/shared/airGrowthPrototype";
+import { growthDate } from "~/shared/airGrowth";
 defineProps<{
   capability: GrowthCapability;
   dimension: GrowthDimensionProgress;
@@ -53,7 +53,7 @@ defineEmits<{ flowmark: [id: string] }>();
       </p>
     </div>
     <div class="detail-section">
-      <h3>Evidence this cycle <span>Sample</span></h3>
+      <h3>Evidence this cycle</h3>
       <p v-if="!dimension.evidence.length" class="detail-empty">
         {{
           dimension.completedCycles
@@ -67,7 +67,7 @@ defineEmits<{ flowmark: [id: string] }>();
             v-if="item.met"
             :size="18"
             class="evidence-check"
-            aria-label="Observed in sample"
+            aria-label="Observed"
           /><Circle
             v-else
             :size="18"
@@ -77,7 +77,7 @@ defineEmits<{ flowmark: [id: string] }>();
           <div>
             <span>{{ item.text }}</span>
             <details v-if="item.quote">
-              <summary>View sample evidence</summary>
+              <summary>View evidence</summary>
               <p>{{ item.topic }}</p>
               <blockquote>{{ item.quote }}</blockquote>
             </details>
@@ -94,7 +94,7 @@ defineEmits<{ flowmark: [id: string] }>();
         <li v-for="cycle in dimension.history" :key="cycle.number">
           <button
             type="button"
-            :aria-label="`View ${capability.title} cycle ${cycle.number} sample Flowmark`"
+            :aria-label="`View ${capability.title} cycle ${cycle.number} Flowmark`"
             @click="$emit('flowmark', cycle.flowmarkId)"
           >
             <span class="history-icon">{{ cycle.number }}</span
@@ -121,7 +121,7 @@ defineEmits<{ flowmark: [id: string] }>();
       class="latest-flowmark"
       @click="$emit('flowmark', dimension.history.at(-1)!.flowmarkId)"
     >
-      View latest sample Flowmark <ArrowUpRight :size="17" />
+      View latest Flowmark <ArrowUpRight :size="17" />
     </button>
     <p class="detail-footnote">
       Each completed cycle records fresh evidence across learning conversations.
@@ -184,7 +184,7 @@ defineEmits<{ flowmark: [id: string] }>();
   font-size: 2.3rem;
   letter-spacing: -0.05em;
   line-height: 1;
-  color: var(--dimension-color);
+  color: var(--air-ink);
   font-variant-numeric: tabular-nums;
 }
 .detail-progress > strong span {

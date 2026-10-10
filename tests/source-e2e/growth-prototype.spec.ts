@@ -13,7 +13,7 @@ async function openGrowth(page: Page) {
     page.getByRole("heading", { name: "Your growth", exact: true }),
   ).toBeVisible({ timeout: 90000 });
   await expect(page.locator(".growth-home")).toHaveAttribute(
-    "data-prototype-ready",
+    "data-growth-ready",
     "true",
     { timeout: 90000 },
   );
@@ -23,6 +23,7 @@ const capabilityArtwork = {
   "Clear Explanation": "/growth/clear-explanation-3d.png",
   "Conceptual Precision": "/growth/conceptual-precision-3d.png",
   "Reasoning Aloud": "/growth/reasoning-aloud-3d.png",
+  "Self-Monitoring": "/growth/self-monitoring-3d.png",
   "Transfer": "/growth/transfer-3d.png",
   "Conversation Flow": "/growth/conversation-flow-3d.png",
 };
@@ -69,10 +70,7 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
       ))
       .toBe(true);
   }
-  await expect(page.locator(".capability-card .art-placeholder")).toHaveCount(1);
-  await expect(
-    card(page, "Self-Monitoring").locator(".art-placeholder"),
-  ).toHaveText("SM");
+  await expect(page.locator(".capability-card .art-placeholder")).toHaveCount(0);
   expect(
     await page
       .locator(".growth-home")
@@ -140,7 +138,7 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
     "src", capabilityArtwork.Transfer,
   );
   await details
-    .getByText("View sample evidence", { exact: true })
+    .getByText("View evidence", { exact: true })
     .first()
     .click();
   await expect(details.getByRole("blockquote").first()).toBeVisible();
@@ -151,9 +149,9 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
     await expect(card(page, "Transfer")).toBeFocused();
   }
 
-  await page
-    .getByRole("button", { name: "Preview a session update", exact: true })
-    .click();
+  if (!(await page.locator(".growth-example-tools").evaluate(el => el.hasAttribute("open"))))
+    await page.getByText("Explore example progress", { exact: true }).click();
+  await page.getByRole("button", { name: "Apply example session", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText("72% → 84%");
   await expect(page.getByRole("dialog")).toContainText(
     "Transfer · unchanged at 30%",
@@ -162,15 +160,15 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
     .getByRole("button", { name: "Back to growth", exact: true })
     .click();
   await page
-    .getByRole("button", { name: "View sample reflection", exact: true })
+    .getByRole("button", { name: "View reflection", exact: true })
     .click();
   await expect(page.getByRole("dialog")).toContainText("72% → 84%");
-  await page.getByRole("button", { name: "Close preview" }).click();
+  await page.getByRole("button", { name: "Close" }).click();
   await expect(card(page, "Clear Explanation")).toContainText("84%");
   await expect(card(page, "Reasoning Aloud")).toContainText("96%");
   await expect(card(page, "Self-Monitoring")).toContainText("46%");
   await page
-    .getByRole("button", { name: "Preview cycle completion", exact: true })
+    .getByRole("button", { name: "Complete example cycle", exact: true })
     .click();
   await expect(page.getByRole("dialog")).toContainText("5 cycles completed");
   await expect(
@@ -186,7 +184,7 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
     .getByRole("button", { name: "Continue to the next cycle" })
     .click();
   await expect(
-    page.getByRole("button", { name: "View sample reflection", exact: true }),
+    page.getByRole("button", { name: "View reflection", exact: true }),
   ).toBeFocused();
   await expect(card(page, "Reasoning Aloud")).toContainText(
     "5 cycles completed",
@@ -199,25 +197,25 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
     card(page, "Reasoning Aloud").locator("[data-badge-stage]"),
   ).toHaveAttribute("data-badge-stage", "3");
   await expect(
-    page.getByRole("button", { name: "Preview cycle completion", exact: true }),
+    page.getByRole("button", { name: "Complete example cycle", exact: true }),
   ).toBeDisabled();
   await expect(
     page
       .locator(".recent-flowmarks")
       .getByRole("button", {
-        name: "View Reasoning Aloud cycle 5 sample Flowmark",
+        name: "View Reasoning Aloud cycle 5 Flowmark",
         exact: true,
       }),
   ).toHaveCount(1);
   await page
     .locator(".recent-flowmarks")
     .getByRole("button", {
-      name: "View Reasoning Aloud cycle 5 sample Flowmark",
+      name: "View Reasoning Aloud cycle 5 Flowmark",
       exact: true,
     })
     .click();
   await expect(page.getByRole("dialog")).toContainText(
-    "Prototype · Sample data",
+    "Example growth data",
   );
   await page
     .getByRole("button", { name: "Preview share card", exact: true })
@@ -247,19 +245,20 @@ test("Growth scenarios preserve established sample progress and reset the walkth
   page,
 }) => {
   await openGrowth(page);
-  await page.getByLabel("Preview scenario").selectOption("pending");
+  await page.getByText("Explore example progress", { exact: true }).click();
+  await page.getByLabel("Example scenario").selectOption("pending");
   await expect(page.locator(".review-status")).toContainText("review pending");
   await expect(card(page, "Clear Explanation")).toContainText("72%");
   await expect(
-    page.getByRole("button", { name: "Preview a session update", exact: true }),
+    page.getByRole("button", { name: "Apply example session", exact: true }),
   ).toBeDisabled();
-  await page.getByRole("button", { name: "Show ready preview" }).click();
-  await expect(page.getByLabel("Preview scenario")).toHaveValue("returning");
-  await page.getByLabel("Preview scenario").selectOption("failed");
+  await page.getByRole("button", { name: "Show completed review" }).click();
+  await expect(page.getByLabel("Example scenario")).toHaveValue("returning");
+  await page.getByLabel("Example scenario").selectOption("failed");
   await expect(card(page, "Reasoning Aloud")).toContainText("88%");
-  await page.getByRole("button", { name: "Retry preview" }).click();
-  await expect(page.getByLabel("Preview scenario")).toHaveValue("returning");
-  await page.getByLabel("Preview scenario").selectOption("new");
+  await page.getByRole("button", { name: "Retry review" }).click();
+  await expect(page.getByLabel("Example scenario")).toHaveValue("returning");
+  await page.getByLabel("Example scenario").selectOption("new");
   await expect(page.locator(".capability-card")).toHaveCount(7);
   await expect(
     page
@@ -271,11 +270,11 @@ test("Growth scenarios preserve established sample progress and reset the walkth
     card(page, "Clear Explanation").locator("[data-badge-stage]"),
   ).toHaveAttribute("data-badge-stage", "0");
   await page
-    .getByRole("button", { name: "Reset preview", exact: true })
+    .getByRole("button", { name: "Reset example", exact: true })
     .click();
   await expect(card(page, "Clear Explanation")).toContainText("72%");
   await expect(
-    page.getByRole("button", { name: "Preview a session update", exact: true }),
+    page.getByRole("button", { name: "Apply example session", exact: true }),
   ).toBeEnabled();
 });
 
@@ -283,9 +282,9 @@ test("Growth retains app-memory state across navigation, resets on reload, and k
   page,
 }) => {
   await openGrowth(page);
-  await page
-    .getByRole("button", { name: "Preview a session update", exact: true })
-    .click();
+  if (!(await page.locator(".growth-example-tools").evaluate(el => el.hasAttribute("open"))))
+    await page.getByText("Explore example progress", { exact: true }).click();
+  await page.getByRole("button", { name: "Apply example session", exact: true }).click();
   await page
     .getByRole("button", { name: "Back to growth", exact: true })
     .click();
@@ -339,8 +338,8 @@ test("Growth dashboard and dialogs are accessible, responsive, and respect reduc
       (element) => getComputedStyle(element).transitionDuration,
     ),
   ).toBe("0s");
-  await page
-    .getByRole("button", { name: "Preview a session update", exact: true })
-    .click();
+  if (!(await page.locator(".growth-example-tools").evaluate(el => el.hasAttribute("open"))))
+    await page.getByText("Explore example progress", { exact: true }).click();
+  await page.getByRole("button", { name: "Apply example session", exact: true }).click();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });

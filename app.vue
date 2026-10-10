@@ -28,7 +28,7 @@ useHead({ bodyAttrs: { class: standaloneAir ? "air-surface" : "" } });
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <NuxtRouteAnnouncer />
     <aside
-      v-if="sourceFixtureMode"
+      v-if="sourceFixtureMode && route.path !== '/airs'"
       class="source-fixture-banner"
       aria-label="Demonstration mode"
     >

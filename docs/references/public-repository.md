@@ -46,8 +46,10 @@ Verify the application, generated documentation and reviewed export hashes befor
 
 Branch-rule semantics: [Vercel Git configuration](https://vercel.com/docs/project-configuration/git-configuration).
 
-## Growth rewards Preview branch — 10 October 2026
+## Growth rewards branch — 10 October 2026
 
-The owner selected a hosted Growth demo with sample data for `flowst-airs-rewards`. That exact branch is enabled alongside the existing release branch in vercel.json; it produces Preview deployments, without changing the production branch. Configure `AIR_GROWTH_PREVIEW_MODE=true` in Vercel Preview for this branch only. Preview does not inherit Production variables. The former guest-session-key error occurred because the ordinary application tried to initialize a guest while Preview had no configured variables. The sample-only mode instead skips account initialization, rejects every API request and offers the local Growth walkthrough. It requires no production secrets or provider credentials.
+The `flowst-airs-rewards` branch remains enabled for Vercel Preview alongside the existing release branch; production-branch settings are unchanged. The owner clarified that Growth belongs to the whole Airs product. The former sample-only route redirects, account replacement and blanket API rejection have been removed.
 
-The flag is rejected for Production and for a generic production-mode server outside Vercel Preview. Rebuild/redeploy after changing the flag; an existing deployment does not acquire new variables. Preserve labelled sample data, reviewed export files and the independent private/public repository boundary.
+The owner subsequently explicitly requested Growth in live production. Growth is now the default Home in development and production; `AIR_GROWTH_ENABLED=false` is an explicit UI rollback. Release the reviewed rewards implementation through `codex/context-aware-practice` using the existing configured Airs production backend. Authentication, signing, storage, providers and ownership protections remain intact. No provider credentials are copied into Preview and no AWS trust is widened. The previous `AIR_GROWTH_PREVIEW_MODE` variable remains a UI-only migration alias. Record the Ready production deployment and exact Git SHA after release.
+
+Keep the allowlisted export reviewed and private Flowst history and environment files out of publication.

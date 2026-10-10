@@ -54,14 +54,14 @@
 :(literal)components/AirsSetup.vue
 :(literal)components/AuthShell.vue
 :(literal)components/GrowthCapabilityArt.vue
+:(literal)components/GrowthDialog.vue
 :(literal)components/GrowthDimensionDetail.vue
 :(literal)components/GrowthProgressRing.vue
-:(literal)components/GrowthPrototypeDialog.vue
 :(literal)components/MisuPlanGuide.vue
 :(literal)components/PasswordField.vue
 :(literal)composables/useAgentHandoff.ts
 :(literal)composables/useAirAccess.ts
-:(literal)composables/useAirGrowthPrototype.ts
+:(literal)composables/useAirGrowth.ts
 :(literal)composables/useAirMediaLifecycle.ts
 :(literal)composables/useAminaLiveCall.ts
 :(literal)composables/useAuth.ts
@@ -115,7 +115,6 @@
 :(literal)pages/air/[...path].vue
 :(literal)pages/airs/[id].vue
 :(literal)pages/airs/about.vue
-:(literal)pages/airs/demo-info.vue
 :(literal)pages/airs/index.vue
 :(literal)pages/airs/library.vue
 :(literal)pages/airs/new.vue
@@ -129,7 +128,6 @@
 :(literal)playwright.airs.config.ts
 :(literal)playwright.growth-preview.config.ts
 :(literal)playwright.sources.config.ts
-:(literal)public/air-icon.svg
 :(literal)public/air-voice-capture.js
 :(literal)public/amira-icon.png
 :(literal)public/brand/flowst-mark-blue.png
@@ -137,6 +135,7 @@
 :(literal)public/growth/conceptual-precision-3d.png
 :(literal)public/growth/conversation-flow-3d.png
 :(literal)public/growth/reasoning-aloud-3d.png
+:(literal)public/growth/self-monitoring-3d.png
 :(literal)public/growth/transfer-3d.png
 :(literal)public/growth/verbal-retrieval-3d.png
 :(literal)public/mascots/amina-avatar.png
@@ -217,7 +216,6 @@
 :(literal)server/api/study/sources/transcription-webhook.post.ts
 :(literal)server/api/study/upload-eligibility.get.ts
 :(literal)server/domain/neuromap/studyFunctions.ts
-:(literal)server/middleware/00.air-growth-preview.ts
 :(literal)server/middleware/air-access.ts
 :(literal)server/middleware/air-surface.ts
 :(literal)server/middleware/airs-guest-boundary.ts
@@ -262,7 +260,6 @@
 :(literal)server/services/studySpeech.ts
 :(literal)server/services/studySpeechCache.ts
 :(literal)server/services/studyVoice.ts
-:(literal)server/utils/airGrowthPreview.ts
 :(literal)server/utils/airLiveError.ts
 :(literal)server/utils/airsGuest.ts
 :(literal)server/utils/auth.ts
@@ -271,7 +268,7 @@
 :(literal)shared/agents.ts
 :(literal)shared/airAccess.ts
 :(literal)shared/airGrowth.ts
-:(literal)shared/airGrowthPreview.ts
+:(literal)shared/airGrowthCapabilities.ts
 :(literal)shared/airGrowthPrototype.ts
 :(literal)shared/airNavigation.ts
 :(literal)shared/airSurface.ts
@@ -301,7 +298,6 @@
 :(literal)shared/studySpeechOutcome.ts
 :(literal)shared/userErrors.ts
 :(literal)tests/air-access.test.ts
-:(literal)tests/air-growth-preview.test.ts
 :(literal)tests/airs-feedback.test.ts
 :(literal)tests/airs-handoff.test.ts
 :(literal)tests/airs-kai-recovery.test.ts
@@ -314,6 +310,7 @@
 :(literal)tests/amina-live-model.test.ts
 :(literal)tests/amina-plan-approval.test.ts
 :(literal)tests/amina-welcome.test.ts
+:(literal)tests/growth-data.test.ts
 :(literal)tests/growth-preview/hosted-growth.spec.ts
 :(literal)tests/kai-assessment.test.ts
 :(literal)tests/misu-evidence-contract.test.ts

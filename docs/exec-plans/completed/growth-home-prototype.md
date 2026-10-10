@@ -1,12 +1,12 @@
 # Growth Home prototype
 
-Status: completed — labelled frontend prototype, verified locally on 10 October 2026. Live assessment remains future work. Scope: fixture-only UI, independent adult learners.
+Status: completed — labelled frontend prototype, verified locally on 10 October 2026. Live assessment remains future work. Scope: integrated Home with example Growth data, independent adult learners.
 
 ## Decisions and behavior
 
-The nonproduction source-fixture Home displays seven Growth capabilities. Production Home and New session retain the existing Misu setup. Sample records, evidence, percentages, dates and Flowmarks are explicitly labelled; no reward API, model request, microphone access or learning-record write was added.
+Growth is the default Home in development and production and displays seven capabilities inside the existing Airs product. New session retains Misu setup at /airs/new; an explicit AIR_GROWTH_ENABLED=false rolls Home back to setup. Example data is identified with one discreet notice per visible view; no reward API, model request, microphone access or learning-record write was added.
 
-The prototype data adapter owns definitions, starting values, evidence, history and transitions. Nuxt request-isolated state survives client navigation, resets on reload, and resets when a scenario or Reset preview is selected. Returning learner, New learner, Review pending and Review failed are inspectable. Pending/failed presets retain the returning learner's established sample progress; retry restores the ready preset.
+Product definitions live separately from the example adapter, which owns starting values, evidence, history and scripted transitions. Nuxt request-isolated state survives client navigation, resets on reload, and resets when a scenario or Reset example is selected. Returning learner, New learner, Review pending and Review failed are inspectable. Pending/failed presets retain the returning learner's established sample progress; retry restores the ready preset.
 
 The walkthrough applies one session update (Clear Explanation +12, Reasoning Aloud +8, Self-Monitoring +6; Transfer unchanged), then one Reasoning Aloud completion. The completion shows 100%, five completed cycles, an evolved badge frame and a sample Flowmark. Continuing shows 0% toward cycle 6. Reopening a reflection never reapplies its update. Flowmark sharing is a local card preview only.
 
@@ -33,8 +33,12 @@ After visual/product review, specify seven-capability evidence assessment and su
 
 The visual refinement uses Airs' existing blue accent, pale-blue canvas, white panels, Albert Sans body text and Unbounded headings. Buttons reuse the Airs controls; Amina uses the existing avatar. The seven capability accent colours are retained. Botanical ornament and the oversized motivational hero have been removed. Styling remains scoped to Growth.
 
-Six owner-supplied transparent 3D PNGs represent Verbal Retrieval (teal voice chat), Clear Explanation (purple lightbulb), Conceptual Precision (orange bullseye), Reasoning Aloud (teal megaphone), Transfer (blue water exchange) and Conversation Flow (purple chat exchange). The original images are stored unchanged in public/growth. Capability artwork is configured in the prototype adapter; Self-Monitoring retains its temporary initial placeholder until its image is supplied. Badge frames evolve at the same 0, 1, 3, 5 and 10 completed-cycle thresholds without requiring separate image variants. Capability cards, evidence details and Flowmarks share that artwork component.
+Seven owner-supplied transparent 3D PNGs represent Verbal Retrieval (teal voice chat), Clear Explanation (purple lightbulb), Conceptual Precision (orange bullseye), Reasoning Aloud (teal megaphone), Self-Monitoring, Transfer (blue water exchange) and Conversation Flow (purple chat exchange). Source images live unchanged in public/growth. Artwork is configured in shared/airGrowthCapabilities.ts. Badge frames evolve at 0, 1, 3, 5 and 10 completed cycles. Cards, evidence details and Flowmarks share the same capability image. The owner’s lighter accents are retained; progress text uses Airs dark ink for contrast.
 
-## Hosted sample preview adaptation
+## Product integration correction
 
-The owner requested a sample-data deployment of the rewards branch after its Vercel Preview reached Ready but returned a guest-key error. A separate explicit Preview flag now serves Growth without account initialization, cookies or backend data. All API methods are blocked in that mode. Real-session, library and account navigation explains the sample boundary. Production Home and local fixture setup remain unchanged. This is a standalone adaptation; the shared shell and Home are hash-pinned through the existing parity workflow. Provider and learning-record verification remain outside the demo.
+The owner clarified that example data should demonstrate future progression inside Airs, not isolate Growth as a separate product. Removed the hosted workaround's demo-info route, forced redirects, account-menu replacement, guest-session bypass and blanket API denial. Normal navigation and authentication remain intact. Home activation changes presentation only; the former hosted branch flag is retained as a migration alias.
+
+Moved scenario/reset and scripted progression into a collapsed **Explore example progress** section, reduced repeated sample wording, and retained a compact provenance notice. Product capability definitions and formatting now live separately from example records. The UI consumes a source-independent GrowthSnapshot; example-only walkthrough state stays behind useAirGrowth. This prepares the UI boundary, while real backend assessment, transactions and learner-owned records remain outstanding as described above.
+
+The owner confirmed there is no separate Preview backend and explicitly requested the integrated Growth Home in live production. Release through the existing production environment and release branch after verification. The missing Preview signing key was a deployment configuration issue; provider or Production credentials are not copied into Preview. See the verification record for actual checks and deployment status.

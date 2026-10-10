@@ -1,100 +1,11 @@
 import type {
-  GrowthCapability,
   GrowthDimensionId,
   GrowthFlowmark,
   GrowthPrototypeState,
   GrowthScenario,
 } from "./airGrowth";
+import { growthCapabilities } from "./airGrowthCapabilities";
 
-export const growthCapabilities: readonly GrowthCapability[] = [
-  {
-    id: "verbal_retrieval",
-    title: "Verbal Retrieval",
-    meaning: "Recall an idea and express it without relying on the source.",
-    color: "#237e72",
-    tint: "#e6f5ef",
-    artwork: {
-      src: "/growth/verbal-retrieval-3d.png",
-      scale: 1.45,
-      placeholder: "VR",
-    },
-    suggestion: "Put your notes aside and explain one idea you remember.",
-  },
-  {
-    id: "clear_explanation",
-    title: "Clear Explanation",
-    meaning: "Organize an idea clearly and explain it in your own words.",
-    color: "#7560bc",
-    tint: "#f0ecfc",
-    artwork: { src: "/growth/clear-explanation-3d.png", placeholder: "CE" },
-    suggestion:
-      "Explain a familiar idea to someone encountering it for the first time.",
-  },
-  {
-    id: "conceptual_precision",
-    title: "Conceptual Precision",
-    meaning: "Use concepts, distinctions, and relationships accurately.",
-    color: "#b85d49",
-    tint: "#fff0e9",
-    artwork: {
-      src: "/growth/conceptual-precision-3d.png",
-      placeholder: "CP",
-    },
-    suggestion:
-      "Compare two related ideas and name the distinction that matters.",
-  },
-  {
-    id: "reasoning_aloud",
-    title: "Reasoning Aloud",
-    meaning:
-      "Make your reasoning visible by explaining why and how ideas connect.",
-    color: "#257e68",
-    tint: "#e7f5ef",
-    artwork: {
-      src: "/growth/reasoning-aloud-3d.png",
-      placeholder: "RA",
-    },
-    suggestion: "Make a claim, give a reason, and consider an alternative.",
-  },
-  {
-    id: "self_monitoring",
-    title: "Self-Monitoring",
-    meaning:
-      "Notice uncertainty, correct a mistake, and revise your reasoning.",
-    color: "#947014",
-    tint: "#fff7dc",
-    artwork: { placeholder: "SM" },
-    suggestion:
-      "Revisit an explanation and name what you would change and why.",
-  },
-  {
-    id: "transfer",
-    title: "Transfer",
-    meaning: "Apply an idea in a meaningfully different situation.",
-    color: "#277e84",
-    tint: "#e5f5f3",
-    artwork: {
-      src: "/growth/transfer-3d.png",
-      placeholder: "TR",
-    },
-    suggestion:
-      "Try applying your idea to a situation the source did not cover.",
-  },
-  {
-    id: "conversation_flow",
-    title: "Conversation Flow",
-    meaning:
-      "Follow the thread, respond to questions, and connect ideas in dialogue.",
-    color: "#7160b4",
-    tint: "#f0ecfa",
-    artwork: {
-      src: "/growth/conversation-flow-3d.png",
-      placeholder: "CF",
-    },
-    suggestion:
-      "Answer a follow-up question and connect it to your earlier explanation.",
-  },
-];
 const seeds: Record<GrowthDimensionId, [number, number]> = {
   verbal_retrieval: [2, 45],
   clear_explanation: [3, 72],
@@ -107,11 +18,11 @@ const seeds: Record<GrowthDimensionId, [number, number]> = {
 const evidenceText: Record<GrowthDimensionId, [string, string, string]> = {
   verbal_retrieval: [
     "Recalled the main idea without reading the source",
-    "Retrieved the idea in a later sample conversation",
+    "Retrieved the idea in a later conversation",
     "Try retrieval in a different context",
   ],
   clear_explanation: [
-    "Explained independently across three sample topics",
+    "Explained independently across three topics",
     "Responded clearly to a follow-up question",
     "Gather another explanation in an unfamiliar context",
   ],
@@ -122,7 +33,7 @@ const evidenceText: Record<GrowthDimensionId, [string, string, string]> = {
   ],
   reasoning_aloud: [
     "Connected a claim to its supporting reason",
-    "Considered an alternative across sample contexts",
+    "Considered an alternative across contexts",
     "Gather one more independent reasoning example",
   ],
   self_monitoring: [
@@ -131,7 +42,7 @@ const evidenceText: Record<GrowthDimensionId, [string, string, string]> = {
     "Try a fresh opportunity for independent self-correction",
   ],
   transfer: [
-    "Applied an idea to a new sample scenario",
+    "Applied an idea to a new scenario",
     "Explained the connection to the original concept",
     "Try a second meaningfully different context",
   ],
@@ -154,11 +65,11 @@ function sampleFlowmark(
     completedAt,
     conversations: cycle === 5 ? 6 : 4,
     contexts: 3,
-    sample: true,
+    source: "example",
     evidence: [
       evidenceText[dimensionId][0],
       evidenceText[dimensionId][1],
-      "Demonstrated the capability in more than one sample context",
+      "Demonstrated the capability in more than one context",
     ],
   };
 }
@@ -200,6 +111,8 @@ export function createGrowthPrototype(
     };
   });
   return {
+    source: "example",
+    reviewStatus: scenario === "pending" || scenario === "failed" ? scenario : "ready",
     scenario,
     selectedDimension: "clear_explanation",
     dimensions,
@@ -244,7 +157,7 @@ export function applyGrowthSession(state: GrowthPrototypeState) {
       id: `sample-session-${change.dimensionId}`,
       text: change.reason,
       met: true,
-      topic: "A fresh sample learning conversation",
+      topic: "A fresh learning conversation",
       quote:
         "I would revise that first claim. Here is the reason for the change.",
     });
@@ -261,7 +174,7 @@ export function applyGrowthSession(state: GrowthPrototypeState) {
     previous: transfer.progress,
     next: transfer.progress,
     reason:
-      "No new-context application occurred in this sample conversation, so there is no new Transfer evidence.",
+      "No new-context application occurred in this conversation, so there is no new Transfer evidence.",
   });
   state.sessionApplied = true;
 }
@@ -300,13 +213,5 @@ export function completeGrowthCycle(state: GrowthPrototypeState) {
 }
 export function retryGrowthPreview(state: GrowthPrototypeState) {
   if (state.scenario === "failed" || state.scenario === "pending")
-    state.scenario = "returning";
-}
-export function growthDate(value: string) {
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(`${value}T12:00:00Z`));
+    { state.scenario = "returning"; state.reviewStatus = "ready"; }
 }
