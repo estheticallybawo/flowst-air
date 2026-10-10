@@ -234,7 +234,7 @@ export async function prepareObjectiveOperation(ownerId: string, id: string, inp
   } catch (error) {
     const latest = await getStudyConversation(ownerId, id, event)
     const pending = await getStudyObjectiveOperation(ownerId,id,operationId,event)
-    if ((latest.objectiveFlow?.pendingOperationId === operationId || latest.objectiveFlow?.interruptOperationId === operationId) && pending?.status === 'PENDING' && pending.reviewLeaseId === reviewLeaseId) await saveStudyObjectiveState(ownerId,id,latest.revision,{flow:{...latest.objectiveFlow!,...(pending.interruptsOperationId ? {} : {pendingReview:true}),error:'Your input is saved. Retry its response or end the session.'},operation:{...pending,reviewLeaseUntil:undefined,reviewLeaseId:undefined},expectedOperationStatus:'PENDING'},event).catch(() => undefined)
+    if ((latest.objectiveFlow?.pendingOperationId === operationId || latest.objectiveFlow?.interruptOperationId === operationId) && pending?.status === 'PENDING' && pending.reviewLeaseId === reviewLeaseId) await saveStudyObjectiveState(ownerId,id,latest.revision,{flow:{...latest.objectiveFlow!,...(pending.interruptsOperationId ? {} : {pendingReview:true}),error:(error as {data?:{code?:string};statusMessage?:string})?.data?.code === 'MISU_REVIEW_INVALID' ? (error as {statusMessage:string}).statusMessage : 'Your input is saved. Retry its response or end the session.'},operation:{...pending,reviewLeaseUntil:undefined,reviewLeaseId:undefined},expectedOperationStatus:'PENDING'},event).catch(() => undefined)
     throw error
   }
 }

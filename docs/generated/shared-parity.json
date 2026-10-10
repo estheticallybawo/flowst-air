@@ -1,0 +1,482 @@
+{
+  "version": 1,
+  "files": [
+    {
+      "path": "server/services/studyBedrockTransport.ts",
+      "sha256": "c2808b93262bc4f3bbf83924c3e5ef5abe0604bbc7cfae0e6dc2c2c3886adbd0"
+    },
+    {
+      "path": "server/services/studyModelBudget.ts",
+      "sha256": "1cb370b86c07f6061d424127a9bd72f1322a8d9ab80949434d0802acafaa7b75"
+    },
+    {
+      "path": "server/services/studyElevenAgent.ts",
+      "sha256": "f4c4dccab40bd2f57d684e38a2a6d012087ae0cfbebb8012ab3130dac8e08f53"
+    },
+    {
+      "path": "tests/study-bedrock-transport.test.ts",
+      "sha256": "e5a6ac3e8bc03348e3bf97e78e55c00ec1531dc144997faef1950f1864ea7862"
+    },
+    {
+      "path": "tests/amina-live-model.test.ts",
+      "sha256": "bfb782f5ed5dd1d5d68fe4472766abee00632f80a3dc511f2b20764a505e0201"
+    },
+    {
+      "path": "server/services/studyPlanningInventory.ts",
+      "sha256": "7dc0c673bf62c4f9bdf647259f1efbcd2b25cc9db0e747778de1602f80743e48"
+    },
+    {
+      "path": "tests/study-planning-inventory.test.ts",
+      "sha256": "d29e2b663ea49866c6643123daf20bb756395133ed8f66e2092114010d33538a"
+    },
+    {
+      "path": "server/services/studyInference.ts",
+      "sha256": "e53a6dcc9f5591013453646e8a48616ca2584a888acfb701753f9d5530b40cc5"
+    },
+    {
+      "path": "shared/studyRetry.ts",
+      "sha256": "fab2864aae9927f8251224cd0d242846c1ba92f9e2b9d699b12b964e224bfc5c"
+    },
+    {
+      "path": "composables/useStudyRetry.ts",
+      "sha256": "3ccc25f72f887b7c51110074a4a52b097850cb44300e6cc51d7cd704e76e145c"
+    },
+    {
+      "path": "tests/study-provider-recovery.test.ts",
+      "sha256": "1a331e32ca3aac42eadff4ae5d3e6736831d205b959d41ff697491c13cf8f754"
+    },
+    {
+      "path": "tests/source-e2e/provider-retry.spec.ts",
+      "sha256": "4e5604430214508038e5b305dd7b465ee4cb3ea4a2dac93ee0a3d0971ee9dae4"
+    },
+    {
+      "path": "shared/aminaWelcome.ts",
+      "sha256": "44fa38df0ec3528cead33890ef6a3b624995844f97a75b58f03c35c293700da9"
+    },
+    {
+      "path": "tests/amina-welcome.test.ts",
+      "sha256": "95f9b6446fe2406189d7fe67890e2abf2f33280a5e5cba94d2f470474efb1060"
+    },
+    {
+      "path": "tests/airs-setup.test.ts",
+      "sha256": "7612cd4b2ed5a034b90ca4d9328c436ce2ceccb5321061018794f69cc0628c0d"
+    },
+    {
+      "path": "shared/kaiAssessment.ts",
+      "sha256": "d1fa978a1849f54f265b14ff100251de6125e6cfcf0b61b010bb9fd401145e55"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/review.post.ts",
+      "sha256": "5aed70f289cb37ce08c9cb5d75bc38abf1ec767de93927463e576908715b5a98"
+    },
+    {
+      "path": "tests/kai-assessment.test.ts",
+      "sha256": "57fd04488da473b4be6e0a6debd49f8e53a7e69334d435f1eae73724da7e34be"
+    },
+    {
+      "path": "components/AirsSessionCompletion.vue",
+      "sha256": "2586e03ede3c1afaf741a1d6628230318da3221dea0b29ed5aee57738726bef6"
+    },
+    {
+      "path": "shared/studyCompletionInvitation.ts",
+      "sha256": "911bdfb09ef49bbbd1176f1ff8a21c8b91577c8ab4cf0d07283619d901a251ed"
+    },
+    {
+      "path": "server/services/studyRepeat.ts",
+      "sha256": "3fea0ab2a8a40b69ecb7c5371977cabb16e123de88d45c0ba2984126ca682a86"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/repeat.post.ts",
+      "sha256": "04fcd2dd2ad88f77f20c063b9a95f373f927a874d45ad5bb524bd736224827e4"
+    },
+    {
+      "path": "tests/study-repeat.test.ts",
+      "sha256": "1802620192aa14173ee3850e98bae33e2153e3429b1f7cd100b49afadf340851"
+    },
+    {
+      "path": "tests/study-completion-invitation.test.ts",
+      "sha256": "66c3a624da7898ed2389145ebcf26ff84195fb7f185acfca42f2d6685b34368e"
+    },
+    {
+      "path": "tests/source-e2e/session-completion.spec.ts",
+      "sha256": "89d24859ac0c68db8c55be3e15650477fcfa2991d309361306b5145d82579296"
+    },
+    {
+      "path": "shared/studyObjectivePolicy.ts",
+      "sha256": "95e1cb1689d1b124f2406ae41990266a075b4e5488538711d4725eded77c3c5e"
+    },
+    {
+      "path": "shared/studyObjectiveOperation.ts",
+      "sha256": "d6fffda5f063fc1213719d2f74b20e36ced2aeead92ec7e24b93d6b6d7ef0390"
+    },
+    {
+      "path": "shared/studyPedagogy.ts",
+      "sha256": "d8025809e19c9856d44713de91c45aa5b5728d319ac9594a9fb90c26a9f5af5f"
+    },
+    {
+      "path": "shared/studyCompletion.ts",
+      "sha256": "58623afa1006a87cb21484ac390710076ad82d78e7ea920209a78843bb8481ea"
+    },
+    {
+      "path": "server/services/studyObjectiveFlow.ts",
+      "sha256": "ea7c63885c4f9bf6fbf5852f9d30e2137f834dd96d5f8586cc5ad01594b59727"
+    },
+    {
+      "path": "server/services/airsContext.ts",
+      "sha256": "1d0dd0846a3d741847461e052efbfb2de777fb21f1f34261e70fe833da7e56b7"
+    },
+    {
+      "path": "server/services/aminaRealtime.ts",
+      "sha256": "dc8240d3ac326440710e87345e9b881ff7a2855126bb35e62283bf6915fc9a84"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/objective/retry.post.ts",
+      "sha256": "230f0a8606874429601f89ce6c9cabfd1bff91145f5d97cf10573b67b62ba600"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/mode.post.ts",
+      "sha256": "54e6fdfeb0938628775e4856011d76ccd70555a41562307888979ca1092c4ecb"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/live.get.ts",
+      "sha256": "b244c7890304708aa0396a74fa87f2572e684dd9c91b54b4ca886c5d9d0faba8"
+    },
+    {
+      "path": "server/api/study/llm/v1/chat/completions.post.ts",
+      "sha256": "619852bd85ead9485e6463a6c9f5d92d67ac622263e65d00e49e61ac262b605f"
+    },
+    {
+      "path": "composables/useAminaLiveCall.ts",
+      "sha256": "8099cbe764c21ff8354f5ea67a63b6ee885557435f24dc893afe4d8d2db648dc"
+    },
+    {
+      "path": "tests/study-objective-flow.test.ts",
+      "sha256": "e6c76aec384deabd150c46cbad40f4e415bace0e73d01f1c457acc0c0581ddc8"
+    },
+    {
+      "path": "tests/amina-live-client.test.ts",
+      "sha256": "802e8cf304fc92df82033fac21134505f245d4e88ba1f88bb7b4a6210de2d81e"
+    },
+    {
+      "path": "components/AirFocusDialog.vue",
+      "sha256": "57db0e84626ad3abca625046efb628676202517570f30587848eddf32b47c09d"
+    },
+    {
+      "path": "components/AirsJourneyRail.vue",
+      "sha256": "55899fe6d294f6be83d5e60c0e46753c477c9be476cb8bb842335095ec6db166"
+    },
+    {
+      "path": "components/AirsPlanOverview.vue",
+      "sha256": "0a30a7ed108b869bc0e5adece61c78826f54c903d5128750b07624cd0a0c803f"
+    },
+    {
+      "path": "components/AirSessionNavigation.vue",
+      "sha256": "873e298c244ae314a5d9b78f4a1978a125db97baae675005c366a91f4ad8d450"
+    },
+    {
+      "path": "composables/useAgentHandoff.ts",
+      "sha256": "f5f1f5468f1a039082d991be2eff1de98a7135e2c32ec9a3c44ed1fef8c772bb"
+    },
+    {
+      "path": "server/services/studySpeechCache.ts",
+      "sha256": "35e0107e63af2881f9d3ddbd5ce39d0299dc09c535dbcea743c1e6f9dd611848"
+    },
+    {
+      "path": "shared/studyConversation.ts",
+      "sha256": "4df1aca9e4f92878fa3458d54f8ac29e747d63d446a912dd6762742a32693997"
+    },
+    {
+      "path": "server/domain/neuromap/studyFunctions.ts",
+      "sha256": "8cd41a84aefc8d79a782b4887bb1e9135e35c240610ecc4b509bd0294abe43c8"
+    },
+    {
+      "path": "server/services/studyAwsSpeech.ts",
+      "sha256": "7c14edce7f14a564cb72b86ee36e4c85c43ab35d7c124675e024542440213f6e"
+    },
+    {
+      "path": "shared/airsJourney.ts",
+      "sha256": "a3a2e2cc6aebb03df131836765e1db4866f15947e59753a79ab57659c5784289"
+    },
+    {
+      "path": "shared/studySpeechOutcome.ts",
+      "sha256": "bcd3cfd9549baa8643b97de93e4cb3bbcd3af85ddbfa3d78a2e78940b5bc7b22"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/review.get.ts",
+      "sha256": "64c2afd42fd47103177364f35c435a43def7d0edfcb61abcc606371892818aba"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/control.post.ts",
+      "sha256": "2ed873b30922c25ce172cb58dca6ed0f389f2c925ef23433b9d021cc5ac3170b"
+    },
+    {
+      "path": "assets/css/air-call-room.css",
+      "sha256": "6acd144dd073c00084e63d1be6e1d84adb72c852a0b6aa89977b9f0fb938d340"
+    },
+    {
+      "path": "shared/studyPacing.ts",
+      "sha256": "1132d272a29beefabcca49e46a3994a461fed09badbc5216bb57b291b7e4d8e9"
+    },
+    {
+      "path": "shared/studySpeech.ts",
+      "sha256": "dca23d1696a3879397e61a282c591885287e86a62b53b55e19e73b469bec6327"
+    },
+    {
+      "path": "server/services/studyPreferences.ts",
+      "sha256": "b1a3b24eef539a184691ec1b10cae39ed4da5803a86e2f66e1732645b64cd11f"
+    },
+    {
+      "path": "server/services/studyPacing.ts",
+      "sha256": "5423ca7c2e268c14457821e0c40a6ac4d0ba7cc8d60dcaa8652ccf30d0ad5a73"
+    },
+    {
+      "path": "server/services/studyElevenSpeech.ts",
+      "sha256": "ed6ef31ea2b5e4c650ddc45b496c084b4b55f29e91731cff9b764d95ebaec168"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/pacing.get.ts",
+      "sha256": "43070e555f459dd8e4f99c946aff768cac5be4f93ab59174c13428ed2092b492"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/pacing.post.ts",
+      "sha256": "c4971db47c903267fcccbc621e442e2a89ca98512f1ff2e1f9f51208d6dda4fa"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/recorded-turn.get.ts",
+      "sha256": "8ae1ae6ad584e86aab874c6078812224359c5358203bd16d119b99f13b79ac03"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/recorded-turn.post.ts",
+      "sha256": "2ebf65b9e23a1a67712b8030aa89308a5aa275ef2e18359b8a6dba7d6cb9c57b"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/speech.post.ts",
+      "sha256": "4ad7125b34c4497a3686aeac42b58737f695e064c3e7b6395f5d9abbb24540dc"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/plan/confirm.post.ts",
+      "sha256": "0e86bd146ec55e7f8c6e14864970f10c656b7cf0974026d727de3851e07eace0"
+    },
+    {
+      "path": "composables/useStudyPacing.ts",
+      "sha256": "4c8dc5b0ae022feef199cc467ffbbc19f165b2fc239a79730dc3765e43b0dc6d"
+    },
+    {
+      "path": "components/AirConversation.vue",
+      "sha256": "8d6eff65db38d4d234c63fbeb524fe25d74c721e2312e80faaec639e14d88ea2"
+    },
+    {
+      "path": "components/AgentAvatar.vue",
+      "sha256": "f4109681d6cf8b633f2acfa3d22dec13c6b019995f62c4713a85495522c2edaa"
+    },
+    {
+      "path": "server/services/airsContextSummary.ts",
+      "sha256": "9488492810ccd2321de0251f591efc7ff62cabfead59ad02d828c941d7c1f4eb"
+    },
+    {
+      "path": "server/services/studyRepository.ts",
+      "sha256": "2266687d4c3db31568643261e59f49f739cfd0c606d1659aee41e288a276beab"
+    },
+    {
+      "path": "server/api/study/context.put.ts",
+      "sha256": "30cd3589f63cba9badabbe805bfc958322cc6223649b2ee51f9b7a294b53f681"
+    },
+    {
+      "path": "server/api/study/context/summary.post.ts",
+      "sha256": "cd8cc2f58a02eb56a43923d075c46af5cb2b0ab2e70487dda5ab7bca038aff1d"
+    },
+    {
+      "path": "server/api/study/conversations/[id].get.ts",
+      "sha256": "ad07817544eafa26a4a2b169f7f962d97238743e7cb95a46928ed02e5f2e04a1"
+    },
+    {
+      "path": "server/api/study/conversations/[id].delete.ts",
+      "sha256": "93498eed9f816bd1c7b6b86587ff6b403cb242851945e8441b4d9ca3d855a1a7"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/plan.post.ts",
+      "sha256": "7d2c1c1b29f32bbfd600988b6dc9151b2ea80d1a1a6721ba50b3d70220c57d77"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/plan/approve.post.ts",
+      "sha256": "0cb2a726f8fa7466a4d9eb4219a9fe8ca93ec0a8cc990df287bc35dc1ca4f7ef"
+    },
+    {
+      "path": "server/api/study/conversations/[id]/welcome.post.ts",
+      "sha256": "9d2d4689d1069312360fe1a1d96ff5dc92408b343527a5b8cfdc85730dc2ef20"
+    },
+    {
+      "path": "server/api/study/sources/document-preview.post.ts",
+      "sha256": "99131aff261c67ddef341f5d8ca89a0163211722ee78c7250f9d001f4b716305"
+    },
+    {
+      "path": "components/AgentActivity.vue",
+      "sha256": "b30ef5c54b885836fed34a31b20a235d2f32f9231185c8d57440e383f538e95e"
+    },
+    {
+      "path": "components/AgentOrb.vue",
+      "sha256": "0c86ccad624c73c10c661acfbe415de28a8f2f677eb85b521c996dc84ab1ee4d"
+    },
+    {
+      "path": "components/AirsSetup.vue",
+      "sha256": "34e08a6a9964177b3ef9f330e5abe635ed47c798ec1c1bee13098c5e0fee00e7"
+    },
+    {
+      "path": "components/AirLibraryView.vue",
+      "sha256": "48293d6897a23dd1e7eed7a8bc434ba14690fe144aa64d1c577901c00ac973d7"
+    },
+    {
+      "path": "components/AirSourcePicker.vue",
+      "sha256": "17d587b7c0160c2e12d9a3d8283c33e2d2d9d853661576d72a2e631ef92677ea"
+    },
+    {
+      "path": "components/AirCallRoom.vue",
+      "sha256": "4fb0443434df2e979819612a89750853578b7f538609f5e87b2828da19ec07a9"
+    },
+    {
+      "path": "components/AirAppShell.vue",
+      "sha256": "6f54f8dbe17f2fb6c2f74ac0179333ad12084d381450b683d1a6991d037a2b64"
+    },
+    {
+      "path": "pages/airs/index.vue",
+      "sha256": "1af03a0c32da2c6a931dee021fd058111473b54c10f2612e2b893861e8115d56"
+    },
+    {
+      "path": "pages/airs/new.vue",
+      "sha256": "1af03a0c32da2c6a931dee021fd058111473b54c10f2612e2b893861e8115d56"
+    },
+    {
+      "path": "pages/airs/library.vue",
+      "sha256": "799806e8762af05e05cf13cb5df868a581e49f62930d99b91e38ef183537e69c"
+    },
+    {
+      "path": "pages/airs/[id].vue",
+      "sha256": "5741b54340e33588b55c7b5c8f04ffb0fe69a870ca1df5d523ec3553dc465cda"
+    },
+    {
+      "path": "shared/airsOrchestration.ts",
+      "sha256": "c5144c6496d77466489d89ff9ff24a3aa018eaa3e85b65c53f8fc5c9623b7659"
+    },
+    {
+      "path": "shared/study.ts",
+      "sha256": "d19c8031e57397dec3853d6e0ce359691c3061c98a6a13564e67f14313065493"
+    },
+    {
+      "path": "server/services/airsAgentRunner.ts",
+      "sha256": "f56aa200a7fb1b1827ba434369f870874b3742f7713406d6db478ba9c717f793"
+    },
+    {
+      "path": "server/services/airsProviderFailure.ts",
+      "sha256": "90a71ae25bf74e79b8671409fc282c8bf35adeba093c44c400fbefbd3e3cbbe0"
+    },
+    {
+      "path": "tests/airs-orchestration.test.ts",
+      "sha256": "a68d5af34b526813afd8e9346e969772eac33117dfea62e1debfc7babcbc1ae4"
+    },
+    {
+      "path": "tests/airs-provider-failure.test.ts",
+      "sha256": "a06486233f703d8ccefd00f26922d83288800f863147df6865435d1f023dbb48"
+    },
+    {
+      "path": "tests/study-misu-output-contract.test.ts",
+      "sha256": "cccd5af23c72c168c1ede86489a2e6b811eeeabe57863d2c6b9d3a9c55c11633"
+    },
+    {
+      "path": "tests/airs-kai-recovery.test.ts",
+      "sha256": "68e4b210d1a54e21c5b96e81ee7aa7b6adf5f0b90053604dd6415df12a9bb02b"
+    },
+    {
+      "path": "server/services/airsPlanning.ts",
+      "sha256": "62d205a0862e2d7cf01f22ab33d0ec1308474340f58e9d3919ca84ab2d116e1c"
+    },
+    {
+      "path": "server/services/airsAminaFunctions.ts",
+      "sha256": "21ced3ca378ea677003eb50c7739791c6e311c4a10e71a6281cc228d21f7c910"
+    },
+    {
+      "path": "server/services/airsKai.ts",
+      "sha256": "e3f05c5fd88ffd86502f68ccfcbaba372fc1200ab87f6be03cc45099f2256057"
+    },
+    {
+      "path": "server/services/studyMisu.ts",
+      "sha256": "b2bbb103d93a89a137351387d518cf9d56db1fd30214c12f9f2ea824d73c9060"
+    },
+    {
+      "path": "server/services/studyAmina.ts",
+      "sha256": "8607defb68f421587801bd9a39b6add5c4ed63f6e5f72b37aa1406d901863841"
+    },
+    {
+      "path": "server/services/studySources.ts",
+      "sha256": "c02a4035eefeffe19f1b29db2af67bacabebfbddd6f52f6d4de42efae333f1ab"
+    },
+    {
+      "path": "components/AirsContextCard.vue",
+      "sha256": "40509455cce154dfc9345bc88f4aa959e54f629e2b16bf6091ffa89678c6463d"
+    },
+    {
+      "path": "components/AirsKaiReview.vue",
+      "sha256": "c76ca0a855d1a81f62cdf00162452f663ef752114362ec5b6a2247172e6c4a85"
+    },
+    {
+      "path": "components/MisuPlanGuide.vue",
+      "sha256": "759503b512a4fd69211c052d7950c7a0fa3a5e3b82d530294c686518d918a234"
+    },
+    {
+      "path": "tests/study-deletion.test.ts",
+      "sha256": "17725dbbdd85d2e2b7cde197dfc6d46625cc691d9949e0a21a82dd6041ce5d83"
+    },
+    {
+      "path": "components/AirStudyShell.vue",
+      "sha256": "2d3414ae2ed95dcb73b9acaa30e150eaa27132bee15c86cd0d02f00838c333c6"
+    },
+    {
+      "path": "server/services/misuPlanFailure.ts",
+      "sha256": "9ed8f6c3ccf7ea36fc610739c701edcbb2d85012d3d40b7d9db88d5b8facba99"
+    },
+    {
+      "path": "tests/misu-plan-errors.test.ts",
+      "sha256": "4da1e4aced82d3e7dbdddea45939cf3c69f3eeccc610fb9b96a9f9118a50e583"
+    },
+    {
+      "path": "tests/misu-plan-recovery.test.ts",
+      "sha256": "f90e5b6b8a4c1dce74d5970015451e2149889745e19d27a17e18e3361dade86e"
+    },
+    {
+      "path": "server/services/misuEvidenceReview.ts",
+      "sha256": "f329986da2a6ab2e4bb4425bf7f3b5068a2728720234fe8e931d4e6daae95da4"
+    },
+    {
+      "path": "shared/studySessionRecovery.ts",
+      "sha256": "ba026fc8729cece3e7d82d31f50906549c95fe87bd82f6bde96610066cc571c8"
+    },
+    {
+      "path": "tests/study-evidence-review.test.ts",
+      "sha256": "4b371efe0e7740b1437b0c2c178431bd16ffb0f9f0b3972edd7ef38227018b75"
+    },
+    {
+      "path": "tests/misu-evidence-contract.test.ts",
+      "sha256": "52751ef61dc3493953c7c99f29ecd8fedfbe6e96b4c973f08ad2f0a783c56962"
+    },
+    {
+      "path": "tests/source-e2e/saved-response-recovery.spec.ts",
+      "sha256": "83539a676e445c33390b047ab8a9da59849cf738d3b1c8ee72c644b473d98d88"
+    }
+  ],
+  "intentionalDifferences": {
+    "components/AirCallRoom.vue": {
+      "reason": "Standalone audio failure layout and short-screen scrolling",
+      "flowst": "635ea038c70a364175fd0c7c7039f23195b3a2a98b64a84f17cf9893454b183b",
+      "standalone": "4fb0443434df2e979819612a89750853578b7f538609f5e87b2828da19ec07a9"
+    },
+    "assets/css/air-call-room.css": {
+      "reason": "Standalone audio failure layout and short-screen scrolling",
+      "flowst": "5de0cc99c74c7e4cd3f16427497f4a23b81f150bbb17c72367a69b0c7900f539",
+      "standalone": "6acd144dd073c00084e63d1be6e1d84adb72c852a0b6aa89977b9f0fb938d340"
+    },
+    "components/AirStudyShell.vue": {
+      "reason": "Standalone mobile keyboard viewport handling",
+      "flowst": "7d3453dd07a7de72f98271d09aa316ac4888729c3316556089d8b41b6aa80cff",
+      "standalone": "2d3414ae2ed95dcb73b9acaa30e150eaa27132bee15c86cd0d02f00838c333c6"
+    }
+  }
+}

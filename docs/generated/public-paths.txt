@@ -80,6 +80,7 @@
 :(literal)docs/generated/db-schema.md
 :(literal)docs/generated/index.md
 :(literal)docs/generated/public-paths.txt
+:(literal)docs/generated/shared-parity.json
 :(literal)docs/index.md
 :(literal)docs/product-specs/bring-your-source.md
 :(literal)docs/product-specs/index.md
@@ -216,6 +217,7 @@
 :(literal)server/services/authRepository.ts
 :(literal)server/services/awsClientConfig.ts
 :(literal)server/services/cognito.ts
+:(literal)server/services/misuEvidenceReview.ts
 :(literal)server/services/misuPlanFailure.ts
 :(literal)server/services/sources/fixtures.ts
 :(literal)server/services/sources/github.ts
@@ -273,6 +275,7 @@
 :(literal)shared/studyPresentation.ts
 :(literal)shared/studyProgression.ts
 :(literal)shared/studyRetry.ts
+:(literal)shared/studySessionRecovery.ts
 :(literal)shared/studySpeech.ts
 :(literal)shared/studySpeechOutcome.ts
 :(literal)shared/userErrors.ts
@@ -290,13 +293,16 @@
 :(literal)tests/amina-plan-approval.test.ts
 :(literal)tests/amina-welcome.test.ts
 :(literal)tests/kai-assessment.test.ts
+:(literal)tests/misu-evidence-contract.test.ts
 :(literal)tests/misu-plan-errors.test.ts
 :(literal)tests/misu-plan-recovery.test.ts
+:(literal)tests/shared-parity.test.ts
 :(literal)tests/source-e2e/bring-source.spec.ts
 :(literal)tests/source-e2e/guest-context.spec.ts
 :(literal)tests/source-e2e/mobile-onboarding.spec.ts
 :(literal)tests/source-e2e/objective-flow.spec.ts
 :(literal)tests/source-e2e/provider-retry.spec.ts
+:(literal)tests/source-e2e/saved-response-recovery.spec.ts
 :(literal)tests/source-e2e/session-completion.spec.ts
 :(literal)tests/study-air-history.test.ts
 :(literal)tests/study-aws-voice.test.ts
@@ -305,6 +311,7 @@
 :(literal)tests/study-completion-invitation.test.ts
 :(literal)tests/study-conversation-progress.test.ts
 :(literal)tests/study-deletion.test.ts
+:(literal)tests/study-evidence-review.test.ts
 :(literal)tests/study-live-lease.test.ts
 :(literal)tests/study-misu-output-contract.test.ts
 :(literal)tests/study-misu-progress.test.ts

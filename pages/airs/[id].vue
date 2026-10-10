@@ -33,6 +33,7 @@ import {
 import type { ObjectiveControl } from "~/shared/studyObjectivePolicy";
 import { STUDY_LIVE_START_MESSAGE } from "~/shared/studyLive";
 import { pacingResumePhase } from "~/shared/studyPacing";
+import { shouldPauseStudyOnExit } from "~/shared/studySessionRecovery";
 import { microphoneError } from "~/shared/userErrors";
 import { learnerStudyError } from "~/shared/studyPresentation";
 import type { AirAccess } from "~/shared/airAccess";
@@ -55,7 +56,7 @@ function prepareExit() {
     )
   )
     return false;
-  if (paced.value) void pacing.change("PAUSE");
+  if (shouldPauseStudyOnExit(study.value, pacing.current.value)) void pacing.change("PAUSE");
   live.stop();
   mediaStopped = true;
   microphoneRequest++;
@@ -113,6 +114,7 @@ const voiceOutputUsed = computed(() => study.value?.voiceUsage?.pollyCharacters 
 const pacing = useStudyPacing(id);
 const paced = computed(() => Boolean(study.value?.plan.pacing));
 const objectiveFlow = computed(() => study.value?.mode === "DISCUSSION" ? study.value?.objectiveFlow : undefined);
+const pendingSavedResponse = computed(() => Boolean(objectiveFlow.value?.pendingOperationId || objectiveFlow.value?.interruptOperationId));
 const objectiveClosed = computed(() => Boolean(objectiveFlow.value?.endedAt));
 const objectiveCommandBusy = ref(false);
 const objectiveResumeLabel = computed(() => {
@@ -557,6 +559,8 @@ const lessonStep = computed(() =>
                   : "Review your saved explanation",
 );
 const conversationActivity = computed(() => {
+  if (pendingSavedResponse.value && recorderStatus.value !== "SENDING" && !live.running.value && !busy.value && !objectiveCommandBusy.value) return {phase:objectiveFlow.value?.error ? "error" : "ready",label:"Your answer is saved",detail:objectiveFlow.value?.error ? "Its response could not finish. Retry the saved response without recording again." : "Its response is pending. You do not need to record again."};
+  if (pendingSavedResponse.value && objectiveCommandBusy.value) return {phase:"processing",label:"Retrying your saved response",detail:"Using your saved input. You do not need to record again."};
   if (objectiveFlow.value?.paused) return {phase:'ready',label:'Practice is paused',detail:'Your progress is saved. Use session controls to resume when you are ready.'};
   if (!recordedPracticeMode.value && !live.running.value) {
     if (live.error.value || live.availability.value?.enabled === false)
@@ -1066,9 +1070,11 @@ async function sendObjectiveControl(action: ObjectiveControl) {
 async function retryObjectiveResponse() {
   if (objectiveCommandBusy.value || busy.value) return;
   objectiveCommandBusy.value = true;
+  error.value = '';
+  primePlayback();
   try {
     const response = await auth.authorizedFetch<{agentTurn?:StudyTurn}>('/api/study/conversations/'+id.value+'/objective/retry',{method:'POST'});
-    await load(); if (response.agentTurn) await playSpeech(response.agentTurn.id,true);
+    await load(); discardRecording(); if (response.agentTurn) await playSpeech(response.agentTurn.id,true);
   } catch (cause) {await load().catch(() => {});error.value = learnerStudyError(cause,'Your answer is still saved. Retry when ready.');}
   finally {objectiveCommandBusy.value = false;}
 }
@@ -1374,7 +1380,9 @@ async function sendRecording() {
         ? "We could not confirm whether your recording was saved. Your take is still here; check the transcript or retry sending this same take."
         : "We could not prepare that recording. It is still here; retry or record again.",
     );
-    if (requestStarted) void load().catch(() => undefined);
+    if (requestStarted) {
+      await load().then(() => { if (pendingSavedResponse.value) discardRecording(); }).catch(() => undefined);
+    }
     return;
   }
   // The POST acknowledged the saved turn. Refreshing the view or playing audio
@@ -2276,6 +2284,10 @@ async function remove() {
                   >End call
                 </button>
               </div>
+              <div v-else-if="pendingSavedResponse && recorderStatus !== 'SENDING' && !busy" class="record-controls" data-testid="saved-response-recovery">
+                <div class="record-context"><strong>Your input is saved</strong><span>Retry its response. You do not need to send or record it again.</span></div>
+                <button type="button" class="send-recording" :disabled="objectiveCommandBusy || busy || !canStudy" @click="retryObjectiveResponse">{{ objectiveCommandBusy ? 'Retrying saved response…' : 'Retry saved response' }}</button>
+              </div>
               <div v-else-if="!recordedPracticeMode" class="live-call-entry">
                 <button
                   type="button"
@@ -2329,8 +2341,8 @@ async function remove() {
                   </button>
                 </p>
               </div>
-              <p v-if="error" class="error" role="alert">
-                <CircleAlert :size="16" /> {{ error }}
+              <p v-if="error || (pendingSavedResponse && objectiveFlow?.error && !objectiveCommandBusy)" class="error" role="alert">
+                <CircleAlert :size="16" /> {{ error || objectiveFlow?.error }}
               </p>
               <div
                 v-if="

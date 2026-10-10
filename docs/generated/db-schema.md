@@ -49,7 +49,7 @@ Proposed Kai/longitudinal entities are not added here unless implemented in thes
 
 ## Source fingerprints
 
-- server/services/studyRepository.ts: 1eee4530caaaf2151b9f577b711160c1f8c29d36a8093d465e15d99507eb0fd9
+- server/services/studyRepository.ts: 551cf0227df79335f878fafee7376dca0bc3ec40d588343ae299baa2e14fbe42
 - server/services/sources/store.ts: 09c553ad30a77fa09e552d796d479e1d986ca1a47d7492c6c80830c80dbc17f6
 - server/services/airsContext.ts: a6b138269851bf07c38633d6bc98e5fe39118db250793d677bad34c669ddbbb4
 - server/services/studySpeechCache.ts: d60810807f482c94539aac91427b662d881b88b21d1e51776b4bc32ec84a53b1

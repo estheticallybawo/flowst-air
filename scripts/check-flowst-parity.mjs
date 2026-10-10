@@ -1,12 +1,9 @@
-import fs from "node:fs";
-import path from "node:path";
-import crypto from "node:crypto";
-const root = path.resolve(import.meta.dirname, "..");
-const index = process.argv.indexOf("--flowst-path");
-if (index < 0 || !process.argv[index + 1])
-  throw new Error("Supply --flowst-path with the Flowst checkout.");
-const host = path.resolve(process.argv[index + 1]);
-const files = [
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {fileURLToPath} from 'node:url';
+const root=path.resolve(import.meta.dirname,'..');
+export const files = [
   "server/services/studyBedrockTransport.ts",
   "server/services/studyModelBudget.ts",
   "server/services/studyElevenAgent.ts",
@@ -113,6 +110,15 @@ const files = [
   "components/AirsKaiReview.vue",
   "components/MisuPlanGuide.vue",
   "tests/study-deletion.test.ts",
+  "components/AirStudyShell.vue",
+  "server/services/misuPlanFailure.ts",
+  "tests/misu-plan-errors.test.ts",
+  "tests/misu-plan-recovery.test.ts",
+  "server/services/misuEvidenceReview.ts",
+  "shared/studySessionRecovery.ts",
+  "tests/study-evidence-review.test.ts",
+  "tests/misu-evidence-contract.test.ts",
+  "tests/source-e2e/saved-response-recovery.spec.ts",
 ];
 const hash = (p) => {
   let source = fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
@@ -124,17 +130,58 @@ const hash = (p) => {
     source = source.replace(/\nexport const compileAmiraStudyPacket = compileAirStudyPacket\s*$/, '');
   return crypto.createHash('sha256').update(source.trimEnd()).digest('hex');
 };
-const mismatches = files.filter(
-  (f) =>
-    !fs.existsSync(path.join(host, f)) ||
-    hash(path.join(root, f)) !== hash(path.join(host, f)),
-);
-if (mismatches.length) {
-  console.error("Shared Airs mismatch: " + mismatches.join(", "));
-  process.exitCode = 1;
-} else
-  console.log(
-    "Shared Airs parity passed: " +
-      files.length +
-      " modules/components. Authentication, host adapters and the legacy compiler alias intentionally differ.",
-  );
+
+export const intentionalDifferences = {
+  "components/AirCallRoom.vue": {
+    "reason": "Standalone audio failure layout and short-screen scrolling",
+    "flowst": "635ea038c70a364175fd0c7c7039f23195b3a2a98b64a84f17cf9893454b183b",
+    "standalone": "4fb0443434df2e979819612a89750853578b7f538609f5e87b2828da19ec07a9"
+  },
+  "assets/css/air-call-room.css": {
+    "reason": "Standalone audio failure layout and short-screen scrolling",
+    "flowst": "5de0cc99c74c7e4cd3f16427497f4a23b81f150bbb17c72367a69b0c7900f539",
+    "standalone": "6acd144dd073c00084e63d1be6e1d84adb72c852a0b6aa89977b9f0fb938d340"
+  },
+  "components/AirStudyShell.vue": {
+    "reason": "Standalone mobile keyboard viewport handling",
+    "flowst": "7d3453dd07a7de72f98271d09aa316ac4888729c3316556089d8b41b6aa80cff",
+    "standalone": "2d3414ae2ed95dcb73b9acaa30e150eaa27132bee15c86cd0d02f00838c333c6"
+  }
+};
+const baselinePath = 'docs/generated/shared-parity.json';
+export function checkAgainstFlowst(host, target = root) {
+  const problems = [];
+  for (const file of files) {
+    if (!fs.existsSync(path.join(host,file)) || !fs.existsSync(path.join(target,file))) { problems.push('Missing shared file: '+file); continue; }
+    const left=hash(path.join(host,file)),right=hash(path.join(target,file)),allowed=intentionalDifferences[file];
+    if (left!==right && (!allowed || allowed.flowst!==left || allowed.standalone!==right)) problems.push('Shared Airs mismatch: '+file);
+  }
+  return problems;
+}
+export function writeBaseline(target = root) {
+  const baseline={version:1,files:files.map(file=>({path:file,sha256:hash(path.join(target,file))})),intentionalDifferences};
+  fs.mkdirSync(path.join(target,'docs/generated'),{recursive:true});
+  fs.writeFileSync(path.join(target,baselinePath),JSON.stringify(baseline,null,2)+'\n');
+}
+export function verifyBaseline(target = root) {
+  let baseline;
+  try {baseline=JSON.parse(fs.readFileSync(path.join(target,baselinePath),'utf8'));}
+  catch {return ['Shared parity baseline missing or unreadable. Compare both checkouts with npm run parity:update -- --flowst-path <checkout>.'];}
+  const problems=[];
+  if (baseline.version!==1 || !Array.isArray(baseline.files) || baseline.files.length!==files.length || new Set(baseline.files.map(item=>item.path)).size!==files.length || JSON.stringify(baseline.intentionalDifferences)!==JSON.stringify(intentionalDifferences)) return ['Shared parity baseline does not match the reviewed file list/adaptations.'];
+  for (const file of files) {
+    const expected=baseline.files.find(item=>item.path===file);
+    if (!expected || !fs.existsSync(path.join(target,file)) || hash(path.join(target,file))!==expected.sha256) problems.push('Unverified shared change: '+file);
+  }
+  return problems;
+}
+function main() {
+  const index=process.argv.indexOf('--flowst-path'),host=index>=0 ? process.argv[index+1] : undefined;
+  const update=process.argv.includes('--write-baseline');
+  if ((update || process.argv.includes('--require-flowst')) && !host) throw new Error('Updating the baseline requires --flowst-path. Compare the two checkouts first.');
+  const problems=host ? checkAgainstFlowst(path.resolve(host)) : verifyBaseline();
+  if (problems.length) {console.error(problems.join('\n'));process.exitCode=1;return;}
+  if (update) writeBaseline();
+  console.log('Shared Airs '+(host?'cross-repository parity':'verified release snapshot')+' passed: '+files.length+' files; '+Object.keys(intentionalDifferences).length+' pinned standalone adaptations.');
+}
+if (process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)) main();

@@ -18,7 +18,12 @@
     "mcp:review": "node --import tsx scripts/review-source-mcp.mjs",
     "docs:generate": "node scripts/generate-docs.mjs",
     "docs:check": "node scripts/check-docs.mjs",
-    "repo:check": "node scripts/check-public-export.mjs"
+    "repo:check": "node scripts/check-public-export.mjs",
+    "prebuild": "node scripts/check-flowst-parity.mjs",
+    "pretest": "node scripts/check-flowst-parity.mjs",
+    "parity:check": "node scripts/check-flowst-parity.mjs",
+    "parity:update": "node scripts/check-flowst-parity.mjs --write-baseline",
+    "release:check": "node scripts/check-flowst-parity.mjs --require-flowst"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-agentcore": "^3.1117.0",
