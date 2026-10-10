@@ -44,6 +44,7 @@
 :(literal)components/AirVoiceMeter.vue
 :(literal)components/AirsAgentHandoff.vue
 :(literal)components/AirsContextCard.vue
+:(literal)components/AirsGrowthHome.vue
 :(literal)components/AirsJourneyRail.vue
 :(literal)components/AirsKaiReview.vue
 :(literal)components/AirsMessage.vue
@@ -52,10 +53,15 @@
 :(literal)components/AirsSessionCompletion.vue
 :(literal)components/AirsSetup.vue
 :(literal)components/AuthShell.vue
+:(literal)components/GrowthCapabilityArt.vue
+:(literal)components/GrowthDimensionDetail.vue
+:(literal)components/GrowthProgressRing.vue
+:(literal)components/GrowthPrototypeDialog.vue
 :(literal)components/MisuPlanGuide.vue
 :(literal)components/PasswordField.vue
 :(literal)composables/useAgentHandoff.ts
 :(literal)composables/useAirAccess.ts
+:(literal)composables/useAirGrowthPrototype.ts
 :(literal)composables/useAirMediaLifecycle.ts
 :(literal)composables/useAminaLiveCall.ts
 :(literal)composables/useAuth.ts
@@ -74,6 +80,7 @@
 :(literal)docs/design-docs/topic-pacing-and-voice.md
 :(literal)docs/exec-plans/active/flowst-air-orchestration.md
 :(literal)docs/exec-plans/completed/flowst-air-identity.md
+:(literal)docs/exec-plans/completed/growth-home-prototype.md
 :(literal)docs/exec-plans/completed/source-and-misu-foundation.md
 :(literal)docs/exec-plans/index.md
 :(literal)docs/exec-plans/tech-debt-tracker.md
@@ -124,6 +131,12 @@
 :(literal)public/air-voice-capture.js
 :(literal)public/amira-icon.png
 :(literal)public/brand/flowst-mark-blue.png
+:(literal)public/growth/clear-explanation-3d.png
+:(literal)public/growth/conceptual-precision-3d.png
+:(literal)public/growth/conversation-flow-3d.png
+:(literal)public/growth/reasoning-aloud-3d.png
+:(literal)public/growth/transfer-3d.png
+:(literal)public/growth/verbal-retrieval-3d.png
 :(literal)public/mascots/amina-avatar.png
 :(literal)public/mascots/amina.png
 :(literal)public/optimized/v1/mascots/amina/avatar.webp
@@ -252,6 +265,8 @@
 :(literal)server/utils/sourceBody.ts
 :(literal)shared/agents.ts
 :(literal)shared/airAccess.ts
+:(literal)shared/airGrowth.ts
+:(literal)shared/airGrowthPrototype.ts
 :(literal)shared/airNavigation.ts
 :(literal)shared/airSurface.ts
 :(literal)shared/airsHandoff.ts
@@ -298,6 +313,7 @@
 :(literal)tests/misu-plan-recovery.test.ts
 :(literal)tests/shared-parity.test.ts
 :(literal)tests/source-e2e/bring-source.spec.ts
+:(literal)tests/source-e2e/growth-prototype.spec.ts
 :(literal)tests/source-e2e/guest-context.spec.ts
 :(literal)tests/source-e2e/mobile-onboarding.spec.ts
 :(literal)tests/source-e2e/objective-flow.spec.ts

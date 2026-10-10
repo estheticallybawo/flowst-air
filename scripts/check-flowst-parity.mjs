@@ -132,6 +132,11 @@ const hash = (p) => {
 };
 
 export const intentionalDifferences = {
+  "pages/airs/index.vue": {
+    "reason": "Fixture-only Growth prototype Home; production retains Misu setup",
+    "flowst": "1af03a0c32da2c6a931dee021fd058111473b54c10f2612e2b893861e8115d56",
+    "standalone": "f90c6c1befd099d980a1d8f925fea6d990a8a2c67fa220ce75623b18026e292c"
+  },
   "components/AirCallRoom.vue": {
     "reason": "Standalone audio failure layout and short-screen scrolling",
     "flowst": "635ea038c70a364175fd0c7c7039f23195b3a2a98b64a84f17cf9893454b183b",

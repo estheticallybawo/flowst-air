@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-09T21:40:44.147Z",
+  "createdAt": "2026-10-10T18:04:33.656Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -345,8 +345,8 @@
     },
     {
       "path": "docs/exec-plans/index.md",
-      "bytes": 476,
-      "sha256": "83cf10cb3f23d133dbf301db10e432ed8eda6aa491973483ae22b3cf9b4cdd9c"
+      "bytes": 615,
+      "sha256": "90ae2bb0bc8e6696545b49e9026648a02828e1ebd1176e7e69a6ca74a95d4082"
     },
     {
       "path": "docs/exec-plans/tech-debt-tracker.md",
@@ -365,13 +365,13 @@
     },
     {
       "path": "docs/generated/public-paths.txt",
-      "bytes": 14988,
-      "sha256": "b97422f27398bbe84b83a35683cc4c04c04fbb098553464198ff3307c0b4bba3"
+      "bytes": 15725,
+      "sha256": "b83a92611635c8f8c41c8ec3716578de4efbf4a74c163b954d21a473bf98e544"
     },
     {
       "path": "docs/generated/shared-parity.json",
-      "bytes": 17971,
-      "sha256": "109742f969f72e10314735d43c2d15993df0010d3b65a9a16921da7f7c4cf756"
+      "bytes": 18264,
+      "sha256": "83642b7257e8a72cc0a57c580712174f0aa5c19ccbd4bdce579d840273f19b5e"
     },
     {
       "path": "docs/index.md",
@@ -450,8 +450,8 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 46234,
-      "sha256": "9100ec0bbbbeb1c2449550cf3740434dfbd8142ae7428e494389e8594095c8d8"
+      "bytes": 53485,
+      "sha256": "b8b328beaf3e32adfad15d6c0bdac773cc097fc1d531a02456142c8952e26e77"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
@@ -465,8 +465,8 @@
     },
     {
       "path": "FRONTEND.md",
-      "bytes": 1225,
-      "sha256": "dcd93c6c5d6aa07d9f92731bafce88ec066a0409a7d21c1d5a6518be4063380b"
+      "bytes": 2464,
+      "sha256": "d85bd0dda9566173bb098c62478c08dc387784d466dee431c82a7c1a699f92b6"
     },
     {
       "path": "LICENSE",
@@ -525,8 +525,8 @@
     },
     {
       "path": "pages/airs/index.vue",
-      "bytes": 89,
-      "sha256": "aba4c30b74eebc652c958ee82e19c5fc1ca914b669f516400ab46795bbe84538"
+      "bytes": 296,
+      "sha256": "5389c7aae4c19ea10141379d40c824ffe8dd66dad3f4e8b8fbc58473c8b30d0c"
     },
     {
       "path": "pages/airs/library.vue",
@@ -610,8 +610,8 @@
     },
     {
       "path": "public/amira-icon.png",
-      "bytes": 270472,
-      "sha256": "cfb28c7a138b21b8152afbab87ee4deda8eafd64fa939836a15c037c74960c4e"
+      "bytes": 42183,
+      "sha256": "817ad07e33446c8f92994dbcf7a29dd0eeece6e30d3f68094aca57c3c8f29121"
     },
     {
       "path": "public/brand/flowst-mark-blue.png",
@@ -695,8 +695,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 9672,
-      "sha256": "abf4b98f52788c0809b534a23a7108aa061aad5d492855b673e3e9934f4341d8"
+      "bytes": 10204,
+      "sha256": "e8eeef0b5d88a1a42332522a7173d8e829307748bbd808e10c35b598952f3c58"
     },
     {
       "path": "scripts/check-docs.mjs",
@@ -705,8 +705,8 @@
     },
     {
       "path": "scripts/check-flowst-parity.mjs",
-      "bytes": 9575,
-      "sha256": "74835eaa545c6406f0cc1b26cc2eae23e46fc0cfab2bc83290b840f5ee5b437d"
+      "bytes": 9858,
+      "sha256": "585de531143514e7a30c3e2a8e2075318644abae39cbd8b2d36f9a7ab082afc9"
     },
     {
       "path": "scripts/check-public-export.mjs",
@@ -1747,6 +1747,86 @@
       "path": "vitest.config.ts",
       "bytes": 421,
       "sha256": "e0a3895d66cd71bb2a2339ff44fdd4de0991858415f05a7537d57a3388ad1dba"
+    },
+    {
+      "path": "components/AirsGrowthHome.vue",
+      "bytes": 36406,
+      "sha256": "2cd75d3654001bf75029194e779ef785f0f38150068e3a890e138a08bfa0509e"
+    },
+    {
+      "path": "components/GrowthCapabilityArt.vue",
+      "bytes": 2958,
+      "sha256": "06e2ebea6ce33a4beae8ef5f152ed99194627b8bb15dc0f7166929cf02bb48e6"
+    },
+    {
+      "path": "components/GrowthDimensionDetail.vue",
+      "bytes": 8920,
+      "sha256": "e8bd500a750f00a618cfcdcb68ab00d61d000879b48f08c5c5b1ce967306bb1f"
+    },
+    {
+      "path": "components/GrowthProgressRing.vue",
+      "bytes": 1707,
+      "sha256": "49a6279fc903819770a8c3a5b0b5014ce3d2b55543a929b6600cb171ed3419a9"
+    },
+    {
+      "path": "components/GrowthPrototypeDialog.vue",
+      "bytes": 4096,
+      "sha256": "92aab2a4a0ff21a939f3bca56628859e78d8656bce9e3c08be2f8842df63154c"
+    },
+    {
+      "path": "composables/useAirGrowthPrototype.ts",
+      "bytes": 1128,
+      "sha256": "ca58e8a2b54219649f76e504bb40bbcfb5ec166bb6b7bec67f608aab6c4c8e66"
+    },
+    {
+      "path": "docs/exec-plans/completed/growth-home-prototype.md",
+      "bytes": 5630,
+      "sha256": "36757d3e3e692f30bde5b43232ee090ead1a955069dd14971ea9cdc254d5f636"
+    },
+    {
+      "path": "shared/airGrowth.ts",
+      "bytes": 2044,
+      "sha256": "a449e6b6a18b5cabf9afa5becebfcb6829b9fbbd98abb0f6f51b5c63faa60f49"
+    },
+    {
+      "path": "shared/airGrowthPrototype.ts",
+      "bytes": 9522,
+      "sha256": "ab66e04400ac9498826470c0668f3d516f54ea976bb3492040927ba6e96da1b9"
+    },
+    {
+      "path": "tests/source-e2e/growth-prototype.spec.ts",
+      "bytes": 12604,
+      "sha256": "be07c5bb0f0bd7363510f520d0fe32b11210763082b69607307e05d810b5e400"
+    },
+    {
+      "path": "public/growth/verbal-retrieval-3d.png",
+      "bytes": 1203444,
+      "sha256": "e1e3d3c4cdb328a71fc79b50b43f607fb04b3d6927b3825258fd414609c3f6f3"
+    },
+    {
+      "path": "public/growth/clear-explanation-3d.png",
+      "bytes": 897856,
+      "sha256": "0aa33696d03de67af49ffb87737576dba22e48f282b9b279cf1dda2fa606cb60"
+    },
+    {
+      "path": "public/growth/conceptual-precision-3d.png",
+      "bytes": 1211320,
+      "sha256": "6ddb568d4473227e7eb871b3db8fd0e30727295ba3f448aafeb2f002c15ce582"
+    },
+    {
+      "path": "public/growth/reasoning-aloud-3d.png",
+      "bytes": 1048607,
+      "sha256": "878d07f42363c092701a2bfa947ce1480e6abc36943f2e665876b8bf3fa8d8ec"
+    },
+    {
+      "path": "public/growth/transfer-3d.png",
+      "bytes": 946825,
+      "sha256": "f46cc0d8e2c608fbc7814afc04eedbb64dc339e8accad37ebf7c88ea0ff3c34a"
+    },
+    {
+      "path": "public/growth/conversation-flow-3d.png",
+      "bytes": 995935,
+      "sha256": "ac1af32a1494764b0c2960a381f809cc45220484eca04246fccafaf417e25d44"
     }
   ],
   "updatedAt": "2026-10-10T00:44:09.227Z"

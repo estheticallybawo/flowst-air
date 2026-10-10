@@ -7,3 +7,5 @@
 Follow [plan conventions](../../PLANS.md). Completion refers to the stated scope, not future aspirations.
 
 - [Completed Flowst Airs identity migration](completed/flowst-air-identity.md).
+
+- [Growth Home prototype](completed/growth-home-prototype.md): fixture-only interactive growth dashboard; backend rewards remain planned.

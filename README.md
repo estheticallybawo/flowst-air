@@ -80,3 +80,7 @@ Production requires a random server-only AIRS_GUEST_SECRET of at least 32 charac
 Airs has no cumulative per-study voice quota or daily guest voice-start quota. Paid provider charges continue to accrue; private usage accounting is retained. Recorded takes are bounded to two minutes, synthesized replies to 3,000 characters, and optional live calls retain individual duration, lease and output bounds. Saved audio Replay does not dispatch or account for a second synthesis request. Topic practice timing is separate. Public guests retain the deployment-wide model-task allowance (default 30 per day), bounded agent functions, source limits and separate video ingestion ceilings.
 
 Run npx playwright test --config playwright.airs.config.ts for the guest journey. Public submission: [estheticallybawo/flowst-air](https://github.com/estheticallybawo/flowst-air). The product remains Flowst Airs.
+
+## Growth preview
+
+Run `npm run demo` and open `/airs`. Home opens a labelled Growth prototype with seven capabilities, sample evidence and a session-to-Flowmark walkthrough. Select a scenario or Reset preview to explore other states. Progress lives only in app memory and resets on reload. Choose **New session** for the existing Misu setup. No real assessment, reward, public sharing or download is created. Production Home remains the study setup. See [the prototype record](docs/exec-plans/completed/growth-home-prototype.md).
