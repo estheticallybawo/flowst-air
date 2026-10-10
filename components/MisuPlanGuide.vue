@@ -18,7 +18,7 @@ const pending = computed(
 const guidanceAvailable = computed(() =>
   ["explicit-instruction", "self-explanation-teach-back"].every((id) =>
     props.plan.functionRefs?.some(
-      (ref) => ref.id === id && ref.version === "1",
+      (ref) => ref.id === id && ["1","2","3"].includes(ref.version),
     ),
   ),
 );

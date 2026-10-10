@@ -49,17 +49,17 @@ const progress = computed(() =>
     <span
       class="journey-link"
       role="progressbar"
-      aria-label="Confirmed objective checkpoints"
+      aria-label="Objectives covered this session"
       :aria-valuenow="completed"
       :aria-valuemin="0"
       :aria-valuemax="Math.max(1, total)"
-      :aria-valuetext="`${completed} of ${total} objective checkpoints confirmed`"
+      :aria-valuetext="`${completed} of ${total} objectives covered`"
       ><i :style="{ width: `${progress}%` }"
     /></span>
     <button
       type="button"
       :disabled="disabled || !reviewReady"
-      :aria-label="reviewReady ? 'Kai: view feedback' : 'Kai: available after confirmed practice checkpoints'"
+      :aria-label="reviewReady ? 'Kai: view feedback' : 'Kai: available when this session ends'"
       :class="{
         active: stage === 'KAI',
         upcoming: reviewReady && stage !== 'KAI',

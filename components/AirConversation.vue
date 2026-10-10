@@ -6,6 +6,7 @@ const props = defineProps<{
   pendingTextId?:string;
   captionId?:string;
   captionText?:string;
+  liveCaption?: string;
   liveRunning: boolean;
   playingId: string;
   preparingId: string;
@@ -23,7 +24,7 @@ function time(value: string) {
     : "";
 }
 watch(
-  () => props.turns.at(-1)?.id,
+  () => [props.turns.at(-1)?.id, props.liveCaption],
   async () => {
     const nearBottom =
       !list.value ||
@@ -120,6 +121,10 @@ watch(
         </p>
       </div>
     </article>
+    <section v-if="liveCaption" class="live-caption" aria-label="Live caption">
+      <small>Live caption · not confirmed saved</small>
+      <AirsMessage :text="liveCaption" />
+    </section>
   </div>
 </template>
 <style scoped>
@@ -131,6 +136,15 @@ watch(
   padding: 8px 4px 16px;
   scrollbar-width: thin;
 }
+
+.live-caption {
+  padding: 16px;
+  margin-top: 24px;
+  border: 1px solid #c7e4f5;
+  border-radius: 14px;
+  background: #f0f9ff;
+}
+.live-caption small { color: #475569; font-size: .75rem; }
 
 .saved-turn {
   display: grid;

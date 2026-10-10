@@ -8,6 +8,13 @@ import type { H3Event } from 'h3'
 import { studyStorageResources, getStudyConversation } from './studyRepository'
 import { contextDescription, learnerContextSchema, type ContextSnapshot, type KaiReview } from '../../shared/airsOrchestration'
 const local = new Map<string, unknown>()
+/** Used by the mock repository's synchronous transaction, after owner/revision validation. */
+export function commitMockAirsArtifact(ownerId: string, key: string, value: unknown, expectedRevision: string) {
+  const pk = 'AIRS_CONTEXT#' + ownerId
+  const old = local.get(pk + key) as {revision?: string} | undefined
+  if ((old?.revision || '') !== expectedRevision) throw createError({statusCode:409,statusMessage:'Your practice timer changed. Reload before continuing.'})
+  local.set(pk + key, structuredClone(value))
+}
 export async function readAirsArtifact<T>(ownerId: string, key: string, event?: H3Event): Promise<T | undefined> {
   const storage = studyStorageResources(event)
   const pk = 'AIRS_CONTEXT#' + ownerId

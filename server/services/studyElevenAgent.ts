@@ -3,7 +3,7 @@ import { assertStudyVoiceAgentReady } from './studyVoice'
 
 export async function getAminaAgent() {
   const config = useRuntimeConfig()
-  if (!config.elevenLabsApiKey || !config.elevenLabsStudyAgentId || !config.groqApiKey || String(config.elevenLabsStudyLlmSecret).length < 32 || !/^https:\/\//.test(String(config.elevenLabsStudyLlmUrl))) {
+  if (!config.elevenLabsApiKey || !config.elevenLabsStudyAgentId || (config.studyTextProvider !== 'aws' && !config.groqApiKey) || String(config.elevenLabsStudyLlmSecret).length < 32 || !/^https:\/\//.test(String(config.elevenLabsStudyLlmUrl))) {
     throw createError({ statusCode: 503, statusMessage: 'Live calls are not configured on this server yet.' })
   }
   const url = `https://api.elevenlabs.io/v1/convai/agents/${encodeURIComponent(String(config.elevenLabsStudyAgentId))}`

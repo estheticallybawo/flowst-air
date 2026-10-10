@@ -29,9 +29,9 @@ The design follows Hick's Law, chunking and cognitive load, with connected avata
 
 ## Viewport workspace
 
-The setup and practice routes use a bounded viewport workspace with the host navigation preserved. Compact headers and the avatar rail reduce repeated chrome. Context/source/preferences, plan review and welcome have reachable primary action rows. Long source text opens in a focused reader; scope and plan adjustments use separate dialogs. Longer content scrolls inside its own panel rather than expanding the document. Short viewports and larger text can still require internal scrolling; content is not silently clipped to enforce a fit. No manifest, installability or offline guarantee is inferred from this layout change.
+The setup and practice routes use a bounded viewport workspace with the global header and mobile site navigation hidden. Back to library and the compact session toolbar provide the exit and panel controls; the avatar rail retains journey progress. Context/source/preferences, plan review and welcome have reachable primary action rows. Long source text opens in a focused reader; scope and plan adjustments use separate dialogs. Longer content scrolls inside its own panel rather than expanding the document. Short viewports and larger text can still require internal scrolling; content is not silently clipped to enforce a fit. No manifest, installability or offline guarantee is inferred from this layout change.
 
-Browser assertions check the primary setup/approval/start controls against viewport and mobile bottom-navigation geometry, and check that the document itself does not scroll. Readers support Escape and return focus. Existing practice, evidence, ownership and paid-provider boundaries remain in force.
+Browser assertions check the primary setup/approval/start controls against the viewport, and check that the document itself does not scroll. Readers support Escape and return focus. Existing practice, evidence, ownership and paid-provider boundaries remain in force.
 
 ## Voice usage without cumulative quotas
 
@@ -50,3 +50,15 @@ Airs uses a pale-blue canvas, readable deep-blue controls and sky-blue activity 
 A newly confirmed objective opens a three-agent celebration with a finite confetti burst. Reduced motion uses static confetti, hidden/offscreen content pauses, and unmount cleans up observers. Take a break pauses practice; existing recovery timing still applies. Continue opens the next objective or prepares Kai’s review. Timers and model-generated claims do not trigger celebrations.
 
 Saved Amina messages render a small text-only markdown dialect inside chat bubbles: paragraphs, emphasis, lists and code. HTML and markdown URLs remain escaped text. Caption timing still comes from provider alignment and actual audio events. Welcome Retry is an explicit failed-speech recovery action; saved audio is reused, and automatic paid retries remain disabled. Safe errors distinguish browser playback, busy providers, unavailable service, configuration, credits and account restrictions. Real provider availability requires owner preflight.
+
+## Objective-based progress — 5 October 2026
+
+A source-backed explanation that covers the approved outcome can be confirmed before the timer expires. Recovery breaks stay optional. Continuing starts a new clock for the next objective; a previous objective’s clock cannot authorize a new recording. See [objective-based practice](objective-based-practice.md).
+
+## Focused flow layout — 5 October 2026
+
+Setup, Misu plan review, prepared handoff and Amina practice share the full viewport without the global site navigation. The library and other host pages keep their navigation. Session actions occupy one toolbar. Wider gaps separate the toolbar, journey rail and main content. Practice and recovery timing sits in a bottom strip, outside the voice controls and conversation.
+
+Saved turns and explicitly unsaved live captions share one transcript scrolling area. On mobile the conversation replaces the voice stage above the timer; closing it restores the controls. Long source, plan and welcome content retain their own reader. A short viewport or expanded recovery message can scroll the whole voice stage to keep every control reachable. This does not change microphone consent, saved evidence, optional recovery or objective confirmation.
+
+Desktop and mobile browser fixtures verify hidden global navigation, one session toolbar, controls within the viewport, timer placement and a long transcript with no nested panel or control scrolling. Fixture audio does not verify live provider speech.

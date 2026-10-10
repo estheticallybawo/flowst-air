@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id") || "";
   const { mode } = schema.parse(await readBody(event));
   const conversation = await getStudyConversation(identity.userId, id, event);
+  if (conversation.objectiveFlow?.pendingOperationId || conversation.objectiveFlow?.interruptOperationId) throw createError({statusCode:409,statusMessage:'Your input is saved and still needs a response. Retry it or end this session before changing practice mode.'});
   if (conversation.plan.status !== "APPROVED")
     throw createError({
       statusCode: 409,

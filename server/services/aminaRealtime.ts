@@ -8,6 +8,7 @@ import { awsClientConfig } from "./awsClientConfig";
 import { assertAirStudyAccess } from "./airAccess";
 import { authenticateAccessToken } from "../utils/auth";
 import {
+  getStudyConversation,
   acquireStudyLiveLease,
   releaseStudyLiveLease,
   appendStudyVoiceUsage,
@@ -126,6 +127,8 @@ export class AminaSonicCall {
   async start() {
     try {
       const config = useRuntimeConfig();
+      const study = await getStudyConversation(this.ownerId,this.id);
+      if (config.studyObjectiveFlowEnabled === true || study.objectiveFlow?.version === '0.2') throw new Error('AWS live calls are unavailable with objective-driven practice. Use recorded practice.');
       if (!config.aminaRealtimeEnabled)
         throw new Error("Live calls are not enabled on this server.");
       await assertAirStudyAccess(this.ownerId, "PRACTISE", undefined, this.id);

@@ -4,30 +4,50 @@ async function expectPrimaryInWorkspace(page: any, name: string) {
   const box = await page
     .getByRole("button", { name, exact: true })
     .boundingBox();
-  const nav = (await page.locator(".flowst-bottom-nav").count())
-    ? await page.locator(".flowst-bottom-nav").boundingBox()
-    : null;
   const viewport = await page.evaluate(() => ({
     height: innerHeight,
     scroll: scrollY,
     documentHeight: document.documentElement.scrollHeight,
   }));
   expect(box!.y).toBeGreaterThanOrEqual(0);
-  expect(box!.y + box!.height).toBeLessThanOrEqual(nav?.y ?? viewport.height);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
   expect(viewport.scroll).toBe(0);
   expect(viewport.documentHeight).toBeLessThanOrEqual(viewport.height + 1);
 }
 
 test("Misu guides setup and prepares Amina without starting a microphone or voice lease", async ({
-  page,
+  page, isMobile,
 }) => {
   test.setTimeout(300000);
+  // Exercise the local UI without depending on external font server availability.
+  await page.context().route('https://fonts.googleapis.com/**',route=>route.fulfill({status:200,contentType:'text/css',body:''}));
   const pageErrors: string[] = [];
-  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("pageerror", (error) => { pageErrors.push(error.message); console.error('Fixture page error:',error.message); });
+  page.on('response',response=>{const url=new URL(response.url());if(url.pathname.startsWith('/api/')&&response.status()>=400)console.error('Fixture API failure:',response.status(),url.pathname);});
   let voiceStarts = 0,
     welcomeReads = 0, speechRequests = 0;
   await page.addInitScript(() => {
     (window as any).__micRequests = 0;
+    const NativeAudio = window.Audio;
+    (window as any).__fixtureAudios = [];
+    (window as any).Audio = function (src?: string) {
+      const audio = new NativeAudio(src);
+      let fixturePaused = true;
+      Object.defineProperty(audio, "paused", { get: () => fixturePaused });
+      audio.play = async () => {
+        fixturePaused = false;
+        audio.dispatchEvent(new Event("playing"));
+      };
+      audio.pause = () => {
+        fixturePaused = true;
+        audio.dispatchEvent(new Event("pause"));
+      };
+      (window as any).__fixtureAudios.push(audio);
+      return audio;
+    };
+    (window as any).Audio.prototype = NativeAudio.prototype;
+    // Init scripts also run in the initial blank document, before secure APIs exist.
+    if (!navigator.mediaDevices) Object.defineProperty(navigator, "mediaDevices", { configurable: true, value: {} });
     Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
       configurable: true,
       value: async () => {
@@ -66,6 +86,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await expect(
     page.getByRole("region", { name: "Your learning context" }),
   ).toBeVisible({ timeout: 90000 });
+  await expect(page.locator(".flowst-topbar, .flowst-bottom-nav, .air-app-header")).toHaveCount(0);
   expect(await page.locator("iframe").count()).toBe(0);
   await expect(page.getByLabel("Public source link")).toHaveCount(0);
   await expect(
@@ -148,6 +169,18 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     page.getByRole("button", { name: "Approve plan", exact: true }),
   ).toBeEnabled();
   await expectPrimaryInWorkspace(page, "Approve plan");
+  // Record short presentation states in the page; Node-side polling can miss them.
+  await page.evaluate(() => {
+    const labels = ["Misu is reviewing your plan", "Misu is arranging your practice", "Misu is introducing Kai’s role", "Amina is getting ready"];
+    const seen = new Set<string>();
+    const capture = () => labels.forEach(label => {
+      if (document.querySelector(".prepared-handoff")?.textContent?.includes(label)) seen.add(label);
+    });
+    const observer = new MutationObserver(capture);
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    (window as any).__handoffPresentation = { seen, observer };
+  });
+
   await page.getByRole("button", { name: "Approve plan", exact: true }).click();
   await expect(
     page.getByRole("region", { name: "Preparing your conversation" }),
@@ -161,15 +194,6 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await expect(
     page.getByRole("button", { name: "Start conversation", exact: true }),
   ).toHaveCount(0);
-  await expect(
-    page.getByText("Misu is arranging your practice", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    page.getByText("Misu is introducing Kai’s role", { exact: true }),
-  ).toBeVisible();
-  await expect(
-    page.getByText("Amina is getting ready", { exact: true }),
-  ).toBeVisible();
   expect(await page.evaluate(() => (window as any).__micRequests)).toBe(0);
   await page.screenshot({
     path: "test-results/airs-handoff-" + test.info().project.name + ".png",
@@ -178,6 +202,13 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await expect(
     page.getByText("Your welcome is ready. Microphone off.", { exact: true }),
   ).toBeVisible({ timeout: 30000 });
+  const handoffLabels = await page.evaluate(() => {
+    const presentation = (window as any).__handoffPresentation;
+    presentation.observer.disconnect();
+    return [...presentation.seen];
+  });
+  expect(handoffLabels).toEqual(expect.arrayContaining(["Misu is reviewing your plan", "Misu is arranging your practice", "Misu is introducing Kai’s role", "Amina is getting ready"]));
+
   await expect(
     page.getByRole("button", { name: "Start conversation", exact: true }),
   ).toBeVisible();
@@ -233,6 +264,14 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await page
     .getByRole("button", { name: "Retry after account update", exact: true })
     .click();
+  await expect(page.getByRole("button", { name: "Stop welcome", exact: true })).toBeVisible({ timeout: 30000 });
+  // Exercise the completion callback explicitly; fixture playback does not
+  // validate an audio device, synthesis quality, or whether anything was heard.
+  await page.evaluate(() => {
+    const audio = (window as any).__fixtureAudios.at(-1) as HTMLAudioElement;
+    audio.pause();
+    audio.dispatchEvent(new Event("ended"));
+  });
   await expect(
     page.getByRole("button", { name: "Replay welcome", exact: true }),
   ).toBeVisible();
@@ -240,9 +279,10 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   expect(await page.evaluate(() => (window as any).__micRequests)).toBe(0);
   const currentWelcomeReads = welcomeReads;
   await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("navigation", { name: "Your learning journey", exact: true })).toBeVisible({ timeout: 30000 });
   await expect(
     page.getByRole("button", { name: "Start conversation", exact: true }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 30000 });
   expect(welcomeReads).toBe(currentWelcomeReads);
   expect(voiceStarts).toBe(0);
   expect(recoveryRequests).toBe(1);
@@ -251,6 +291,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     page.getByRole("region", { name: "Preparing your conversation" }),
   ).toBeVisible();
   let introduced = false;
+  let sourceStudySnapshot: any;
   const introId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
   const intro = {
     id: introId,
@@ -270,6 +311,8 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     async (route) => {
       const response = await route.fetch();
       const data = await response.json();
+      delete data.objectiveFlow; // This test deliberately retains the historical checkpoint UI.
+      sourceStudySnapshot = structuredClone(data);
       if (introduced && !data.turns.some((t: any) => t.id === introId))
         data.turns.push(intro);
       await route.fulfill({ json: data });
@@ -304,6 +347,12 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   ).toContainText("Practice");
   releaseAudio();
   await starting;
+  await expect(page.getByText("Amina is speaking", { exact: true })).toBeVisible();
+  await page.evaluate(() => {
+    const audio = (window as any).__fixtureAudios.at(-1) as HTMLAudioElement;
+    audio.pause();
+    audio.dispatchEvent(new Event("ended"));
+  });
   await expect(
     page.getByText("Amina is waiting for your turn", { exact: true }),
   ).toBeVisible({ timeout: 15000 });
@@ -323,14 +372,12 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     path: "test-results/airs-voice-turn-" + test.info().project.name + ".png",
     fullPage: true,
   });
-  const recordBox = await page
-    .getByRole("button", { name: "Start recording", exact: true })
-    .boundingBox();
-  const bottomNav = (await page.locator(".flowst-bottom-nav").count())
-    ? await page.locator(".flowst-bottom-nav").boundingBox()
-    : null;
-  if (bottomNav)
-    expect(recordBox!.y + recordBox!.height).toBeLessThanOrEqual(bottomNav.y);
+  await expectPrimaryInWorkspace(page, "Start recording");
+  await expect(page.locator(".flowst-topbar, .flowst-bottom-nav, .air-app-header")).toHaveCount(0);
+  await expect(page.locator(".session-navigation")).toHaveCount(1);
+  const stageBox = await page.locator(".call-stage").boundingBox();
+  const timingBox = await page.locator(".call-timing").boundingBox();
+  expect(timingBox!.y).toBeGreaterThanOrEqual(stageBox!.y + stageBox!.height);
   await page
     .getByRole("button", { name: "Start recording", exact: true })
     .click();
@@ -397,6 +444,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     await route.fulfill({ json: { pacing: timer } });
   });
   await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("navigation", { name: "Your learning journey", exact: true })).toBeVisible({ timeout: 30000 });
   await expect(
     page.getByRole("button", { name: "Skip break & continue", exact: true }),
   ).toBeVisible();
@@ -407,6 +455,51 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await expect(
     page.getByRole("region", { name: "Practice and break timer" }),
   ).toContainText("Practice");
+ // An ordinary ADVANCE checkpoint celebrates the objective just completed,
+ // not the target objective. A running break does not delay confirmation.
+ skipped=false
+ let advanced=false,advanceStudy:any
+ await page.unroute(/\/api\/study\/conversations\/[a-f0-9-]+$/)
+ await page.route(/\/api\/study\/conversations\/[a-f0-9-]+$/,async route=>{
+  const data = structuredClone(sourceStudySnapshot);
+  const first={...data.plan.objectives[0],id:'objective-1',title:'Explain retrieval practice'}
+  const next={...first,id:'objective-2',title:'Apply retrieval in an interview'}
+  data.plan.objectives=[first,next];data.plan.activeObjectiveId=advanced?next.id:first.id
+  data.practice.awaitingAnswer=false
+  data.turns.push({...intro,objectiveId:data.plan.activeObjectiveId})
+  data.plan.recommendation=advanced?undefined:{objectiveId:next.id,action:'ADVANCE',reason:'Your saved explanation supports this checkpoint.',basedOnAttemptCount:data.practice.attempts.length}
+  data.journey={completedObjectiveIds:advanced?[first.id]:[],totalObjectives:2,checkpointReady:!advanced,kaiReady:false}
+  advanceStudy=data;await route.fulfill({json:data})
+ })
+ await page.route('**/api/study/conversations/*/plan/confirm',async route=>{
+  expect(route.request().postDataJSON().objectiveId).toBe('objective-2')
+  expect(timer.phase).toBe('BREAK');expect(timer.remainingMs).toBeGreaterThan(0);expect(skipped).toBe(false)
+  advanced=true;advanceStudy.plan.activeObjectiveId='objective-2';advanceStudy.plan.recommendation=undefined
+  await route.fulfill({json:advanceStudy})
+ })
+ timer={...timer,revision:'advance-break',phase:'BREAK',remainingMs:180000,breakEndsAt:Date.now()+180000}
+ await page.reload({waitUntil:'domcontentloaded'})
+  await expect(page.getByRole("navigation", { name: "Your learning journey", exact: true })).toBeVisible({ timeout: 30000 });
+ const advanceCheckpoint=page.getByRole('dialog',{name:'Your objective checkpoint'})
+ await expect(advanceCheckpoint).toBeVisible()
+ await expect(advanceCheckpoint).toContainText('Your saved explanation supports this checkpoint.')
+ await expect(advanceCheckpoint.getByRole('button',{name:'Continue to next objective',exact:true})).toBeEnabled()
+ // Dismissing the checkpoint keeps the saved recommendation available.
+ await advanceCheckpoint.getByRole('button',{name:'Keep practising',exact:true}).click()
+ await expect(page.getByRole('region',{name:'Misu’s next step'})).toContainText('Your saved explanation supports this checkpoint.')
+ await expect(page.getByRole('button',{name:'Continue to next objective',exact:true})).toBeEnabled()
+ await page.screenshot({path:'test-results/airs-next-objective-'+test.info().project.name+'.png',fullPage:true})
+ await page.getByRole('button',{name:'Continue to next objective',exact:true}).click()
+ await expect(page.getByRole('dialog',{name:'Checkpoint saved'})).toBeVisible()
+ await expect(page.locator('.objective-celebration .objective-title')).toHaveText('Explain retrieval practice')
+ await expect(page.locator('.objective-celebration')).toContainText('1 of 2 checkpoints completed')
+ await page.keyboard.press('Escape')
+ await page.getByRole('navigation',{name:'Your learning journey'}).getByRole('button',{name:/Misu/}).click()
+ await expect(page.getByRole('dialog',{name:'Your session plan'}).locator('.plan-progress')).toContainText('1 of 2 objectives covered')
+ await page.keyboard.press('Escape')
+ await page.unroute('**/api/study/conversations/*/plan/confirm')
+ await page.unroute(/\/api\/study\/conversations\/[a-f0-9-]+$/)
+ timer={...timer,revision:'after-advance',phase:'PRACTICE',remainingMs:300000,startedAt:Date.now()}
   // UI contract fixture: backend evidence validation is exercised separately in unit tests.
   let confirmed = false,
     fixtureStudy: any,
@@ -415,8 +508,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await page.route(
     /\/api\/study\/conversations\/[a-f0-9-]+$/,
     async (route) => {
-      const response = await route.fetch(),
-        data = await response.json();
+      const data = structuredClone(sourceStudySnapshot);
       data.turns.push(intro);
       data.plan.activeObjectiveId = data.plan.objectives.at(-1).id;
       data.plan.recommendation = {
@@ -488,14 +580,13 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     }),
   );
   await page.reload({ waitUntil: "domcontentloaded" });
-  await page
-    .getByRole("button", { name: "Review checkpoint", exact: true })
-    .click();
+  await expect(page.getByRole("navigation", { name: "Your learning journey", exact: true })).toBeVisible({ timeout: 30000 });
+  // The saved supported answer surfaces its checkpoint automatically.
   await expect(
     page.getByRole("dialog", { name: "Your objective checkpoint" }),
   ).toBeVisible();
   await page
-    .getByRole("button", { name: "Confirm objectives complete", exact: true })
+    .getByRole("button", { name: "Continue to Kai’s review", exact: true })
     .click();
   await expect(
     page.getByRole("dialog", { name: "Checkpoint saved" }),
@@ -550,9 +641,16 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   // Earlier usage beyond the retired quotas leaves playback and recording available.
   pastTrialUsage = true;
   await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("navigation", { name: "Your learning journey", exact: true })).toBeVisible({ timeout: 30000 });
   await page
     .getByRole("button", { name: "Listen to reply", exact: true })
     .click();
+  await expect(page.getByText("Amina is speaking", { exact: true })).toBeVisible();
+  await page.evaluate(() => {
+    const audio = (window as any).__fixtureAudios.at(-1) as HTMLAudioElement;
+    audio.pause();
+    audio.dispatchEvent(new Event("ended"));
+  });
   await expect(
     page.getByText("Amina is waiting for your turn", { exact: true }),
   ).toBeVisible({ timeout: 15000 });
@@ -578,6 +676,30 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await expect(
     page.getByRole("region", { name: "Saved conversation", exact: true }),
   ).toContainText(intro.text);
+  const transcript = page.locator(".saved-turns");
+  await expect.poll(() => transcript.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+  const layout = await page.evaluate(() => {
+    const dimensions = (selector: string) => {
+      const el = document.querySelector(selector) as HTMLElement;
+      return { overflow: getComputedStyle(el).overflowY, extraHeight: el.scrollHeight - el.clientHeight };
+    };
+    return { panel: dimensions(".call-conversation"), controls: dimensions(".call-control-area"), stage: dimensions(".call-stage") };
+  });
+  expect(layout.panel.overflow).toBe("hidden");
+  expect(layout.controls.overflow).toBe("visible");
+  if (isMobile) {
+    // Mobile conversation replaces the voice stage. Its hidden content may
+    // exceed a short screen; the visible transcript must remain the scroller.
+    await expect(page.locator(".call-stage")).toBeHidden();
+    const conversation = await page.locator(".call-conversation").boundingBox();
+    expect(conversation!.y).toBeGreaterThanOrEqual(0);
+    expect(conversation!.y + conversation!.height).toBeLessThanOrEqual(await page.evaluate(() => innerHeight));
+  } else {
+    expect(layout.stage.extraHeight).toBeLessThanOrEqual(1);
+  }
+  await page.screenshot({ path: "test-results/airs-conversation-space-" + test.info().project.name + ".png", fullPage: true });
+  await expect(page.locator(".call-timing")).toBeVisible();
+
   await page.keyboard.press('Escape');
  await page.getByRole('button',{name:'Conversation',exact:true}).click()
  await expect(page.getByRole('region',{name:'Saved conversation',exact:true})).toHaveCount(0)
@@ -586,6 +708,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:async()=>{
    const context=new AudioContext(),destination=context.createMediaStreamDestination(),oscillator=context.createOscillator(),gain=context.createGain()
    gain.gain.value=0;oscillator.connect(gain);gain.connect(destination);oscillator.start();(window as any).__syntheticRecordingContext=context
+   await context.resume()
    return destination.stream
   }})
  })
@@ -599,7 +722,8 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
  })
  await page.getByRole('button',{name:'Start recording',exact:true}).click()
  await expect(page.getByRole('button',{name:'Stop recording',exact:true})).toBeVisible()
- await page.waitForTimeout(500)
+ // Wait for generated audio, rather than wall time on a heavily loaded host.
+ await expect.poll(()=>page.evaluate(()=>(window as any).__syntheticRecordingContext.currentTime),{timeout:15000}).toBeGreaterThanOrEqual(0.5)
  await page.getByRole('button',{name:'Stop recording',exact:true}).click()
  await page.getByRole('button',{name:'Send recording',exact:true}).click()
  await expect(page.getByRole('region',{name:'Amina voice room',exact:true}).getByText('The speech provider rejected transcription under its quota.',{exact:false})).toBeVisible()

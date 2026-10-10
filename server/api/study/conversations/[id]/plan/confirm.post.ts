@@ -1,10 +1,11 @@
-import { getStudyPacing } from "../../../../../services/studyPacing";
 import { z } from "zod";
 import { requireIdentity } from "../../../../../utils/auth";
 import {
   getStudyConversation,
   getStudyPedagogyHistory,
   saveStudyPlan,
+  assertStudyConversationActive,
+  studyLiveLease,
 } from "../../../../../services/studyRepository";
 import {
   hasStudyObjectiveEvidence,
@@ -18,6 +19,9 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id") || "";
   const { objectiveId } = schema.parse(await readBody(event));
   const conversation = await getStudyConversation(identity.userId, id, event);
+  assertStudyConversationActive(conversation);
+  if (conversation.objectiveFlow) return conversation;
+  if (await studyLiveLease(id, event)) throw createError({ statusCode: 409, statusMessage: "End the live call before continuing to another objective." });
   const recommendation = conversation.plan.recommendation;
   if (
     conversation.plan.status !== "APPROVED" ||
@@ -32,15 +36,8 @@ export default defineEventHandler(async (event) => {
       statusMessage: "Review Misu’s latest recommendation before continuing.",
     });
   if (recommendation.action === "ADVANCE") {
-    if (conversation.plan.pacing) {
-      const clock = await getStudyPacing(identity.userId, id, event);
-      if (clock?.phase !== "BREAK" || clock.remainingMs > 0)
-        throw createError({
-          statusCode: 409,
-          statusMessage:
-            "Finish this practice block and its break before opening the next topic.",
-        });
-    }
+    // Evidence and the learner's checkpoint choice govern progression. The timer
+    // offers a break; it must not force more repetitions of a covered objective.
     const current = conversation.plan.objectives.findIndex(
       (item) => item.id === conversation.plan.activeObjectiveId,
     );

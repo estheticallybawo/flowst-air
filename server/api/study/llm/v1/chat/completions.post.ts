@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
   const actual = getHeader(event, "authorization") || "";
   const expected = `Bearer ${config.elevenLabsStudyLlmSecret}`;
   if (
-    config.studyTextProvider !== "groq" ||
+    !['groq', 'aws'].includes(String(config.studyTextProvider)) ||
     String(config.elevenLabsStudyLlmSecret).length < 32 ||
     Buffer.byteLength(actual) !== Buffer.byteLength(expected) ||
     !timingSafeEqual(Buffer.from(actual), Buffer.from(expected))
@@ -94,20 +94,24 @@ export default defineEventHandler(async (event) => {
     });
   let reply = result.status === "COMPLETE" ? result.agentTurn.text : "";
   if (result.status === "CLAIMED") {
-    const prepared = await prepareAminaTurn(
+    let prepared: Awaited<ReturnType<typeof prepareAminaTurn>> | undefined;
+    try {
+    prepared = await prepareAminaTurn(
       token.ownerId,
       token.conversationId,
       input,
       event,
       true,
+      'live-' + hash,
+      result.claim,
     );
-    try {
       for await (const text of streamAminaText(
         prepared.system,
         prepared.conversation.turns,
         input,
         event,
         prepared.sourceContext,
+        prepared.objectiveOperation,
       ))
         reply += text;
       await reserveStudyLiveOutput(
@@ -118,9 +122,8 @@ export default defineEventHandler(async (event) => {
         event,
       );
       // Save generated replies without assuming the learner heard the entire response.
-      // Capture a durable learner attempt; an explicit grounded progress review
-      // proposes the next objective later. Ending a call never completes it.
-      await finishAminaTurn(
+      // The shared objective controller reviews durable input before it governs the next prompt.
+      const savedReply = await finishAminaTurn(
         token.ownerId,
         token.conversationId,
         prepared,
@@ -128,10 +131,11 @@ export default defineEventHandler(async (event) => {
         event,
         result.claim,
         true,
-        false,
+        true,
       );
+      reply = savedReply.text;
     } catch (cause) {
-      await failAminaTurn(
+      if (prepared) await failAminaTurn(
         token.ownerId,
         token.conversationId,
         prepared,
@@ -157,7 +161,7 @@ export default defineEventHandler(async (event) => {
   setHeader(event, "Content-Type", "text/event-stream");
   setHeader(event, "Cache-Control", "no-store");
   const chunk = (delta: object, finish_reason: string | null = null) =>
-    `data: ${JSON.stringify({ id: "chatcmpl-" + hash, object: "chat.completion.chunk", created: Math.floor(Date.now() / 1000), model: config.groqModel, choices: [{ index: 0, delta, finish_reason }] })}\n\n`;
+    `data: ${JSON.stringify({ id: "chatcmpl-" + hash, object: "chat.completion.chunk", created: Math.floor(Date.now() / 1000), model: config.studyTextProvider === 'aws' ? config.studyBedrockModelId : config.groqModel, choices: [{ index: 0, delta, finish_reason }] })}\n\n`;
   return (
     chunk({ role: "assistant", content: reply }) +
     chunk({}, "stop") +

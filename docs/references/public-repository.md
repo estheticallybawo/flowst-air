@@ -23,10 +23,10 @@ git add --pathspec-from-file=docs/generated/public-paths.txt
 git diff --cached --stat
 git diff --cached
 git commit -m "Update verified Flowst Airs slice"
-git push origin HEAD:codex/bring-your-source
+git push origin HEAD:codex/context-aware-practice
 ```
 
-Publishing the initial codex/bring-your-source branch is valid; verify the remote default branch. A later main rename is a separate decision. If the name exists or an organization owns it, choose the exact owner/name first. No force-push or original-repo visibility conversion.
+GitHub retains `codex/bring-your-source` as the repository default branch. Select `codex/context-aware-practice` in GitHub to inspect the current release tree; the default branch and Vercel production branch serve different purposes. A default-branch rename is a separate decision. No force-push or original-repo visibility conversion.
 
 The generated path list stages only manifest entries plus the manifest itself. Deliberately review manifest changes. The scanner reports possible credential locations without values; resolve findings before pushing.
 
@@ -37,3 +37,11 @@ Verify public GitHub access signed out and fixture instructions from a clean che
 Primary references: [GitHub local-code guide](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github), [CLI create](https://cli.github.com/manual/gh_repo_create).
 
 The active owner-confirmed checkout is Desktop/flowst-air. Context-aware work preserves that independent snapshot and reconciles it with the previously published standalone history. Only reviewed export files are staged; the private Flowst repository is excluded. Canonical public repository: [estheticallybawo/flowst-air](https://github.com/estheticallybawo/flowst-air).
+
+## Automatic release branch — 5 October 2026
+
+The owner authorized automatic deployments from `codex/context-aware-practice` in `estheticallybawo/flowst-air`. Vercel project `amira-study` must link to that repository and use that production branch. The root `vercel.json` enables exactly that branch with `{ "**": false, "codex/context-aware-practice": true }`; other branches remain disabled. This supersedes the earlier manual-only release policy for this slice.
+
+Verify the application, generated documentation and reviewed export hashes before a release push. Confirm the remote commit and a Ready production deployment with the same SHA afterward. The private Flowst demonstration uses its own repository, project and release branch. Keep private Flowst history and host components outside this public slice.
+
+Branch-rule semantics: [Vercel Git configuration](https://vercel.com/docs/project-configuration/git-configuration).

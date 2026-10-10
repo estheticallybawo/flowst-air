@@ -48,7 +48,7 @@ useHead({ bodyAttrs: { class: standaloneAir ? "air-surface" : "" } });
   overflow: hidden;
   min-height: 0;
 }
-.workspace-host :deep(.air-study-frame.is-session) {
+.workspace-host :deep(.air-study-frame.is-session:not(.is-keyboard-open)) {
   height: auto;
   flex: 1;
   min-height: 0;

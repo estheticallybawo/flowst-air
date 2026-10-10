@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { defaultObjectivePolicy } from '../shared/studyObjectivePolicy'
 import { DEFAULT_STUDY_PREFERENCES, type StudyPreferences } from '../shared/study'
 import { readStudyPreferencesField, validateStudyPreferences } from '../server/services/studyPreferences'
 import { buildMisuPlanningRequest, generateMisuPlan, standaloneStudyObjectiveCapacity, validateMisuObjectives } from '../server/services/studyMisu'
@@ -125,4 +126,7 @@ describe('learner-selected Amina planning context', () => {
   })
 })
 
-function planningResponse(plan:any) { return new Response(JSON.stringify({choices:[{message:{tool_calls:[{id:'plan',type:'function',function:{name:'propose_session_plan',arguments:JSON.stringify({...plan,rationale:'Source-grounded practice for the selected goal.',conversationStrategy:'Independent explanation then application.',evaluationCriteria:[{id:'ACCURACY',description:'Explain the approved source accurately.'}]})}}]}}]})) }
+function planningResponse(plan:any) {
+  const objectives=plan.objectives.map((objective:any,index:number)=>({...objective,policy:defaultObjectivePolicy({id:'objective-'+(index+1),title:objective.title,outcome:objective.outcome,sources:objective.sourceIds.map((id:string)=>({id,label:'Approved fixture source',excerpt:''}))})}))
+  return new Response(JSON.stringify({choices:[{message:{tool_calls:[{id:'plan',type:'function',function:{name:'propose_session_plan',arguments:JSON.stringify({...plan,objectives,rationale:'Source-grounded practice for the selected goal.',conversationStrategy:'Independent explanation then application.',evaluationCriteria:[{id:'ACCURACY',description:'Explain the approved source accurately.'}]})}}]}}]}))
+}

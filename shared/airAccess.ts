@@ -13,7 +13,7 @@ export function airActionForRequest(method: string, path: string): AirStudyActio
   if (/^\/api\/study\/(?:sources\/inspect|sources\/[^/]+\/prepare|conversations\/from-source)\/?$/.test(path)) return 'UPLOAD'
   if (/^\/api\/study\/conversations\/?$/.test(path)) return 'UPLOAD'
   if (/^\/api\/study\/conversations\/[^/]+\/plan(?:\/recommend)?\/?$/.test(path)) return 'PLAN'
-  if (/^\/api\/study\/conversations\/[^/]+\/(?:welcome|control|recorded-turn|live\/start)\/?$/.test(path)) return 'PRACTISE'
+  if (/^\/api\/study\/conversations\/[^/]+\/(?:welcome|control|recorded-turn|objective\/retry|live\/start)\/?$/.test(path)) return 'PRACTISE'
   if (/^\/api\/study\/conversations\/[^/]+\/speech\/?$/.test(path)) return 'SPEECH'
   return null
 }

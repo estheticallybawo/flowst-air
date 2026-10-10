@@ -1,5 +1,6 @@
 import type { StudyConversation } from './study'
 import type { StudyExecutionTrace, StudyLearningEvidence } from './studyPedagogy'
+import { objectiveSessionClosed } from './studyObjectivePolicy'
 
 export interface StudySavedEvidence { traces: StudyExecutionTrace[]; evidence: StudyLearningEvidence[] }
 
@@ -26,7 +27,23 @@ export function studyObjectivesHaveEvidence(study: StudyConversation, history: S
 }
 
 export function studyDocumentObjectivesComplete(study: StudyConversation, history: StudySavedEvidence) {
+  if (study.objectiveFlow) return validObjectiveClosure(study) && study.objectiveFlow.sessionStatus === 'covered' && objectiveSessionClosed(study.objectiveFlow)
+    && study.objectiveFlow.ledger.every(entry => entry.status === 'met_for_session' && hasStudyObjectiveEvidence(study, entry.objectiveId, history))
   return study.plan.status === 'APPROVED' && study.plan.approvedBy === study.ownerId
     && study.plan.courseCompletedBy === study.ownerId && Number.isFinite(Date.parse(study.plan.courseCompletedAt || ''))
     && studyObjectivesHaveEvidence(study, history)
+}
+
+export function studySessionReviewReady(study: StudyConversation, history: StudySavedEvidence) {
+  if (!study.objectiveFlow) return studyDocumentObjectivesComplete(study, history)
+  return validObjectiveClosure(study) && objectiveSessionClosed(study.objectiveFlow)
+    && study.objectiveFlow.ledger.every(entry => entry.status === 'deferred' || entry.status === 'met_for_session' && hasStudyObjectiveEvidence(study, entry.objectiveId, history))
+}
+
+function validObjectiveClosure(study: StudyConversation) {
+  const flow = study.objectiveFlow
+  return Boolean(flow && flow.planVersion === study.plan.version && study.plan.status === 'APPROVED' && study.plan.approvedBy === study.ownerId
+    && study.plan.objectives.length > 0 && flow.ledger.length === study.plan.objectives.length
+    && new Set(flow.ledger.map(entry => entry.objectiveId)).size === flow.ledger.length
+    && study.plan.objectives.every(objective => flow.ledger.some(entry => entry.objectiveId === objective.id)))
 }

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { createError } from "h3";
 import type { H3Event } from "h3";
 import type { StudyConversation } from "../../shared/study";
-import { pacingAt, type StudyPacingState } from "../../shared/studyPacing";
+import { pacingAt, pausePacingState, resumePacingState, pacingResumePhase, type StudyPacingState } from "../../shared/studyPacing";
 import { readAirsArtifact, writeAirsArtifact } from "./airsContext";
 import {
   assertStudyConversationActive,
@@ -88,16 +88,21 @@ export async function changeStudyPacing(
   } else if (action === "PAUSE") {
     if (
       !current ||
-      current.phase === "BREAK" ||
-      current.phase === "BREAK_DUE" ||
       current.phase === "PAUSED"
     )
       return current;
-    next = { ...current, phase: "PAUSED", startedAt: now, serverNow: now };
+    next = pausePacingState(current, now);
+  } else if (action === 'RESUME' && current) {
+    next = resumePacingState(current, pacing, study.plan.activeObjectiveId, now, randomUUID());
   } else {
-    if (current?.phase === "PRACTICE") return current;
+    if (
+      current?.phase === "PRACTICE" &&
+      current.objectiveId === study.plan.activeObjectiveId
+    )
+      return current;
     if (
       current?.phase === "BREAK_DUE" ||
+      (current?.phase === 'PAUSED' && pacingResumePhase(current) !== 'PRACTICE') ||
       (current?.phase === "BREAK" && current.remainingMs > 0)
     )
       throw createError({
@@ -133,6 +138,7 @@ export async function assertStudyPacingOpen(
   const state = await getStudyPacing(study.ownerId, study.id, event);
   if (
     !state ||
+    state.objectiveId !== study.plan.activeObjectiveId ||
     state.phase === "BREAK" ||
     state.phase === "PAUSED" ||
     (state.phase === "BREAK_DUE" &&

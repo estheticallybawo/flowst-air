@@ -3,6 +3,9 @@
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
   "git": {
-    "deploymentEnabled": false
+    "deploymentEnabled": {
+      "**": false,
+      "codex/context-aware-practice": true
+    }
   }
 }

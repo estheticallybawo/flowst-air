@@ -131,7 +131,7 @@ describe('Amina document study', () => {
     expect(ready.retrieval.sources[0]?.label).toBe('Page 1')
     expect(ready.system).toContain('Give a brief, source-backed introduction')
     expect(ready.packet.functionRefs.map(ref => ref.id)).toEqual(['explicit-instruction'])
-    expect(ready.system).toContain('explicit-instruction@1')
+    expect(ready.system).toContain('explicit-instruction@2')
     await deleteStudyConversation('miro-owner', created.id)
   })
 
@@ -190,7 +190,7 @@ describe('Amina document study', () => {
     await finishAminaTurn('trace-owner', chat.id, teachBack, 'Good start. Page 1 also names carbon dioxide and water as inputs. Try explaining the whole process again.')
     const history = await getStudyPedagogyHistory('trace-owner', chat.id)
     const completed = history.traces.find(trace => trace.id === teachBack.trace.id && trace.status === 'EXECUTED')!
-    expect(completed.functionRefs.map(ref => ref.version)).toEqual(['1', '1'])
+    expect(completed.functionRefs.map(ref => ref.version)).toEqual(['2', '3'])
     expect(completed.evidenceRefs).toHaveLength(1)
     expect(history.evidence).toMatchObject([{ traceId: teachBack.trace.id, learnerTurnId: teachBack.userTurn.id,
       sourceIds: [source.id] }])

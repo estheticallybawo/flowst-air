@@ -16,6 +16,7 @@ import {
   getCompletedRecordedStudyTurn,
   getStudyConversation,
   saveRecordedStudyTranscript,
+  getStudyObjectiveOperation,
 } from "../../../../services/studyRepository";
 
 const MAX_PCM_BYTES = 3_840_000; // 120 seconds of 16 kHz, signed 16-bit mono PCM
@@ -85,6 +86,12 @@ export default defineEventHandler(async (event) => {
   const progress=async(phase:string)=>{try{await writeAirsArtifact(identity.userId,'VOICE_TURN#'+id+'#'+recordingId,{recordingId,phase,updatedAt:new Date().toISOString()},event)}catch{/* Optional status metadata cannot invalidate a saved take or repeat provider work. */}};
   let prepared: Awaited<ReturnType<typeof prepareAminaTurn>> | undefined;
   try {
+    const operation = await getStudyObjectiveOperation(identity.userId,id,recordingId!,event);
+    if (conversation.objectiveFlow && !operation) {
+      const version = parts?.find(part => part.name === 'planVersion')?.data.toString('utf8');
+      const objectiveId = parts?.find(part => part.name === 'objectiveId')?.data.toString('utf8');
+      if (Number(version) !== conversation.plan.version || objectiveId !== conversation.plan.activeObjectiveId) throw createError({statusCode:409,statusMessage:'This recording belongs to an earlier objective. Record your response to the current question.'});
+    }
     await assertStudyPacingOpen(conversation,event,recordingId)
     await progress(claim.transcript ? 'CHOOSING_ACTIVITY' : 'TRANSCRIBING')
     const text =
@@ -116,7 +123,7 @@ export default defineEventHandler(async (event) => {
         event,
       );
     await progress('CHOOSING_ACTIVITY')
-    prepared = await prepareAminaTurn(identity.userId, id, text, event, false, recordingId);
+    prepared = await prepareAminaTurn(identity.userId, id, text, event, false, recordingId, claim);
     await progress('DRAFTING_REPLY')
     let reply = "";
     for await (const chunk of streamAminaText(
@@ -125,6 +132,7 @@ export default defineEventHandler(async (event) => {
       text,
       event,
       prepared.sourceContext,
+        prepared.objectiveOperation,
     ))
       reply += chunk;
     const agentTurn = await finishAminaTurn(

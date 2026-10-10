@@ -476,6 +476,7 @@ async function createPlan() {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  gap: 16px;
   padding: 0;
   color: #102b3f;
 }
@@ -486,7 +487,7 @@ async function createPlan() {
   min-height: 36px;
   align-items: center;
   flex: none;
-  margin-bottom: 4px;
+  margin: 0;
   font-size: 0.85rem;
 }
 .setup-nav a {
@@ -494,7 +495,7 @@ async function createPlan() {
 }
 .misu-setup :deep(.journey-rail) {
   flex: none;
-  margin: 0 auto 8px;
+  margin: 0 auto;
   padding: 0;
 }
 h1 {

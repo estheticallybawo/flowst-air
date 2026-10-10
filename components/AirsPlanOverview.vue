@@ -8,12 +8,16 @@ const props = withDefaults(defineProps<{
   /** Server-derived journey checkpoints; model prose and timers never fill this list. */
   completedObjectiveIds?: string[];
   activeObjectiveId?: string;
+  ledger?: import("~/shared/studyObjectivePolicy").ObjectiveLedgerEntry[];
 }>(), { completedObjectiveIds: () => [] });
 const completedIds = computed(() => new Set(props.completedObjectiveIds.filter(id => props.plan.objectives.some(o => o.id === id))));
 const currentId = computed(() => props.activeObjectiveId || props.plan.activeObjectiveId);
+const statusLabels = {not_started:"Not started",active:"Current objective",partially_met:"Partially covered",met_for_session:"Covered this session",needs_revisit:"Needs revisiting",deferred:"Deferred · gap retained"};
+const deferredCount = computed(() => props.ledger?.filter(entry => entry.status === "deferred").length || 0);
 const remaining = computed(() => props.plan.objectives.length - completedIds.value.size);
 const encouragement = computed(() => {
   if (!props.plan.objectives.length) return 'Your objectives will appear here when the plan is ready.';
+  if (props.ledger?.every(entry => entry.status === 'met_for_session' || entry.status === 'deferred')) return deferredCount.value ? 'This session has ended. Kai will review the saved understanding and keep deferred gaps visible.' : 'Your objectives are covered for this session. Kai will review the saved evidence.';
   if (!completedIds.value.size) return 'Take it one objective at a time. Your plan stays here whenever you want to check it.';
   if (!remaining.value) return 'You’ve completed the practice checkpoints in this plan. Take a moment to reflect with Kai.';
   return `Keep going. ${completedIds.value.size} ${completedIds.value.size === 1 ? 'checkpoint is' : 'checkpoints are'} saved, with ${remaining.value} ${remaining.value === 1 ? 'objective' : 'objectives'} still to practise.`;
@@ -32,7 +36,7 @@ const encouragement = computed(() => {
         {{ plan.pacing.breakMinutes }} min breaks</span
       >
     </p>
-    <p v-if="plan.status === 'APPROVED'" class="plan-progress">{{ completedIds.size }} of {{ plan.objectives.length }} practice checkpoints completed · {{ remaining }} remaining</p>
+    <p v-if="plan.status === 'APPROVED'" class="plan-progress">{{ completedIds.size }} of {{ plan.objectives.length }} objectives covered · {{ deferredCount }} deferred · {{ remaining - deferredCount }} remaining</p>
     <ol>
       <li
         v-for="objective in plan.objectives"
@@ -44,10 +48,11 @@ const encouragement = computed(() => {
       >
         <span class="objective-marker" aria-hidden="true"><Check v-if="completedIds.has(objective.id)" :size="16" /><Circle v-else :size="16" /></span>
         <div class="objective-detail"><strong>{{ objective.title }}</strong>
-        <span v-if="plan.status === 'APPROVED'" class="objective-status">{{ completedIds.has(objective.id) ? 'Completed checkpoint' : objective.id === currentId ? 'Current objective' : 'Still to practise' }}</span>
+        <span v-if="plan.status === 'APPROVED'" class="objective-status">{{ ledger?.find(entry => entry.objectiveId === objective.id) ? statusLabels[ledger.find(entry => entry.objectiveId === objective.id)!.status] : completedIds.has(objective.id) ? 'Covered this session' : objective.id === currentId ? 'Current objective' : 'Still to practise' }}</span>
         <details>
           <summary>Outcome and source</summary>
           <p>{{ objective.outcome }}</p>
+          <template v-if="objective.policy"><p>Evaluation: {{ objective.policy.evaluationMode.replaceAll("_", " ") }} · {{ objective.policy.successCriteria.lexicalMatchRequired ? "Approved source wording required" : "Equivalent meaning accepted" }}</p><ul><li v-for="meaning in objective.policy.successCriteria.requiredMeaning" :key="meaning">{{ meaning }}</li></ul><p>Up to two attempts per activity, then a change of support or deferral.</p></template>
           <p v-if="objective.planningNote">{{ objective.planningNote }}</p>
           <AirCitation
             v-for="source in objective.sources"

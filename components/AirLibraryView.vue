@@ -93,6 +93,9 @@ const abandoning = ref(false);
 const error = ref("");
 const libraryLoading = ref(true);
 const libraryError = ref("");
+const deletingId = ref("");
+const libraryActionError = ref("");
+const libraryActionStatus = ref("");
 const eligibilityLoading = ref(standaloneAir);
 const eligibilityError = ref("");
 const checkingUploadAccess = computed(
@@ -209,6 +212,7 @@ function pickDroppedFile(event: DragEvent) {
 }
 
 async function remove(id: string) {
+  if (deletingId.value) return;
   if (
     !window.confirm(
       standaloneAir
@@ -217,18 +221,26 @@ async function remove(id: string) {
     )
   )
     return;
+  deletingId.value = id;
+  libraryActionError.value = "";
+  libraryActionStatus.value = "";
   try {
     await auth.authorizedFetch(`/api/study/conversations/${id}`, {
       method: "DELETE",
     });
     items.value = items.value.filter((item) => item.id !== id);
+    libraryActionStatus.value = "The document and its saved practice were deleted.";
     await loadEligibility();
-    if (standaloneAir) await refreshAccess();
+    if (standaloneAir) await refreshAccess().catch(() => {
+      libraryActionError.value = "The document was deleted, but your study access could not be refreshed. Reload the library to check it.";
+    });
   } catch (cause: any) {
-    error.value = learnerStudyError(
+    libraryActionError.value = learnerStudyError(
       cause,
       "The study chat could not be deleted. Try again.",
     );
+  } finally {
+    deletingId.value = "";
   }
 }
 
@@ -625,6 +637,8 @@ async function replaceCurrentDocument() {
             {{ items.length === 1 ? "source" : "sources" }}</span
           >
         </div>
+        <p v-if="libraryActionError" class="air-error" role="alert">{{ libraryActionError }}</p>
+        <p v-if="libraryActionStatus" role="status">{{ libraryActionStatus }}</p>
         <AirSkeleton
           v-if="libraryLoading"
           variant="documents"
@@ -684,9 +698,12 @@ async function replaceCurrentDocument() {
               <button
                 type="button"
                 :aria-label="`Delete ${item.document.name}`"
+                :disabled="Boolean(deletingId)"
+                :aria-busy="deletingId === item.id"
                 @click="remove(item.id)"
               >
-                <Trash2 :size="17" />
+                <span v-if="deletingId === item.id">Deleting…</span>
+                <Trash2 v-else :size="17" />
               </button>
             </div>
           </article>

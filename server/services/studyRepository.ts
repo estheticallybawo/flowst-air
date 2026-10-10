@@ -11,7 +11,10 @@ import {
   TransactWriteCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
-import type { QueryCommandOutput, TransactWriteCommandInput } from "@aws-sdk/lib-dynamodb";
+import type {
+  QueryCommandOutput,
+  TransactWriteCommandInput,
+} from "@aws-sdk/lib-dynamodb";
 import {
   DeleteObjectCommand,
   PutObjectCommand,
@@ -36,6 +39,11 @@ import type {
 } from "../../shared/studyPedagogy";
 import type { StudyExtraction } from "./studyExtraction";
 import { awsClientConfig } from "./awsClientConfig";
+import type { ObjectiveFlowState } from '../../shared/studyObjectivePolicy';
+import { objectiveSessionClosed } from '../../shared/studyObjectivePolicy';
+import type { StudyObjectiveOperation } from '../../shared/studyObjectiveOperation';
+import type { StudyPacingState } from '../../shared/studyPacing';
+import { commitMockAirsArtifact } from './airsContext';
 
 interface StudyRecord extends Omit<
   StudyConversation,
@@ -79,6 +87,7 @@ const mockVoiceUsage = new Map<string, StudyVoiceUsageEvent[]>();
 const mockTraces = new Map<string, StudyExecutionTrace[]>();
 const mockEvidence = new Map<string, StudyLearningEvidence[]>();
 const mockRecordedRequests = new Map<string, StudyRecordedRequest>();
+const mockObjectiveOperations = new Map<string, StudyObjectiveOperation>();
 interface StudyUploadGate {
   conversationId: string;
   completed: boolean;
@@ -139,7 +148,7 @@ async function studyUploadGate(
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
     if (!latest) return undefined;
     const study = await getStudyConversation(ownerId, latest.id, event);
-    const complete = studyDocumentObjectivesComplete(
+    const complete = objectiveSessionClosed(study.objectiveFlow) || studyDocumentObjectivesComplete(
       study,
       await getStudyPedagogyHistory(ownerId, latest.id, event),
     );
@@ -195,7 +204,7 @@ async function studyUploadGate(
   let complete = false;
   try {
     const study = await getStudyConversation(ownerId, id, event);
-    complete = studyDocumentObjectivesComplete(
+    complete = objectiveSessionClosed(study.objectiveFlow) || studyDocumentObjectivesComplete(
       study,
       await getStudyPedagogyHistory(ownerId, id, event),
     );
@@ -774,10 +783,11 @@ export async function createStudyConversation(
   event?: H3Event,
   preferences?: StudyPreferences,
   sourceId?: string,
+  sourceSnapshot?: { chunks: StudyChunk[]; sectionCount: number; retainForRepeatRecovery?: true },
 ) {
   const id = sourceId || randomUUID();
   const now = new Date().toISOString();
-  const chunks = indexStudySections(extraction);
+  const chunks = sourceSnapshot ? structuredClone(sourceSnapshot.chunks) : indexStudySections(extraction);
   if (!chunks.length)
     throw createError({
       statusCode: 422,
@@ -801,7 +811,7 @@ export async function createStudyConversation(
       kind: extraction.kind,
       createdAt: now,
       excerpt: extraction.excerpt,
-      sectionCount: extraction.sections.length,
+      sectionCount: sourceSnapshot?.sectionCount ?? extraction.sections.length,
       ...(extraction.provenance ? { provenance: extraction.provenance } : {}),
     },
     mode: "DISCUSSION",
@@ -898,17 +908,15 @@ export async function createStudyConversation(
       }
       metadataSaved = true;
       for (let offset = 0; offset < chunks.length; offset += 25) {
-        const batch = chunks
-          .slice(offset, offset + 25)
-          .map((chunk) => ({
-            PutRequest: {
-              Item: {
-                pk: record.pk,
-                sk: `CHUNK#${String(chunk.position).padStart(4, "0")}`,
-                ...chunk,
-              },
+        const batch = chunks.slice(offset, offset + 25).map((chunk) => ({
+          PutRequest: {
+            Item: {
+              pk: record.pk,
+              sk: `CHUNK#${String(chunk.position).padStart(4, "0")}`,
+              ...chunk,
             },
-          }));
+          },
+        }));
         let pending = { [table]: batch };
         let retries = 0;
         do {
@@ -930,13 +938,26 @@ export async function createStudyConversation(
             TableName: table,
             Key: { pk: record.pk, sk: "META" },
             UpdateExpression: "REMOVE sourcePreparing",
-            ConditionExpression: "ownerId = :owner",
-            ExpressionAttributeValues: { ":owner": ownerId },
+            ConditionExpression: "ownerId = :owner AND sourcePreparing = :yes AND revision = :zero AND #plan.#status = :pending AND #plan.#version = :zero AND attribute_not_exists(abandonedAt)",
+            ExpressionAttributeNames: { "#plan": "plan", "#status": "status", "#version": "version" },
+            ExpressionAttributeValues: { ":owner": ownerId, ":yes": true, ":zero": 0, ":pending": "PENDING" },
           }),
         );
         delete record.sourcePreparing;
       }
     } catch (error) {
+      if (sourceId && sourceSnapshot?.retainForRepeatRecovery === true) {
+        // Another request may have repaired this deterministic copy after the
+        // first lease expired. Never delete its META, chunks or shared object.
+        // Partial copies remain available for the next owned repair instead.
+        try { return await getStudyConversation(ownerId, id, event); }
+        catch (lookupError) {
+          const failure = lookupError as { statusCode?: number; data?: { code?: string } };
+          if (failure.statusCode !== 404 && !(failure.statusCode === 503 && failure.data?.code === "STUDY_SOURCE_PREPARING")) throw lookupError;
+        }
+        if (marker && (error as Error).name === "TransactionCanceledException") await assertStudyUploadAvailable(ownerId, event, new Date(now));
+        throw error;
+      }
       if (metadataSaved) {
         const removed = await deleteStudyConversation(ownerId, id, event)
           .then(() => true)
@@ -997,6 +1018,7 @@ export async function getStudyConversation(
     throw createError({
       statusCode: 503,
       statusMessage: "Your source is still being saved. Check again shortly.",
+      data: { code: "STUDY_SOURCE_PREPARING" },
     });
   if (mock)
     return publicRecord(
@@ -1040,6 +1062,61 @@ export async function getStudyConversation(
   return publicRecord(record, turns, usage);
 }
 
+/** Repair only the initial, owned source copy; never replace a ready session or its learning records. */
+export async function resumePreparingStudySource(
+  ownerId: string,
+  id: string,
+  bytes: Buffer,
+  contentType: string,
+  chunks: StudyChunk[],
+  event?: H3Event,
+) {
+  const { mock, table, bucket, db, s3 } = resources(event);
+  const record = mock ? mockRecords.get(id) : (await db.send(new GetCommand({
+    TableName: table, Key: { pk: `STUDY#${id}`, sk: "META" }, ConsistentRead: true,
+  }))).Item as StudyRecord | undefined;
+  if (!record) return undefined;
+  if (record.ownerId !== ownerId) throw createError({ statusCode: 404, statusMessage: "Study chat not found." });
+  if (!record.sourcePreparing) return getStudyConversation(ownerId, id, event);
+  const changed = record.abandonedAt || record.revision !== 0 || record.plan.status !== "PENDING" || record.plan.version !== 0
+    || record.objectiveFlow || record.practice.attempts.length || record.practice.awaitingAnswer;
+  const turns = mock ? mockTurns.get(id) || [] : (await db.send(new QueryCommand({
+    TableName: table, KeyConditionExpression: "pk = :pk AND begins_with(sk, :turn)",
+    ExpressionAttributeValues: { ":pk": record.pk, ":turn": "TURN#" }, ConsistentRead: true, Limit: 1,
+  }))).Items || [];
+  if (changed || turns.length) throw createError({ statusCode: 409, statusMessage: "This session changed. Its saved records were not replaced." });
+  if (mock) {
+    mockChunks.set(id, structuredClone(chunks));
+    const ready = { ...record }; delete ready.sourcePreparing; mockRecords.set(id, ready);
+  } else {
+    await s3.send(new PutObjectCommand({ Bucket: bucket, Key: record.objectKey, Body: bytes, ContentType: contentType, ServerSideEncryption: "AES256" }));
+    for (let offset = 0; offset < chunks.length; offset += 25) {
+      let pending = { [table]: chunks.slice(offset, offset + 25).map(chunk => ({ PutRequest: { Item: {
+        pk: record.pk, sk: `CHUNK#${String(chunk.position).padStart(4, "0")}`, ...chunk,
+      } } })) };
+      let retries = 0;
+      do {
+        const response = await db.send(new BatchWriteCommand({ RequestItems: pending }));
+        pending = (response.UnprocessedItems || {}) as typeof pending;
+        if (pending[table]?.length && ++retries >= 5) throw createError({ statusCode: 503, statusMessage: "Source storage is busy. Retry this same session copy shortly." });
+      } while (pending[table]?.length);
+    }
+    try {
+      await db.send(new UpdateCommand({
+        TableName: table, Key: { pk: record.pk, sk: "META" }, UpdateExpression: "REMOVE sourcePreparing",
+        ConditionExpression: "ownerId = :owner AND sourcePreparing = :yes AND revision = :zero AND #plan.#status = :pending AND #plan.#version = :zero AND attribute_not_exists(abandonedAt)",
+        ExpressionAttributeNames: { "#plan": "plan", "#status": "status", "#version": "version" },
+        ExpressionAttributeValues: { ":owner": ownerId, ":yes": true, ":zero": 0, ":pending": "PENDING" },
+      }));
+    } catch (cause) {
+      if ((cause as Error).name !== "ConditionalCheckFailedException") throw cause;
+      // Another completed repair or learner change remains authoritative.
+      return getStudyConversation(ownerId, id, event);
+    }
+  }
+  return getStudyConversation(ownerId, id, event);
+}
+
 type VoiceUsageReservation = Omit<StudyVoiceUsageEvent, "id" | "createdAt">;
 interface StudyVoiceAllowance {
   ownerId: string;
@@ -1052,22 +1129,44 @@ interface LiveOutputReservation {
 }
 
 function recordedVoiceUsage(kind: StudyVoiceUsageEvent["kind"]) {
-  return ["TRANSCRIBE", "POLLY", "ELEVEN_INPUT", "ELEVEN_OUTPUT"].includes(kind);
+  return ["TRANSCRIBE", "POLLY", "ELEVEN_INPUT", "ELEVEN_OUTPUT"].includes(
+    kind,
+  );
 }
 function inputVoiceUsage(kind: StudyVoiceUsageEvent["kind"]) {
-  return ["TRANSCRIBE", "SONIC_INPUT", "ELEVEN_INPUT", "ELEVEN_CALL"].includes(kind);
+  return ["TRANSCRIBE", "SONIC_INPUT", "ELEVEN_INPUT", "ELEVEN_CALL"].includes(
+    kind,
+  );
 }
-function assertVoiceUsageTotals(totals: StudyVoiceAllowance, field: "transcribeSeconds" | "pollyCharacters", units: number) {
-  if (!Number.isSafeInteger(totals.transcribeSeconds) || totals.transcribeSeconds < 0 ||
-      !Number.isSafeInteger(totals.pollyCharacters) || totals.pollyCharacters < 0 ||
-      !Number.isSafeInteger(totals[field] + units))
-    throw createError({ statusCode: 503, statusMessage: "Voice usage could not be recorded safely. Your saved conversation is still available." });
+function assertVoiceUsageTotals(
+  totals: StudyVoiceAllowance,
+  field: "transcribeSeconds" | "pollyCharacters",
+  units: number,
+) {
+  if (
+    !Number.isSafeInteger(totals.transcribeSeconds) ||
+    totals.transcribeSeconds < 0 ||
+    !Number.isSafeInteger(totals.pollyCharacters) ||
+    totals.pollyCharacters < 0 ||
+    !Number.isSafeInteger(totals[field] + units)
+  )
+    throw createError({
+      statusCode: 503,
+      statusMessage:
+        "Voice usage could not be recorded safely. Your saved conversation is still available.",
+    });
 }
 function recordedVoiceLeaseError() {
-  return createError({ statusCode: 409, statusMessage: "End the live call before using recorded voice." });
+  return createError({
+    statusCode: 409,
+    statusMessage: "End the live call before using recorded voice.",
+  });
 }
 function liveOutputAllowanceError() {
-  return createError({ statusCode: 429, statusMessage: "This call has ended or reached its reply allowance." });
+  return createError({
+    statusCode: 429,
+    statusMessage: "This call has ended or reached its reply allowance.",
+  });
 }
 
 /** Record before dispatch. Failed or uncertain provider work retains usage; success does not charge again. */
@@ -1097,9 +1196,15 @@ async function commitStudyVoiceUsage(
   event?: H3Event,
   liveOutput?: LiveOutputReservation,
 ) {
-  const field = inputVoiceUsage(usage.kind) ? "transcribeSeconds" : "pollyCharacters";
+  const field = inputVoiceUsage(usage.kind)
+    ? "transcribeSeconds"
+    : "pollyCharacters";
   if (!Number.isSafeInteger(usage.units) || usage.units <= 0)
-    throw createError({ statusCode: 400, statusMessage: "Voice usage must be a positive, safely represented number of units." });
+    throw createError({
+      statusCode: 400,
+      statusMessage:
+        "Voice usage must be a positive, safely represented number of units.",
+    });
   assertStudyConversationActive(await getStudyConversation(ownerId, id, event));
   const item: StudyVoiceUsageEvent = {
     ...usage,
@@ -1111,15 +1216,33 @@ async function commitStudyVoiceUsage(
     // Re-read after awaits, then check and reserve without yielding to another request.
     const record = mockRecords.get(id);
     if (!record || record.ownerId !== ownerId)
-      throw createError({ statusCode: 404, statusMessage: "Study chat not found." });
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Study chat not found.",
+      });
     const current = publicRecord(record, [], mockVoiceUsage.get(id) || []);
     assertStudyConversationActive(current);
     const lease = mockLiveLeases.get(id);
     if (recordedVoiceUsage(usage.kind) && (lease?.expiresAt || 0) > Date.now())
       throw recordedVoiceLeaseError();
-    if (liveOutput && (!lease || lease.ownerId !== ownerId || lease.leaseId !== liveOutput.leaseId || lease.expiresAt <= Date.now() || (lease.outputUsed || 0) + usage.units > (lease.outputBudget || 0)))
+    if (
+      liveOutput &&
+      (!lease ||
+        lease.ownerId !== ownerId ||
+        lease.leaseId !== liveOutput.leaseId ||
+        lease.expiresAt <= Date.now() ||
+        (lease.outputUsed || 0) + usage.units > (lease.outputBudget || 0))
+    )
       throw liveOutputAllowanceError();
-    assertVoiceUsageTotals({ ownerId, transcribeSeconds: current.voiceUsage?.transcribeSeconds ?? 0, pollyCharacters: current.voiceUsage?.pollyCharacters ?? 0 }, field, usage.units);
+    assertVoiceUsageTotals(
+      {
+        ownerId,
+        transcribeSeconds: current.voiceUsage?.transcribeSeconds ?? 0,
+        pollyCharacters: current.voiceUsage?.pollyCharacters ?? 0,
+      },
+      field,
+      usage.units,
+    );
     if (liveOutput) lease!.outputUsed = (lease!.outputUsed || 0) + usage.units;
     mockVoiceUsage.set(id, [...(mockVoiceUsage.get(id) || []), item]);
     return item;
@@ -1127,42 +1250,139 @@ async function commitStudyVoiceUsage(
 
   const allowanceKey = { pk: `STUDY#${id}`, sk: "VOICE#ALLOWANCE" };
   for (let attempt = 0; attempt < 5; attempt++) {
-    const saved = (await db.send(new GetCommand({ TableName: table, Key: allowanceKey, ConsistentRead: true }))).Item as StudyVoiceAllowance | undefined;
+    const saved = (
+      await db.send(
+        new GetCommand({
+          TableName: table,
+          Key: allowanceKey,
+          ConsistentRead: true,
+        }),
+      )
+    ).Item as StudyVoiceAllowance | undefined;
     // Older documents only have usage events. Adopt those totals once, under an absence condition.
-    const current = saved ? undefined : await getStudyConversation(ownerId, id, event);
+    const current = saved
+      ? undefined
+      : await getStudyConversation(ownerId, id, event);
     const allowance: StudyVoiceAllowance = saved || {
       ownerId,
       transcribeSeconds: current?.voiceUsage?.transcribeSeconds ?? 0,
       pollyCharacters: current?.voiceUsage?.pollyCharacters ?? 0,
     };
     if (allowance.ownerId !== ownerId)
-      throw createError({ statusCode: 404, statusMessage: "Study chat not found." });
+      throw createError({
+        statusCode: 404,
+        statusMessage: "Study chat not found.",
+      });
     assertVoiceUsageTotals(allowance, field, usage.units);
     const writes: NonNullable<TransactWriteCommandInput["TransactItems"]> = [
-      { ConditionCheck: { TableName: table, Key: { pk: `STUDY#${id}`, sk: "META" }, ConditionExpression: "ownerId = :owner AND attribute_not_exists(abandonedAt)", ExpressionAttributeValues: { ":owner": ownerId } } },
+      {
+        ConditionCheck: {
+          TableName: table,
+          Key: { pk: `STUDY#${id}`, sk: "META" },
+          ConditionExpression:
+            "ownerId = :owner AND attribute_not_exists(abandonedAt)",
+          ExpressionAttributeValues: { ":owner": ownerId },
+        },
+      },
       saved
-        ? { Update: { TableName: table, Key: allowanceKey, UpdateExpression: `SET ${field} = ${field} + :units`, ConditionExpression: `ownerId = :owner AND ${field} = :previous`, ExpressionAttributeValues: { ":owner": ownerId, ":units": usage.units, ":previous": allowance[field] } } }
-        : { Put: { TableName: table, Item: { ...allowanceKey, ...allowance, [field]: allowance[field] + usage.units }, ConditionExpression: "attribute_not_exists(pk)" } },
-      { Put: { TableName: table, Item: { pk: `STUDY#${id}`, sk: `USAGE#${item.createdAt}#${item.id}`, usage: item }, ConditionExpression: "attribute_not_exists(pk)" } },
+        ? {
+            Update: {
+              TableName: table,
+              Key: allowanceKey,
+              UpdateExpression: `SET ${field} = ${field} + :units`,
+              ConditionExpression: `ownerId = :owner AND ${field} = :previous`,
+              ExpressionAttributeValues: {
+                ":owner": ownerId,
+                ":units": usage.units,
+                ":previous": allowance[field],
+              },
+            },
+          }
+        : {
+            Put: {
+              TableName: table,
+              Item: {
+                ...allowanceKey,
+                ...allowance,
+                [field]: allowance[field] + usage.units,
+              },
+              ConditionExpression: "attribute_not_exists(pk)",
+            },
+          },
+      {
+        Put: {
+          TableName: table,
+          Item: {
+            pk: `STUDY#${id}`,
+            sk: `USAGE#${item.createdAt}#${item.id}`,
+            usage: item,
+          },
+          ConditionExpression: "attribute_not_exists(pk)",
+        },
+      },
     ];
     if (recordedVoiceUsage(usage.kind))
-      writes.push({ ConditionCheck: { TableName: table, Key: { pk: `STUDY#${id}`, sk: "LIVE#VOICE" }, ConditionExpression: "attribute_not_exists(pk) OR expiresAt <= :now", ExpressionAttributeValues: { ":now": Date.now() } } });
+      writes.push({
+        ConditionCheck: {
+          TableName: table,
+          Key: { pk: `STUDY#${id}`, sk: "LIVE#VOICE" },
+          ConditionExpression: "attribute_not_exists(pk) OR expiresAt <= :now",
+          ExpressionAttributeValues: { ":now": Date.now() },
+        },
+      });
     if (liveOutput)
-      writes.push({ Update: { TableName: table, Key: { pk: `STUDY#${id}`, sk: "LIVE#VOICE" }, UpdateExpression: "SET outputUsed = outputUsed + :units", ConditionExpression: "ownerId = :owner AND leaseId = :lease AND expiresAt > :now AND outputUsed <= :remaining", ExpressionAttributeValues: { ":owner": ownerId, ":lease": liveOutput.leaseId, ":now": Date.now(), ":units": usage.units, ":remaining": liveOutput.outputBudget - usage.units } } });
+      writes.push({
+        Update: {
+          TableName: table,
+          Key: { pk: `STUDY#${id}`, sk: "LIVE#VOICE" },
+          UpdateExpression: "SET outputUsed = outputUsed + :units",
+          ConditionExpression:
+            "ownerId = :owner AND leaseId = :lease AND expiresAt > :now AND outputUsed <= :remaining",
+          ExpressionAttributeValues: {
+            ":owner": ownerId,
+            ":lease": liveOutput.leaseId,
+            ":now": Date.now(),
+            ":units": usage.units,
+            ":remaining": liveOutput.outputBudget - usage.units,
+          },
+        },
+      });
     try {
-      await db.send(new TransactWriteCommand({ ClientRequestToken: randomUUID(), TransactItems: writes }));
+      await db.send(
+        new TransactWriteCommand({
+          ClientRequestToken: randomUUID(),
+          TransactItems: writes,
+        }),
+      );
       return item;
     } catch (cause) {
       // Only a rejected transaction is safe to re-evaluate. Unknown write outcomes never trigger provider work.
-      if (!["TransactionCanceledException", "TransactionConflictException"].includes((cause as Error).name)) throw cause;
-      assertStudyConversationActive(await getStudyConversation(ownerId, id, event));
+      if (
+        ![
+          "TransactionCanceledException",
+          "TransactionConflictException",
+        ].includes((cause as Error).name)
+      )
+        throw cause;
+      assertStudyConversationActive(
+        await getStudyConversation(ownerId, id, event),
+      );
       const lease = await studyLiveLease(id, event);
-      if (recordedVoiceUsage(usage.kind) && lease) throw recordedVoiceLeaseError();
-      if (liveOutput && (lease?.ownerId !== ownerId || lease.leaseId !== liveOutput.leaseId || (lease.outputUsed || 0) + usage.units > (lease.outputBudget || 0)))
+      if (recordedVoiceUsage(usage.kind) && lease)
+        throw recordedVoiceLeaseError();
+      if (
+        liveOutput &&
+        (lease?.ownerId !== ownerId ||
+          lease.leaseId !== liveOutput.leaseId ||
+          (lease.outputUsed || 0) + usage.units > (lease.outputBudget || 0))
+      )
         throw liveOutputAllowanceError();
     }
   }
-  throw createError({ statusCode: 409, statusMessage: "Voice usage is busy. Try again." });
+  throw createError({
+    statusCode: 409,
+    statusMessage: "Voice usage is busy. Try again.",
+  });
 }
 
 export async function listStudyConversations(ownerId: string, event?: H3Event) {
@@ -1356,6 +1576,7 @@ export async function getStudyChunks(
         excerpt: item.excerpt,
         text: item.text,
         position: item.position,
+        ...(item.location ? { location: item.location } : {}),
       })),
     );
     cursor = result.LastEvaluatedKey;
@@ -1519,6 +1740,82 @@ export async function getStudyPedagogyHistory(
       (item) => item.evidence as StudyLearningEvidence,
     ),
   };
+}
+
+export async function getStudyObjectiveOperation(ownerId: string, id: string, operationId: string, event?: H3Event) {
+  await getStudyConversation(ownerId, id, event);
+  const storage = resources(event);
+  if (storage.mock) return structuredClone(mockObjectiveOperations.get(id + '#' + operationId));
+  return (await storage.db.send(new GetCommand({TableName: storage.table, Key: {pk: 'STUDY#' + id, sk: 'FLOW#' + operationId}, ConsistentRead: true}))).Item?.operation as StudyObjectiveOperation | undefined;
+}
+
+/** Input, review and output each commit with the conversation revision; output also commits the pointer, evidence and clock. */
+export async function saveStudyObjectiveState(ownerId: string, id: string, expectedRevision: number, change: {
+  flow: ObjectiveFlowState; plan?: StudyPlan; practice?: StudyConversation['practice']; userTurn?: StudyTurn; agentTurn?: StudyTurn;
+  operation?: StudyObjectiveOperation; expectedOperationStatus?: StudyObjectiveOperation['status']; trace?: StudyExecutionTrace; evidence?: StudyLearningEvidence;
+  recordedClaim?: StudyRecordedTurnClaim; pacing?: {state: StudyPacingState; expectedRevision: string};
+}, event?: H3Event) {
+  const current = await getStudyConversation(ownerId, id, event);
+  assertStudyConversationActive(current);
+  if (current.revision !== expectedRevision || current.plan.status !== 'APPROVED' || current.plan.approvedBy !== ownerId || change.flow.planVersion !== current.plan.version || change.plan && change.plan.version !== current.plan.version)
+    throw createError({statusCode:409,statusMessage:'Your study changed. Reload before continuing.'});
+  const {mock, db, table} = resources(event), pk = 'STUDY#' + id, now = new Date().toISOString();
+  const plan = change.plan || current.plan, practice = change.practice || current.practice;
+  const closed = objectiveSessionClosed(change.flow);
+  const gate = closed && standalonePilot(event) ? await studyUploadGate(ownerId, event) : undefined;
+  const operationKey = id + '#' + change.operation?.id;
+  if (mock) {
+    const record = mockRecords.get(id)!;
+    if (record.revision !== expectedRevision || (change.operation && mockObjectiveOperations.get(operationKey)?.status !== change.expectedOperationStatus))
+      throw createError({statusCode:409,statusMessage:'This turn changed. Reload before continuing.'});
+    const recorded = change.recordedClaim && mockRecordedRequests.get(id + '#' + change.recordedClaim.recordingId);
+    if (change.recordedClaim && (!recorded || recorded.claimId !== change.recordedClaim.claimId || recorded.audioHash !== change.recordedClaim.audioHash || !['PROCESSING','FAILED'].includes(recorded.status))) throw recordedTurnConflict();
+    if (change.pacing) commitMockAirsArtifact(ownerId, 'PACING#' + id, change.pacing.state, change.pacing.expectedRevision);
+    mockRecords.set(id, {...record, plan, practice, objectiveFlow: structuredClone(change.flow), revision: expectedRevision + 1, updatedAt: now});
+    const turns = mockTurns.get(id) || [];
+    mockTurns.set(id, [...turns, ...[change.userTurn, change.agentTurn].filter((turn): turn is StudyTurn => Boolean(turn))]);
+    if (change.operation) mockObjectiveOperations.set(operationKey, structuredClone(change.operation));
+    if (change.trace) mockTraces.set(id, [...(mockTraces.get(id) || []), change.trace]);
+    if (change.evidence) mockEvidence.set(id, [...(mockEvidence.get(id) || []), change.evidence]);
+    if (recorded && change.agentTurn && change.operation) {
+      recorded.status = 'COMPLETE'; recorded.userTurnSk = `TURN#${change.operation.userTurn.createdAt}#${change.operation.userTurn.id}`;
+      recorded.agentTurnSk = `TURN#${change.agentTurn.createdAt}#${change.agentTurn.id}`; recorded.transcript = undefined;
+    }
+    if (gate?.conversationId === id) mockPilotUploads.set(ownerId, {...gate, completed: true});
+  } else {
+    const put = (sk: string, value: Record<string, unknown>) => ({Put: {TableName: table, Item: {pk, sk, ...value}, ConditionExpression: 'attribute_not_exists(pk)'}});
+    const items: NonNullable<TransactWriteCommandInput['TransactItems']> = [{Update: {
+      TableName: table, Key: {pk, sk: 'META'},
+      UpdateExpression: 'SET #flow = :flow, #plan = :plan, #practice = :practice, #revision = :next, updatedAt = :now',
+      ConditionExpression: 'ownerId = :owner AND #revision = :expected AND #plan.#version = :version AND attribute_not_exists(abandonedAt)',
+      ExpressionAttributeNames: {'#flow':'objectiveFlow','#plan':'plan','#practice':'practice','#revision':'revision','#version':'version'},
+      ExpressionAttributeValues: {':flow':change.flow,':plan':plan,':practice':practice,':next':expectedRevision + 1,':now':now,':owner':ownerId,':expected':expectedRevision,':version':current.plan.version},
+    }}];
+    if (change.userTurn) items.push(put(`TURN#${change.userTurn.createdAt}#${change.userTurn.id}`, {turn: change.userTurn}));
+    if (change.agentTurn) items.push(put(`TURN#${change.agentTurn.createdAt}#${change.agentTurn.id}`, {turn: change.agentTurn}));
+    if (change.trace) items.push(put(`TRACE#${change.trace.id}#EXECUTED`, {trace: change.trace}));
+    if (change.evidence) items.push(put('EVIDENCE#' + change.evidence.id, {evidence: change.evidence}));
+    if (change.operation) items.push({Put: {
+      TableName: table, Item: {pk, sk: 'FLOW#' + change.operation.id, operation: change.operation},
+      ConditionExpression: change.expectedOperationStatus ? '#operation.#status = :status AND #operation.inputHash = :hash' : 'attribute_not_exists(pk)',
+      ...(change.expectedOperationStatus ? {ExpressionAttributeNames:{'#operation':'operation','#status':'status'},ExpressionAttributeValues:{':status':change.expectedOperationStatus,':hash':change.operation.inputHash}} : {}),
+    }});
+    if (change.recordedClaim && change.agentTurn && change.operation) items.push({Update: {
+      TableName: table, Key: recordedTurnKey(id, change.recordedClaim.recordingId),
+      UpdateExpression: 'SET #status = :complete, userTurnSk = :userSk, agentTurnSk = :agentSk REMOVE transcript, leaseUntil',
+      ConditionExpression: 'ownerId = :owner AND claimId = :claim AND audioHash = :hash AND (#status = :processing OR #status = :failed)',
+      ExpressionAttributeNames: {'#status':'status'}, ExpressionAttributeValues: {':complete':'COMPLETE',':userSk':`TURN#${change.operation.userTurn.createdAt}#${change.operation.userTurn.id}`,':agentSk':`TURN#${change.agentTurn.createdAt}#${change.agentTurn.id}`,':owner':ownerId,':claim':change.recordedClaim.claimId,':hash':change.recordedClaim.audioHash,':processing':'PROCESSING',':failed':'FAILED'},
+    }});
+    if (change.pacing) items.push({Put: {
+      TableName: table, Item: {pk: 'AIRS_CONTEXT#' + ownerId, sk: 'PACING#' + id, value: change.pacing.state, entityType:'AirsContext'},
+      ConditionExpression: change.pacing.expectedRevision ? '#v.#r = :r' : 'attribute_not_exists(#v.#r)',
+      ExpressionAttributeNames:{'#v':'value','#r':'revision'}, ...(change.pacing.expectedRevision ? {ExpressionAttributeValues:{':r':change.pacing.expectedRevision}} : {}),
+    }});
+    if (gate?.conversationId === id) items.push({Update: {TableName: table, Key: pilotMarker(ownerId), UpdateExpression:'SET completed = :yes',ConditionExpression:'ownerId = :owner AND conversationId = :id',ExpressionAttributeValues:{':yes':true,':owner':ownerId,':id':id}}});
+    try { await db.send(new TransactWriteCommand({TransactItems:items})); }
+    catch (error) { if ((error as Error).name === 'TransactionCanceledException') throw createError({statusCode:409,statusMessage:'Your study or timer changed. Reload before continuing.'}); throw error; }
+  }
+  return getStudyConversation(ownerId, id, event);
 }
 
 export async function appendStudyExecution(
@@ -1761,6 +2058,9 @@ export async function deleteStudyConversation(
   await (
     await import("./studySpeechCache")
   ).deleteStudySpeech(ownerId, id, event);
+  // Keep ownership metadata available until every cleanup stage succeeds, so a
+  // failed deletion can be retried without orphaning the remaining records.
+  await (await import("./airsContext")).deleteAirsConversationMemory(ownerId, id, event);
   if (mock) {
     mockRecords.delete(id);
     mockChunks.delete(id);
@@ -1770,6 +2070,7 @@ export async function deleteStudyConversation(
     mockEvidence.delete(id);
     for (const key of mockRecordedRequests.keys())
       if (key.startsWith(`${id}#`)) mockRecordedRequests.delete(key);
+    for (const key of mockObjectiveOperations.keys()) if (key.startsWith(`${id}#`)) mockObjectiveOperations.delete(key);
   } else {
     let cursor: Record<string, unknown> | undefined;
     do {
@@ -1781,18 +2082,26 @@ export async function deleteStudyConversation(
           ExclusiveStartKey: cursor,
         }),
       );
-      for (const item of result.Items || [])
+      for (const item of result.Items || []) {
+        if (item.sk === "META") continue;
         await db.send(
           new DeleteCommand({
             TableName: table,
             Key: { pk: item.pk, sk: item.sk },
           }),
         );
+      }
       cursor = result.LastEvaluatedKey;
     } while (cursor);
     await s3.send(
       new DeleteObjectCommand({ Bucket: bucket, Key: record.objectKey }),
     );
+    await db.send(new DeleteCommand({
+      TableName: table,
+      Key: { pk: record.pk, sk: "META" },
+      ConditionExpression: "ownerId = :owner",
+      ExpressionAttributeValues: { ":owner": ownerId },
+    }));
   }
 }
 
@@ -1930,5 +2239,11 @@ export async function reserveStudyLiveOutput(
       statusMessage:
         "This call has reached its reply allowance. Your saved turns remain available.",
     });
-  await commitStudyVoiceUsage(ownerId, id, { kind: "ELEVEN_LIVE_OUTPUT", units }, event, { leaseId, outputBudget: lease.outputBudget || 0 });
+  await commitStudyVoiceUsage(
+    ownerId,
+    id,
+    { kind: "ELEVEN_LIVE_OUTPUT", units },
+    event,
+    { leaseId, outputBudget: lease.outputBudget || 0 },
+  );
 }

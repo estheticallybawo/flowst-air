@@ -6,14 +6,16 @@ import {
   getStudyPedagogyHistory,
 } from "../../../services/studyRepository";
 import { deriveAirsJourney } from "../../../../shared/airsJourney";
+import { ensureObjectiveFlow, usesObjectiveFlow } from '../../../services/studyObjectiveFlow';
 
 export default defineEventHandler(async (event) => {
   const identity = await requireIdentity(event);
-  const conversation = await getStudyConversation(
+  let conversation = await getStudyConversation(
     identity.userId,
     getRouterParam(event, "id") || "",
     event,
   );
+  if (!conversation.abandonedAt && conversation.plan.status === 'APPROVED' && usesObjectiveFlow(conversation,event)) conversation = await ensureObjectiveFlow(conversation,event);
   const artifact = await readAirsArtifact<{ operation: AirsOperation }>(
     identity.userId,
     "PLAN_OPERATION#" + conversation.id,

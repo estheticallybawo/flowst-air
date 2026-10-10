@@ -24,7 +24,11 @@ async function completeObjectives(ownerId: string, id: string) {
   expect((await getStudyConversation(ownerId, id)).practice.attempts).toHaveLength(0)
   for (const objective of study.plan.objectives) {
     study = await getStudyConversation(ownerId, id)
-    if (study.plan.activeObjectiveId !== objective.id) study = await saveStudyPlan(ownerId, id, { ...study.plan, activeObjectiveId: objective.id }, study.revision)
+    if (study.plan.activeObjectiveId !== objective.id) {
+      study = await saveStudyPlan(ownerId, id, { ...study.plan, activeObjectiveId: objective.id }, study.revision)
+      const nextOpening = await prepareAminaTurn(ownerId, id, STUDY_LIVE_START_MESSAGE, undefined, true)
+      await finishAminaTurn(ownerId, id, nextOpening, 'Page 1 introduces the next concept. How would you explain it?', undefined, undefined, true, false)
+    }
     const attempt = await prepareAminaTurn(ownerId, id, 'Students explain the concept in their own words.', undefined, true)
     await finishAminaTurn(ownerId, id, attempt, 'Page 1 supports that explanation. Can you explain another example?', undefined, undefined, true, false)
   }

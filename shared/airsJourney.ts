@@ -2,9 +2,12 @@ import type { StudyConversation } from "./study";
 import {
   hasStudyObjectiveEvidence,
   studyDocumentObjectivesComplete,
+  studySessionReviewReady,
   type StudySavedEvidence,
 } from "./studyCompletion";
 export interface AirsJourney {
+  deferredObjectiveIds?: string[];
+  sessionStatus?: 'active' | 'covered' | 'ended_with_gaps';
   completedObjectiveIds: string[];
   totalObjectives: number;
   checkpointReady: boolean;
@@ -20,19 +23,19 @@ export function deriveAirsJourney(
   const index = study.plan.objectives.findIndex(
     (o) => o.id === study.plan.activeObjectiveId,
   );
-  const kaiReady = studyDocumentObjectivesComplete(study, history);
+  const kaiReady = studySessionReviewReady(study, history);
   const completedObjectiveIds = approved
     ? study.plan.objectives
         .filter(
           (o, i) =>
-            (kaiReady || i < index) &&
+            (study.objectiveFlow ? study.objectiveFlow.ledger.some(entry => entry.objectiveId === o.id && entry.status === 'met_for_session') : (kaiReady || i < index)) &&
             hasStudyObjectiveEvidence(study, o.id, history),
         )
         .map((o) => o.id)
     : [];
   const r = study.plan.recommendation;
   const checkpointReady = Boolean(
-    approved &&
+    !study.objectiveFlow && approved &&
     !study.practice.awaitingAnswer &&
     r &&
     r.action !== "REVISIT" &&
@@ -41,6 +44,7 @@ export function deriveAirsJourney(
     hasStudyObjectiveEvidence(study, study.plan.activeObjectiveId!, history),
   );
   return {
+    ...(study.objectiveFlow ? {deferredObjectiveIds:study.objectiveFlow.ledger.filter(entry => entry.status === 'deferred').map(entry => entry.objectiveId),sessionStatus:study.objectiveFlow.sessionStatus} : {}),
     completedObjectiveIds,
     totalObjectives: study.plan.objectives.length,
     checkpointReady,
