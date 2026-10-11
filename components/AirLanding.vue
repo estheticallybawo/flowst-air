@@ -121,9 +121,10 @@ const expectations = [
 
 <style scoped>
 .air-landing { --landing-ease: cubic-bezier(.16,1,.3,1); }
+.air-landing :deep(:is(h1,h2,h3,h4,h5,h6,dt,summary)) { font-family: "Unbounded", system-ui, sans-serif; }
 .air-landing .landing-hero { display: block; min-height: auto; padding: 96px 0 76px; text-align: center; }
-.landing-hero .air-hero-copy { max-width: 880px; margin: auto; }
-.air-landing .landing-hero h1 { max-width: 18ch; margin: 20px auto 18px; font-size: clamp(2.75rem,5.3vw,4.6rem); line-height: 1.16; text-wrap: balance; }
+.landing-hero .air-hero-copy { max-width: 1080px; margin: auto; }
+.air-landing .landing-hero h1 { max-width: 1080px; margin: 20px auto 24px; font-size: clamp(3rem,7vw,6.8rem); font-weight: 700; letter-spacing: -.045em; line-height: 1.04; text-wrap: balance; }
 .air-landing .landing-hero .air-hero-copy > p:not(.air-eyebrow) { max-width: 61ch; margin-left: auto; margin-right: auto; }
 .air-landing .landing-hero .landing-hero-promise { font-size: clamp(1.1rem,2vw,1.35rem); font-weight: 650; color: var(--air-ink); margin-bottom: 22px; }
 .landing-hero .air-action-row, .landing-hero .air-hero-benefits { justify-content: center; }
@@ -186,7 +187,7 @@ const expectations = [
 }
 @media (max-width: 767px) {
   .air-landing .landing-hero { padding: 56px 0; }
-  .air-landing .landing-hero h1 { font-size: clamp(2.25rem,8vw,3.3rem); }
+  .air-landing .landing-hero h1 { font-size: clamp(2.35rem,10vw,3.9rem); }
   .landing-section { padding: 48px 0; }
   .landing-audience, .air-landing .air-how, .landing-problem, .landing-solution, .landing-faq { grid-template-columns: minmax(0,1fr); gap: 28px; }
   .landing-audience-list dt, .landing-expectation-list dt { font-size: 1.5rem; }

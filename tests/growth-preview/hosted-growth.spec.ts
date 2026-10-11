@@ -23,8 +23,12 @@ test("production visitors sign in, including browsers with an old guest cookie",
   await expect(page.locator(".landing-expectation-list > div")).toHaveCount(4);
   await expect(page.locator(".landing-start .air-button")).toHaveAttribute("href", "/auth/sign-in?redirect=/airs/new");
 
-  // Right chapters stay in document flow. Their positions move upward while
-  // the desktop introduction stays pinned; every chapter remains accessible.
+  // The complete desktop composition stays on screen. Only its clipped card
+  // track moves upward; the page releases the stage after the last card.
+  expect(await page.locator(".air-landing :is(h1,h2,h3,h4,h5,h6,dt,summary)").evaluateAll(elements => elements.every(element => getComputedStyle(element).fontFamily.startsWith("Unbounded")))).toBe(true);
+  const heroStyle = await page.locator(".landing-hero h1").evaluate(element => ({size:parseFloat(getComputedStyle(element).fontSize),weight:parseFloat(getComputedStyle(element).fontWeight)}));
+  expect(heroStyle.weight).toBeGreaterThanOrEqual(700);
+  expect(heroStyle.size).toBeGreaterThanOrEqual(isMobile ? 36 : 80);
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.waitForLoadState("networkidle");
   const stories = page.locator(".air-scroll-story");
@@ -32,50 +36,58 @@ test("production visitors sign in, including browsers with an old guest cookie",
   for (const selector of ["#how-it-works", "#for-you", "#session-journey", "#growth", ".landing-expectations"]) {
     const story = page.locator(selector);
     await expect(story).toHaveAttribute("data-story-ready", "true");
-    await expect(story).toHaveAttribute("data-story-mode", "flow");
+    await expect(story).toHaveAttribute("data-story-mode", isMobile ? "flow" : "pinned");
     const panels = story.locator(".air-story-panel"), count = await panels.count();
-    const intro = story.locator(".air-story-intro");
-    expect(await panels.evaluateAll(elements => elements.every((element, index) => index === 0 || element.getBoundingClientRect().top >= elements[index - 1]!.getBoundingClientRect().bottom - 1))).toBe(true);
+    const intro = story.locator(".air-story-intro"), viewingArea = story.locator(".air-story-window");
     await expect(story.locator('.air-story-panel[aria-hidden="true"], .air-story-panel[inert]')).toHaveCount(0);
+    const links = story.locator(".air-story-controls a");
     for (let index = 0; index < count; index++) {
-      await panels.nth(index).evaluate(element => element.scrollIntoView({block:"center",behavior:"instant"}));
+      await links.nth(index).click();
       await expect(story).toHaveAttribute("data-active-item", String(index));
       await expect(panels.nth(index)).toBeInViewport({ratio: .9});
     }
-    // A real scroll delta must move the right-hand card, not replace it in place.
-    await panels.nth(1).evaluate(element => element.scrollIntoView({block:"center",behavior:"instant"}));
-    const before = await panels.nth(1).boundingBox(), railBefore = await intro.boundingBox();
-    await page.evaluate(() => window.scrollBy({top:120,behavior:"instant"}));
-    const after = await panels.nth(1).boundingBox(), railAfter = await intro.boundingBox();
-    expect(Math.abs(after!.y - before!.y + 120)).toBeLessThan(2);
     if (!isMobile) {
-      expect(await intro.evaluate(element => getComputedStyle(element).position)).toBe("sticky");
+      await expect.poll(() => story.locator(".air-story-stage").evaluate(element => Math.abs(element.getBoundingClientRect().top))).toBeLessThan(2);
+      // The next section cannot enter before the final chapter has completed.
+      const end = await story.evaluate(element => scrollY + element.getBoundingClientRect().bottom - innerHeight);
+      await page.evaluate(top => window.scrollTo({top,behavior:"instant"}),end + 120);
+      expect((await story.locator(".air-story-stage").boundingBox())!.y).toBeLessThan(-100);
+    }
+    await links.nth(1).click();
+    const before = await panels.nth(1).boundingBox(), railBefore = await intro.boundingBox(), windowBefore = await viewingArea.boundingBox();
+    await page.evaluate(() => window.scrollBy({top:120,behavior:"instant"}));
+    await expect.poll(async () => Math.abs((await panels.nth(1).boundingBox())!.y - before!.y + 120)).toBeLessThan(2);
+    const railAfter = await intro.boundingBox(), windowAfter = await viewingArea.boundingBox();
+    if (!isMobile) {
       expect(Math.abs(railAfter!.y - railBefore!.y)).toBeLessThan(2);
-      expect(railAfter!.y).toBeGreaterThan(0);
+      expect(Math.abs(windowAfter!.y - windowBefore!.y)).toBeLessThan(2);
+      expect(Math.abs(windowAfter!.height - windowBefore!.height)).toBeLessThan(2);
     } else {
-      expect(await intro.evaluate(element => getComputedStyle(element).position)).toBe("static");
       expect(Math.abs(railAfter!.y - railBefore!.y + 120)).toBeLessThan(2);
     }
-    const jump = story.getByRole("link", {name: /^Go to .* 2$/});
-    await jump.focus(); await page.keyboard.press("Enter");
+    await links.nth(0).focus(); await page.keyboard.press("Enter");
+    await expect(story).toHaveAttribute("data-active-item", "0");
+    await expect(links.nth(0)).toBeFocused();
+    await expect(panels.nth(0)).toBeInViewport({ratio:.9});
+    await links.nth(1).focus(); await page.keyboard.press("Enter");
     await expect(story).toHaveAttribute("data-active-item", "1");
-    await expect(jump).toBeFocused();
+    await expect(links.nth(1)).toBeFocused();
     await expect(panels.nth(1)).toBeInViewport({ratio:.9});
-    expect(await panels.nth(1).evaluate(element => getComputedStyle(element).opacity)).toBe("1");
     if (selector === "#growth" || selector === "#how-it-works") await page.screenshot({path:"test-results/scroll-" + (selector === "#growth" ? "tides" : "agents") + "-" + (isMobile ? "mobile" : "desktop") + ".png"});
     expect((await new AxeBuilder({ page }).include(selector).analyze()).violations).toEqual([]);
   }
   await page.goto("/#growth");
   await expect(page.locator("#growth")).toHaveAttribute("data-story-ready", "true");
   await expect.poll(() => page.locator("#growth").evaluate(element => Math.abs(element.getBoundingClientRect().top))).toBeLessThan(5);
-  // Short screens release the left rail; no card becomes hidden or clipped.
+  // Short screens release the full stage; no card becomes hidden or clipped.
   const motionViewport = page.viewportSize()!;
   await page.setViewportSize({width: motionViewport.width, height: 600});
-  expect(await page.locator("#growth .air-story-intro").evaluate(element => getComputedStyle(element).position)).toBe("static");
+  await expect(page.locator(".air-story-pinned")).toHaveCount(0);
   await expect(page.locator('.air-story-panel[aria-hidden="true"], .air-story-panel[inert]')).toHaveCount(0);
   await page.setViewportSize(motionViewport);
   // In-page navigation must reach its section, including same-route hash changes.
   await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator(".air-story-pinned")).toHaveCount(0);
   expect(await page.locator(".air-story-panel").evaluateAll(elements => elements.every(element => getComputedStyle(element).transform === "none" && getComputedStyle(element).visibility === "visible"))).toBe(true);
   await expect(page.locator('.air-story-panel[aria-hidden="true"]')).toHaveCount(0);
   await page.locator(".air-public-header").getByRole("link", { name: "How it works", exact: true }).click();
