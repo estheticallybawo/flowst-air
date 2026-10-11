@@ -138,9 +138,9 @@ const expectations = [
 .landing-team > span { display: inline-flex; gap: 8px; align-items: center; }
 .landing-section { padding: 88px 0; }
 .landing-problem, .landing-faq { min-height: 100svh; box-sizing: border-box; align-content: center; }
-.landing-session-step { background: #fff; padding: 32px; border-radius: 28px; }
+.landing-session-step { min-width: 0; }
 .landing-session-number { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--air-accent-soft); color: var(--air-accent-strong); font-weight: 700; }
-.landing-session-step h3 { margin: 24px 0 16px; font-size: 1.25rem; line-height: 1.5; }
+.landing-session-step h3 { margin: 24px 0 16px; font-size: clamp(1.6rem,2.6vw,2.3rem); line-height: 1.3; text-wrap: balance; }
 .landing-session-step p { margin: 0; color: var(--air-muted); line-height: 1.75; }
 .landing-section-intro { min-width: 0; }
 .landing-section h2, .landing-start h2 { font-size: clamp(1.7rem,2.8vw,2.4rem); line-height: 1.3; margin: 14px 0 22px; text-wrap: balance; }
@@ -149,20 +149,20 @@ const expectations = [
 .landing-problem ul { margin: 0; padding: 0 0 0 22px; display: grid; gap: 24px; color: var(--air-muted); line-height: 1.75; }
 .landing-solution { display: grid; grid-template-columns: .85fr 1.3fr; gap: 64px; align-items: start; }
 .landing-features { display: grid; gap: 18px; margin: 0; }
-.landing-features > article { display: grid; grid-template-columns: minmax(0,1fr) 160px; grid-template-areas: "title portrait" "description portrait"; gap: 16px 28px; padding: 32px; min-height: 300px; border-radius: 28px; background: rgb(255 255 255 / 76%); box-shadow: inset 0 1px 0 #fff; }
-.landing-features h3 { grid-area: title; margin: 0; font-size: 1.4rem; }
+.landing-features > article { display: grid; grid-template-columns: minmax(0,1fr) 180px; grid-template-areas: "title portrait" "description portrait"; gap: 20px 32px; align-content: center; min-width: 0; }
+.landing-features h3 { grid-area: title; margin: 0; font-size: clamp(1.6rem,2.6vw,2.3rem); text-wrap: balance; }
 .landing-features p { grid-area: description; }
-.landing-features img { grid-area: portrait; display: block; align-self: center; width: 160px; height: 210px; object-fit: cover; border-radius: 20px; }
+.landing-features img { grid-area: portrait; display: block; align-self: center; width: 180px; height: 240px; object-fit: cover; border-radius: 20px; }
 .landing-agent-step { color: var(--air-accent-strong); font-size: .7rem; font-weight: 600; padding-right: 4px; }
 .landing-features h3, .landing-audience-list dt, .landing-expectation-list dt { font-weight: 700; color: var(--air-ink); line-height: 1.5; }
 .landing-features p, .landing-audience-list dd, .landing-expectation-list dd { margin: 8px 0 0; color: var(--air-muted); line-height: 1.7; }
 .landing-features h3 { display: flex; align-items: center; gap: 10px; }
-.landing-features p { margin: 0; font-size: .92rem; }
+.landing-features p { margin: 0; font-size: 1rem; }
 .landing-journey-continuation { margin: 28px 0 18px; color: var(--air-muted); line-height: 1.75; font-size: .92rem; }
 .landing-audience { display: grid; grid-template-columns: 1fr 1.2fr; gap: 72px; border-top: 1px solid var(--air-line); }
 .landing-audience-list, .landing-expectation-list { margin: 0; display: grid; gap: 28px; }
-.landing-audience-list > div { padding-left: 26px; border-left: 2px solid #acd6e9; }
-.landing-audience-list dt, .landing-expectation-list dt { font-size: 1.05rem; }
+.landing-audience-list > div { min-width: 0; }
+.landing-audience-list dt, .landing-expectation-list dt { font-size: clamp(1.6rem,2.6vw,2.3rem); line-height: 1.3; margin-bottom: 24px; text-wrap: balance; }
 .air-landing .air-how { gap: 72px; }
 .air-landing .air-steps li { grid-template-columns: 32px minmax(0,1fr); padding: 0 0 28px; border: 0; }
 .air-landing .air-steps li + li { padding-top: 8px; }
@@ -170,7 +170,7 @@ const expectations = [
 .air-landing .air-steps h3 { font-size: 1rem; line-height: 1.5; }
 .air-landing .landing-source-note { margin-top: 26px; font-size: .88rem; }
 .landing-expectations { border-top: 1px solid var(--air-line); }
-.landing-expectation-list { grid-template-columns: minmax(0,1fr); gap: 0; margin: 0; padding: 32px; background: #fff; border-radius: 28px; }
+.landing-expectation-list { grid-template-columns: minmax(0,1fr); gap: 0; margin: 0; }
 .landing-expectations > a { margin-top: 32px; line-height: 1.6; }
 .landing-faq { display: grid; grid-template-columns: .7fr 1.3fr; gap: 64px; }
 .landing-questions details { border-bottom: 1px solid var(--air-line); padding: 18px 0; }
@@ -189,10 +189,10 @@ const expectations = [
   .air-landing .landing-hero h1 { font-size: clamp(2.25rem,8vw,3.3rem); }
   .landing-section { padding: 48px 0; }
   .landing-audience, .air-landing .air-how, .landing-problem, .landing-solution, .landing-faq { grid-template-columns: minmax(0,1fr); gap: 28px; }
-  .landing-audience-list > div { padding-left: 18px; }
-  .landing-features > article { grid-template-columns: 64px minmax(0,1fr); grid-template-areas: "portrait title" "description description"; padding: 20px; gap: 16px; }
+  .landing-audience-list dt, .landing-expectation-list dt { font-size: 1.5rem; }
+  .landing-features > article { grid-template-columns: 64px minmax(0,1fr); grid-template-areas: "portrait title" "description description"; gap: 20px; }
   .landing-features img { width: 64px; height: 72px; border-radius: 16px; }
-  .landing-features h3 { align-self: center; font-size: 1.05rem; flex-wrap: wrap; gap: 4px 8px; }
+  .landing-features h3 { align-self: center; font-size: 1.5rem; flex-wrap: wrap; gap: 4px 8px; }
   .landing-features > article { min-height: 0; }
   .landing-expectation-list { grid-template-columns: minmax(0,1fr); gap: 26px; }
   .landing-start { padding: 26px 22px; gap: 24px; margin-bottom: 48px; }

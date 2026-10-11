@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-10T23:26:28.583Z",
+  "createdAt": "2026-10-11T07:35:23.638Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -65,8 +65,8 @@
     },
     {
       "path": "FRONTEND.md",
-      "bytes": 5821,
-      "sha256": "4aef7c1f180c98947a4795374be9e71abed30cd416b29650792681c16239a6d2"
+      "bytes": 5827,
+      "sha256": "89493832ee218a379a6aefa26b6d37b17e283107b924a0e54b5b0fbcdc194a0d"
     },
     {
       "path": "LICENSE",
@@ -170,8 +170,8 @@
     },
     {
       "path": "components/AirLanding.vue",
-      "bytes": 20040,
-      "sha256": "50aac6aff54d4b23e89dfc532ac0d90311dbd7317876efeeea07871c1ef3dedc"
+      "bytes": 19987,
+      "sha256": "3d4d00464efb688c065dc9ab8c268a28a4dded16a5a2139cf4e20b9150e7cebb"
     },
     {
       "path": "components/AirLandingTides.vue",
@@ -190,8 +190,8 @@
     },
     {
       "path": "components/AirScrollStory.vue",
-      "bytes": 6682,
-      "sha256": "b6211be3a04c4a697a689b8a2fd69b6f3975f206b69f937ef4b0cf68765a0aea"
+      "bytes": 5135,
+      "sha256": "03369446ec1ceff29c9bca7c4c7b42f06b47294a736215b180ae7e89de3dac40"
     },
     {
       "path": "components/AirSessionNavigation.vue",
@@ -535,8 +535,8 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 66832,
-      "sha256": "2b41b23c378df874f4f4098be0588bb112e484333e05d0b5a241e83ebb86f7f8"
+      "bytes": 69141,
+      "sha256": "d1361513e120d3960f1693e6be6ed5a25d08ef0d03d668ec132e4d2c8396b5f8"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
@@ -1580,8 +1580,8 @@
     },
     {
       "path": "tests/growth-preview/hosted-growth.spec.ts",
-      "bytes": 16875,
-      "sha256": "26cfddc6599e6f7ec271787b07c660f3b1c623531bddd1594aa09b25d1e58e62"
+      "bytes": 17234,
+      "sha256": "5b322e9a6708a97b089b950e61cd9dafbd86e744386a2b1796b1593b588df04a"
     },
     {
       "path": "tests/kai-assessment.test.ts",
