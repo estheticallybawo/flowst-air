@@ -13,7 +13,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "node scripts/run-growth-preview.mjs",
-    url: "http://127.0.0.1:4324/airs",
+    url: "http://127.0.0.1:4324/home",
     timeout: 60_000,
     reuseExistingServer: false,
   },

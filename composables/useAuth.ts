@@ -195,7 +195,7 @@ export function useAuth() {
         const route = useRoute();
         const redirect = route.fullPath.startsWith("/auth/")
           ? ["air", "amira"].includes(config.public.appSurface)
-            ? "/airs"
+            ? "/home"
             : "/home"
           : route.fullPath;
         await navigateTo({

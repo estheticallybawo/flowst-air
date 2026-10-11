@@ -111,7 +111,7 @@ const dialogTitle = computed(
             You earn Tides as you progress. Each completed growth cycle earns a Tide.
           </p>
         </div>
-        <NuxtLink class="air-button growth-primary" to="/airs/new"
+        <NuxtLink class="air-button growth-primary" to="/home/new"
           >Start a new session <ArrowUpRight :size="17" :stroke-width="1.5"
         /></NuxtLink>
       </header>

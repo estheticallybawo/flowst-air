@@ -43,7 +43,7 @@ async function publish(value: SourceDraft | null) {
   // Complete draft-link navigation before showing ready content that can be reloaded.
   if (
     import.meta.client &&
-    route.path === "/airs/new" &&
+    route.path === "/home/new" &&
     route.query.source !== value?.id
   ) {
     try {

@@ -26,7 +26,7 @@ async function submit() {
       <div class="field"><label for="email">Email</label><input id="email" v-model="email" class="input" type="email" autocomplete="email" required></div>
       <div class="field"><label for="code">Verification code</label><input id="code" v-model="code" class="input" inputmode="numeric" autocomplete="one-time-code" minlength="6" required></div>
       <p v-if="error" class="form-error" role="alert">{{ error }}</p>
-      <div class="auth-actions"><NuxtLink class="auth-link" to="/auth/register">Back</NuxtLink><button class="btn btn-primary" :disabled="busy">{{ busy ? 'Verifying…' : 'Verify email' }}</button></div>
+      <div class="auth-actions"><NuxtLink class="auth-link" :to="{ path: '/auth/register', query: ['air', 'amira'].includes(useRuntimeConfig().public.appSurface) ? { redirect: airReturnPath(route.query.redirect) } : {} }">Back</NuxtLink><button class="btn btn-primary" :disabled="busy">{{ busy ? 'Verifying…' : 'Verify email' }}</button></div>
     </form>
   </AuthShell>
 </template>

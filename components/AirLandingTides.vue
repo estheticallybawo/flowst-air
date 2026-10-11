@@ -11,7 +11,7 @@ const tides = [
 <template>
   <AirScrollStory id="growth" class="landing-growth" aria-labelledby="landing-growth-title" :count="tides.length" label="Seven Tides to earn through growth" item-name="Tide">
     <template #intro>
-      <div class="landing-growth-intro"><p class="air-eyebrow">Your Growth Path</p><h2 id="landing-growth-title">You earn <em>Tides</em><br /> as you progress.</h2><p>Follow your progress across seven capabilities. Complete a growth cycle to earn a Tide, then keep building with fresh evidence and new contexts.</p><NuxtLink class="air-button" :to="authenticated ? '/airs' : '/auth/sign-in?redirect=/airs'">Explore your growth <ArrowRight :size="17" :stroke-width="1.5" aria-hidden="true" /></NuxtLink></div>
+      <div class="landing-growth-intro"><p class="air-eyebrow">Your Growth Path</p><h2 id="landing-growth-title">Watch yourself<em> Grow </em><br /> through earned Tides.</h2><p>Follow your progress across seven capabilities. Complete a growth cycle to earn a Tide, then keep building with fresh evidence and new contexts.</p></div>
     </template>
     <template #item="{ index }">
       <figure class="landing-tide-card" :aria-label="tides[index]!.title + ' Tide'">
@@ -28,8 +28,8 @@ const tides = [
 .landing-growth-intro > p:not(.air-eyebrow) { margin: 0 0 24px; max-width: 42ch; color: var(--air-muted); line-height: 1.75; }
 .landing-growth .air-button { gap: 12px; }
 .landing-tide-card { margin: 0; min-width: 0; }
-.landing-tide-art { display: grid; place-items: center; height: 320px; border-radius: 32px; overflow: hidden; box-shadow: inset 0 1px 0 rgb(255 255 255 / 90%); }
-.landing-tide-art img { display: block; width: 240px; height: 240px; object-fit: contain; }
+.landing-tide-art { display: grid; place-items: center; height: clamp(120px, calc(var(--air-story-window-height, 640px) - 200px), 320px); border-radius: 32px; overflow: hidden; box-shadow: inset 0 1px 0 rgb(255 255 255 / 90%); }
+.landing-tide-art img { display: block; width: 240px; height: 240px; max-width: 100%; max-height: 100%; object-fit: contain; }
 .landing-tide-card figcaption { padding: 24px 12px 0; }
 .landing-tide-card figcaption > span { display: block; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--air-muted); font-weight: 700; }
 .landing-tide-card h3 { margin: 10px 0; color: var(--air-ink); font-size: 1.35rem; line-height: 1.5; }

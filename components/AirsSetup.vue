@@ -170,7 +170,7 @@ async function createPlan() {
         body: form,
       });
     }
-    await navigateTo("/airs/" + created.id);
+    await navigateTo("/home/" + created.id);
   } catch (cause) {
     error.value = learnerStudyError(
       cause,
@@ -186,7 +186,7 @@ async function createPlan() {
     ><main class="misu-setup">
       <nav class="setup-nav" aria-label="Airs navigation">
         <span>Flowst Airs</span
-        ><NuxtLink to="/airs/library">Saved sessions</NuxtLink>
+        ><NuxtLink to="/home/library">Saved sessions</NuxtLink>
       </nav>
       <AirsJourneyRail
         stage="MISU"
@@ -214,7 +214,7 @@ async function createPlan() {
         </p>
         <NuxtLink
           v-if="eligibility?.existingConversationId"
-          :to="'/airs/' + eligibility.existingConversationId"
+          :to="'/home/' + eligibility.existingConversationId"
           >Continue saved session</NuxtLink
         ><button
           v-if="
@@ -232,7 +232,7 @@ async function createPlan() {
           "
         >
           Check again</button
-        ><NuxtLink to="/airs/settings">Account access</NuxtLink>
+        ><NuxtLink to="/home/settings">Account access</NuxtLink>
       </section>
       <template v-else
         ><AirsContextCard

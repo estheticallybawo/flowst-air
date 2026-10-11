@@ -15,9 +15,9 @@ npm ci
 npm run demo
 ```
 
-Open `http://127.0.0.1:4322/airs` for Growth, then select **New session**. Share your context with Misu, edit and confirm her understanding, then choose **Link or transcript** and a labelled fixture. Review the source, choose your goal, 5–15 minutes per topic and a 3- or 5-minute break, review or adjust the plan, and approve it. Misu prepares the handoff; Amina welcomes you with the microphone off. **Start conversation** opens practice; **Start recording** explicitly requests microphone access. Voice turns are the default. The workspace keeps primary actions in view. Longer source text and adjustments open in focused panels. Conversation starts closed and is the only transcript/caption panel. Amina’s captions follow actual playback. Her prepared replies are stored privately for Replay without another synthesis; microphone recordings are not saved as audio. Recovery breaks are optional. Checkpoint celebrations and Kai’s review require confirmed saved evidence. The ten-second ready handoff can be shortened with Continue now. Demo sources and their plans are deterministic, local samples; live voice is not simulated. Mock authentication and fixture mode are disabled in production. Local records are in memory and disappear on restart.
+Open `http://127.0.0.1:4322/home` for Growth, then select **New session**. Share your context with Misu, edit and confirm her understanding, then choose **Link or transcript** and a labelled fixture. Review the source, choose your goal, 5–15 minutes per topic and a 3- or 5-minute break, review or adjust the plan, and approve it. Misu prepares the handoff; Amina welcomes you with the microphone off. **Start conversation** opens practice; **Start recording** explicitly requests microphone access. Voice turns are the default. The workspace keeps primary actions in view. Longer source text and adjustments open in focused panels. Conversation starts closed and is the only transcript/caption panel. Amina’s captions follow actual playback. Her prepared replies are stored privately for Replay without another synthesis; microphone recordings are not saved as audio. Recovery breaks are optional. Checkpoint celebrations and Kai’s review require confirmed saved evidence. The ten-second ready handoff can be shortened with Continue now. Demo sources and their plans are deterministic, local samples; live voice is not simulated. Mock authentication and fixture mode are disabled in production. Local records are in memory and disappear on restart.
 
-Canonical study routes are `/airs`, `/airs/new`, `/airs/library` and `/airs/:id`. Existing `/air` routes remain compatible. Existing `/amira` bookmarks redirect while preserving the destination, query and hash.
+Canonical study routes are `/home`, `/home/new`, `/home/library` and `/home/:id`. Existing `/airs` and `/air` bookmarks redirect to `/home` while retaining their destination. Existing `/amira` bookmarks redirect while preserving the destination, query and hash.
 
 ## Configure live operation
 
@@ -73,7 +73,7 @@ See [public-repository preparation](docs/references/public-repository.md). The i
 
 ## Context-aware career conversation
 
-Open the public landing and select **Sign in**, or **Continue** when your account session has been restored. Protected `/airs` routes redirect signed-out visitors to the existing sign-in form and retain their destination. Open `/airs/new` to start learning. Save your background, goals and audience. Bring a source, review learning and evaluation goals, and approve practice with Amina. Kai reviews saved attempts and proposes a next exercise. Observations do not establish intelligence, mastery or longitudinal improvement.
+Open the public landing and select **Sign in**, or **Continue** when your account session has been restored. Protected `/home` routes redirect signed-out visitors to the existing sign-in form and retain their destination. Open `/home/new` to start learning. Save your background, goals and audience. Bring a source, review learning and evaluation goals, and approve practice with Amina. Kai reviews saved attempts and proposes a next exercise. Observations do not establish intelligence, mastery or longitudinal improvement.
 
 Production requires the existing Cognito account configuration, storage and model/speech providers. It neither creates nor accepts private guest sessions, including previously issued cookies and bearer tokens. Guest records are not deleted or reassigned. Local fixtures need no provider secrets and retain development guest access; paid video transcription is unavailable to those guests.
 
@@ -83,7 +83,7 @@ Run npx playwright test --config playwright.airs.config.ts for the local develop
 
 ## Growth in Airs
 
-Growth is the default Airs Home in both development and production, using the normal shell, account and learning routes. Run `npm run dev` and open `http://localhost:3000/airs`; no special Growth mode is needed. `npm run demo` still supplies local source fixtures on port 4322. Set `AIR_GROWTH_ENABLED=false` only to roll Home back to setup. The previous `AIR_GROWTH_PREVIEW_MODE` branch variable is a presentation-only migration alias. **New session** always opens Misu at `/airs/new`.
+Growth is the default Airs Home in both development and production, using the normal shell, account and learning routes. Run `npm run dev` and open `http://localhost:3000/home`; no special Growth mode is needed. `npm run demo` still supplies local source fixtures on port 4322. Set `AIR_GROWTH_ENABLED=false` only to roll Home back to setup. The previous `AIR_GROWTH_PREVIEW_MODE` branch variable is a presentation-only migration alias. **New session** always opens Misu at `/home/new`.
 
 You earn **Tides** as you progress: each completed growth cycle earns one Tide for its capability. Cards show Tides earned and progress toward the next cycle; the collection and completion views explain the evidence behind each Tide.
 

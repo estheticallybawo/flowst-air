@@ -88,10 +88,10 @@ export const files = [
   "components/AirSourcePicker.vue",
   "components/AirCallRoom.vue",
   "components/AirAppShell.vue",
-  "pages/airs/index.vue",
-  "pages/airs/new.vue",
-  "pages/airs/library.vue",
-  "pages/airs/[id].vue",
+  "pages/home/index.vue",
+  "pages/home/new.vue",
+  "pages/home/library.vue",
+  "pages/home/[id].vue",
   "shared/airsOrchestration.ts",
   "shared/study.ts",
   "server/services/airsAgentRunner.ts",
@@ -120,7 +120,36 @@ export const files = [
   "tests/misu-evidence-contract.test.ts",
   "tests/source-e2e/saved-response-recovery.spec.ts",
 ];
-const hash = (p) => {
+export const routeAdaptations = {
+  "reason": "The standalone authenticated workspace uses /home; Flowst retains its /airs routes. Shared page modules and URL references remain compared.",
+  "standalonePrefix": "/home",
+  "flowstPrefix": "/airs",
+  "sourcePaths": {
+    "pages/home/index.vue": "pages/airs/index.vue",
+    "pages/home/new.vue": "pages/airs/new.vue",
+    "pages/home/library.vue": "pages/airs/library.vue",
+    "pages/home/[id].vue": "pages/airs/[id].vue"
+  },
+  "normalizedFiles": [
+    "components/AirsSetup.vue",
+    "components/AirLibraryView.vue",
+    "components/AirSourcePicker.vue",
+    "components/AirAppShell.vue",
+    "server/services/studyRepository.ts",
+    "pages/home/[id].vue",
+    "tests/source-e2e/provider-retry.spec.ts",
+    "tests/source-e2e/session-completion.spec.ts",
+    "tests/source-e2e/saved-response-recovery.spec.ts"
+  ],
+  "normalization": "Only standalone quoted/template /home URL prefixes and escaped /home URL-regex prefixes are canonicalized to /airs. Other files, nested paths, import paths and longer names remain exact. Route-adapted baseline entries also pin the uncanonicalized standalone source hash."
+};
+const routeFiles = new Set(routeAdaptations.normalizedFiles);
+const normalizeStandaloneRoutes = (source) => source
+  .replace(/(["'\x60])\/home(?=\/|["'\x60?#])/g, "$1/airs")
+  .replace(/(\/\^?)\\\/home(?=\\\/|\$|[?#])/g, "$1\\/airs");
+const standaloneSourceHash = (p) => crypto.createHash("sha256")
+  .update(fs.readFileSync(p, "utf8").replace(/\r\n/g, "\n").trimEnd()).digest("hex");
+const hash = (p, file, standalone = false) => {
   let source = fs.readFileSync(p, "utf8").replace(/\r\n/g, "\n");
   if (
     p.endsWith(
@@ -155,6 +184,7 @@ const hash = (p) => {
       /\nexport const compileAmiraStudyPacket = compileAirStudyPacket\s*$/,
       "",
     );
+  if (standalone && routeFiles.has(file)) source = normalizeStandaloneRoutes(source);
   return crypto.createHash("sha256").update(source.trimEnd()).digest("hex");
 };
 
@@ -164,7 +194,7 @@ export const intentionalDifferences = {
     flowst: "3ccc25f72f887b7c51110074a4a52b097850cb44300e6cc51d7cd704e76e145c",
     standalone: "c81b3cb89284583fe00357220357d01c6cea1e767bd201e8431e268828dd4177"
   },
-  "pages/airs/index.vue": {
+  "pages/home/index.vue": {
     reason:
       "Growth Home rollout uses the normal Airs shell, authentication and setup routes",
     flowst: "1af03a0c32da2c6a931dee021fd058111473b54c10f2612e2b893861e8115d56",
@@ -189,20 +219,26 @@ export const intentionalDifferences = {
     standalone:
       "2d3414ae2ed95dcb73b9acaa30e150eaa27132bee15c86cd0d02f00838c333c6",
   },
+  "composables/useAminaLiveCall.ts": {
+    reason: "Standalone canonical /home recovery routes are accepted by the live client while retaining legacy /air compatibility",
+    flowst: "8099cbe764c21ff8354f5ea67a63b6ee885557435f24dc893afe4d8d2db648dc",
+    standalone: "eb00811ea2cc54b3669ee070344fb6775baab81a2e55b5e8564afa15592c936f",
+  },
 };
 const baselinePath = "docs/generated/shared-parity.json";
 export function checkAgainstFlowst(host, target = root) {
   const problems = [];
   for (const file of files) {
+    const sourceFile = routeAdaptations.sourcePaths[file] || file;
     if (
-      !fs.existsSync(path.join(host, file)) ||
+      !fs.existsSync(path.join(host, sourceFile)) ||
       !fs.existsSync(path.join(target, file))
     ) {
-      problems.push("Missing shared file: " + file);
+      problems.push("Missing shared file: " + file + (sourceFile !== file ? " (Flowst source: " + sourceFile + ")" : ""));
       continue;
     }
-    const left = hash(path.join(host, file)),
-      right = hash(path.join(target, file)),
+    const left = hash(path.join(host, sourceFile), file),
+      right = hash(path.join(target, file), file, true),
       allowed = intentionalDifferences[file];
     if (
       left !== right &&
@@ -214,12 +250,14 @@ export function checkAgainstFlowst(host, target = root) {
 }
 export function writeBaseline(target = root) {
   const baseline = {
-    version: 1,
+    version: 2,
     files: files.map((file) => ({
       path: file,
-      sha256: hash(path.join(target, file)),
+      sha256: hash(path.join(target, file), file, true),
+      ...(routeFiles.has(file) ? { standaloneSha256: standaloneSourceHash(path.join(target, file)) } : {}),
     })),
     intentionalDifferences,
+    routeAdaptations,
   };
   fs.mkdirSync(path.join(target, "docs/generated"), { recursive: true });
   fs.writeFileSync(
@@ -240,12 +278,13 @@ export function verifyBaseline(target = root) {
   }
   const problems = [];
   if (
-    baseline.version !== 1 ||
+    baseline.version !== 2 ||
     !Array.isArray(baseline.files) ||
     baseline.files.length !== files.length ||
     new Set(baseline.files.map((item) => item.path)).size !== files.length ||
     JSON.stringify(baseline.intentionalDifferences) !==
-      JSON.stringify(intentionalDifferences)
+      JSON.stringify(intentionalDifferences) ||
+    JSON.stringify(baseline.routeAdaptations) !== JSON.stringify(routeAdaptations)
   )
     return [
       "Shared parity baseline does not match the reviewed file list/adaptations.",
@@ -255,7 +294,8 @@ export function verifyBaseline(target = root) {
     if (
       !expected ||
       !fs.existsSync(path.join(target, file)) ||
-      hash(path.join(target, file)) !== expected.sha256
+      hash(path.join(target, file), file, true) !== expected.sha256 ||
+      (routeFiles.has(file) && standaloneSourceHash(path.join(target, file)) !== expected.standaloneSha256)
     )
       problems.push("Unverified shared change: " + file);
   }
@@ -285,7 +325,9 @@ function main() {
       files.length +
       " files; " +
       Object.keys(intentionalDifferences).length +
-      " pinned standalone adaptations.",
+      " pinned standalone adaptations; " +
+      Object.keys(routeAdaptations.sourcePaths).length + " reviewed route source mappings; " +
+      routeAdaptations.normalizedFiles.length + " scoped URL adaptations.",
   );
 }
 if (

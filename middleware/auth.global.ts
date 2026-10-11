@@ -15,7 +15,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
       redirectCode: 302,
     });
   if (standaloneAir && !isAirStandalonePage(to.path))
-    return navigateTo("/airs");
+    return navigateTo("/home");
   if (import.meta.dev && standaloneAir && config.public.airsGuestEnabled === true) {
     await useAuth().ensureSession();
     return;

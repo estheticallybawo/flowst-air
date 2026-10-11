@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "files": [
     {
       "path": "server/services/studyBedrockTransport.ts",
@@ -47,7 +47,8 @@
     },
     {
       "path": "tests/source-e2e/provider-retry.spec.ts",
-      "sha256": "4e5604430214508038e5b305dd7b465ee4cb3ea4a2dac93ee0a3d0971ee9dae4"
+      "sha256": "4e5604430214508038e5b305dd7b465ee4cb3ea4a2dac93ee0a3d0971ee9dae4",
+      "standaloneSha256": "fb4d411c2159923e5eeeae135e57a797424970c39c7623dbc445414f3e579bd8"
     },
     {
       "path": "shared/aminaWelcome.ts",
@@ -99,7 +100,8 @@
     },
     {
       "path": "tests/source-e2e/session-completion.spec.ts",
-      "sha256": "89d24859ac0c68db8c55be3e15650477fcfa2991d309361306b5145d82579296"
+      "sha256": "89d24859ac0c68db8c55be3e15650477fcfa2991d309361306b5145d82579296",
+      "standaloneSha256": "e14c3ec6a6fec1e32d97c1f05ac5d4974764c8d328685d5b4a0c5542ae66b6ac"
     },
     {
       "path": "shared/studyObjectivePolicy.ts",
@@ -147,7 +149,7 @@
     },
     {
       "path": "composables/useAminaLiveCall.ts",
-      "sha256": "8099cbe764c21ff8354f5ea67a63b6ee885557435f24dc893afe4d8d2db648dc"
+      "sha256": "eb00811ea2cc54b3669ee070344fb6775baab81a2e55b5e8564afa15592c936f"
     },
     {
       "path": "tests/study-objective-flow.test.ts",
@@ -275,7 +277,8 @@
     },
     {
       "path": "server/services/studyRepository.ts",
-      "sha256": "2266687d4c3db31568643261e59f49f739cfd0c606d1659aee41e288a276beab"
+      "sha256": "2266687d4c3db31568643261e59f49f739cfd0c606d1659aee41e288a276beab",
+      "standaloneSha256": "d077e56f75ff5bd5a0332c4f31651ba0b5035632259780cd7fe1c42ca9b2f3da"
     },
     {
       "path": "server/api/study/context.put.ts",
@@ -319,15 +322,18 @@
     },
     {
       "path": "components/AirsSetup.vue",
-      "sha256": "34e08a6a9964177b3ef9f330e5abe635ed47c798ec1c1bee13098c5e0fee00e7"
+      "sha256": "34e08a6a9964177b3ef9f330e5abe635ed47c798ec1c1bee13098c5e0fee00e7",
+      "standaloneSha256": "8353a6368bbb225b6501f99a1c39ab793002d502679cb0cb58de299adfa28b7c"
     },
     {
       "path": "components/AirLibraryView.vue",
-      "sha256": "48293d6897a23dd1e7eed7a8bc434ba14690fe144aa64d1c577901c00ac973d7"
+      "sha256": "48293d6897a23dd1e7eed7a8bc434ba14690fe144aa64d1c577901c00ac973d7",
+      "standaloneSha256": "e14a556668aeb11add518cbfa0f39cc7768b75ce2eaa3c7a6f7d895d21b3dc80"
     },
     {
       "path": "components/AirSourcePicker.vue",
-      "sha256": "17d587b7c0160c2e12d9a3d8283c33e2d2d9d853661576d72a2e631ef92677ea"
+      "sha256": "17d587b7c0160c2e12d9a3d8283c33e2d2d9d853661576d72a2e631ef92677ea",
+      "standaloneSha256": "c3e7dc7abd0ed2a03d376e4c79a4b18a77a5aca5ad29d19e4247a9566393d811"
     },
     {
       "path": "components/AirCallRoom.vue",
@@ -335,23 +341,25 @@
     },
     {
       "path": "components/AirAppShell.vue",
-      "sha256": "6f54f8dbe17f2fb6c2f74ac0179333ad12084d381450b683d1a6991d037a2b64"
+      "sha256": "6f54f8dbe17f2fb6c2f74ac0179333ad12084d381450b683d1a6991d037a2b64",
+      "standaloneSha256": "5108d9e5eda41557d799f647ab11bdb5f684abca7632582d42cd28a79a275c9d"
     },
     {
-      "path": "pages/airs/index.vue",
+      "path": "pages/home/index.vue",
       "sha256": "319d6f6e7658803b9fcde452d2ca7268e652d242dc9c4e084e862768c2b00aaf"
     },
     {
-      "path": "pages/airs/new.vue",
+      "path": "pages/home/new.vue",
       "sha256": "1af03a0c32da2c6a931dee021fd058111473b54c10f2612e2b893861e8115d56"
     },
     {
-      "path": "pages/airs/library.vue",
+      "path": "pages/home/library.vue",
       "sha256": "799806e8762af05e05cf13cb5df868a581e49f62930d99b91e38ef183537e69c"
     },
     {
-      "path": "pages/airs/[id].vue",
-      "sha256": "5741b54340e33588b55c7b5c8f04ffb0fe69a870ca1df5d523ec3553dc465cda"
+      "path": "pages/home/[id].vue",
+      "sha256": "5741b54340e33588b55c7b5c8f04ffb0fe69a870ca1df5d523ec3553dc465cda",
+      "standaloneSha256": "bbb49958133a77e3baa3ce637a5e3ffc236fb2b5e525c3331f99ec6e13a74912"
     },
     {
       "path": "shared/airsOrchestration.ts",
@@ -459,7 +467,8 @@
     },
     {
       "path": "tests/source-e2e/saved-response-recovery.spec.ts",
-      "sha256": "83539a676e445c33390b047ab8a9da59849cf738d3b1c8ee72c644b473d98d88"
+      "sha256": "83539a676e445c33390b047ab8a9da59849cf738d3b1c8ee72c644b473d98d88",
+      "standaloneSha256": "99809b36b68084d824fd453f15032d509b417fc6472a219283becda683ad4d6f"
     }
   ],
   "intentionalDifferences": {
@@ -468,7 +477,7 @@
       "flowst": "3ccc25f72f887b7c51110074a4a52b097850cb44300e6cc51d7cd704e76e145c",
       "standalone": "c81b3cb89284583fe00357220357d01c6cea1e767bd201e8431e268828dd4177"
     },
-    "pages/airs/index.vue": {
+    "pages/home/index.vue": {
       "reason": "Growth Home rollout uses the normal Airs shell, authentication and setup routes",
       "flowst": "1af03a0c32da2c6a931dee021fd058111473b54c10f2612e2b893861e8115d56",
       "standalone": "319d6f6e7658803b9fcde452d2ca7268e652d242dc9c4e084e862768c2b00aaf"
@@ -487,6 +496,34 @@
       "reason": "Standalone mobile keyboard viewport handling",
       "flowst": "7d3453dd07a7de72f98271d09aa316ac4888729c3316556089d8b41b6aa80cff",
       "standalone": "2d3414ae2ed95dcb73b9acaa30e150eaa27132bee15c86cd0d02f00838c333c6"
+    },
+    "composables/useAminaLiveCall.ts": {
+      "reason": "Standalone canonical /home recovery routes are accepted by the live client while retaining legacy /air compatibility",
+      "flowst": "8099cbe764c21ff8354f5ea67a63b6ee885557435f24dc893afe4d8d2db648dc",
+      "standalone": "eb00811ea2cc54b3669ee070344fb6775baab81a2e55b5e8564afa15592c936f"
     }
+  },
+  "routeAdaptations": {
+    "reason": "The standalone authenticated workspace uses /home; Flowst retains its /airs routes. Shared page modules and URL references remain compared.",
+    "standalonePrefix": "/home",
+    "flowstPrefix": "/airs",
+    "sourcePaths": {
+      "pages/home/index.vue": "pages/airs/index.vue",
+      "pages/home/new.vue": "pages/airs/new.vue",
+      "pages/home/library.vue": "pages/airs/library.vue",
+      "pages/home/[id].vue": "pages/airs/[id].vue"
+    },
+    "normalizedFiles": [
+      "components/AirsSetup.vue",
+      "components/AirLibraryView.vue",
+      "components/AirSourcePicker.vue",
+      "components/AirAppShell.vue",
+      "server/services/studyRepository.ts",
+      "pages/home/[id].vue",
+      "tests/source-e2e/provider-retry.spec.ts",
+      "tests/source-e2e/session-completion.spec.ts",
+      "tests/source-e2e/saved-response-recovery.spec.ts"
+    ],
+    "normalization": "Only standalone quoted/template /home URL prefixes and escaped /home URL-regex prefixes are canonicalized to /airs. Other files, nested paths, import paths and longer names remain exact. Route-adapted baseline entries also pin the uncanonicalized standalone source hash."
   }
 }

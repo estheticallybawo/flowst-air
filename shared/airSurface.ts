@@ -1,5 +1,5 @@
-/** Normalize only the retired product route prefix; preserve query/hash and agent IDs. */
-export function canonicalAirPath(path: string) { return path.replace(/^\/(?:amira|air)(?=\/|\?|#|$)/, '/airs') }
+/** Normalize only the retired product route prefixes; preserve query/hash and agent IDs. */
+export function canonicalAirPath(path: string) { return path.replace(/^\/(?:amira|airs|air)(?=\/|\?|#|$)/, '/home') }
 
 const authPages = new Set(['/auth/sign-in', '/auth/register', '/auth/verify', '/auth/recover'])
 const authApis = new Set([
@@ -16,12 +16,12 @@ export const isAirStandalone = (surface: unknown) => surface === 'air' || surfac
 
 export function isAirPublicPage(path: string) {
   const normalized = canonicalAirPath(path).replace(/\/+$/, '') || '/'
-  return normalized === '/' || normalized === '/airs/pricing' || normalized === '/airs/about' || authPages.has(normalized)
+  return normalized === '/' || normalized === '/home/pricing' || normalized === '/home/about' || authPages.has(normalized)
 }
 
 export function isAirStandalonePage(path: string) {
-  const normalized = path.replace(/\/+$/, '') || '/'
-  return normalized === '/' || normalized === '/airs' || normalized.startsWith('/airs/') || authPages.has(normalized)
+  const normalized = canonicalAirPath(path).replace(/\/+$/, '') || '/'
+  return normalized === '/' || normalized === '/home' || normalized.startsWith('/home/') || authPages.has(normalized)
 }
 
 export function isAirStandaloneApi(path: string) {

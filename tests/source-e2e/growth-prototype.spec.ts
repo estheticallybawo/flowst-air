@@ -8,7 +8,7 @@ async function openGrowth(page: Page) {
   await page.route("https://fonts.googleapis.com/**", (route) =>
     route.fulfill({ status: 200, contentType: "text/css", body: "" }),
   );
-  await page.goto("/airs", { waitUntil: "domcontentloaded" });
+  await page.goto("/home", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("heading", { name: "The reward is in seeing your growth", exact: true }),
   ).toBeVisible({ timeout: 90000 });
@@ -303,7 +303,7 @@ test("Growth retains app-memory state across navigation, resets on reload, and k
     .getByRole("navigation", { name: "Flowst Airs navigation" })
     .getByRole("link", { name: "New session", exact: true })
     .click();
-  await expect(page).toHaveURL(/\/airs\/new$/);
+  await expect(page).toHaveURL(/\/home\/new$/);
   await expect(
     page.getByLabel("Share context about yourself", { exact: true }),
   ).toBeVisible({ timeout: 90000 });

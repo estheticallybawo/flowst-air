@@ -14,8 +14,8 @@ test('library deletion shows pending and failed states, then removes only the co
  expect(created.status()).toBe(200)
  const {id}=await created.json(),base='/api/study/conversations/'+id
  try{
-  await page.goto('/airs/library',{waitUntil:'domcontentloaded'})
-  const card=page.locator('.chat-card').filter({has:page.locator('a[href="/airs/'+id+'"]')})
+  await page.goto('/home/library',{waitUntil:'domcontentloaded'})
+  const card=page.locator('.chat-card').filter({has:page.locator('a[href="/home/'+id+'"]')})
   await expect(card).toBeVisible({timeout:90000})
   let releaseFailure:()=>void=()=>{throw Error('No pending fixture delete')}
   const failedDelete=async(route:any)=>{if(route.request().method()!=='DELETE')return route.continue();await new Promise<void>(resolve=>{releaseFailure=resolve});await route.fulfill({status:503,json:{statusMessage:'The library is busy. Try deleting again.'}})}
@@ -89,7 +89,7 @@ test('deferred objectives remain gaps and an ended session opens Kai automatical
   const first=await (await api.get(base,{headers})).json()
   expect(first.objectiveFlow.version).toBe('0.2')
   await page.route('**/api/study/conversations/*/speech',route=>route.fulfill({status:503,json:{statusMessage:'Fixture voice recovery required',data:{code:'SPEECH_PROVIDER_QUOTA',retryable:false}}}))
-  await page.goto('/airs/'+id,{waitUntil:'domcontentloaded'})
+  await page.goto('/home/'+id,{waitUntil:'domcontentloaded'})
   const controls=page.getByRole('region',{name:'Objective controls',exact:true})
   await expect(controls).toBeVisible({timeout:90000})
   const openControls=async()=>{const details=controls.locator('details');if(!await details.evaluate(node=>(node as HTMLDetailsElement).open)){await details.locator('summary').focus();await details.locator('summary').press('Enter')}}

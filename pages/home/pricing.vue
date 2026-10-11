@@ -45,7 +45,7 @@ useHead({ title: "Access & plans · Flowst Airs" });
             can call the speech provider. The timer is separate from each recording.
           </p>
         </details>
-        <NuxtLink class="air-button" :to="authenticated ? '/airs' : '/auth/sign-in?redirect=/airs'">{{ authenticated ? "Continue" : "Sign in" }}</NuxtLink>
+        <NuxtLink class="air-button" :to="authenticated ? '/home' : '/auth/sign-in?redirect=/home'">{{ authenticated ? "Continue" : "Sign in" }}</NuxtLink>
       </section>
       <section>
         <h2>Paid plans are coming later</h2>
@@ -54,7 +54,7 @@ useHead({ title: "Access & plans · Flowst Airs" });
           to purchase in this pilot.
         </p>
       </section>
-      <NuxtLink class="air-text-link" to="/airs/about"
+      <NuxtLink class="air-text-link" to="/home/about"
         >Understand how your material and microphone are used</NuxtLink
       >
     </div>

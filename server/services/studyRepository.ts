@@ -420,7 +420,7 @@ export function assertStudyConversationActive(conversation: StudyConversation) {
       data: {
         code: "AMIRA_STUDY_ABANDONED",
         conversationId: conversation.id,
-        nextAction: "/airs/new",
+        nextAction: "/home/new",
         upgradeAvailable: false,
       },
     });

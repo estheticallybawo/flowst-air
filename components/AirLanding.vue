@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowRight, BookOpen, MessageCircle, Mic } from "lucide-vue-next";
+import { ArrowRight } from "lucide-vue-next";
 import { FLOWST_AGENTS } from "~/shared/agents";
 defineProps<{ authenticated: boolean }>();
 const audiences = [
@@ -40,26 +40,26 @@ const expectations = [
       <section class="air-hero landing-hero" aria-labelledby="landing-title">
         <div class="air-hero-copy">
           <p class="air-eyebrow">For independent learners</p>
-          <h1 id="landing-title">Make what you learn <span>your own.</span></h1>
-          <p class="landing-hero-promise">Make your views and knowledge easier to air</p>
-          <p>Flowst Airs turns your learning material into guided spoken practice. Work through ideas, get feedback on your attempts, and earn Tides as your understanding grows.</p>
-          <div class="air-hero-benefits">
-            <span><BookOpen :size="18" :stroke-width="1.5" aria-hidden="true" />Your sources</span>
-            <span><Mic :size="18" :stroke-width="1.5" aria-hidden="true" />Guided spoken practice</span>
-            <span><MessageCircle :size="18" :stroke-width="1.5" aria-hidden="true" />Growth you can see</span>
-          </div>
+          <h1 id="landing-title">Give your thoughts <span>a stronger voice.</span></h1>
+          <p>Build your verbal intelligence through guided spoken practice. Explore your views, opinions and ideas, and find more confidence for conversations that shape your career.</p>
           <div class="air-action-row">
-            <NuxtLink class="air-button" :to="authenticated ? '/airs' : '/auth/sign-in?redirect=/airs'">
+            <NuxtLink class="air-button" :to="authenticated ? '/home' : '/auth/sign-in?redirect=/home'">
               {{ authenticated ? "Continue" : "Sign in" }}
               <span class="landing-button-icon" aria-hidden="true"><ArrowRight :size="17" :stroke-width="1.5" /></span>
             </NuxtLink>
-            <a class="air-button air-button-secondary" href="#how-it-works">See how a session works</a>
+            <a class="air-button air-button-secondary" href="#how-it-works">See how it works</a>
           </div>
-          <div class="landing-team" aria-label="Your AI learning team">
-            <span><AgentAvatar agent="MISU" size="compact" :labelled="true" />Misu plans</span>
-            <span><AgentAvatar agent="AMIRA" size="compact" :labelled="true" />Amina practises with you</span>
-            <span><AgentAvatar agent="KAI" size="compact" :labelled="true" />Kai reviews</span>
+        </div>
+        <div class="landing-hero-visual" aria-hidden="true">
+          <div class="landing-hero-visual-grid"></div>
+          <div class="landing-hero-practice-card">
+            <p class="landing-hero-visual-label"><span></span>Guided spoken practice</p>
+            <p class="landing-hero-visual-title">Space to<br />think aloud.</p>
+            <div class="landing-hero-voice-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
           </div>
+          <img class="landing-hero-portrait landing-hero-portrait-misu" :src="FLOWST_AGENTS.MIRO.avatar" alt="" width="112" height="112" decoding="async" />
+          <img class="landing-hero-portrait landing-hero-portrait-amina" :src="FLOWST_AGENTS.AMIRA.avatar" alt="" width="112" height="112" decoding="async" />
+          <img class="landing-hero-portrait landing-hero-portrait-kai" :src="FLOWST_AGENTS.KAI.avatar" alt="" width="112" height="112" decoding="async" />
         </div>
       </section>
 
@@ -85,7 +85,7 @@ const expectations = [
 
 
       <AirScrollStory id="for-you" class="landing-audience landing-section" aria-labelledby="audience-title" :count="audiences.length" label="Who Airs is for" item-name="audience">
-        <template #intro><div class="landing-section-intro"><p class="air-eyebrow">Who it’s for</p><h2 id="audience-title">For learners. For graduates. For builders.</h2><p>For independent adult learners who want to understand their material and speak about it with greater confidence.</p></div></template>
+        <template #intro><div class="landing-section-intro"><p class="air-eyebrow">Who it’s for</p><h2 id="audience-title">For learners preparing for future of work and creator economy</h2><p>For independent adult learners who want to understand their material and speak about it with greater confidence.</p></div></template>
         <template #item="{ index }"><dl class="landing-audience-list"><div><dt>{{ audiences[index]!.title }}</dt><dd>{{ audiences[index]!.text }}</dd></div></dl></template>
       </AirScrollStory>
 
@@ -99,7 +99,7 @@ const expectations = [
 
 
       <AirScrollStory class="landing-expectations landing-section" aria-labelledby="expectations-title" :count="expectations.length" label="What to expect" item-name="expectation">
-        <template #intro><div class="landing-section-intro"><p class="air-eyebrow">What to expect</p><h2 id="expectations-title">From your first session<br />to your next milestone.</h2><NuxtLink class="air-text-link" to="/airs/about">How your material and microphone are used <ArrowRight :size="16" :stroke-width="1.5" aria-hidden="true" /></NuxtLink></div></template>
+        <template #intro><div class="landing-section-intro"><p class="air-eyebrow">What to expect</p><h2 id="expectations-title">From your first session<br />to your next milestone.</h2><NuxtLink class="air-text-link" to="/home/about">How your material and microphone are used <ArrowRight :size="16" :stroke-width="1.5" aria-hidden="true" /></NuxtLink></div></template>
         <template #item="{ index }"><dl class="landing-expectation-list"><div><dt>{{ expectations[index]!.title }}</dt><dd>{{ expectations[index]!.text }}</dd></div></dl></template>
       </AirScrollStory>
 
@@ -110,7 +110,7 @@ const expectations = [
 
       <section class="landing-start" aria-labelledby="start-title">
         <div><p class="air-eyebrow">Start with one idea</p><h2 id="start-title">What would you like to understand more deeply?</h2><p>Bring something you’re learning. Make space to work through it, put it into words, and decide what comes next.</p></div>
-        <NuxtLink class="air-button" :to="authenticated ? '/airs/new' : '/auth/sign-in?redirect=/airs/new'">
+        <NuxtLink class="air-button" :to="authenticated ? '/home/new' : '/auth/sign-in?redirect=/home/new'">
           {{ authenticated ? "Start a new session" : "Sign in to start a session" }}
           <span class="landing-button-icon" aria-hidden="true"><ArrowRight :size="17" :stroke-width="1.5" /></span>
         </NuxtLink>
@@ -122,21 +122,30 @@ const expectations = [
 <style scoped>
 .air-landing { --landing-ease: cubic-bezier(.16,1,.3,1); }
 .air-landing :deep(:is(h1,h2,h3,h4,h5,h6,dt,summary)) { font-family: "Unbounded", system-ui, sans-serif; }
-.air-landing .landing-hero { display: block; min-height: auto; padding: 96px 0 76px; text-align: center; }
-.landing-hero .air-hero-copy { max-width: 1080px; margin: auto; }
-.air-landing .landing-hero h1 { max-width: 1080px; margin: 20px auto 24px; font-size: clamp(3rem,7vw,6.8rem); font-weight: 700; letter-spacing: -.045em; line-height: 1.04; text-wrap: balance; }
-.air-landing .landing-hero .air-hero-copy > p:not(.air-eyebrow) { max-width: 61ch; margin-left: auto; margin-right: auto; }
-.air-landing .landing-hero .landing-hero-promise { font-size: clamp(1.1rem,2vw,1.35rem); font-weight: 650; color: var(--air-ink); margin-bottom: 22px; }
-.landing-hero .air-action-row, .landing-hero .air-hero-benefits { justify-content: center; }
-.air-landing .landing-hero .air-hero-benefits { margin: 28px 0; gap: 12px; flex-wrap: wrap; }
-.landing-hero .air-hero-benefits > span { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: #fff; line-height: 1.5; }
-.landing-hero .air-hero-benefits > span:nth-child(2) { background: #f0ecfc; }
-.landing-hero .air-hero-benefits > span:nth-child(3) { background: #e6f5ef; }
-.landing-hero .air-hero-benefits svg { width: 22px; height: 22px; padding: 0; background: transparent; }
+.air-landing .landing-hero { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); min-height: 660px; gap: clamp(28px,4vw,64px); padding: 40px 0 80px; align-items: center; text-align: left; }
+.landing-hero .air-hero-copy { min-width: 0; max-width: 650px; margin: 0; }
+.air-landing .landing-hero h1 { max-width: 11ch; margin: 22px 0 28px; font-size: clamp(3.2rem,5.3vw,5.4rem); font-weight: 700; letter-spacing: -.05em; line-height: 1.06; text-wrap: balance; }
+.air-landing .landing-hero h1 span { display: block; color: var(--air-accent-strong); }
+.air-landing .landing-hero .air-hero-copy > p:not(.air-eyebrow) { max-width: 43ch; margin: 0 0 30px; font-size: clamp(1rem,1.35vw,1.15rem); line-height: 1.75; }
+.landing-hero .air-action-row { justify-content: flex-start; gap: 12px; }
+.landing-hero-visual { position: relative; isolation: isolate; width: 100%; aspect-ratio: 1.03; min-width: 0; overflow: hidden; border: 1px solid #fff; border-radius: clamp(36px,5vw,64px); background: radial-gradient(ellipse at 15% 15%,#fff1ce 0,transparent 45%),radial-gradient(ellipse at 84% 88%,#d8f4eb 0,transparent 48%),#e4eff9; box-shadow: inset 0 1px 0 #fff,0 24px 64px rgb(29 80 120 / 7%); }
+.landing-hero-visual-grid { position: absolute; inset: 0; z-index: -1; opacity: .35; background-image: linear-gradient(#cbdde9 1px,transparent 1px),linear-gradient(90deg,#cbdde9 1px,transparent 1px); background-size: 48px 48px; mask-image: linear-gradient(#000,transparent 65%); }
+.landing-hero-practice-card { position: absolute; inset: 20% 13% 18%; display: flex; flex-direction: column; justify-content: center; padding: clamp(24px,3vw,42px); border: 1px solid #fff; border-radius: clamp(24px,3vw,40px); background: rgb(255 255 255 / 88%); box-shadow: inset 0 1px 0 #fff,0 18px 48px rgb(24 68 112 / 6%); transform: rotate(-2deg); }
+.landing-hero-visual-label { display: flex; align-items: center; gap: 8px; margin: 0 0 24px; color: #3c6885; font-size: clamp(.58rem,.8vw,.72rem); font-weight: 700; letter-spacing: .07em; line-height: 1.5; text-transform: uppercase; }
+.landing-hero-visual-label > span { flex-shrink: 0; width: 7px; height: 7px; border-radius: 50%; background: #83bcaa; box-shadow: 0 0 0 4px #e4f2ec; }
+.landing-hero-visual-title { margin: 0; font-family: "Unbounded", system-ui, sans-serif; font-size: clamp(1.65rem,3.2vw,3rem); font-weight: 700; line-height: 1.17; letter-spacing: -.045em; color: var(--air-ink); }
+.landing-hero-voice-wave { display: flex; align-items: center; gap: 7px; height: 48px; margin-top: 28px; }
+.landing-hero-voice-wave > i { display: block; width: 5px; height: 10px; border-radius: 99px; background: #80b7d8; }
+.landing-hero-voice-wave > i:nth-child(2),.landing-hero-voice-wave > i:nth-child(8) { height: 20px; }
+.landing-hero-voice-wave > i:nth-child(3),.landing-hero-voice-wave > i:nth-child(7) { height: 30px; background: #5d9dc7; }
+.landing-hero-voice-wave > i:nth-child(4),.landing-hero-voice-wave > i:nth-child(6) { height: 23px; background: #5d9dc7; }
+.landing-hero-voice-wave > i:nth-child(5) { height: 42px; background: #3783b3; }
+.landing-hero-portrait { position: absolute; display: block; width: clamp(72px,8.5vw,116px); height: auto; aspect-ratio: 1; object-fit: cover; border: 5px solid #fff; border-radius: 50%; box-shadow: 0 14px 32px rgb(39 73 100 / 12%); }
+.landing-hero-portrait-misu { top: 8%; left: 7%; }
+.landing-hero-portrait-amina { top: 9%; right: 6%; }
+.landing-hero-portrait-kai { bottom: 7%; right: 12%; }
 .air-landing .air-button { transition: transform .25s var(--landing-ease), background-color .25s var(--landing-ease); }
 .landing-button-icon { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 50%; background: rgb(255 255 255 / 15%); flex-shrink: 0; }
-.landing-team { margin-top: 32px; display: flex; justify-content: center; flex-wrap: wrap; gap: 14px 24px; color: var(--air-muted); font-size: .8rem; }
-.landing-team > span { display: inline-flex; gap: 8px; align-items: center; }
 .landing-section { padding: 88px 0; }
 .landing-problem, .landing-faq { min-height: 100svh; box-sizing: border-box; align-content: center; }
 .landing-session-step { min-width: 0; }
@@ -181,13 +190,23 @@ const expectations = [
 .landing-start h2 { max-width: 24ch; font-size: clamp(1.6rem,2.3vw,2rem); }
 .landing-start .air-button { white-space: nowrap; }
 @media (max-width: 1000px) {
+  .air-landing .landing-hero { gap: 28px; min-height: 590px; }
+  .air-landing .landing-hero h1 { font-size: clamp(2.8rem,5.1vw,3.6rem); }
   .landing-audience, .air-landing .air-how, .landing-problem, .landing-solution, .landing-faq { gap: 36px; }
   .landing-start { grid-template-columns: minmax(0,1fr); }
   .landing-start .air-button { justify-self: start; }
 }
 @media (max-width: 767px) {
-  .air-landing .landing-hero { padding: 56px 0; }
-  .air-landing .landing-hero h1 { font-size: clamp(2.35rem,10vw,3.9rem); }
+  .air-landing .landing-hero { grid-template-columns: minmax(0,1fr); min-height: 0; gap: 36px; padding: 48px 0 64px; }
+  .air-landing .landing-hero h1 { max-width: 12ch; margin: 18px 0 24px; font-size: clamp(2.55rem,10.3vw,4.4rem); }
+  .air-landing .landing-hero .air-hero-copy > p:not(.air-eyebrow) { max-width: 46ch; margin-bottom: 26px; }
+  .landing-hero-visual { max-width: 560px; justify-self: center; border-radius: 36px; }
+  .landing-hero-practice-card { padding: clamp(22px,6vw,42px); transform: none; }
+  .landing-hero-visual-title { font-size: clamp(1.75rem,7.2vw,2.8rem); }
+  .landing-hero-visual-label { font-size: clamp(.57rem,2vw,.72rem); margin-bottom: 18px; }
+  .landing-hero-voice-wave { margin-top: 20px; gap: 6px; height: 40px; }
+  .landing-hero-voice-wave > i { width: 4px; }
+  .landing-hero-portrait { width: clamp(64px,20vw,108px); border-width: 4px; }
   .landing-section { padding: 48px 0; }
   .landing-audience, .air-landing .air-how, .landing-problem, .landing-solution, .landing-faq { grid-template-columns: minmax(0,1fr); gap: 28px; }
   .landing-audience-list dt, .landing-expectation-list dt { font-size: 1.5rem; }

@@ -4,7 +4,7 @@ Status: completed — labelled frontend prototype, verified locally on 10 Octobe
 
 ## Decisions and behavior
 
-Growth is the default Home in development and production and displays seven capabilities inside the existing Airs product. New session retains Misu setup at /airs/new; an explicit AIR_GROWTH_ENABLED=false rolls Home back to setup. Example data is identified with one discreet notice per visible view; no reward API, model request, microphone access or learning-record write was added.
+Growth is the default Home in development and production and displays seven capabilities inside the existing Airs product. New session retains Misu setup at /home/new; an explicit AIR_GROWTH_ENABLED=false rolls Home back to setup. Example data is identified with one discreet notice per visible view; no reward API, model request, microphone access or learning-record write was added.
 
 Product definitions live separately from the example adapter, which owns starting values, evidence, history and scripted transitions. Nuxt request-isolated state survives client navigation, resets on reload, and resets when a scenario or Reset example is selected. Returning learner, New learner, Review pending and Review failed are inspectable. Pending/failed presets retain the returning learner's established sample progress; retry restores the ready preset.
 

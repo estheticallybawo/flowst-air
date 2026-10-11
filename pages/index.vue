@@ -2,6 +2,6 @@
 const auth = useAuth()
 await auth.ensureSession()
 const authenticated = computed(() => auth.status.value === 'AUTHENTICATED')
-useHead({ title: 'Flowst Airs · Make what you learn your own', meta: [{ name: 'description', content: 'Make your views and knowledge easier to air. Plan with Misu, practise with Amina, review evidence with Kai, and earn Tides as you progress with Flowst Airs.' }, { property: 'og:title', content: 'Flowst Airs · Make what you learn your own' }, { property: 'og:description', content: 'Guided spoken practice, feedback on your attempts, and Tides as you progress. For independent learners, recent graduates and people building with AI.' }], bodyAttrs: { class: 'air-surface' } })
+useHead({ title: 'Flowst Airs · Give your thoughts a stronger voice', meta: [{ name: 'description', content: 'Build your verbal intelligence through guided spoken practice. Express your ideas with greater confidence, prepare for career conversations, and earn Tides as you progress.' }, { property: 'og:title', content: 'Flowst Airs · Give your thoughts a stronger voice' }, { property: 'og:description', content: 'A practice space for independent adult learners to explore ideas, express opinions and build confidence for conversations that shape their careers.' }], bodyAttrs: { class: 'air-surface' } })
 </script>
 <template><AirLanding :authenticated="authenticated" /></template>
