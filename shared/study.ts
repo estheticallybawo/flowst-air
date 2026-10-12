@@ -51,6 +51,10 @@ export interface StudySource {
   label: string;
   excerpt: string;
   location?: StudyLocation;
+  /** Supplemental context never becomes an approved assessment source. */
+  origin?: 'RELATED_WEB';
+  retrievedAt?: string;
+  contentHash?: string;
 }
 
 export interface StudyDocument {

@@ -2,6 +2,8 @@
 
 Misu defines source-backed evaluation modes, meanings, activity targets and sufficient evidence before the learner approves a plan. Amina delivers the conversation governed by that plan. Kai reviews saved evidence after the session and outside the live call.
 
+Amina can supplement requested explanations and worked examples with related public web references. These are fetched readable snapshots with URL, retrieval time and content hash, labeled as related context and linked in Sources. They do not change the approved plan, assessment passages, target criteria or learner evidence. Hints and routine answer review do not trigger web research. Unavailable research leaves approved-source practice usable and is disclosed; saved operation claims prevent duplicate research across retries or devices.
+
 The backend keeps a versioned objective ledger with not_started, active, partially_met, met_for_session, needs_revisit and deferred states. Semantic equivalence is accepted by default; source fidelity requires explicit approval. Deferral and skipping keep gaps visible. They never become met objectives.
 
 Finalized input is saved first. Misu extracts and evaluates structured evidence, including exact learner quotes, demonstrated and unresolved meanings, source references and material transcription uncertainty. The controller selects the next action. Amina supplies constrained prose; only the controller can append an approved target question. A met objective receives specific acknowledgement and advances automatically. There is no objective-confirmation button.

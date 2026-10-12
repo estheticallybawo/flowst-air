@@ -83,6 +83,7 @@
 :(literal)docs/exec-plans/active/flowst-air-orchestration.md
 :(literal)docs/exec-plans/completed/flowst-air-identity.md
 :(literal)docs/exec-plans/completed/growth-home-prototype.md
+:(literal)docs/exec-plans/completed/related-practice-references.md
 :(literal)docs/exec-plans/completed/source-and-misu-foundation.md
 :(literal)docs/exec-plans/index.md
 :(literal)docs/exec-plans/tech-debt-tracker.md
@@ -256,6 +257,7 @@
 :(literal)server/services/studyPacing.ts
 :(literal)server/services/studyPlanningInventory.ts
 :(literal)server/services/studyPreferences.ts
+:(literal)server/services/studyRelatedResearch.ts
 :(literal)server/services/studyRepeat.ts
 :(literal)server/services/studyRepository.ts
 :(literal)server/services/studyRetrieval.ts
@@ -355,6 +357,7 @@
 :(literal)tests/study-preferences.test.ts
 :(literal)tests/study-presentation.test.ts
 :(literal)tests/study-provider-recovery.test.ts
+:(literal)tests/study-related-research.test.ts
 :(literal)tests/study-repeat.test.ts
 :(literal)tests/study-source-mcp.test.ts
 :(literal)tests/study-source-network.test.ts

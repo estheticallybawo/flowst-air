@@ -117,6 +117,8 @@ export const files = [
   "tests/misu-plan-errors.test.ts",
   "tests/misu-plan-recovery.test.ts",
   "server/services/misuEvidenceReview.ts",
+  "server/services/studyRelatedResearch.ts",
+  "tests/study-related-research.test.ts",
   "shared/studySessionRecovery.ts",
   "tests/study-evidence-review.test.ts",
   "tests/misu-evidence-contract.test.ts",

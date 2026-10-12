@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 const bedrock = vi.hoisted(() => ({ request: vi.fn() }))
 vi.mock('../server/services/studyBedrockTransport', () => ({ requestStudyBedrock: bedrock.request }))
 import { groqStudyText } from '../server/services/studyInference'
-import { misuReviewOutput, misuReviewSchema, parseMisuReview } from '../server/services/misuEvidenceReview'
+import { misuReviewOutput, misuReviewSchema, parseMisuReview, groundMisuReview } from '../server/services/misuEvidenceReview'
 import { shouldPauseStudyOnExit } from '../shared/studySessionRecovery'
 import type { StudyConversation } from '../shared/study'
 import type { StudyPacingState } from '../shared/studyPacing'
@@ -11,6 +11,17 @@ beforeEach(() => { vi.stubGlobal('useRuntimeConfig', () => ({ studyTextProvider:
 afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks() })
 const response = (calls: unknown[], finish_reason = 'stop') => new Response(JSON.stringify({ choices: [{ finish_reason, message: { tool_calls: calls } }] }))
 const call = { function: { name: 'submit_objective_evidence', arguments: '{"fixture":true}' } }
+it.each(['quotation','source','criterion'])('identifies the rejected %s without exposing content or relaxing grounding',kind=>{
+ const warn=vi.spyOn(console,'warn').mockImplementation(()=>{})
+ const valid=misuReviewSchema.parse({semanticAcceptance:'met',demonstrated:['Explain the approved idea.'],unresolved:[],reason:'The learner describes the approved idea.',sourceRefs:['source-1'],learnerQuotes:['It is canonical.'],transcriptionUncertainty:[],interactionState:'correct'})
+ if(kind==='quotation')valid.learnerQuotes=['It is not canonical.']
+ if(kind==='source')valid.sourceRefs=['PRIVATE invented source']
+ if(kind==='criterion')valid.demonstrated=['PRIVATE invented criterion']
+ let failure:any
+ try {groundMisuReview(valid,[{text:'It is canonical.'}],['Explain the approved idea.'],['source-1'])}catch(cause){failure=cause}
+ expect(failure?.data.validationIssues[0]).toEqual(kind==='quotation'?{field:'learnerQuotes',reason:'UNAVAILABLE_QUOTATION'}:kind==='source'?{field:'sourceRefs',reason:'UNAVAILABLE_SOURCE'}:{field:'demonstrated',reason:'UNAVAILABLE_CRITERION'})
+ expect(JSON.stringify(failure)+JSON.stringify(warn.mock.calls)).not.toMatch(/PRIVATE|canonical|approved idea/)
+})
 
 it.each(['groq', 'aws'])('requests one structured review through %s without a fallback or second dispatch', async provider => {
   vi.stubGlobal('useRuntimeConfig', () => ({ studyTextProvider: provider, groqApiKey: 'fixture', groqModel: 'fixture' }))

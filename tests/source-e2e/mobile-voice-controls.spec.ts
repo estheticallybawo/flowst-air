@@ -13,6 +13,7 @@ test('voice controls remain usable while reading the conversation on small scree
     turns: Array.from({ length: 30 }, (_, i) => ({ id: 'turn-' + i, role: i % 2 ? 'USER' : 'AMIRA', text: 'Plants use light to make food. Explain the idea in your own words.', createdAt: '', mode: 'DISCUSSION', sources: [], kind: i === 0 ? 'INTRO' : 'CONTROL' })),
     createdAt: '', updatedAt: '',
   }
+  study.turns[28] = {...study.turns[28]!,text:'For related context, reference.example.org reports: Plants convert light energy to chemical energy.',sources:[{id:'related-web:fixture',label:'Botanical reference',excerpt:'Plants convert light energy to chemical energy.',location:{url:'https://reference.example.org/plants'},origin:'RELATED_WEB',retrievedAt:'2026-10-12T10:00:00Z',contentHash:'fixture'}] as any,provenance:'MIXED'} as any
   await page.route('**/api/study/conversations/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', route => route.fulfill({ json: study }))
   await page.route('**/api/study/conversations/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/live', route => route.fulfill({ json: { enabled: true, provider: 'elevenlabs', socketUrl: '', message: '' } }))
   await page.route('**/api/study/conversations/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/speech', route => route.fulfill({ status: 503, json: { statusMessage: 'Fixture voice playback is unavailable.' } }))
@@ -33,6 +34,14 @@ test('voice controls remain usable while reading the conversation on small scree
       await expect(page.getByRole('region', { name: 'Saved conversation', exact: true })).toHaveCount(0)
       await page.getByRole('button', { name: 'Conversation', exact: true }).click()
       await expect(page.getByRole('region', { name: 'Saved conversation', exact: true })).toBeVisible()
+      const references = page.locator('.turn-support details').filter({has:page.locator('a[href="https://reference.example.org/plants"]')})
+      await references.locator('summary').click()
+      const reference = references.getByRole('link',{name:'Botanical reference',exact:true})
+      await expect(reference).toBeVisible();await expect(reference).toHaveAttribute('target','_blank');await expect(reference).toHaveAttribute('rel','noopener noreferrer')
+      await reference.scrollIntoViewIfNeeded()
+      expect(await reference.evaluate(element=>{const box=element.getBoundingClientRect();return element.contains(document.elementFromPoint(box.x+box.width/2,box.y+box.height/2))})).toBe(true)
+      await expect(references).toContainText('Related web reference · supplemental context')
+      await expect(references).toContainText('Retrieved')
       await expect(control).toBeVisible()
       await expect(page.locator('.call-state')).toContainText('Microphone off')
       await page.screenshot({ path: test.info().outputPath('voice-transcript-' + viewport.width + '-' + mode + '.png'), fullPage: true })

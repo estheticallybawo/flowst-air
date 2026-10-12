@@ -23,6 +23,9 @@ function time(value: string) {
     ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     : "";
 }
+function referenceUrl(value?: string) {
+  try {const url = new URL(value || '');return url.protocol === 'https:' && !url.username && !url.password ? url.href : ''} catch {return ''}
+}
 watch(
   () => [props.turns.at(-1)?.id, props.liveCaption],
   async () => {
@@ -83,10 +86,13 @@ watch(
             <small v-if="turn.provenance === 'GENERAL'"
               >General knowledge · no document match</small
             ><small v-else-if="turn.provenance === 'MIXED'"
-              >Document + general knowledge</small
+              >{{ turn.sources.some(source => source.origin === 'RELATED_WEB') ? 'Approved source + related web references' : 'Document + general knowledge' }}</small
             >
             <p v-for="source in turn.sources" :key="source.id">
-              <strong>{{ source.label }}</strong> {{ source.excerpt }}
+              <small v-if="source.origin === 'RELATED_WEB'">Related web reference · supplemental context</small>
+              <a v-if="source.origin === 'RELATED_WEB' && referenceUrl(source.location?.url)" :href="referenceUrl(source.location?.url)" target="_blank" rel="noopener noreferrer">{{ source.label }}</a>
+              <strong v-else>{{ source.label }}</strong> {{ source.excerpt }}
+              <small v-if="source.origin === 'RELATED_WEB' && source.retrievedAt">Retrieved {{ new Date(source.retrievedAt).toLocaleDateString() }}</small>
             </p>
           </details>
           <button

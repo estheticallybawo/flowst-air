@@ -1752,7 +1752,7 @@ export async function getStudyObjectiveOperation(ownerId: string, id: string, op
 /** Input, review and output each commit with the conversation revision; output also commits the pointer, evidence and clock. */
 export async function saveStudyObjectiveState(ownerId: string, id: string, expectedRevision: number, change: {
   flow: ObjectiveFlowState; plan?: StudyPlan; practice?: StudyConversation['practice']; userTurn?: StudyTurn; agentTurn?: StudyTurn;
-  operation?: StudyObjectiveOperation; expectedOperationStatus?: StudyObjectiveOperation['status']; trace?: StudyExecutionTrace; evidence?: StudyLearningEvidence;
+  operation?: StudyObjectiveOperation; expectedOperationStatus?: StudyObjectiveOperation['status']; claimRelatedResearch?: boolean; trace?: StudyExecutionTrace; evidence?: StudyLearningEvidence;
   recordedClaim?: StudyRecordedTurnClaim; pacing?: {state: StudyPacingState; expectedRevision: string};
 }, event?: H3Event) {
   const current = await getStudyConversation(ownerId, id, event);
@@ -1766,7 +1766,7 @@ export async function saveStudyObjectiveState(ownerId: string, id: string, expec
   const operationKey = id + '#' + change.operation?.id;
   if (mock) {
     const record = mockRecords.get(id)!;
-    if (record.revision !== expectedRevision || (change.operation && mockObjectiveOperations.get(operationKey)?.status !== change.expectedOperationStatus))
+    if (record.revision !== expectedRevision || (change.operation && (mockObjectiveOperations.get(operationKey)?.status !== change.expectedOperationStatus || change.claimRelatedResearch && mockObjectiveOperations.get(operationKey)?.relatedResearch !== undefined)))
       throw createError({statusCode:409,statusMessage:'This turn changed. Reload before continuing.'});
     const recorded = change.recordedClaim && mockRecordedRequests.get(id + '#' + change.recordedClaim.recordingId);
     if (change.recordedClaim && (!recorded || recorded.claimId !== change.recordedClaim.claimId || recorded.audioHash !== change.recordedClaim.audioHash || !['PROCESSING','FAILED'].includes(recorded.status))) throw recordedTurnConflict();
@@ -1797,8 +1797,8 @@ export async function saveStudyObjectiveState(ownerId: string, id: string, expec
     if (change.evidence) items.push(put('EVIDENCE#' + change.evidence.id, {evidence: change.evidence}));
     if (change.operation) items.push({Put: {
       TableName: table, Item: {pk, sk: 'FLOW#' + change.operation.id, operation: change.operation},
-      ConditionExpression: change.expectedOperationStatus ? '#operation.#status = :status AND #operation.inputHash = :hash' : 'attribute_not_exists(pk)',
-      ...(change.expectedOperationStatus ? {ExpressionAttributeNames:{'#operation':'operation','#status':'status'},ExpressionAttributeValues:{':status':change.expectedOperationStatus,':hash':change.operation.inputHash}} : {}),
+      ConditionExpression: change.expectedOperationStatus ? '#operation.#status = :status AND #operation.inputHash = :hash' + (change.claimRelatedResearch ? ' AND attribute_not_exists(#operation.#research)' : '') : 'attribute_not_exists(pk)',
+      ...(change.expectedOperationStatus ? {ExpressionAttributeNames:{'#operation':'operation','#status':'status',...(change.claimRelatedResearch ? {'#research':'relatedResearch'} : {})},ExpressionAttributeValues:{':status':change.expectedOperationStatus,':hash':change.operation.inputHash}} : {}),
     }});
     if (change.recordedClaim && change.agentTurn && change.operation) items.push({Update: {
       TableName: table, Key: recordedTurnKey(id, change.recordedClaim.recordingId),

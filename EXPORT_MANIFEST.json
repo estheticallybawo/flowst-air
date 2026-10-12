@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-12T17:29:51.225Z",
+  "createdAt": "2026-10-12T18:15:22.243Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -10,8 +10,8 @@
     },
     {
       "path": ".env.example",
-      "bytes": 1591,
-      "sha256": "cc43318abaa9079d000e564194ffb15516f6913412918dc59491bd0388ab4b5a"
+      "bytes": 1791,
+      "sha256": "e9ab157d8790fb696290157bc0581adbccc56af64505dd5f51478886a2235a4b"
     },
     {
       "path": ".gitattributes",
@@ -34,74 +34,14 @@
       "sha256": "973731943bfce68fcf620cce90045ea54c93f95d0466aa13f0b858ea2b50589a"
     },
     {
-      "path": "ARCHITECTURE.md",
-      "bytes": 2903,
-      "sha256": "682bd30cb6cc156bf1012dd5b86fecfd6e562f2c7fb29a1b2f67767f108c5878"
-    },
-    {
-      "path": "CAPSTONE_SPEC.md",
-      "bytes": 162,
-      "sha256": "59364ddcc0288bef7084e90874b9a8fb4415f62db4ee8036525dec7dd2c6fcd6"
-    },
-    {
-      "path": "DEMO_SCRIPT.md",
-      "bytes": 149,
-      "sha256": "79acb9c9949f761a5c724b0cdd20edd569020c822a62ba8ff5e497d385902885"
-    },
-    {
-      "path": "DEPLOYED_VIDEO_CHECKLIST.md",
-      "bytes": 188,
-      "sha256": "55870938d06edc2b9b3c5941746e00208b10826e55867153ac8e7a58e461607e"
-    },
-    {
-      "path": "DESIGN.md",
-      "bytes": 1294,
-      "sha256": "867b6683bb4e0144e8c99c34cb4fa206db9dacaa89e195da0adebb6c4ad412fd"
-    },
-    {
-      "path": "FLOWST_AIR_SYSTEM_DESIGN.md",
-      "bytes": 189,
-      "sha256": "d61daa385e09897eae1ce02e60bc734e2a4fb61f707387c50472ad749a38bcb0"
-    },
-    {
-      "path": "FRONTEND.md",
-      "bytes": 8488,
-      "sha256": "261cba51ef0c9ed45d1067bc1a937c72402244f141da13a865d70e8d92773390"
-    },
-    {
-      "path": "LICENSE",
-      "bytes": 1075,
-      "sha256": "d3a5423976b7da694769a344d4fb0e7c346d3b543a5cdae1f34f808fa8d2696a"
-    },
-    {
-      "path": "PLANS.md",
-      "bytes": 772,
-      "sha256": "e992b8fbe7f047db0001507b2e8722ffd8486f3be3085a65fccb938fcb3ead19"
-    },
-    {
-      "path": "PRODUCT_BRIEF.md",
-      "bytes": 158,
-      "sha256": "1c43713787a612241fc971d9822698f23748e9d64ac08cd462cd77bef951db0b"
-    },
-    {
-      "path": "PRODUCT_SENSE.md",
-      "bytes": 1220,
-      "sha256": "d3680c988f872582fec59992c83674ccd332f65683740f6fd6a0ccfb89294088"
-    },
-    {
-      "path": "README.md",
-      "bytes": 12555,
-      "sha256": "eff812c38ab0795e1048071a81527e98086f248475f711fb788608c1a9104643"
-    },
-    {
-      "path": "VALIDATION.md",
-      "bytes": 148,
-      "sha256": "f20161346de48d3fd8cd263b0bc292da3732015b1ec836f57e107946ca5037e8"
-    },
-    {
       "path": "app.vue",
       "bytes": 2027,
       "sha256": "556e88bc6dcf082c78a5074523f5c01b8f36007f6d815b1a444f73f5c3a348cb"
+    },
+    {
+      "path": "ARCHITECTURE.md",
+      "bytes": 2903,
+      "sha256": "682bd30cb6cc156bf1012dd5b86fecfd6e562f2c7fb29a1b2f67767f108c5878"
     },
     {
       "path": "assets/css/air-call-room.css",
@@ -122,6 +62,11 @@
       "path": "assets/css/main.css",
       "bytes": 8615,
       "sha256": "f41f743074b7692d8fa2002785a51092825dd223cf7c70e5698d7531127c5473"
+    },
+    {
+      "path": "CAPSTONE_SPEC.md",
+      "bytes": 162,
+      "sha256": "59364ddcc0288bef7084e90874b9a8fb4415f62db4ee8036525dec7dd2c6fcd6"
     },
     {
       "path": "components/AgentActivity.vue",
@@ -160,8 +105,8 @@
     },
     {
       "path": "components/AirConversation.vue",
-      "bytes": 8074,
-      "sha256": "55e0e1a9578d3c035fee4cba4a09562d1e74f795817187361f16784d3023a12d"
+      "bytes": 8853,
+      "sha256": "1725888365fdd095f81801d2c7abd9898c77200a29e017d3fa21e37ced4e302e"
     },
     {
       "path": "components/AirFocusDialog.vue",
@@ -189,46 +134,6 @@
       "sha256": "36e0461ddd3a71caa1a078f218e3c54eac7f550d4cf4954f4c7a16adc4539924"
     },
     {
-      "path": "components/AirScrollStory.vue",
-      "bytes": 11224,
-      "sha256": "5763c3816ae094eefa0b0e2cd873ef83d4dfb8264381af981d7037e99fda69ac"
-    },
-    {
-      "path": "components/AirSessionNavigation.vue",
-      "bytes": 4159,
-      "sha256": "0200b7216693a8c5b57b06637cd29f1d7d34d905d93e371461764532df68f2fe"
-    },
-    {
-      "path": "components/AirSkeleton.vue",
-      "bytes": 7127,
-      "sha256": "1c2a84a9709946092ee8d5dc2eb2dae8192d33198feec68dbf5fa5282ea91510"
-    },
-    {
-      "path": "components/AirSourcePicker.vue",
-      "bytes": 15229,
-      "sha256": "180295270748999f1dd114fd6b7704cda115449ec9271d78bba5e80a530f1691"
-    },
-    {
-      "path": "components/AirSourceProvenance.vue",
-      "bytes": 1873,
-      "sha256": "b97d0a5f090a8cc153264edcb1e956bcc6d91b6a50483f556c89235280fd793a"
-    },
-    {
-      "path": "components/AirStudyShell.vue",
-      "bytes": 5838,
-      "sha256": "91727658647094773f78074fa94bd42a3af029e4522e1458adfc3103c37e9332"
-    },
-    {
-      "path": "components/AirUpgradePanel.vue",
-      "bytes": 510,
-      "sha256": "e241245db278cbd16ba54b15ffb9482e4e1a6b197ae6c011cba433eccb19197d"
-    },
-    {
-      "path": "components/AirVoiceMeter.vue",
-      "bytes": 952,
-      "sha256": "e64a8a97e03b25f9a2123eb701a856cb18d4a7304f5d0540da76145453fab713"
-    },
-    {
       "path": "components/AirsAgentHandoff.vue",
       "bytes": 2645,
       "sha256": "c2aca9f005321e19925fec2f846f78ef66a929bcfdb6eb0eac32a872920a913e"
@@ -237,6 +142,16 @@
       "path": "components/AirsContextCard.vue",
       "bytes": 9982,
       "sha256": "b2fd27b55994872f7426df88b72c12489c3d880550cfc5a933e0f4aa79900721"
+    },
+    {
+      "path": "components/AirScrollStory.vue",
+      "bytes": 11224,
+      "sha256": "5763c3816ae094eefa0b0e2cd873ef83d4dfb8264381af981d7037e99fda69ac"
+    },
+    {
+      "path": "components/AirSessionNavigation.vue",
+      "bytes": 4159,
+      "sha256": "0200b7216693a8c5b57b06637cd29f1d7d34d905d93e371461764532df68f2fe"
     },
     {
       "path": "components/AirsGrowthHome.vue",
@@ -254,6 +169,11 @@
       "sha256": "be0d0a79ac735988486e28607884438e9fe0f553a230e02c16494febf08715b3"
     },
     {
+      "path": "components/AirSkeleton.vue",
+      "bytes": 7127,
+      "sha256": "1c2a84a9709946092ee8d5dc2eb2dae8192d33198feec68dbf5fa5282ea91510"
+    },
+    {
       "path": "components/AirsMessage.vue",
       "bytes": 1257,
       "sha256": "9b9583d415ad84b94081aa8aef149c250c86fd69baa4593081eacd132691320f"
@@ -262,6 +182,16 @@
       "path": "components/AirsObjectiveCelebration.vue",
       "bytes": 6238,
       "sha256": "2511c43790ff4e0e2d3802f5f6e0412f3832b2d2f11daeae4f2e6b7bb3c36a7a"
+    },
+    {
+      "path": "components/AirSourcePicker.vue",
+      "bytes": 15229,
+      "sha256": "180295270748999f1dd114fd6b7704cda115449ec9271d78bba5e80a530f1691"
+    },
+    {
+      "path": "components/AirSourceProvenance.vue",
+      "bytes": 1873,
+      "sha256": "b97d0a5f090a8cc153264edcb1e956bcc6d91b6a50483f556c89235280fd793a"
     },
     {
       "path": "components/AirsPlanOverview.vue",
@@ -277,6 +207,21 @@
       "path": "components/AirsSetup.vue",
       "bytes": 17411,
       "sha256": "a482e0b75c6fea8d8c8fdf09951e0cd73092c2ba0de5d79dd675d8052efaa180"
+    },
+    {
+      "path": "components/AirStudyShell.vue",
+      "bytes": 5838,
+      "sha256": "91727658647094773f78074fa94bd42a3af029e4522e1458adfc3103c37e9332"
+    },
+    {
+      "path": "components/AirUpgradePanel.vue",
+      "bytes": 510,
+      "sha256": "e241245db278cbd16ba54b15ffb9482e4e1a6b197ae6c011cba433eccb19197d"
+    },
+    {
+      "path": "components/AirVoiceMeter.vue",
+      "bytes": 952,
+      "sha256": "e64a8a97e03b25f9a2123eb701a856cb18d4a7304f5d0540da76145453fab713"
     },
     {
       "path": "components/AuthShell.vue",
@@ -354,14 +299,29 @@
       "sha256": "89d74cd8bf3b4c3fa7ecbbf37a9f6f794d72e8d304e62dbe3edaa174ab63f15a"
     },
     {
+      "path": "DEMO_SCRIPT.md",
+      "bytes": 149,
+      "sha256": "79acb9c9949f761a5c724b0cdd20edd569020c822a62ba8ff5e497d385902885"
+    },
+    {
+      "path": "DEPLOYED_VIDEO_CHECKLIST.md",
+      "bytes": 188,
+      "sha256": "55870938d06edc2b9b3c5941746e00208b10826e55867153ac8e7a58e461607e"
+    },
+    {
+      "path": "DESIGN.md",
+      "bytes": 1294,
+      "sha256": "867b6683bb4e0144e8c99c34cb4fa206db9dacaa89e195da0adebb6c4ad412fd"
+    },
+    {
       "path": "docs/AIRS_FOCUSED_PRACTICE_VERIFICATION.md",
       "bytes": 20764,
       "sha256": "98664bc3b6aad05b289b4ce08143953bdfba82e97865cc3b096a11c9ee9ca7d3"
     },
     {
       "path": "docs/design-docs/amina-objective-flow.md",
-      "bytes": 4086,
-      "sha256": "14e9f8cf055d86bb8b6287db4db7ee49e693704ee6b631750c8fa823a9e7f8f9"
+      "bytes": 4629,
+      "sha256": "a35ad0ca5896ee41ff6a9938fe13088526b935c0cb9a7716eeaaa5d722cb7848"
     },
     {
       "path": "docs/design-docs/context-aware-practice.md",
@@ -424,14 +384,19 @@
       "sha256": "32049e5fc05c5433b95b26aefd491b0d29a9be834b01f0965263df45d82a96a6"
     },
     {
+      "path": "docs/exec-plans/completed/related-practice-references.md",
+      "bytes": 3582,
+      "sha256": "e8798f89f8f5421666197a7471c6dd578bd26f6f39a9eb90dec58b25f479f86a"
+    },
+    {
       "path": "docs/exec-plans/completed/source-and-misu-foundation.md",
       "bytes": 947,
       "sha256": "86efdf03fe1ab6b0df15fcb228a28ccbdc6186a671421a00e117eb88d6f1986b"
     },
     {
       "path": "docs/exec-plans/index.md",
-      "bytes": 615,
-      "sha256": "90ae2bb0bc8e6696545b49e9026648a02828e1ebd1176e7e69a6ca74a95d4082"
+      "bytes": 802,
+      "sha256": "12e6205d4b728afeef3a807676b087aec0733c372b4a4ac5d94bacf627b8f49d"
     },
     {
       "path": "docs/exec-plans/tech-debt-tracker.md",
@@ -441,7 +406,7 @@
     {
       "path": "docs/generated/db-schema.md",
       "bytes": 8670,
-      "sha256": "243dfafa45da2e30cb487febc2fa162ba013ba85ce36550c2a84fb96ef3c872e"
+      "sha256": "4d5b826125600e324fd86bea98e38b4c7f918dd0f7979fb7f136ea573ed7f38a"
     },
     {
       "path": "docs/generated/index.md",
@@ -450,8 +415,8 @@
     },
     {
       "path": "docs/generated/shared-parity.json",
-      "bytes": 21258,
-      "sha256": "ef757cef78407a4422c88d4a8673302ffc89a027d55690b14b178ac8250eeceb"
+      "bytes": 21561,
+      "sha256": "a795737f7c8bf36e6e207c0546913d8d9d1f29550c722c0c73bd47094b2da252"
     },
     {
       "path": "docs/index.md",
@@ -496,7 +461,7 @@
     {
       "path": "docs/references/development-and-verification.md",
       "bytes": 1975,
-      "sha256": "cece2a2559f34c5e89d2fc9ec9457962b86518e5c71f745b65bb430ba03faefb"
+      "sha256": "d622b3d46db1dfbd5ac96495ab9cb9405696ebaf54a155efd5950488178584fd"
     },
     {
       "path": "docs/references/identity-migration.md",
@@ -530,13 +495,28 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 79935,
-      "sha256": "3319d5d02fca30bc233fdce8092ccf8f16b0d91b6027f6773666dcb62986e018"
+      "bytes": 82743,
+      "sha256": "75fcc291259073b716cc5ea97bb67057deeaf3b25a16d56120b4c30f36034a2c"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
       "bytes": 5839,
       "sha256": "9b8269f0886d9e961f29f903a97cb0cc6f6da753afd56d1a87cf37328616e2d4"
+    },
+    {
+      "path": "FLOWST_AIR_SYSTEM_DESIGN.md",
+      "bytes": 189,
+      "sha256": "d61daa385e09897eae1ce02e60bc734e2a4fb61f707387c50472ad749a38bcb0"
+    },
+    {
+      "path": "FRONTEND.md",
+      "bytes": 8488,
+      "sha256": "261cba51ef0c9ed45d1067bc1a937c72402244f141da13a865d70e8d92773390"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1075,
+      "sha256": "d3a5423976b7da694769a344d4fb0e7c346d3b543a5cdae1f34f808fa8d2696a"
     },
     {
       "path": "mcp/codex-config.example.toml",
@@ -560,8 +540,8 @@
     },
     {
       "path": "nuxt.config.ts",
-      "bytes": 9084,
-      "sha256": "152adef75af5218670cc581a136c0b54970aff5f1823385a93d57e21110bbd49"
+      "bytes": 9171,
+      "sha256": "548ad7ce13d99b6afd947c932c992ce2f4a5cf9c2c9a8015506e744b7d82f5bf"
     },
     {
       "path": "package-lock.json",
@@ -644,6 +624,11 @@
       "sha256": "74fac681d326706ff5dca874e8d9ba96a1eafaebbf7ffde3c442bad056271d92"
     },
     {
+      "path": "PLANS.md",
+      "bytes": 772,
+      "sha256": "e992b8fbe7f047db0001507b2e8722ffd8486f3be3085a65fccb938fcb3ead19"
+    },
+    {
       "path": "playwright.airs.config.ts",
       "bytes": 514,
       "sha256": "18039253ee70db52e95bc716de3ad50a3934fb3b17d4c256818ddc8ffc6ca555"
@@ -657,6 +642,16 @@
       "path": "playwright.sources.config.ts",
       "bytes": 599,
       "sha256": "73052e77f8990efa18e73c3a6dfda8c70ec7f5eb3d67167f97bffea270db7524"
+    },
+    {
+      "path": "PRODUCT_BRIEF.md",
+      "bytes": 158,
+      "sha256": "1c43713787a612241fc971d9822698f23748e9d64ac08cd462cd77bef951db0b"
+    },
+    {
+      "path": "PRODUCT_SENSE.md",
+      "bytes": 1220,
+      "sha256": "d3680c988f872582fec59992c83674ccd332f65683740f6fd6a0ccfb89294088"
     },
     {
       "path": "public/air-voice-capture.js",
@@ -784,14 +779,19 @@
       "sha256": "bcebbd173a14f3dc1e413675c1a6ddec63dbc273635df5a090582bc4d9d9b9cf"
     },
     {
+      "path": "README.md",
+      "bytes": 12555,
+      "sha256": "eff812c38ab0795e1048071a81527e98086f248475f711fb788608c1a9104643"
+    },
+    {
       "path": "scripts/check-docs.mjs",
       "bytes": 1610,
       "sha256": "89f08f0600e4104a8336fd7b4a53e24e9014224c7abd10d94cda0cd3dd513c06"
     },
     {
       "path": "scripts/check-flowst-parity.mjs",
-      "bytes": 13562,
-      "sha256": "1a5185fa8c87a7d0eb8b4ea81f1788dabea2b350182932a156f169ebe7555b9e"
+      "bytes": 13649,
+      "sha256": "98d32edfff95bf659a9fb34b9a962751f2e901606820ee51f8427088d3577436"
     },
     {
       "path": "scripts/check-public-export.mjs",
@@ -1180,8 +1180,8 @@
     },
     {
       "path": "server/services/misuEvidenceReview.ts",
-      "bytes": 3497,
-      "sha256": "b807be1d30e022b2bec7a86ff69b78a23072a5256020e7f99f32ec4aac1d07b5"
+      "bytes": 5698,
+      "sha256": "7680fc700e006660640dc5e97cc25a5f3a0fc895ac1d2b44ff139f78b37ff0d7"
     },
     {
       "path": "server/services/misuPlanFailure.ts",
@@ -1255,8 +1255,8 @@
     },
     {
       "path": "server/services/studyMisu.ts",
-      "bytes": 34754,
-      "sha256": "a8e06b71756eb585006063af41a53f73b4a0497fa6fc55f009bbf15cab6dfb53"
+      "bytes": 34448,
+      "sha256": "70b93406f5572c49259ba336991cd93fbb6b3955729c9d3f6d677097c5f4b19a"
     },
     {
       "path": "server/services/studyModelBudget.ts",
@@ -1265,8 +1265,8 @@
     },
     {
       "path": "server/services/studyObjectiveFlow.ts",
-      "bytes": 41923,
-      "sha256": "baa12717596e1ca9dfe4ed4fb05b98747eeb4ff174a71ddf7cf9c61553c1fd79"
+      "bytes": 46966,
+      "sha256": "d38372f9f5e3438f084c1bd97083c0ca9a1529ff72ba077e9c3b5723979ffc9d"
     },
     {
       "path": "server/services/studyPacing.ts",
@@ -1284,14 +1284,19 @@
       "sha256": "5bf688914b1cde6140bf756c0712245c1f4331131d8855db707e369dd066d1c4"
     },
     {
+      "path": "server/services/studyRelatedResearch.ts",
+      "bytes": 3691,
+      "sha256": "963f0f08ca9783fdb1d6a05579fcbf730b3233f24ade9c04c52e95527fbdd989"
+    },
+    {
       "path": "server/services/studyRepeat.ts",
       "bytes": 4745,
       "sha256": "2e67ecea7e134d30636de3a14a2595da3de20b9d19ef38b7db5c91bc61c2ff83"
     },
     {
       "path": "server/services/studyRepository.ts",
-      "bytes": 77145,
-      "sha256": "49572aabb273601a4aaed2145ac6a664c50627e49c84834f16a459c91e54eece"
+      "bytes": 77447,
+      "sha256": "dff7837076e2c1a202ceeeb80bc5b305539aa7f2f30e4ffa0f3760c8a7f81601"
     },
     {
       "path": "server/services/studyRetrieval.ts",
@@ -1374,11 +1379,6 @@
       "sha256": "bfced31764fbfab8733a4a11fd23aca1b30594493593ff20a0d21d3f5d75dd53"
     },
     {
-      "path": "shared/airSurface.ts",
-      "bytes": 1437,
-      "sha256": "d26a7c00a256d8e214d066b769cd06b6c466a4b3aade82799d5f710acd052d44"
-    },
-    {
       "path": "shared/airsHandoff.ts",
       "bytes": 2015,
       "sha256": "2d6e119b1aade87bc7a7968d42e0f0666f38f0c92a29cb66dac9edb18f6412bf"
@@ -1397,6 +1397,11 @@
       "path": "shared/airsOrchestration.ts",
       "bytes": 3801,
       "sha256": "8ee2c46a0a062fdf115e87d8b7323c97062912efb6686c348a97292099922174"
+    },
+    {
+      "path": "shared/airSurface.ts",
+      "bytes": 1437,
+      "sha256": "d26a7c00a256d8e214d066b769cd06b6c466a4b3aade82799d5f710acd052d44"
     },
     {
       "path": "shared/aminaWelcome.ts",
@@ -1420,8 +1425,8 @@
     },
     {
       "path": "shared/study.ts",
-      "bytes": 5692,
-      "sha256": "59569f7b6189119feb40d380304cbf7b2c9f91f232d47cbe6cbf30f0e46344d9"
+      "bytes": 5841,
+      "sha256": "27c87727dda14f6e41fd402dc199ae098b8d361ea106c0866b4492179bc530e6"
     },
     {
       "path": "shared/studyCompletion.ts",
@@ -1450,8 +1455,8 @@
     },
     {
       "path": "shared/studyObjectiveOperation.ts",
-      "bytes": 1348,
-      "sha256": "4c9614febc14c6b80e2731f4e2b2ab312680087528c0a9a88c1b8a6d07018c44"
+      "bytes": 1464,
+      "sha256": "d0ed70c73077398501163f33737fc255cfe5f5a2e14bc877d2aea0fb9b1d6a4d"
     },
     {
       "path": "shared/studyObjectivePolicy.ts",
@@ -1605,8 +1610,8 @@
     },
     {
       "path": "tests/misu-evidence-contract.test.ts",
-      "bytes": 4639,
-      "sha256": "03ea9f4454fbfdfe37c02d5a220f73299f8fa2e64517cae1b4282f9861f40b5b"
+      "bytes": 5848,
+      "sha256": "831bbb664081873263b08f4905e034969ae9c19a00ceecde04516b2bd75b68ee"
     },
     {
       "path": "tests/misu-plan-errors.test.ts",
@@ -1645,8 +1650,8 @@
     },
     {
       "path": "tests/source-e2e/mobile-voice-controls.spec.ts",
-      "bytes": 7716,
-      "sha256": "8c6bf583c37994ca8e51db1409d5268afc2cdbee8c55a5e1521f994e74d1264d"
+      "bytes": 9000,
+      "sha256": "6f00df7fab26adc005965f75194b974a59e76d580d5db1de768504bf74de2491"
     },
     {
       "path": "tests/source-e2e/objective-flow.spec.ts",
@@ -1670,8 +1675,8 @@
     },
     {
       "path": "tests/source-e2e/saved-response-recovery.spec.ts",
-      "bytes": 4971,
-      "sha256": "9a4d4b41058ab6ac70cbce8647c483b619d3c0369d6afb430d97b205d747a002"
+      "bytes": 6473,
+      "sha256": "2f3218de577ef6f0d671f64d0d861f9b3426e5587753b5de9809a09f9917433f"
     },
     {
       "path": "tests/source-e2e/session-completion.spec.ts",
@@ -1715,8 +1720,8 @@
     },
     {
       "path": "tests/study-evidence-review.test.ts",
-      "bytes": 9407,
-      "sha256": "cc45d94e031b989c686c8dcd0ebb9a75eda6566306eb635dada6dfd7b480ae16"
+      "bytes": 16670,
+      "sha256": "710b078b3227a989304466078224d000cb19a6e98797e06675d89c29756389b0"
     },
     {
       "path": "tests/study-live-lease.test.ts",
@@ -1779,6 +1784,11 @@
       "sha256": "532afb3ec83df0501f0b76e183c81984779107613bbfc027c81bdca98e3fe780"
     },
     {
+      "path": "tests/study-related-research.test.ts",
+      "bytes": 3802,
+      "sha256": "72ee77358da07fb18d387887f8968a1507366e045821ca411b9eb027c0dc8451"
+    },
+    {
       "path": "tests/study-repeat.test.ts",
       "bytes": 19723,
       "sha256": "6610e78ccd832315175fce3a1333bf85d126967b23cfafde57c0b6ee2c5eeae2"
@@ -1829,14 +1839,9 @@
       "sha256": "4c4efbe7911ce1d47eb21ee55ba59e3d0d8b10dc375efbb9d4a9097d44d1453a"
     },
     {
-      "path": "vendor/thinking-orbs/LICENSE",
-      "bytes": 1070,
-      "sha256": "915a283980628a0ca9e7b423ebafc6f3a0fa1e630ff17d34e59034808d92011c"
-    },
-    {
-      "path": "vendor/thinking-orbs/README.md",
-      "bytes": 449,
-      "sha256": "bbd3f9ca20f5d9c39cdfab2eb9574e7520d3081c2b04858a3ec2bba30a2efa68"
+      "path": "VALIDATION.md",
+      "bytes": 148,
+      "sha256": "f20161346de48d3fd8cd263b0bc292da3732015b1ec836f57e107946ca5037e8"
     },
     {
       "path": "vendor/thinking-orbs/engine/braid.ts",
@@ -1894,9 +1899,19 @@
       "sha256": "21b4a9497f062c65e8aebb215d5d0e31b0ae7cce763ccbf0e36fe49e0c4e838c"
     },
     {
+      "path": "vendor/thinking-orbs/LICENSE",
+      "bytes": 1070,
+      "sha256": "915a283980628a0ca9e7b423ebafc6f3a0fa1e630ff17d34e59034808d92011c"
+    },
+    {
       "path": "vendor/thinking-orbs/presets.ts",
       "bytes": 3317,
       "sha256": "b6263cbfbd232db1319e3a598bc1969ef12f0131eb877b583567ddc1661d19f1"
+    },
+    {
+      "path": "vendor/thinking-orbs/README.md",
+      "bytes": 449,
+      "sha256": "bbd3f9ca20f5d9c39cdfab2eb9574e7520d3081c2b04858a3ec2bba30a2efa68"
     },
     {
       "path": "vendor/thinking-orbs/types.ts",
