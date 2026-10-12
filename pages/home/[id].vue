@@ -20,6 +20,7 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import { studySpeechOutcome, studyTranscriptionOutcome } from "~/shared/studySpeechOutcome";
+import { studySpeechPlaybackBlob } from "~/shared/studySpeechAudio";
 import {
   spokenCaption,
   validSpeechAlignment,
@@ -1501,7 +1502,9 @@ async function playSpeech(turnId: string, automatic = false, retry = false) {
       const data = Uint8Array.from(atob(packet.audioBase64), (character) =>
         character.charCodeAt(0),
       );
-      url = URL.createObjectURL(new Blob([data], { type: packet.mimeType }));
+      const playbackBlob = await studySpeechPlaybackBlob(data, packet.mimeType);
+      if (request !== playbackRequest || disposed) return;
+      url = URL.createObjectURL(playbackBlob);
       packet.alignment = validSpeechAlignment(packet.alignment);
       packet.audioBase64 = "";
       speechPackets.set(turnId, packet);

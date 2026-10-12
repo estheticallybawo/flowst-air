@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test('voice controls remain usable while reading the conversation on small screens', async ({ page }) => {
-  test.setTimeout(90000)
+  test.setTimeout(180000)
   await page.context().route('https://fonts.googleapis.com/**', route => route.fulfill({ contentType: 'text/css', body: '' }))
   await page.request.post('/api/auth/dev-session', { data: { scenario: 'member' } })
   const study = {
@@ -50,4 +50,52 @@ test('voice controls remain usable while reading the conversation on small scree
       await expect(control).toBeVisible()
     }
   }
+
+  // A known quiet clip verifies actual reply playback and replay without a
+  // provider call or physical audio output. The browser's decoder remains real.
+  const quietWave = Buffer.alloc(44 + 8000 * 2)
+  quietWave.write('RIFF'); quietWave.writeUInt32LE(quietWave.length - 8, 4); quietWave.write('WAVEfmt ', 8)
+  quietWave.writeUInt32LE(16, 16); quietWave.writeUInt16LE(1, 20); quietWave.writeUInt16LE(1, 22)
+  quietWave.writeUInt32LE(8000, 24); quietWave.writeUInt32LE(16000, 28); quietWave.writeUInt16LE(2, 32); quietWave.writeUInt16LE(16, 34)
+  quietWave.write('data', 36); quietWave.writeUInt32LE(16000, 40)
+  for (let i = 0; i < 8000; i++) quietWave.writeInt16LE(Math.round(900 * Math.sin(2 * Math.PI * 440 * i / 8000)), 44 + i * 2)
+  let speechRequests = 0
+  await page.route('**/api/study/conversations/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/speech', route => {
+    speechRequests++
+    return route.fulfill({json:{audioBase64:quietWave.toString('base64'),mimeType:'audio/wav',spokenText:'Plants use light to make food.',alignment:null}})
+  })
+  await page.goto('/home/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee?practice=recorded', {waitUntil:'domcontentloaded'})
+  await expect(page.getByRole('button', {name:'Listen to reply',exact:true})).toBeEnabled({timeout:60000})
+  await page.evaluate(() => {
+    ;(window as any).__replyBlobs = []
+    const create = URL.createObjectURL.bind(URL)
+    URL.createObjectURL = blob => { (window as any).__replyBlobs.push(blob); return create(blob) }
+    const NativeAudio = window.Audio
+    ;(window as any).Audio = function () {
+      const audio = new NativeAudio(); let paused = true
+      Object.defineProperty(audio, 'paused', {get:()=>paused})
+      audio.play = async () => {paused=false;audio.dispatchEvent(new Event('playing'))}
+      audio.pause = () => {paused=true;audio.dispatchEvent(new Event('pause'))}
+      return audio
+    }
+    ;(window as any).Audio.prototype = NativeAudio.prototype
+  })
+  await page.getByRole('button', {name:'Listen to reply',exact:true}).click()
+  await expect(page.getByRole('button', {name:'Pause reply',exact:true})).toBeEnabled()
+  const playback = await page.evaluate(async () => {
+    const blob = (window as any).__replyBlobs[0] as Blob, view = new DataView(await blob.arrayBuffer())
+    let peak = 0
+    for (let offset = 44; offset < view.byteLength; offset += 2) peak = Math.max(peak, Math.abs(view.getInt16(offset, true)))
+    return {peak, channels:view.getUint16(22,true), duration:(view.byteLength-44)/view.getUint32(28,true)}
+  })
+  expect(playback.peak).toBeGreaterThan(2000)
+  expect(playback.peak).toBeLessThan(32767)
+  expect(playback.channels).toBe(1)
+  expect(playback.duration).toBeCloseTo(1,2)
+  await page.getByRole('button', {name:'Pause reply',exact:true}).click()
+  await page.getByRole('button', {name:'Listen to reply',exact:true}).click()
+  await expect(page.getByRole('button', {name:'Pause reply',exact:true})).toBeEnabled()
+  expect(speechRequests).toBe(1)
+  expect(await page.evaluate(()=>(window as any).__replyBlobs.length)).toBe(1)
+  await page.getByRole('button', {name:'Pause reply',exact:true}).click()
 })

@@ -298,6 +298,7 @@
 :(literal)shared/studyRetry.ts
 :(literal)shared/studySessionRecovery.ts
 :(literal)shared/studySpeech.ts
+:(literal)shared/studySpeechAudio.ts
 :(literal)shared/studySpeechOutcome.ts
 :(literal)shared/userErrors.ts
 :(literal)tests/air-access.test.ts
@@ -358,6 +359,7 @@
 :(literal)tests/study-source-mcp.test.ts
 :(literal)tests/study-source-network.test.ts
 :(literal)tests/study-sources.test.ts
+:(literal)tests/study-speech-audio.test.ts
 :(literal)tests/study-speech-cache.test.ts
 :(literal)tests/study-speech-storage.test.ts
 :(literal)tests/study-upload-limit.test.ts

@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-12T16:35:21.752Z",
+  "createdAt": "2026-10-12T17:29:51.225Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -65,8 +65,8 @@
     },
     {
       "path": "FRONTEND.md",
-      "bytes": 7983,
-      "sha256": "0402df944d00cc22c8a888c135857df0e282b420510d67d6ce896810d7cf24ac"
+      "bytes": 8488,
+      "sha256": "261cba51ef0c9ed45d1067bc1a937c72402244f141da13a865d70e8d92773390"
     },
     {
       "path": "LICENSE",
@@ -450,8 +450,8 @@
     },
     {
       "path": "docs/generated/shared-parity.json",
-      "bytes": 20972,
-      "sha256": "414090ff080a25e1205652692f6377e33e4ee12b9bcbd35072e6b43be738245b"
+      "bytes": 21258,
+      "sha256": "ef757cef78407a4422c88d4a8673302ffc89a027d55690b14b178ac8250eeceb"
     },
     {
       "path": "docs/index.md",
@@ -496,7 +496,7 @@
     {
       "path": "docs/references/development-and-verification.md",
       "bytes": 1975,
-      "sha256": "5b8301444a1a0667e41546821534eea565d601a52e8569384f2a8bc0dec49697"
+      "sha256": "cece2a2559f34c5e89d2fc9ec9457962b86518e5c71f745b65bb430ba03faefb"
     },
     {
       "path": "docs/references/identity-migration.md",
@@ -530,8 +530,8 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 77021,
-      "sha256": "20c8294bf9f944fb19aa56611b4757f757b1b972d2ab099fbf07e19d79cda219"
+      "bytes": 79935,
+      "sha256": "3319d5d02fca30bc233fdce8092ccf8f16b0d91b6027f6773666dcb62986e018"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
@@ -605,8 +605,8 @@
     },
     {
       "path": "pages/home/[id].vue",
-      "bytes": 138778,
-      "sha256": "f60634b317352c46c2e7bccf3f68465c3850dd9efe857330374500473a1bb32b"
+      "bytes": 138956,
+      "sha256": "6e37312677bfb8e19c26973b1f8209cc9521becd351a2bce2747d975dd6010db"
     },
     {
       "path": "pages/home/about.vue",
@@ -790,8 +790,8 @@
     },
     {
       "path": "scripts/check-flowst-parity.mjs",
-      "bytes": 13492,
-      "sha256": "ff21fb4ea77ef4121a37394dbf2a226e52d7b9716b37c1dad5b1b22b1006017b"
+      "bytes": 13562,
+      "sha256": "1a5185fa8c87a7d0eb8b4ea81f1788dabea2b350182932a156f169ebe7555b9e"
     },
     {
       "path": "scripts/check-public-export.mjs",
@@ -1265,8 +1265,8 @@
     },
     {
       "path": "server/services/studyObjectiveFlow.ts",
-      "bytes": 40754,
-      "sha256": "cf18b95620c7c416c9c51f34f455215513737154973e9e48e0c3dee2b059a3c2"
+      "bytes": 41923,
+      "sha256": "baa12717596e1ca9dfe4ed4fb05b98747eeb4ff174a71ddf7cf9c61553c1fd79"
     },
     {
       "path": "server/services/studyPacing.ts",
@@ -1494,6 +1494,11 @@
       "sha256": "0e4c3084562eaa744e89126a2b7cd0a16cd64630a6edeca3e6d2fed8ed2e1a99"
     },
     {
+      "path": "shared/studySpeechAudio.ts",
+      "bytes": 2397,
+      "sha256": "776fbb0eef4d8eec91930e3e6a18a7a1fd6945ff35434e05e79e495901661b54"
+    },
+    {
       "path": "shared/studySpeechOutcome.ts",
       "bytes": 4557,
       "sha256": "911e0935d7f880811549374d85de29cf0e9f187606b0d52c12e8d29eeef9378f"
@@ -1640,8 +1645,8 @@
     },
     {
       "path": "tests/source-e2e/mobile-voice-controls.spec.ts",
-      "bytes": 4591,
-      "sha256": "9aa5739a4acbab6a0da7eb54f660841d96d2ddf57c791042ae1ac92ca1051b2c"
+      "bytes": 7716,
+      "sha256": "8c6bf583c37994ca8e51db1409d5268afc2cdbee8c55a5e1521f994e74d1264d"
     },
     {
       "path": "tests/source-e2e/objective-flow.spec.ts",
@@ -1730,8 +1735,8 @@
     },
     {
       "path": "tests/study-objective-flow.test.ts",
-      "bytes": 27706,
-      "sha256": "3a9680ecf4e609bb5dce5258ded8cd89840a6b69709e9df1c7dd6a33d27463f0"
+      "bytes": 30385,
+      "sha256": "1f78adc364f09976d477d29f0e268f8ac803a8cd390ab10d1efa5c9b57bbd8cd"
     },
     {
       "path": "tests/study-objective-journey.test.ts",
@@ -1792,6 +1797,11 @@
       "path": "tests/study-sources.test.ts",
       "bytes": 16863,
       "sha256": "fb0e5b847149feb370d04ffaff1d4f45bba1059f7cdb069ea9be140878badeec"
+    },
+    {
+      "path": "tests/study-speech-audio.test.ts",
+      "bytes": 2339,
+      "sha256": "5ee8f8b209739df00fde5417e80c14b3d6a2e9f38de1bd7c3513aba92f9fe561"
     },
     {
       "path": "tests/study-speech-cache.test.ts",

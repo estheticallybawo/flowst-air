@@ -59,6 +59,8 @@ export const files = [
   "assets/css/air-call-room.css",
   "shared/studyPacing.ts",
   "shared/studySpeech.ts",
+  "shared/studySpeechAudio.ts",
+  "tests/study-speech-audio.test.ts",
   "server/services/studyPreferences.ts",
   "server/services/studyPacing.ts",
   "server/services/studyElevenSpeech.ts",

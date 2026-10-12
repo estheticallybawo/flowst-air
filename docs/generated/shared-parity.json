@@ -121,7 +121,7 @@
     },
     {
       "path": "server/services/studyObjectiveFlow.ts",
-      "sha256": "ea7c63885c4f9bf6fbf5852f9d30e2137f834dd96d5f8586cc5ad01594b59727"
+      "sha256": "4f3fd289cb080b77c1411d528ef20191faac01afb0700a69ee1eed3004fcbb25"
     },
     {
       "path": "server/services/airsContext.ts",
@@ -153,7 +153,7 @@
     },
     {
       "path": "tests/study-objective-flow.test.ts",
-      "sha256": "e6c76aec384deabd150c46cbad40f4e415bace0e73d01f1c457acc0c0581ddc8"
+      "sha256": "046352373d8a0f56283f027164c1086223af00aa0b8ffb58e08f2c55e10dce8a"
     },
     {
       "path": "tests/amina-live-client.test.ts",
@@ -222,6 +222,14 @@
     {
       "path": "shared/studySpeech.ts",
       "sha256": "dca23d1696a3879397e61a282c591885287e86a62b53b55e19e73b469bec6327"
+    },
+    {
+      "path": "shared/studySpeechAudio.ts",
+      "sha256": "2249b5bc20c47d0cc499726e3bf8e874e7a76268c0284708cc9b5c3155632912"
+    },
+    {
+      "path": "tests/study-speech-audio.test.ts",
+      "sha256": "de8bb99b810f008be1078ac7093f03bd5ccc92c8d51bee4d7299cfddcd971e6e"
     },
     {
       "path": "server/services/studyPreferences.ts",
@@ -358,8 +366,8 @@
     },
     {
       "path": "pages/home/[id].vue",
-      "sha256": "e71e833c474dc8eeaea758e474b268892fb7f0bb979a9536c197819ff6ff6cd3",
-      "standaloneSha256": "3317bf9c2fce49fa5a9c72e76c4454c8343cbb067c26f9a21703a7e3f661dd3c"
+      "sha256": "bf4646dcba41a437cfa7caa05e67919d291b32e3111f50b805a90e412360edbd",
+      "standaloneSha256": "77d44bd8a1b19e3ac714fd5ea1673259bae7204ee20e62d95a96280772ed3d11"
     },
     {
       "path": "shared/airsOrchestration.ts",
