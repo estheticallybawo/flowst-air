@@ -329,6 +329,7 @@
 :(literal)tests/source-e2e/mobile-onboarding.spec.ts
 :(literal)tests/source-e2e/mobile-voice-controls.spec.ts
 :(literal)tests/source-e2e/objective-flow.spec.ts
+:(literal)tests/source-e2e/practice-resume.spec.ts
 :(literal)tests/source-e2e/product-navigation.spec.ts
 :(literal)tests/source-e2e/provider-retry.spec.ts
 :(literal)tests/source-e2e/saved-response-recovery.spec.ts
@@ -346,6 +347,7 @@
 :(literal)tests/study-misu-progress.test.ts
 :(literal)tests/study-objective-flow.test.ts
 :(literal)tests/study-objective-journey.test.ts
+:(literal)tests/study-pacing-client.test.ts
 :(literal)tests/study-pacing.test.ts
 :(literal)tests/study-pdf-runtime.test.ts
 :(literal)tests/study-planning-inventory.test.ts

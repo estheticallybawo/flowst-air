@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-12T13:00:17.637Z",
+  "createdAt": "2026-10-12T16:35:21.752Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -65,8 +65,8 @@
     },
     {
       "path": "FRONTEND.md",
-      "bytes": 7393,
-      "sha256": "e21176c8231a819177ca6006cffc7eeee257f8f8345a18ce9507a7a37acde100"
+      "bytes": 7983,
+      "sha256": "0402df944d00cc22c8a888c135857df0e282b420510d67d6ce896810d7cf24ac"
     },
     {
       "path": "LICENSE",
@@ -345,8 +345,8 @@
     },
     {
       "path": "composables/useStudyPacing.ts",
-      "bytes": 2423,
-      "sha256": "54fd2dbeee970d25228e25cf119db24bf7416dfaba3ca982129ad1d7194c88d2"
+      "bytes": 2638,
+      "sha256": "7b5e646d03da1cb2a6123604c67a3c92c22cc5d3425fc08fee19fcb6c05adbff"
     },
     {
       "path": "composables/useStudyRetry.ts",
@@ -451,7 +451,7 @@
     {
       "path": "docs/generated/shared-parity.json",
       "bytes": 20972,
-      "sha256": "c26f3901ecb9579deded669b113b7a5594bf4c51a8900c7e2b5917576375463f"
+      "sha256": "414090ff080a25e1205652692f6377e33e4ee12b9bcbd35072e6b43be738245b"
     },
     {
       "path": "docs/index.md",
@@ -530,8 +530,8 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 74432,
-      "sha256": "68123eba4c2440041de003fd92bee381a8afacd6a86a9ce4cdb643cb44292c6f"
+      "bytes": 77021,
+      "sha256": "20c8294bf9f944fb19aa56611b4757f757b1b972d2ab099fbf07e19d79cda219"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
@@ -605,8 +605,8 @@
     },
     {
       "path": "pages/home/[id].vue",
-      "bytes": 138256,
-      "sha256": "98d2e29a075026a0c6ef3fc39de4abef03992c98f9cfebae4d6af7b737e8da02"
+      "bytes": 138778,
+      "sha256": "f60634b317352c46c2e7bccf3f68465c3850dd9efe857330374500473a1bb32b"
     },
     {
       "path": "pages/home/about.vue",
@@ -1645,8 +1645,13 @@
     },
     {
       "path": "tests/source-e2e/objective-flow.spec.ts",
-      "bytes": 10274,
-      "sha256": "be28ce529a3eb49a2fd5e76d84a9efc7223957fd4b43593315ecd62b730040d1"
+      "bytes": 10366,
+      "sha256": "5108e7e0f959027f66bd54a5abfa9770e8cf954a83679cbce2d2cd4da8e32428"
+    },
+    {
+      "path": "tests/source-e2e/practice-resume.spec.ts",
+      "bytes": 8514,
+      "sha256": "259f6bd1269b8ba68b3e1025d06bd015af1f1037f897a15df020ff139a721aa8"
     },
     {
       "path": "tests/source-e2e/product-navigation.spec.ts",
@@ -1732,6 +1737,11 @@
       "path": "tests/study-objective-journey.test.ts",
       "bytes": 8463,
       "sha256": "fba3d5861b7a74b09f8af370560d50641360a39d32ae1bc78a2ab833b371cad3"
+    },
+    {
+      "path": "tests/study-pacing-client.test.ts",
+      "bytes": 3310,
+      "sha256": "5a66040ae5ccfb3c9f8bc28b9e67a17d5b21e5ecd788e241ea9fe8659f8a8abe"
     },
     {
       "path": "tests/study-pacing.test.ts",

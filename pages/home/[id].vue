@@ -291,6 +291,7 @@ const inputLevel = computed(() =>
 async function startLiveCall() {
   if (
     !canStudy.value ||
+    objectiveCommandBusy.value ||
     busy.value ||
     planBusy.value ||
     microphoneRequesting.value ||
@@ -784,6 +785,11 @@ async function load() {
     `/api/study/conversations/${id.value}`,
   );
   if (disposed || (study.value && loaded.revision < study.value.revision)) return;
+  // Objective controls and replies can change the persisted clock together with
+  // the conversation. Refresh it before exposing the new practice state.
+  if (loaded.plan.status === "APPROVED" && loaded.plan.pacing)
+    await pacing.refresh();
+  if (disposed || (study.value && loaded.revision < study.value.revision)) return;
   study.value = loaded;
   await nextTick();
   transcript.value?.scrollTo({ top: transcript.value.scrollHeight });
@@ -1195,7 +1201,7 @@ async function startRecording() {
     live.status.value = "IDLE";
     live.error.value = "";
   }
-  if (!canStudy.value || disposed || live.running.value || pacingBlocked.value)
+  if (!canStudy.value || disposed || live.running.value || objectiveCommandBusy.value || pacingBlocked.value)
     return;
   if (
     !readyToPractice.value ||
@@ -2297,6 +2303,8 @@ async function remove() {
                     recorderStatus !== 'IDLE' ||
                     busy ||
                     planBusy ||
+                    objectiveCommandBusy ||
+                    pacingBlocked ||
                     microphoneRequesting
                   "
                   @click="startLiveCall"
@@ -2451,6 +2459,7 @@ async function remove() {
                         recorderStatus === 'SENDING' ||
                         recorderStatus === 'REVIEW' ||
                         busy ||
+                        objectiveCommandBusy ||
                         !!voiceFailureTurnId ||
                         (pacingBlocked && recorderStatus !== 'RECORDING') ||
                         !!preparingSpeechTurnId

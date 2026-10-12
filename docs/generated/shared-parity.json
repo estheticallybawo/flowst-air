@@ -261,7 +261,7 @@
     },
     {
       "path": "composables/useStudyPacing.ts",
-      "sha256": "4c8dc5b0ae022feef199cc467ffbbc19f165b2fc239a79730dc3765e43b0dc6d"
+      "sha256": "dd7ea4ebaa83d6118e70ba67276f801ca5feff894508980d66f758a28a7f9a08"
     },
     {
       "path": "components/AirConversation.vue",
@@ -358,8 +358,8 @@
     },
     {
       "path": "pages/home/[id].vue",
-      "sha256": "5741b54340e33588b55c7b5c8f04ffb0fe69a870ca1df5d523ec3553dc465cda",
-      "standaloneSha256": "bbb49958133a77e3baa3ce637a5e3ffc236fb2b5e525c3331f99ec6e13a74912"
+      "sha256": "e71e833c474dc8eeaea758e474b268892fb7f0bb979a9536c197819ff6ff6cd3",
+      "standaloneSha256": "3317bf9c2fce49fa5a9c72e76c4454c8343cbb067c26f9a21703a7e3f661dd3c"
     },
     {
       "path": "shared/airsOrchestration.ts",
