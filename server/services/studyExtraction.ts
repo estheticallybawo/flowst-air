@@ -37,7 +37,10 @@ export async function extractStudyDocument(name: string, data: Buffer): Promise<
       let PDFParse: typeof import('pdf-parse-modern').PDFParse
       try {
         await import('@napi-rs/canvas')
+        // Use the embedded worker so serverless tracing cannot omit its file.
+        const { getData } = await import('pdf-parse-modern/worker')
         ;({ PDFParse } = await import('pdf-parse-modern'))
+        PDFParse.setWorker(getData())
       } catch (error) {
         console.error('Study PDF runtime initialization failed', error instanceof Error ? error.name : 'UnknownError')
         throw createError({ statusCode: 503, statusMessage: 'We couldn’t open your PDF right now. Please try again shortly.' })

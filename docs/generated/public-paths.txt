@@ -115,17 +115,18 @@
 :(literal)package-lock.json
 :(literal)package.json
 :(literal)pages/air/[...path].vue
-:(literal)pages/airs/[id].vue
-:(literal)pages/airs/about.vue
-:(literal)pages/airs/index.vue
-:(literal)pages/airs/library.vue
-:(literal)pages/airs/new.vue
-:(literal)pages/airs/pricing.vue
-:(literal)pages/airs/settings.vue
+:(literal)pages/airs/[...path].vue
 :(literal)pages/auth/recover.vue
 :(literal)pages/auth/register.vue
 :(literal)pages/auth/sign-in.vue
 :(literal)pages/auth/verify.vue
+:(literal)pages/home/[id].vue
+:(literal)pages/home/about.vue
+:(literal)pages/home/index.vue
+:(literal)pages/home/library.vue
+:(literal)pages/home/new.vue
+:(literal)pages/home/pricing.vue
+:(literal)pages/home/settings.vue
 :(literal)pages/index.vue
 :(literal)playwright.airs.config.ts
 :(literal)playwright.growth-preview.config.ts
@@ -300,6 +301,7 @@
 :(literal)shared/studySpeechOutcome.ts
 :(literal)shared/userErrors.ts
 :(literal)tests/air-access.test.ts
+:(literal)tests/air-live-home-route.test.ts
 :(literal)tests/airs-feedback.test.ts
 :(literal)tests/airs-handoff.test.ts
 :(literal)tests/airs-kai-recovery.test.ts
@@ -315,6 +317,7 @@
 :(literal)tests/amina-welcome.test.ts
 :(literal)tests/growth-data.test.ts
 :(literal)tests/growth-preview/hosted-growth.spec.ts
+:(literal)tests/growth-preview/mobile-navigation.spec.ts
 :(literal)tests/kai-assessment.test.ts
 :(literal)tests/misu-evidence-contract.test.ts
 :(literal)tests/misu-plan-errors.test.ts
@@ -324,6 +327,7 @@
 :(literal)tests/source-e2e/growth-prototype.spec.ts
 :(literal)tests/source-e2e/guest-context.spec.ts
 :(literal)tests/source-e2e/mobile-onboarding.spec.ts
+:(literal)tests/source-e2e/mobile-voice-controls.spec.ts
 :(literal)tests/source-e2e/objective-flow.spec.ts
 :(literal)tests/source-e2e/provider-retry.spec.ts
 :(literal)tests/source-e2e/saved-response-recovery.spec.ts
@@ -342,6 +346,7 @@
 :(literal)tests/study-objective-flow.test.ts
 :(literal)tests/study-objective-journey.test.ts
 :(literal)tests/study-pacing.test.ts
+:(literal)tests/study-pdf-runtime.test.ts
 :(literal)tests/study-planning-inventory.test.ts
 :(literal)tests/study-preferences.test.ts
 :(literal)tests/study-presentation.test.ts

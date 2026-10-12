@@ -1,0 +1,49 @@
+import { expect, test } from '@playwright/test'
+
+test('voice controls remain usable while reading the conversation on small screens', async ({ page }) => {
+  test.setTimeout(90000)
+  await page.context().route('https://fonts.googleapis.com/**', route => route.fulfill({ contentType: 'text/css', body: '' }))
+  await page.request.post('/api/auth/dev-session', { data: { scenario: 'member' } })
+  const study = {
+    id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', ownerId: 'mock-member', mode: 'DISCUSSION', revision: 1,
+    document: { id: 'doc', name: 'source.pdf', title: 'Photosynthesis', kind: 'PDF', createdAt: '', excerpt: 'Plants capture sunlight.', sectionCount: 1 },
+    practice: { questionNumber: 0, totalQuestions: 5, awaitingAnswer: false, attempts: [] },
+    plan: { status: 'APPROVED', version: 1, activeObjectiveId: 'objective', objectives: [{ id: 'objective', title: 'Explain photosynthesis', outcome: 'Explain how plants use light.', sources: [{ id: 'page-1', label: 'Page 1', excerpt: 'Plants capture sunlight.' }] }], functionRefs: [{ id: 'explicit-instruction', version: '1', kind: 'framework' }, { id: 'self-explanation-teach-back', version: '1', kind: 'technique' }] },
+    progression: { stage: 'COURSE', availableModes: ['DISCUSSION'], oralAnswersCompleted: 0, oralAnswersRequired: 5, scenarioAttemptCompleted: false },
+    turns: Array.from({ length: 30 }, (_, i) => ({ id: 'turn-' + i, role: i % 2 ? 'USER' : 'AMIRA', text: 'Plants use light to make food. Explain the idea in your own words.', createdAt: '', mode: 'DISCUSSION', sources: [], kind: i === 0 ? 'INTRO' : 'CONTROL' })),
+    createdAt: '', updatedAt: '',
+  }
+  await page.route('**/api/study/conversations/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', route => route.fulfill({ json: study }))
+  await page.route('**/api/study/conversations/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/live', route => route.fulfill({ json: { enabled: true, provider: 'elevenlabs', socketUrl: '', message: '' } }))
+  await page.route('**/api/study/conversations/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/speech', route => route.fulfill({ status: 503, json: { statusMessage: 'Fixture voice playback is unavailable.' } }))
+  // A request is a test failure: opening the transcript must never start capture.
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: { getUserMedia: async () => { throw new Error('Unexpected microphone capture') } } })
+  })
+  for (const viewport of [{ width: 390, height: 844 }, { width: 375, height: 667 }, { width: 844, height: 390 }]) {
+    await page.setViewportSize(viewport)
+    for (const mode of ['recorded', 'live']) {
+      await page.goto('/home/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee?practice=' + mode, { waitUntil: 'domcontentloaded' })
+      const control = page.getByRole('button', { name: mode === 'live' ? 'Start conversation' : 'Start recording', exact: true })
+      await expect(control).toBeVisible({ timeout: 60000 })
+      await expect(page.getByRole('region', { name: 'Saved conversation', exact: true })).toHaveCount(0)
+      await page.getByRole('button', { name: 'Conversation', exact: true }).click()
+      await expect(page.getByRole('region', { name: 'Saved conversation', exact: true })).toBeVisible()
+      await expect(control).toBeVisible()
+      await expect(page.locator('.call-state')).toContainText('Microphone off')
+      await page.screenshot({ path: test.info().outputPath('voice-transcript-' + viewport.width + '-' + mode + '.png'), fullPage: true })
+      const box = await control.boundingBox()
+      expect(box!.y).toBeGreaterThanOrEqual(0)
+      expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height)
+      const usable = await control.evaluate(element => {
+        const rect = element.getBoundingClientRect()
+        return element.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2))
+      })
+      expect(usable).toBe(true)
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight + 1)).toBe(true)
+
+      await page.getByRole('button', { name: 'Close conversation', exact: true }).click()
+      await expect(control).toBeVisible()
+    }
+  }
+})

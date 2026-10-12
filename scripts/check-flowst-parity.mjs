@@ -209,9 +209,8 @@ export const intentionalDifferences = {
   },
   "assets/css/air-call-room.css": {
     reason: "Standalone audio failure layout and short-screen scrolling",
-    flowst: "5de0cc99c74c7e4cd3f16427497f4a23b81f150bbb17c72367a69b0c7900f539",
-    standalone:
-      "6acd144dd073c00084e63d1be6e1d84adb72c852a0b6aa89977b9f0fb938d340",
+    flowst: "90fdd307c1d8286cb7bec950a094c0bbe2395d2f8644b2f8066c84d65a181530",
+    standalone: "f4df83973857a092649d4ef873ef8fc0028db6c490521d408a8eee142fca18b3",
   },
   "components/AirStudyShell.vue": {
     reason: "Standalone mobile keyboard viewport handling",

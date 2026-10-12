@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-11T08:08:09.508Z",
+  "createdAt": "2026-10-12T09:18:08.469Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -65,8 +65,8 @@
     },
     {
       "path": "FRONTEND.md",
-      "bytes": 6028,
-      "sha256": "0e4114f0ba5df70c081f59f7d99fbd4ea89cd13d4aa6b65ecff3703b996e7e78"
+      "bytes": 6866,
+      "sha256": "cb3ffe4dcf05d8c145daa16d51f9e757589d60c5b2564ee1b88dc79564d6b5ad"
     },
     {
       "path": "LICENSE",
@@ -90,8 +90,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 12504,
-      "sha256": "eac0d8d8177b66816042901e57421e17fb2e75ade4fa75f5bd941ccf8fe227ec"
+      "bytes": 12555,
+      "sha256": "eff812c38ab0795e1048071a81527e98086f248475f711fb788608c1a9104643"
     },
     {
       "path": "VALIDATION.md",
@@ -101,12 +101,12 @@
     {
       "path": "app.vue",
       "bytes": 2027,
-      "sha256": "459080e2efdf4416540a9b21f049bdf826f923596e2c0c8da27880527717d9f8"
+      "sha256": "556e88bc6dcf082c78a5074523f5c01b8f36007f6d815b1a444f73f5c3a348cb"
     },
     {
       "path": "assets/css/air-call-room.css",
-      "bytes": 22613,
-      "sha256": "7cdc5e644918349ad9db6ed90386b54d3c538b18078aaa66eb06c82a4e32ba81"
+      "bytes": 24169,
+      "sha256": "2496a60728c9208138ed79bee7f425220b98eeb95cadd92563cfb554155821b9"
     },
     {
       "path": "assets/css/air.css",
@@ -141,7 +141,7 @@
     {
       "path": "components/AirAppShell.vue",
       "bytes": 5400,
-      "sha256": "4a4f062cd3852cab080dbd17feaef7097dd66b247ade3e6c71a753b76dfd951e"
+      "sha256": "a1ffc326379ed3d749440b87d0f8d09eea14498561f75c1981a10c607b9f9314"
     },
     {
       "path": "components/AirBrand.vue",
@@ -170,28 +170,28 @@
     },
     {
       "path": "components/AirLanding.vue",
-      "bytes": 20136,
-      "sha256": "18192f4524dcdaee3e321b3a412cbaec1b19b652e827e1f9c6de8315ad21da92"
+      "bytes": 23101,
+      "sha256": "2dab2637f902944c8cae919665c0d2ad78b59b351659f58dda9219a7d5d679cb"
     },
     {
       "path": "components/AirLandingTides.vue",
-      "bytes": 3319,
-      "sha256": "a192d567558e71aed5d7043f8d274658df3aa7d044383697dedda912b6c43c4c"
+      "bytes": 3245,
+      "sha256": "5aef173759fdbf3177596d4838c5a1f03dbbe2e892cc0d5714b5b69b0914defe"
     },
     {
       "path": "components/AirLibraryView.vue",
       "bytes": 32959,
-      "sha256": "71eb1b6f55b1f8389a371fedb1317359cafeb1128bb46c62652057be75de9d98"
+      "sha256": "72158762c33d90c2d613011564d226a72b6e7191afd01c2a3c38cdf25bb38c5e"
     },
     {
       "path": "components/AirPublicShell.vue",
-      "bytes": 1809,
-      "sha256": "8693b2747acf531cc29b36fea8fcd3d87518b98634ec9584689fe4b90b11e6ae"
+      "bytes": 7045,
+      "sha256": "36e0461ddd3a71caa1a078f218e3c54eac7f550d4cf4954f4c7a16adc4539924"
     },
     {
       "path": "components/AirScrollStory.vue",
-      "bytes": 8698,
-      "sha256": "e89a755d2d54991d5cbad30b13b6a23e63eb47f1970bcc0c078727c924172485"
+      "bytes": 11224,
+      "sha256": "5763c3816ae094eefa0b0e2cd873ef83d4dfb8264381af981d7037e99fda69ac"
     },
     {
       "path": "components/AirSessionNavigation.vue",
@@ -206,7 +206,7 @@
     {
       "path": "components/AirSourcePicker.vue",
       "bytes": 15229,
-      "sha256": "29fa97f3e9fe012d20164669252173593559ec650f522d2bd466a2cb87268bab"
+      "sha256": "180295270748999f1dd114fd6b7704cda115449ec9271d78bba5e80a530f1691"
     },
     {
       "path": "components/AirSourceProvenance.vue",
@@ -221,7 +221,7 @@
     {
       "path": "components/AirUpgradePanel.vue",
       "bytes": 510,
-      "sha256": "dd1f4b4965c1c5850a03fb94972bdaad6466bb125cf8a2fed244b31bc9ca58d6"
+      "sha256": "e241245db278cbd16ba54b15ffb9482e4e1a6b197ae6c011cba433eccb19197d"
     },
     {
       "path": "components/AirVoiceMeter.vue",
@@ -241,7 +241,7 @@
     {
       "path": "components/AirsGrowthHome.vue",
       "bytes": 35547,
-      "sha256": "c271dab917a67e0eb89196c7807becd80e570fda7bb17fab3c554fd381de05dd"
+      "sha256": "84e9bae6a3c520b7d378c799a2f354062394321daae058416f63f87869ddbdc9"
     },
     {
       "path": "components/AirsJourneyRail.vue",
@@ -276,12 +276,12 @@
     {
       "path": "components/AirsSetup.vue",
       "bytes": 17411,
-      "sha256": "88ae322441fafba4a58619a045a6863d07241c0420a70be8a12ee446ff515d34"
+      "sha256": "a482e0b75c6fea8d8c8fdf09951e0cd73092c2ba0de5d79dd675d8052efaa180"
     },
     {
       "path": "components/AuthShell.vue",
       "bytes": 3988,
-      "sha256": "829e429f2f738daf62ac1a55e0eb781f53470fd2e551ae5cfa3606121e695281"
+      "sha256": "f495fe4cd2f3295d2f5f0cc60fee9bd55de568bad3af0f6a1de3a8c32645205c"
     },
     {
       "path": "components/GrowthCapabilityArt.vue",
@@ -335,13 +335,13 @@
     },
     {
       "path": "composables/useAminaLiveCall.ts",
-      "bytes": 17680,
-      "sha256": "c66e8fe2235b67bf71cfea83757a19f243be0f306d099a12a45bcca90f25c6e4"
+      "bytes": 17689,
+      "sha256": "590d24326c4e990c6464cf14b45f790c5391e6409335251301a1e61315fd22cc"
     },
     {
       "path": "composables/useAuth.ts",
       "bytes": 7395,
-      "sha256": "1dc444dcd4f281eced6af40513be6dff3e7a81779423df65ff061e0d0e2596a8"
+      "sha256": "50d049376f3b479a15f418ddd6982ad1f0b0e1d22b96cd68138cfc872b9a4703"
     },
     {
       "path": "composables/useStudyPacing.ts",
@@ -406,7 +406,7 @@
     {
       "path": "docs/design-docs/topic-pacing-and-voice.md",
       "bytes": 4910,
-      "sha256": "30eac1124116929c80ed65730952c7a4eaabb6af36c1f09835010769d783403b"
+      "sha256": "35224adc4df4ad646187e36cb186e5060683e00b744b6a2def175989aa0b6718"
     },
     {
       "path": "docs/exec-plans/active/flowst-air-orchestration.md",
@@ -421,7 +421,7 @@
     {
       "path": "docs/exec-plans/completed/growth-home-prototype.md",
       "bytes": 9899,
-      "sha256": "a1f564d63a73267eaf356adb2807c27b673245ab94eef05cd26e28a4a2b719d9"
+      "sha256": "32049e5fc05c5433b95b26aefd491b0d29a9be834b01f0965263df45d82a96a6"
     },
     {
       "path": "docs/exec-plans/completed/source-and-misu-foundation.md",
@@ -441,7 +441,7 @@
     {
       "path": "docs/generated/db-schema.md",
       "bytes": 8670,
-      "sha256": "b6dd47aa88848d4019ff88311b3651b720d5cbec889c63d435187eef96b02e2c"
+      "sha256": "243dfafa45da2e30cb487febc2fa162ba013ba85ce36550c2a84fb96ef3c872e"
     },
     {
       "path": "docs/generated/index.md",
@@ -449,14 +449,9 @@
       "sha256": "f28ce75645427792e367f9f682d2da9781dffb28dc97094fda5ba61bbe6d9abe"
     },
     {
-      "path": "docs/generated/public-paths.txt",
-      "bytes": 16072,
-      "sha256": "c5af74d0a2821e52315608a0b150d68c57fedb7c776cc9442bb94b6c77de49f1"
-    },
-    {
       "path": "docs/generated/shared-parity.json",
-      "bytes": 18575,
-      "sha256": "1a562510b6a4a93b5bed08a578443ffbd2102d9a726418c646637b0680dc6bd7"
+      "bytes": 20972,
+      "sha256": "30efe0477831aed7fe4e4ff4c34ae9c8958ec32c434e72334ec98600aaf7d3e1"
     },
     {
       "path": "docs/index.md",
@@ -535,8 +530,8 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 71440,
-      "sha256": "fb34a1fd2f5b913d981bd7c847b7ebe5025b9a85fb24b07c489fc5bd36e4fd3b"
+      "bytes": 72603,
+      "sha256": "0e1f8cec94693e3c3c328bd10274e404ff433531e8fea0597935b548ccc4ae4d"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
@@ -556,12 +551,12 @@
     {
       "path": "middleware/air-only.ts",
       "bytes": 239,
-      "sha256": "baa4b9ba3810c24412033af40d057dc6f01181f3548d5a1c163a81b64ae5ff1e"
+      "sha256": "3238c32af79144ad3f5d6d22d1f436d6e0ba4e68728916d96e26564b837f75bd"
     },
     {
       "path": "middleware/auth.global.ts",
       "bytes": 1622,
-      "sha256": "2f5ef3b0836b11f144fdbfc81a4301531491c08f00ad35a864b9ab5f4edb9eba"
+      "sha256": "02449ccc03537c7370101314bbd4224da7e6c1c718b616966da562b32a2b6e08"
     },
     {
       "path": "nuxt.config.ts",
@@ -580,43 +575,13 @@
     },
     {
       "path": "pages/air/[...path].vue",
-      "bytes": 145,
-      "sha256": "b582ff5da11698989a27f05c963631e18bbc9f82d45e982318f77be75c48f4f2"
+      "bytes": 157,
+      "sha256": "d2216968dd3d6afb817adef6b37a9883502f08071e50d1c9915a14ba5d94828a"
     },
     {
-      "path": "pages/airs/[id].vue",
-      "bytes": 138256,
-      "sha256": "218e89c43c5878d133746a0b2734e8ff1f342a2da2eb40686ed85980d507003b"
-    },
-    {
-      "path": "pages/airs/about.vue",
-      "bytes": 7040,
-      "sha256": "6b2f8e78447d19acbc33a54f5d76ec070486b94d5252ecd6e83809557bcf34d5"
-    },
-    {
-      "path": "pages/airs/index.vue",
-      "bytes": 351,
-      "sha256": "1c219148675e1c7b54907f4e36f2a5a3724845e370100858fec92602c84f547d"
-    },
-    {
-      "path": "pages/airs/library.vue",
-      "bytes": 107,
-      "sha256": "b2213824bc847c09aa484bef910671591cacb238d141f8ce184e1fcd03b883e9"
-    },
-    {
-      "path": "pages/airs/new.vue",
-      "bytes": 89,
-      "sha256": "aba4c30b74eebc652c958ee82e19c5fc1ca914b669f516400ab46795bbe84538"
-    },
-    {
-      "path": "pages/airs/pricing.vue",
-      "bytes": 2748,
-      "sha256": "19bb75a8a8190b25becf42b089aa4337065e1e6d60db5ccba05f7d4403ca53f5"
-    },
-    {
-      "path": "pages/airs/settings.vue",
-      "bytes": 5149,
-      "sha256": "d83bd79a1c008d86edbedb8be5100beb0cf5f99cef981fff38310ac4bf7c623b"
+      "path": "pages/airs/[...path].vue",
+      "bytes": 207,
+      "sha256": "32ad212799657707e5149e6c1aefe0b3f43a4d5b5fd5985b1203654a9ea717f9"
     },
     {
       "path": "pages/auth/recover.vue",
@@ -635,13 +600,48 @@
     },
     {
       "path": "pages/auth/verify.vue",
-      "bytes": 1819,
-      "sha256": "7ababb66eafb19e1a22a54d866a7c24bc04b5a2649ec9cb30f9d00370387fe79"
+      "bytes": 1961,
+      "sha256": "546a0a3c71b8adfc85e513cecc649d3fba298cb22735ba56adc5da0f3f15f133"
+    },
+    {
+      "path": "pages/home/[id].vue",
+      "bytes": 138256,
+      "sha256": "98d2e29a075026a0c6ef3fc39de4abef03992c98f9cfebae4d6af7b737e8da02"
+    },
+    {
+      "path": "pages/home/about.vue",
+      "bytes": 7040,
+      "sha256": "6b2f8e78447d19acbc33a54f5d76ec070486b94d5252ecd6e83809557bcf34d5"
+    },
+    {
+      "path": "pages/home/index.vue",
+      "bytes": 351,
+      "sha256": "1c219148675e1c7b54907f4e36f2a5a3724845e370100858fec92602c84f547d"
+    },
+    {
+      "path": "pages/home/library.vue",
+      "bytes": 107,
+      "sha256": "b2213824bc847c09aa484bef910671591cacb238d141f8ce184e1fcd03b883e9"
+    },
+    {
+      "path": "pages/home/new.vue",
+      "bytes": 89,
+      "sha256": "aba4c30b74eebc652c958ee82e19c5fc1ca914b669f516400ab46795bbe84538"
+    },
+    {
+      "path": "pages/home/pricing.vue",
+      "bytes": 2748,
+      "sha256": "8f77a2421f40f1fb355b045e6b2520e34d9895f25aad9118a87e9209473688e9"
+    },
+    {
+      "path": "pages/home/settings.vue",
+      "bytes": 5149,
+      "sha256": "709e64622b14cc9be3f323e476ca531bee771f3620f61c8e874452a90c774265"
     },
     {
       "path": "pages/index.vue",
-      "bytes": 809,
-      "sha256": "2891d8f02505d407bc834a88b2546a7a4725e9bf5ce7c29743b2c9016ce692de"
+      "bytes": 837,
+      "sha256": "74fac681d326706ff5dca874e8d9ba96a1eafaebbf7ffde3c442bad056271d92"
     },
     {
       "path": "playwright.airs.config.ts",
@@ -651,7 +651,7 @@
     {
       "path": "playwright.growth-preview.config.ts",
       "bytes": 574,
-      "sha256": "524a53c0260af00ff9e6af123ab86f7307da2dad3875339adb83d2476604b7d9"
+      "sha256": "8102a3120550bd6e51fff81b5ee25c5e44d8c73a39189fe19e92cb614bfe81df"
     },
     {
       "path": "playwright.sources.config.ts",
@@ -665,8 +665,8 @@
     },
     {
       "path": "public/amira-icon.png",
-      "bytes": 37620,
-      "sha256": "cbb45e8836c5ae1de768727770dfad8a56c0620c486fa289ad87a8ded2362bcd"
+      "bytes": 49543,
+      "sha256": "2363f346f2fca5f0e72f7fca8c1d6aadd862d75c5c1c883d5d7e2761ad6a9cc4"
     },
     {
       "path": "public/brand/flowst-mark-blue.png",
@@ -790,8 +790,8 @@
     },
     {
       "path": "scripts/check-flowst-parity.mjs",
-      "bytes": 10807,
-      "sha256": "ef8c211211cf6ef00fdbf82c8859441154d430196abf25783796d795316e91e2"
+      "bytes": 13492,
+      "sha256": "ff21fb4ea77ef4121a37394dbf2a226e52d7b9716b37c1dad5b1b22b1006017b"
     },
     {
       "path": "scripts/check-public-export.mjs",
@@ -1245,8 +1245,8 @@
     },
     {
       "path": "server/services/studyExtraction.ts",
-      "bytes": 5191,
-      "sha256": "b0028eac71cda0c555044dd3ddcd94097324ba2c0854bd7889111448dbdd1ac6"
+      "bytes": 5376,
+      "sha256": "b7e3cc0c1285dca8b3c058ce226f587a9f668b27ec6f8dfba9a5d92e1078125b"
     },
     {
       "path": "server/services/studyInference.ts",
@@ -1291,7 +1291,7 @@
     {
       "path": "server/services/studyRepository.ts",
       "bytes": 77145,
-      "sha256": "551cf0227df79335f878fafee7376dca0bc3ec40d588343ae299baa2e14fbe42"
+      "sha256": "49572aabb273601a4aaed2145ac6a664c50627e49c84834f16a459c91e54eece"
     },
     {
       "path": "server/services/studyRetrieval.ts",
@@ -1371,12 +1371,12 @@
     {
       "path": "shared/airNavigation.ts",
       "bytes": 627,
-      "sha256": "cfe989be33df086dc475b48c8ffe9d041e876efa983a92022e8031fb12a8afd7"
+      "sha256": "bfced31764fbfab8733a4a11fd23aca1b30594493593ff20a0d21d3f5d75dd53"
     },
     {
       "path": "shared/airSurface.ts",
-      "bytes": 1412,
-      "sha256": "6d2e7be42f13231b33e273ad6b24d6f3820e2aa197e41d2003bf494af7c86f00"
+      "bytes": 1437,
+      "sha256": "d26a7c00a256d8e214d066b769cd06b6c466a4b3aade82799d5f710acd052d44"
     },
     {
       "path": "shared/airsHandoff.ts",
@@ -1505,8 +1505,13 @@
     },
     {
       "path": "tests/air-access.test.ts",
-      "bytes": 5507,
-      "sha256": "6c73c88b11d2d19392a90c1631f7a86b429d0838aa073a044bac05aa4d47bb3b"
+      "bytes": 5813,
+      "sha256": "a47dadddf2ecbb2e87ab215021edff2bd9a1c75473f7e71545d46ae0644e9462"
+    },
+    {
+      "path": "tests/air-live-home-route.test.ts",
+      "bytes": 3769,
+      "sha256": "eac8d6654690835fa89f1448bf7155e9fd43a58454195a7c3301f74179dafa28"
     },
     {
       "path": "tests/airs-feedback.test.ts",
@@ -1580,8 +1585,13 @@
     },
     {
       "path": "tests/growth-preview/hosted-growth.spec.ts",
-      "bytes": 18109,
-      "sha256": "cab16bb6ab422bc6970b6a3aeb9fda0e0dd0632b69bd2b0a4a9e70b4bf250999"
+      "bytes": 30537,
+      "sha256": "ba748a487a832daf61c334dddb5731ceaff37629315f0b0b5bef0b7d591dfefd"
+    },
+    {
+      "path": "tests/growth-preview/mobile-navigation.spec.ts",
+      "bytes": 6419,
+      "sha256": "e77c326ec85a713890a5acc63b1e3b7ae2297d034f1e7bd30d4ce075d2422b1e"
     },
     {
       "path": "tests/kai-assessment.test.ts",
@@ -1605,8 +1615,8 @@
     },
     {
       "path": "tests/shared-parity.test.ts",
-      "bytes": 2916,
-      "sha256": "abebc3395a06f84d9bbb7c5fc101035063e04369c39336f37197abc84dc5328c"
+      "bytes": 6302,
+      "sha256": "9c5672bb1c23ebee15057363fd3c49e2b91f2a4f653d1e90b408c19ab061176f"
     },
     {
       "path": "tests/source-e2e/bring-source.spec.ts",
@@ -1616,37 +1626,42 @@
     {
       "path": "tests/source-e2e/growth-prototype.spec.ts",
       "bytes": 13044,
-      "sha256": "31ba764fcbc333096c142409bc2938efbcc80e9028a53d03418f78c3e084737d"
+      "sha256": "fa7c03406974ff6c0c966a6b6d61214a525253675be5271aafef92574f03065f"
     },
     {
       "path": "tests/source-e2e/guest-context.spec.ts",
-      "bytes": 32666,
-      "sha256": "bce8ad6ee25b0c3a24a21bea4e575eb310592d7d9ca74a3fa46769074fd86bd1"
+      "bytes": 32643,
+      "sha256": "fcad5dd59afb786f3957b4097c38c4736bd8a6bbee85d133ddc89d2c2c82dee1"
     },
     {
       "path": "tests/source-e2e/mobile-onboarding.spec.ts",
       "bytes": 7744,
-      "sha256": "009ef509e72b89bb56ee4f22743e29b9e0f491ea5acd44905b453ccdd3a352a4"
+      "sha256": "65f295294c7c041d0d4c1e3b76750e27d51de937c300de6a8d8413d66a14ff10"
+    },
+    {
+      "path": "tests/source-e2e/mobile-voice-controls.spec.ts",
+      "bytes": 4261,
+      "sha256": "b147aaf0b81496ec661fae0cd8d76a83e0669a51c082814c1f6d4527828a2b67"
     },
     {
       "path": "tests/source-e2e/objective-flow.spec.ts",
       "bytes": 10274,
-      "sha256": "5da6ec716076c35a9fbb73ff64e4cb5ca08cb098c8db72c6034b21c80d089a90"
+      "sha256": "be28ce529a3eb49a2fd5e76d84a9efc7223957fd4b43593315ecd62b730040d1"
     },
     {
       "path": "tests/source-e2e/provider-retry.spec.ts",
       "bytes": 2808,
-      "sha256": "6db8bc0173fca4307ee152e2fbf5a38cadf0242bafe500a3150b8955190f3017"
+      "sha256": "cd1a97d414450011d15188c7c5564478ea7ffbe876383505131fdff894abb47e"
     },
     {
       "path": "tests/source-e2e/saved-response-recovery.spec.ts",
       "bytes": 4971,
-      "sha256": "b413587e4b0cfa23a57b095127dc78979cfd69855ad4a5010c799c811c28e2cd"
+      "sha256": "9a4d4b41058ab6ac70cbce8647c483b619d3c0369d6afb430d97b205d747a002"
     },
     {
       "path": "tests/source-e2e/session-completion.spec.ts",
       "bytes": 17475,
-      "sha256": "20d127d60d49b6f54fbdc02231668bc1f1538764f35aa5652b6fd3979e40993f"
+      "sha256": "942569612b2152b1238b7f46e000dec6ea1b8177c75921aa2d55aa57baac303e"
     },
     {
       "path": "tests/study-air-history.test.ts",
@@ -1717,6 +1732,11 @@
       "path": "tests/study-pacing.test.ts",
       "bytes": 8775,
       "sha256": "1466f291ab9ee8e31aca12b91234b2347fa61d476e57d0dfd5ff7ad3019d80df"
+    },
+    {
+      "path": "tests/study-pdf-runtime.test.ts",
+      "bytes": 1379,
+      "sha256": "e6c402b26f09af6c19481f13c40b2c3fbbc86f93fe1cb4917eba196dc701d705"
     },
     {
       "path": "tests/study-planning-inventory.test.ts",

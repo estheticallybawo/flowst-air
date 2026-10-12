@@ -688,9 +688,9 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   expect(layout.panel.overflow).toBe("hidden");
   expect(layout.controls.overflow).toBe("visible");
   if (isMobile) {
-    // Mobile conversation replaces the voice stage. Its hidden content may
-    // exceed a short screen; the visible transcript must remain the scroller.
-    await expect(page.locator(".call-stage")).toBeHidden();
+    // Voice controls stay available alongside the mobile transcript.
+    await expect(page.locator(".call-stage")).toBeVisible();
+    await expectPrimaryInWorkspace(page, "Start recording");
     const conversation = await page.locator(".call-conversation").boundingBox();
     expect(conversation!.y).toBeGreaterThanOrEqual(0);
     expect(conversation!.y + conversation!.height).toBeLessThanOrEqual(await page.evaluate(() => innerHeight));
