@@ -50,7 +50,9 @@ describe('Bedrock testing transport', () => {
     expect(sent.toolConfig.toolChoice).toEqual({ tool: { name } })
     expect(sent.messages.at(-1).content[0].toolResult.content[0].text).toContain('Saved source.')
     expect(sent.toolConfig.tools.at(-1).toolSpec.inputSchema.json).not.toHaveProperty('$schema')
+    expect(sent.inferenceConfig).toMatchObject({ maxTokens: 4000, temperature: agent === 'KAI' ? 0 : 0.2 })
     expect(fetch).toHaveBeenCalledTimes(1)
+    expect(state.ledger.requests).toBe(1)
   })
   it('maps tool results and merges adjacent user messages without losing content', () => {
     const payload = bedrockConverseInput({ ...request, messages: [{ role: 'system', content: 'Policy' }, { role: 'user', content: 'Source' }, { role: 'user', content: 'Question' }, { role: 'assistant', content: null, tool_calls: [{ id: 'one', function: { name: 'read_source_passage', arguments: '{"sourceId":"p1"}' } }] }, { role: 'tool', tool_call_id: 'one', content: '{"text":"Evidence"}' }] })

@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-12T22:42:09.586Z",
+  "createdAt": "2026-10-12T23:11:29.334Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -416,7 +416,7 @@
     {
       "path": "docs/generated/shared-parity.json",
       "bytes": 21709,
-      "sha256": "6498240938dd4e746a11e78a5bb89df521151877975695adaba3483af1ac4587"
+      "sha256": "777f073d5f151d08d2544c5c6fc63fa69d0baa214bfe0cefc9761699efadaac5"
     },
     {
       "path": "docs/index.md",
@@ -495,8 +495,8 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 85740,
-      "sha256": "fc0ce817d0609f3771b310ce71dff8caa93073e571f8bd0e8ba577f3a0d5b67c"
+      "bytes": 88004,
+      "sha256": "6cb2376898ca035c8a5461a4129ad3ecc2bb23bd76b9c81bc26040349c71bd69"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
@@ -1125,8 +1125,8 @@
     },
     {
       "path": "server/services/airsAgentRunner.ts",
-      "bytes": 8683,
-      "sha256": "0ab2ef8da6a94c42365645fb67e07907bec837902d4160a3f9dd74099172f8ab"
+      "bytes": 8724,
+      "sha256": "964e679c6872208c48b0651975cc40e685857ebcea13b11884261bb604783d3e"
     },
     {
       "path": "server/services/airsAminaFunctions.ts",
@@ -1145,8 +1145,8 @@
     },
     {
       "path": "server/services/airsKai.ts",
-      "bytes": 15923,
-      "sha256": "91471c5ad9363e90218ffa454986a9a5b8189e784a440eeaf3cc52a7b8e50256"
+      "bytes": 20226,
+      "sha256": "dc55178845c6e33625efda216ce46f2c35c4388aba10c3d42b5cf356db2dec05"
     },
     {
       "path": "server/services/airsPlanning.ts",
@@ -1535,8 +1535,8 @@
     },
     {
       "path": "tests/airs-kai-recovery.test.ts",
-      "bytes": 14629,
-      "sha256": "c058e2ede1db99d7a483699c2a9ce3e6580192d1ae2f82b36fb78ae29e83d13d"
+      "bytes": 20511,
+      "sha256": "49d28414521024cd06a8240e6f20ec4f9333db34177213dca6fcd5f1d864322a"
     },
     {
       "path": "tests/airs-message.test.ts",
@@ -1695,8 +1695,8 @@
     },
     {
       "path": "tests/study-bedrock-transport.test.ts",
-      "bytes": 10138,
-      "sha256": "529a03c28a295c00c5845dc20827c7b1655c3041827a07b2ad2d443c309c73e8"
+      "bytes": 10288,
+      "sha256": "05ce17115ff842ce2da03d963d18eaf2eb4dc031fd599c0658b468683ca01d85"
     },
     {
       "path": "tests/study-companion.test.ts",
