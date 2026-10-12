@@ -341,8 +341,8 @@
     },
     {
       "path": "components/AirAppShell.vue",
-      "sha256": "6f54f8dbe17f2fb6c2f74ac0179333ad12084d381450b683d1a6991d037a2b64",
-      "standaloneSha256": "5108d9e5eda41557d799f647ab11bdb5f684abca7632582d42cd28a79a275c9d"
+      "sha256": "2699457f92ac6b4ef7ceaf4c3c5f661d42fe33aede9e34049499f487a0d74bbd",
+      "standaloneSha256": "f865f51a7aadb16f5343f19f283c1c0adc6d9bed8902f98ffec5337639589d54"
     },
     {
       "path": "pages/home/index.vue",

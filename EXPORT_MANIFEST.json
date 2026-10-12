@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-12T09:18:08.469Z",
+  "createdAt": "2026-10-12T13:00:17.637Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -65,8 +65,8 @@
     },
     {
       "path": "FRONTEND.md",
-      "bytes": 6866,
-      "sha256": "cb3ffe4dcf05d8c145daa16d51f9e757589d60c5b2564ee1b88dc79564d6b5ad"
+      "bytes": 7393,
+      "sha256": "e21176c8231a819177ca6006cffc7eeee257f8f8345a18ce9507a7a37acde100"
     },
     {
       "path": "LICENSE",
@@ -140,8 +140,8 @@
     },
     {
       "path": "components/AirAppShell.vue",
-      "bytes": 5400,
-      "sha256": "a1ffc326379ed3d749440b87d0f8d09eea14498561f75c1981a10c607b9f9314"
+      "bytes": 12481,
+      "sha256": "fdf7402ff1b986edb4e8dace297073d232bcd0cd7692264cc3f61c0cb7e34cf7"
     },
     {
       "path": "components/AirBrand.vue",
@@ -451,7 +451,7 @@
     {
       "path": "docs/generated/shared-parity.json",
       "bytes": 20972,
-      "sha256": "30efe0477831aed7fe4e4ff4c34ae9c8958ec32c434e72334ec98600aaf7d3e1"
+      "sha256": "c26f3901ecb9579deded669b113b7a5594bf4c51a8900c7e2b5917576375463f"
     },
     {
       "path": "docs/index.md",
@@ -530,8 +530,8 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 72603,
-      "sha256": "0e1f8cec94693e3c3c328bd10274e404ff433531e8fea0597935b548ccc4ae4d"
+      "bytes": 74432,
+      "sha256": "68123eba4c2440041de003fd92bee381a8afacd6a86a9ce4cdb643cb44292c6f"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
@@ -1625,13 +1625,13 @@
     },
     {
       "path": "tests/source-e2e/growth-prototype.spec.ts",
-      "bytes": 13044,
-      "sha256": "fa7c03406974ff6c0c966a6b6d61214a525253675be5271aafef92574f03065f"
+      "bytes": 13330,
+      "sha256": "2240da0b16404ab337982723bb06ac48943f82e09fc11204fd58738d4acc87a1"
     },
     {
       "path": "tests/source-e2e/guest-context.spec.ts",
-      "bytes": 32643,
-      "sha256": "fcad5dd59afb786f3957b4097c38c4736bd8a6bbee85d133ddc89d2c2c82dee1"
+      "bytes": 32897,
+      "sha256": "8890a423c7000498a4737f5e596b4ba398680055eb8d3bff021b3d54d6934d84"
     },
     {
       "path": "tests/source-e2e/mobile-onboarding.spec.ts",
@@ -1640,13 +1640,18 @@
     },
     {
       "path": "tests/source-e2e/mobile-voice-controls.spec.ts",
-      "bytes": 4261,
-      "sha256": "b147aaf0b81496ec661fae0cd8d76a83e0669a51c082814c1f6d4527828a2b67"
+      "bytes": 4591,
+      "sha256": "9aa5739a4acbab6a0da7eb54f660841d96d2ddf57c791042ae1ac92ca1051b2c"
     },
     {
       "path": "tests/source-e2e/objective-flow.spec.ts",
       "bytes": 10274,
       "sha256": "be28ce529a3eb49a2fd5e76d84a9efc7223957fd4b43593315ecd62b730040d1"
+    },
+    {
+      "path": "tests/source-e2e/product-navigation.spec.ts",
+      "bytes": 5394,
+      "sha256": "c79b88881329457e53b5f9260000af832a5b961691e650ce27644e6dba90279d"
     },
     {
       "path": "tests/source-e2e/provider-retry.spec.ts",

@@ -279,7 +279,7 @@ test("Growth scenarios preserve established sample progress and reset the walkth
 });
 
 test("Growth retains app-memory state across navigation, resets on reload, and keeps New session", async ({
-  page,
+  page, isMobile,
 }) => {
   await openGrowth(page);
   if (!(await page.locator(".growth-example-tools").evaluate(el => el.hasAttribute("open"))))
@@ -288,10 +288,12 @@ test("Growth retains app-memory state across navigation, resets on reload, and k
   await page
     .getByRole("button", { name: "Back to growth", exact: true })
     .click();
+  if (isMobile) await page.getByRole("button", { name: "Open menu", exact: true }).click();
   await page
     .getByRole("navigation", { name: "Flowst Airs navigation" })
     .getByRole("link", { name: "Settings", exact: true })
     .click();
+  if (isMobile) await page.getByRole("button", { name: "Open menu", exact: true }).click();
   await page
     .getByRole("navigation", { name: "Flowst Airs navigation" })
     .getByRole("link", { name: "Home", exact: true })
@@ -299,6 +301,7 @@ test("Growth retains app-memory state across navigation, resets on reload, and k
   await expect(card(page, "Clear Explanation")).toContainText("84%");
   await page.reload();
   await expect(card(page, "Clear Explanation")).toContainText("72%");
+  if (isMobile) await page.getByRole("button", { name: "Open menu", exact: true }).click();
   await page
     .getByRole("navigation", { name: "Flowst Airs navigation" })
     .getByRole("link", { name: "New session", exact: true })
