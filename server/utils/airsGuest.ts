@@ -4,6 +4,9 @@ import { getCookie, setCookie } from 'h3'
 import type { H3Event } from 'h3'
 const developmentSecret=randomBytes(32).toString('hex')
 export function guestMode(event?:H3Event) {
+  // Private guest identities are exclusively for development and automated testing.
+  // Ignore legacy deployment flags and previously issued guest cookies in production.
+  if(process.env.NODE_ENV==='production') return false
   const c=useRuntimeConfig(event)
   return c.public.appSurface==='air' && c.public.airsGuestEnabled===true
 }

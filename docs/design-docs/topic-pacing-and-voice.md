@@ -24,7 +24,7 @@ ElevenLabs uses one bounded `/with-timestamps` synthesis request and records out
 - `server/api/study/conversations/[id]/pacing.*`: clock reads and explicit actions.
 - `shared/studySpeech.ts`, `server/services/studyElevenSpeech.ts`: validated timing and bounded synthesis.
 - `recorded-turn.get.ts` / `recorded-turn.post.ts`: owner-scoped operation status and durable turn processing.
-- `composables/useStudyPacing.ts`, `pages/airs/[id].vue`: visible timer, breaks, microphone controls and audio events.
+- `composables/useStudyPacing.ts`, `pages/home/[id].vue`: visible timer, breaks, microphone controls and audio events.
 
 ## Verification boundary
 

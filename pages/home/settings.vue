@@ -84,7 +84,7 @@ onMounted(() => {
               access.usage.uploadRestrictionReason ||
               "Your current session needs completion before another upload."
             }}
-            <NuxtLink class="air-text-link" to="/airs"
+            <NuxtLink class="air-text-link" to="/home"
               >Review your study space</NuxtLink
             >
           </p>
@@ -111,7 +111,7 @@ onMounted(() => {
           it, use Replace study document and confirm abandoning the current
           plan. Abandoned documents remain read-only and can be deleted.
         </p>
-        <NuxtLink class="air-text-link" to="/airs/about"
+        <NuxtLink class="air-text-link" to="/home/about"
           >Your material and data</NuxtLink
         >
       </section>
@@ -129,7 +129,7 @@ onMounted(() => {
           captions may change; confirmed saved transcripts remain readable.
           Manage microphone permission in your browser’s site settings.
         </p>
-        <NuxtLink class="air-text-link" to="/airs/about"
+        <NuxtLink class="air-text-link" to="/home/about"
           >Microphone, transcripts &amp; help</NuxtLink
         >
       </section>

@@ -1,4 +1,6 @@
-/** Presentation contracts for the labelled Growth prototype, independent of Kai assessment. */
+/** Growth presentation contracts, independent of data source and Kai session assessment. */
+export type GrowthDataSource = "example" | "assessed";
+export type GrowthReviewStatus = "ready" | "pending" | "failed";
 export type GrowthDimensionId =
   | "verbal_retrieval"
   | "clear_explanation"
@@ -27,7 +29,7 @@ export interface GrowthEvidenceSummary {
 export interface GrowthCycleHistory {
   number: number;
   completedAt: string;
-  flowmarkId: string;
+  tideId: string;
 }
 export interface GrowthDimensionProgress {
   dimensionId: GrowthDimensionId;
@@ -36,15 +38,15 @@ export interface GrowthDimensionProgress {
   evidence: GrowthEvidenceSummary[];
   history: GrowthCycleHistory[];
 }
-export interface GrowthFlowmark {
+export interface GrowthTide {
   id: string;
   dimensionId: GrowthDimensionId;
   cycle: number;
-  completedAt: string;
+  earnedAt: string;
   conversations: number;
   contexts: number;
   evidence: string[];
-  sample: true;
+  source: GrowthDataSource;
 }
 export interface GrowthSessionChange {
   dimensionId: GrowthDimensionId;
@@ -56,17 +58,22 @@ export interface GrowthCycleCompletion {
   dimensionId: GrowthDimensionId;
   completedCycle: number;
   progress: 100;
-  flowmarkId: string;
+  tideId: string;
 }
-export interface GrowthPrototypeState {
+export interface GrowthSnapshot {
+  source: GrowthDataSource;
+  reviewStatus: GrowthReviewStatus;
+  dimensions: GrowthDimensionProgress[];
+  tides: GrowthTide[];
+  sessionChanges: GrowthSessionChange[];
+  completion: GrowthCycleCompletion | null;
+}
+/** Example adapter controls are not part of the product snapshot. */
+export interface GrowthPrototypeState extends GrowthSnapshot {
   scenario: GrowthScenario;
   selectedDimension: GrowthDimensionId;
-  dimensions: GrowthDimensionProgress[];
-  flowmarks: GrowthFlowmark[];
-  sessionChanges: GrowthSessionChange[];
   sessionApplied: boolean;
   completionApplied: boolean;
-  completion: GrowthCycleCompletion | null;
 }
 export function growthBadgeStage(completedCycles: number) {
   return completedCycles >= 10
@@ -78,4 +85,13 @@ export function growthBadgeStage(completedCycles: number) {
         : completedCycles >= 1
           ? 1
           : 0;
+}
+
+export function growthDate(value: string) {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${value}T12:00:00Z`));
 }

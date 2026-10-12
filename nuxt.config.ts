@@ -2,12 +2,20 @@
 const airEnv = (key: string, legacy: string) =>
   process.env[key] ?? process.env[legacy];
 
+// Growth is the normal Airs Home. An explicit false retains setup for rollback.
+// This changes presentation only; normal authentication and backend access remain.
+const airGrowthEnabled = (process.env.AIR_GROWTH_ENABLED ??
+  process.env.AIR_GROWTH_PREVIEW_MODE ?? "true") === "true";
+// Keep the normal development server separate from production/type-check artifacts.
+const airBuildDir = process.env.FLOWST_BUILD_DIR ||
+  (process.env.NODE_ENV === "development" ? ".nuxt-air-dev" : ".nuxt");
+
 export default defineNuxtConfig({
   compatibilityDate: "2026-08-24",
   srcDir: ".",
-  buildDir: process.env.FLOWST_BUILD_DIR || ".nuxt",
+  buildDir: airBuildDir,
   // Separate local Flowst Air, Flowst and browser-check optimizer artifacts.
-  vite: { cacheDir: `${process.env.FLOWST_BUILD_DIR || ".nuxt"}/vite-cache` },
+  vite: { cacheDir: `${airBuildDir}/vite-cache` },
   ignore: [
     "**/.nuxt-*",
     "**/.tmp",
@@ -161,14 +169,16 @@ export default defineNuxtConfig({
     ),
     awsRegion: process.env.AWS_REGION || "us-east-1",
     public: {
+      airGrowthEnabled,
       studySourceFixtureMode:
         airEnv("AIR_SOURCE_FIXTURE_MODE", "AMINA_SOURCE_FIXTURE_MODE") ===
           "true" &&
         process.env.FLOWST_AUTH_MODE === "mock" &&
         process.env.NODE_ENV !== "production",
       appSurface: "air",
-      airsGuestEnabled: process.env.AIRS_GUEST_ENABLED !== "false",
-      authRequired: false,
+      airsGuestEnabled: process.env.NODE_ENV !== "production" &&
+        process.env.AIRS_GUEST_ENABLED !== "false",
+      authRequired: true,
       apiBaseUrl: "/api",
       schoolId: process.env.NUXT_PUBLIC_SCHOOL_ID || "school-aster",
       demoMode: process.env.NUXT_PUBLIC_DEMO_MODE !== "false",
@@ -187,9 +197,9 @@ export default defineNuxtConfig({
       start_url: "/",
       icons: [
         {
-          src: "/air-icon.svg",
-          sizes: "any",
-          type: "image/svg+xml",
+          src: "/amira-icon.png",
+          sizes: "500x500",
+          type: "image/png",
           purpose: "any maskable",
         },
       ],

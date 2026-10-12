@@ -6,7 +6,7 @@ const sourceFixtureMode = useRuntimeConfig().public.studySourceFixtureMode;
 const demoError = ref("");
 const route = useRoute();
 const workspace = computed(
-  () => route.path === "/airs/new" || /^\/airs\/[a-f0-9-]+$/.test(route.path),
+  () => route.path === "/home/new" || /^\/home\/[a-f0-9-]+$/.test(route.path),
 );
 async function startSourceDemo() {
   try {
@@ -14,7 +14,7 @@ async function startSourceDemo() {
       method: "POST",
       body: { scenario: "member" },
     });
-    await navigateTo("/airs/new", { external: true });
+    await navigateTo("/home/new", { external: true });
   } catch {
     demoError.value =
       "The local demo session could not start. Check that fixture mode and mock authentication are enabled.";
@@ -28,7 +28,7 @@ useHead({ bodyAttrs: { class: standaloneAir ? "air-surface" : "" } });
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <NuxtRouteAnnouncer />
     <aside
-      v-if="sourceFixtureMode"
+      v-if="sourceFixtureMode && route.path !== '/home'"
       class="source-fixture-banner"
       aria-label="Demonstration mode"
     >

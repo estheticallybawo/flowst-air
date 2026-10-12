@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { GrowthDimensionId } from "~/shared/airGrowth";
 import { growthBadgeStage } from "~/shared/airGrowth";
-import { growthCapabilities } from "~/shared/airGrowthPrototype";
+import { growthCapabilities } from "~/shared/airGrowthCapabilities";
 
 const props = defineProps<{
   dimension: GrowthDimensionId;

@@ -10,11 +10,19 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const config = useRuntimeConfig();
   const standaloneAir = isAirStandalone(config.public.appSurface);
   if (standaloneAir && canonicalAirPath(to.fullPath) !== to.fullPath)
-    return navigateTo(canonicalAirPath(to.fullPath), { replace: true, redirectCode: 302 });
+    return navigateTo(canonicalAirPath(to.fullPath), {
+      replace: true,
+      redirectCode: 302,
+    });
   if (standaloneAir && !isAirStandalonePage(to.path))
-    return navigateTo("/airs");
-  if (config.public.airsGuestEnabled) { await useAuth().ensureSession(); return; }
-  if (!config.public.authRequired) return;
+    return navigateTo("/home");
+  if (import.meta.dev && standaloneAir && config.public.airsGuestEnabled === true) {
+    await useAuth().ensureSession();
+    return;
+  }
+  // Standalone production always requires an account, including deployments that
+  // still carry the former public authRequired=false configuration.
+  if (!config.public.authRequired && (!standaloneAir || import.meta.dev)) return;
   const welcomeRoute = to.path === "/";
   const authRoute = to.path.startsWith("/auth/");
   const neoRoute = to.path === "/neo" || to.path.startsWith("/neo/");

@@ -79,7 +79,7 @@ test('Misu offers factual next steps after the review, supports dismissal, and r
   const original = await closedFixture(context)
   let freshId = ''
   try {
-    await page.goto('/airs/' + original.id, { waitUntil: 'domcontentloaded' })
+    await page.goto('/home/' + original.id, { waitUntil: 'domcontentloaded' })
     const invitation = await finishReview(page)
     await expect(invitation).toBeVisible()
     await expect(invitation).toContainText('understanding was not assessed')
@@ -120,7 +120,7 @@ test('Misu offers factual next steps after the review, supports dismissal, and r
     expect(firstCommittedStatus).toBe(201)
     expect(firstCommittedId).toBeTruthy()
     expect(requestIds[0]).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
-    await expect(page).toHaveURL(new RegExp('/airs/' + original.id + '$'))
+    await expect(page).toHaveURL(new RegExp('/home/' + original.id + '$'))
     expect(await page.evaluate(id => sessionStorage.getItem('airs-repeat-request:' + id), original.id)).toBe(requestIds[0])
     await page.reload({ waitUntil: 'domcontentloaded' })
     const recoveredInvitation = await finishReview(page)
@@ -138,7 +138,7 @@ test('Misu offers factual next steps after the review, supports dismissal, and r
     expect(fresh.plan.approvedAt).toBeUndefined()
     expect(fresh.turns).toEqual([])
     expect(fresh.practice.attempts).toEqual([])
-    await expect(page).toHaveURL(new RegExp('/airs/' + freshId + '$'))
+    await expect(page).toHaveURL(new RegExp('/home/' + freshId + '$'))
     expect(await page.evaluate(id => sessionStorage.getItem('airs-repeat-request:' + id), original.id)).toBeNull()
     const current = await (await context.request.get('/api/study/conversations/' + freshId, { headers })).json()
     expect(['PENDING', 'DRAFT']).toContain(current.plan.status)
@@ -184,7 +184,7 @@ test('covered-review confetti waits until the assessment is read and honors redu
   kaiSessionAssessmentSchema.parse(review.sessionAssessment)
   try {
     await page.route('**' + original.base + '/review', route => route.fulfill({ json: route.request().method() === 'GET' ? { review } : review }))
-    await page.goto('/airs/' + original.id, { waitUntil: 'domcontentloaded' })
+    await page.goto('/home/' + original.id, { waitUntil: 'domcontentloaded' })
     const kai = page.getByRole('dialog', { name: 'Kai’s practice review', exact: true })
     await expect(kai).toBeVisible({ timeout: 90000 })
     await kai.getByRole('button', { name: 'Close kai’s practice review', exact: true }).click()
@@ -226,7 +226,7 @@ test('covered-review confetti waits until the assessment is read and honors redu
     expect(await invitation.locator('.completion-confetti').evaluate(node => getComputedStyle(node).display)).toBe('none')
     await page.screenshot({ path: test.info().outputPath('misu-covered-reduced-motion-' + test.info().project.name + '.png'), fullPage: true })
     await invitation.getByRole('button', { name: 'New session', exact: true }).click()
-    await expect(page).toHaveURL(/\/airs$/)
+    await expect(page).toHaveURL(/\/home$/)
     expect(failures).toEqual([])
   } finally { await cleanup(context, original.id) }
 })
@@ -237,7 +237,7 @@ test('a Kai review error has no finish control or completion invitation', async 
   const original = await closedFixture(context)
   try {
     await page.route('**' + original.base + '/review', route => route.fulfill({ status: 502, json: { statusMessage: 'Kai could not link this review to your saved evidence. Your practice is saved; retry the review.' } }))
-    await page.goto('/airs/' + original.id, { waitUntil: 'domcontentloaded' })
+    await page.goto('/home/' + original.id, { waitUntil: 'domcontentloaded' })
     const kai = page.getByRole('dialog', { name: 'Kai’s practice review', exact: true })
     await expect(kai).toBeVisible({ timeout: 90000 })
     await expect(kai).toContainText('Your practice is saved; retry the review.')

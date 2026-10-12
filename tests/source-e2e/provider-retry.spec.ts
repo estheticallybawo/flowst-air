@@ -17,7 +17,7 @@ test('Misu respects a provider retry delay across reload without automatically r
       requests++
       return route.fulfill({ status: 429, json: { statusCode: 429, statusMessage: 'The learning service has reached a request or token limit. Your source is still available. Wait before retrying this step.', data: { code: 'AGENT_PROVIDER_RATE_LIMITED', retryAfterSeconds: 20 } } })
     })
-    await page.goto('/airs/' + study.id)
+    await page.goto('/home/' + study.id)
     await page.getByRole('button', { name: 'Retry plan', exact: true }).click()
     await expect(page.getByRole('button', { name: /Retry available in/ })).toBeDisabled()
     expect(requests).toBe(1)

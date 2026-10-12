@@ -73,7 +73,7 @@ function prepareExit() {
   return true;
 }
 async function leaveSession() {
-  await navigateTo("/airs");
+  await navigateTo("/home");
 }
 onBeforeRouteLeave(() => prepareExit());
 function warnBeforeUnload(event: BeforeUnloadEvent) {
@@ -461,7 +461,7 @@ async function repeatSession() {
       method: "POST", body: { requestId: repeatRequestId, reviewId: completionReview.value.id },
     });
     completionOpen.value = false;
-    await navigateTo(`/airs/${fresh.id}`);
+    await navigateTo(`/home/${fresh.id}`);
     if (String(router.currentRoute.value.params.id || "") !== fresh.id) {
       completionOpen.value = true;
       completionError.value = "Your fresh session is saved. Try Practise again to open it.";
@@ -477,7 +477,7 @@ async function repeatSession() {
 async function startNewSession() {
   if (completionBusy.value) return;
   completionOpen.value = false;
-  await navigateTo("/airs");
+  await navigateTo("/home");
 }
 const conversationVisible = ref(false);
 let shownCheckpoint = "";
@@ -1621,7 +1621,7 @@ async function remove() {
     await auth.authorizedFetch(`/api/study/conversations/${id.value}`, {
       method: "DELETE",
     });
-    await navigateTo("/airs");
+    await navigateTo("/home");
   } catch (cause: any) {
     error.value = learnerStudyError(
       cause,
@@ -1661,7 +1661,7 @@ async function remove() {
       >
         Retry
       </button>
-      <NuxtLink to="/airs" class="air-text-link">Back to library</NuxtLink>
+      <NuxtLink to="/home" class="air-text-link">Back to library</NuxtLink>
     </div>
     <div
       v-else
@@ -1672,7 +1672,7 @@ async function remove() {
       }"
     >
       <nav v-if="!sessionActive" class="setup-room-nav">
-        <NuxtLink to="/airs/library">Saved sessions</NuxtLink
+        <NuxtLink to="/home/library">Saved sessions</NuxtLink
         ><span>{{ study.document.title || study.document.name }}</span
         ><button
           v-if="study.document.provenance"
@@ -1723,12 +1723,12 @@ async function remove() {
       >
         <h2>Study access is currently unavailable</h2>
         <p>Your saved material remains readable and can be deleted.</p>
-        <NuxtLink class="air-text-link" to="/airs/settings"
+        <NuxtLink class="air-text-link" to="/home/settings"
           >Review account access</NuxtLink
         >
       </section>
       <header v-if="!sessionActive && study.abandonedAt" class="study-header">
-        <NuxtLink to="/airs/library" class="back">
+        <NuxtLink to="/home/library" class="back">
           <ArrowLeft :size="17" /> All study chats
         </NuxtLink>
         <div class="study-title">
@@ -1785,7 +1785,7 @@ async function remove() {
           conversation remains readable; abandoning it did not complete its
           objectives.
         </p>
-        <NuxtLink class="air-button" to="/airs/new"
+        <NuxtLink class="air-button" to="/home/new"
           >Start a replacement study</NuxtLink
         >
         <AirConversation
@@ -1838,7 +1838,7 @@ async function remove() {
             Approving prepares your session with Amina. Your microphone stays
             off until you choose Start conversation. Each pilot call reserves 60
             seconds, including unused time.
-            <NuxtLink to="/airs/about">Microphone &amp; privacy</NuxtLink>
+            <NuxtLink to="/home/about">Microphone &amp; privacy</NuxtLink>
           </p>
         </div>
         <AirFocusDialog
@@ -1955,7 +1955,7 @@ async function remove() {
           This older chat cannot continue with the current study approach.
           Return to your study library to review your options.
         </p>
-        <NuxtLink to="/airs">Return to study library</NuxtLink>
+        <NuxtLink to="/home">Return to study library</NuxtLink>
       </section>
 
       <section
@@ -1983,7 +1983,7 @@ async function remove() {
           Revisit an explanation, try recalling an idea without your notes, or
           return to your library for another resource.
         </p>
-        <NuxtLink class="air-button" to="/airs">Return to library</NuxtLink>
+        <NuxtLink class="air-button" to="/home">Return to library</NuxtLink>
       </section>
       <section
         v-if="
@@ -2305,7 +2305,7 @@ async function remove() {
                 ><small v-if="live.availability.value?.enabled"
                   >Each pilot live call lasts up to 60 seconds. You can start
                   another call; earlier voice usage does not block it.
-                  <NuxtLink to="/airs/about"
+                  <NuxtLink to="/home/about"
                     >Microphone &amp; privacy</NuxtLink
                   ></small
                 >

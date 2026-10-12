@@ -4,6 +4,7 @@ const props = defineProps<{
   open: boolean;
   title: string;
   fullScreen?: boolean;
+  exampleData?: boolean;
   fallbackFocusId?: string;
 }>();
 const emit = defineEmits<{ close: [] }>();
@@ -63,7 +64,7 @@ onBeforeUnmount(() => {
         <button
           type="button"
           :aria-label="
-            fullScreen ? 'Back to growth dashboard' : 'Close preview'
+            fullScreen ? 'Back to growth dashboard' : 'Close'
           "
           @click="element?.close()"
         >
@@ -73,8 +74,8 @@ onBeforeUnmount(() => {
           /><span>{{ fullScreen ? "Back" : "Close" }}</span>
         </button>
       </header>
-      <p class="growth-dialog-notice">
-        <span aria-hidden="true">◈</span> Prototype · Sample data
+      <p v-if="exampleData" class="growth-dialog-notice">
+        <span aria-hidden="true">◈</span> Example growth data
       </p>
     </div>
     <div class="growth-dialog-content"><slot /></div>

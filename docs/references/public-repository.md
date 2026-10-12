@@ -45,3 +45,13 @@ The owner authorized automatic deployments from `codex/context-aware-practice` i
 Verify the application, generated documentation and reviewed export hashes before a release push. Confirm the remote commit and a Ready production deployment with the same SHA afterward. The private Flowst demonstration uses its own repository, project and release branch. Keep private Flowst history and host components outside this public slice.
 
 Branch-rule semantics: [Vercel Git configuration](https://vercel.com/docs/project-configuration/git-configuration).
+
+## Growth rewards branch — 10 October 2026
+
+The `flowst-airs-rewards` branch remains enabled for Vercel Preview alongside the existing release branch; production-branch settings are unchanged. The owner clarified that Growth belongs to the whole Airs product. The former sample-only route redirects, account replacement and blanket API rejection have been removed.
+
+The owner subsequently explicitly requested Growth in live production. Growth is now the default Home in development and production; `AIR_GROWTH_ENABLED=false` is an explicit UI rollback. Release the reviewed rewards implementation through `codex/context-aware-practice` using the existing configured Airs production backend. Authentication, signing, storage, providers and ownership protections remain intact. No provider credentials are copied into Preview and no AWS trust is widened. The previous `AIR_GROWTH_PREVIEW_MODE` variable remains a UI-only migration alias. Record the Ready production deployment and exact Git SHA after release.
+
+Production visitors enter through the existing Cognito sign-in; an authenticated account sees Continue. Private guest access is now development/testing-only, including when legacy deployment flags remain set. This correction does not migrate or reassign guest-owned records.
+
+Keep the allowlisted export reviewed and private Flowst history and environment files out of publication.

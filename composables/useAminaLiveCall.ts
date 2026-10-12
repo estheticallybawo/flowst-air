@@ -435,7 +435,7 @@ export function useAminaLiveCall(
             errorCode.value = message.code || "";
             nextAction.value =
               typeof message.nextAction === "string" &&
-              /^(?:\/air(?:\/|$)|\/auth\/sign-in(?:\?|$))/.test(
+              /^(?:\/(?:home|air)(?:\/|$)|\/auth\/sign-in(?:\?|$))/.test(
                 message.nextAction,
               )
                 ? message.nextAction

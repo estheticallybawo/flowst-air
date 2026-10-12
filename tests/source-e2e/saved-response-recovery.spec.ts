@@ -29,7 +29,7 @@ test('retries a saved response directly without recording or sending audio again
   await page.route('**'+base,route=>route.fulfill({json:{...saved,revision:saved.revision+(pending?0:1),objectiveFlow:{...saved.objectiveFlow,pendingOperationId:pending?'fixture-saved-operation':undefined,pendingReview:pending,error:pending?failure:undefined}}}))
   await page.route('**'+base+'/objective/retry',route=>{retries++;if(retries===1)return route.fulfill({status:502,json:{statusCode:502,statusMessage:failure,data:{code:'MISU_REVIEW_INVALID'}}});pending=false;return route.fulfill({json:{}})})
   await page.route('**'+base+'/recorded-turn',route=>{if(route.request().method()==='POST')recordings++;return route.fulfill({status:500,json:{}})})
-  await page.goto('/airs/'+study.id,{waitUntil:'domcontentloaded'})
+  await page.goto('/home/'+study.id,{waitUntil:'domcontentloaded'})
   const recovery=page.getByTestId('saved-response-recovery')
   await expect(recovery).toBeVisible({timeout:90000});await expect(recovery).toContainText('Your input is saved')
   await expect(page.locator('.call-actions').getByText(failure,{exact:true})).toBeVisible()

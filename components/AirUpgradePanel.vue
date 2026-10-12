@@ -7,7 +7,7 @@
       In this pilot, finish the agreed objectives or
       explicitly abandon a plan to replace its document.
     </p>
-    <NuxtLink class="air-text-link" to="/airs/pricing"
+    <NuxtLink class="air-text-link" to="/home/pricing"
       >View access &amp; plans</NuxtLink
     >
   </section>

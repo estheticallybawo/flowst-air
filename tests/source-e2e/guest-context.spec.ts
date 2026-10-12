@@ -82,7 +82,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     await new Promise((done) => setTimeout(done, 500));
     await route.fulfill({ response });
   });
-  await page.goto("/airs/new", { waitUntil: "domcontentloaded" });
+  await page.goto("/home/new", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("region", { name: "Your learning context" }),
   ).toBeVisible({ timeout: 90000 });
@@ -151,7 +151,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await expect(
     page.getByRole("region", { name: "Misu learning planner" }),
   ).toBeVisible({ timeout: 90000 });
-  await expect(page).toHaveURL(/\/airs\/[a-f0-9-]+$/);
+  await expect(page).toHaveURL(/\/home\/[a-f0-9-]+$/);
   await page.getByText("What this plan is based on", { exact: true }).click();
   await expect(
     page.getByText("I want to explain my projects clearly in interviews.", {

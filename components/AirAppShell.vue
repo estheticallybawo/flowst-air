@@ -14,10 +14,10 @@ const signingOut = ref(false);
 const logoutError = ref("");
 const accountMenu = ref<HTMLDetailsElement>();
 const navigation = [
-  { label: "Home", to: "/airs", icon: Home },
-  { label: "New session", to: "/airs/new", icon: Plus },
-  { label: "Library", to: "/airs/library", icon: BookOpen },
-  { label: "Settings", to: "/airs/settings", icon: Settings },
+  { label: "Home", to: "/home", icon: Home },
+  { label: "New session", to: "/home/new", icon: Plus },
+  { label: "Library", to: "/home/library", icon: BookOpen },
+  { label: "Settings", to: "/home/settings", icon: Settings },
 ];
 const displayName = computed(
   () => auth.me.value?.profile.displayName || "Your account",
@@ -25,7 +25,7 @@ const displayName = computed(
 function active(to: string) {
   return (
     route.fullPath === to ||
-    (to === "/airs" && route.path === "/airs" && !route.hash)
+    (to === "/home" && route.path === "/home" && !route.hash)
   );
 }
 function closeMenu(event: PointerEvent) {
@@ -100,7 +100,7 @@ async function signOut() {
         <div class="air-account-menu">
           <strong>{{ displayName }}</strong
           ><small>{{ auth.me.value?.profile.email }}</small
-          ><NuxtLink to="/airs/settings">Account &amp; access</NuxtLink
+          ><NuxtLink to="/home/settings">Account &amp; access</NuxtLink
           ><button type="button" :disabled="signingOut" @click="signOut">
             <LogOut :size="16" /> {{ signingOut ? "Signing out…" : "Sign out" }}
           </button>

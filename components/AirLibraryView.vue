@@ -175,7 +175,7 @@ async function upload() {
           },
         },
       );
-      await navigateTo(`/airs/${created.id}`);
+      await navigateTo(`/home/${created.id}`);
       return;
     }
     const form = new FormData();
@@ -191,7 +191,7 @@ async function upload() {
       "/api/study/conversations",
       { method: "POST", body: form },
     );
-    await navigateTo(`/airs/${created.id}`);
+    await navigateTo(`/home/${created.id}`);
   } catch (cause: any) {
     error.value = learnerStudyError(
       cause,
@@ -352,7 +352,7 @@ async function replaceCurrentDocument() {
         >
           <h2>Study access is currently unavailable</h2>
           <p>You can still read or delete your saved material.</p>
-          <NuxtLink class="air-text-link" to="/airs/settings"
+          <NuxtLink class="air-text-link" to="/home/settings"
             >Review account access</NuxtLink
           >
         </section>
@@ -583,7 +583,7 @@ async function replaceCurrentDocument() {
           <div class="upload-locked-actions">
             <NuxtLink
               v-if="eligibility.existingConversationId"
-              :to="`/airs/${eligibility.existingConversationId}`"
+              :to="`/home/${eligibility.existingConversationId}`"
               >Continue with Amina</NuxtLink
             ><button
               v-if="
@@ -599,7 +599,7 @@ async function replaceCurrentDocument() {
           </div>
         </section>
         <div v-else class="air-library-start">
-          <NuxtLink class="air-button" to="/airs/new"
+          <NuxtLink class="air-button" to="/home/new"
             >Start a new session</NuxtLink
           >
           <p>One resource. A plan you can review. Room to practise.</p>
@@ -685,7 +685,7 @@ async function replaceCurrentDocument() {
             <p>{{ item.document.excerpt }}</p>
             <div class="chat-actions">
               <NuxtLink
-                :to="`/airs/${item.id}`"
+                :to="`/home/${item.id}`"
                 :aria-label="
                   item.abandonedAt
                     ? `View saved conversation for ${item.document.name}`

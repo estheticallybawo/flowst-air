@@ -13,7 +13,7 @@ const notice = computed(() => route.query.reason === 'session-expired'
   : route.query.reason === 'signed-out'
     ? 'You have been signed out safely.'
     : '')
-useHead({ title: standaloneAir ? 'Sign in · Flowst Air' : 'Sign in · Flowst' })
+useHead({ title: standaloneAir ? 'Sign in · Flowst Airs' : 'Sign in · Flowst' })
 
 async function submit() {
   busy.value = true
@@ -30,14 +30,14 @@ async function submit() {
 </script>
 
 <template>
-  <AuthShell eyebrow="Welcome back" :title="standaloneAir ? 'Sign in to Flowst Air' : 'Sign in to Flowst'" :description="standaloneAir ? 'Return to your documents and guided Voice conversation.' : 'Return to your community, approved Flows, and any school spaces you have been approved to access.'">
+  <AuthShell eyebrow="Welcome back" :title="standaloneAir ? 'Sign in to Flowst Airs' : 'Sign in to Flowst'" :description="standaloneAir ? 'Continue your learning, conversations, and growth.' : 'Return to your community, approved Flows, and any school spaces you have been approved to access.'">
     <form @submit.prevent="submit">
       <div class="field"><label for="email">Email</label><input id="email" v-model="email" class="input" type="email" autocomplete="email" required></div>
       <PasswordField v-model="password" id="password" label="Password" autocomplete="current-password" required />
       <p v-if="notice" class="form-notice" role="status">{{ notice }}</p>
       <p v-if="error" class="form-error" role="alert">{{ error }}</p>
       <div class="auth-actions"><NuxtLink class="auth-link" :to="{ path: '/auth/recover', query: standaloneAir ? { redirect: airReturnPath(route.query.redirect) } : {} }">Forgot password?</NuxtLink><button class="btn btn-primary" :disabled="busy">{{ busy ? 'Signing in…' : 'Sign in' }}</button></div>
-      <p class="form-note">{{ standaloneAir ? 'New to Flowst Air?' : 'New to Flowst?' }} <NuxtLink class="auth-link" :to="{ path: '/auth/register', query: standaloneAir ? { redirect: airReturnPath(route.query.redirect) } : {} }">Create your learner account</NuxtLink></p>
+      <p class="form-note">{{ standaloneAir ? 'New to Flowst Airs?' : 'New to Flowst?' }} <NuxtLink class="auth-link" :to="{ path: '/auth/register', query: standaloneAir ? { redirect: airReturnPath(route.query.redirect) } : {} }">Create your learner account</NuxtLink></p>
     </form>
   </AuthShell>
 </template>
