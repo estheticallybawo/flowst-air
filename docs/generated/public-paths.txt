@@ -339,6 +339,7 @@
 :(literal)tests/source-e2e/session-completion.spec.ts
 :(literal)tests/study-air-history.test.ts
 :(literal)tests/study-aws-voice.test.ts
+:(literal)tests/study-bedrock-result.test.ts
 :(literal)tests/study-bedrock-transport.test.ts
 :(literal)tests/study-companion.test.ts
 :(literal)tests/study-completion-invitation.test.ts

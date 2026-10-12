@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 const bedrock = vi.hoisted(() => ({ request: vi.fn() }))
 vi.mock('../server/services/studyBedrockTransport', () => ({ requestStudyBedrock: bedrock.request }))
 import { groqStudyText } from '../server/services/studyInference'
-import { misuReviewOutput, misuReviewSchema, parseMisuReview, groundMisuReview } from '../server/services/misuEvidenceReview'
+import { misuReviewOutput, misuReviewSchema, parseMisuReview, groundMisuReview, misuReviewFailure } from '../server/services/misuEvidenceReview'
 import { shouldPauseStudyOnExit } from '../shared/studySessionRecovery'
 import type { StudyConversation } from '../shared/study'
 import type { StudyPacingState } from '../shared/studyPacing'
@@ -11,6 +11,18 @@ beforeEach(() => { vi.stubGlobal('useRuntimeConfig', () => ({ studyTextProvider:
 afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks() })
 const response = (calls: unknown[], finish_reason = 'stop') => new Response(JSON.stringify({ choices: [{ finish_reason, message: { tool_calls: calls } }] }))
 const call = { function: { name: 'submit_objective_evidence', arguments: '{"fixture":true}' } }
+it.each([
+ {reference:'PRIVATE provider reference',providerReason:'malformed_tool_use',expectedReason:'malformed_tool_use'},
+ {reference:'b3c129ba-268e-4a56-a5a9-e6e5ea3d6927',providerReason:'PRIVATE provider reason',expectedReason:undefined},
+ {reference:{private:'PRIVATE provider reference'},providerReason:{private:'PRIVATE provider reason'},expectedReason:undefined},
+])('bounds diagnostics passed into a Misu review failure: $providerReason',diagnostic=>{
+ const warn=vi.spyOn(console,'warn').mockImplementation(()=>{})
+ const failure=misuReviewFailure('the review did not use the required format',[{field:'review',reason:'AGENT_RESULT_INVALID'}],1,diagnostic)
+ expect(failure.data?.reference).toMatch(/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i)
+ if(typeof diagnostic.reference==='string'&&!diagnostic.reference.startsWith('PRIVATE'))expect(failure.data?.reference).toBe(diagnostic.reference)
+ expect(failure.data?.providerReason).toBe(diagnostic.expectedReason)
+ expect(JSON.stringify(failure)+JSON.stringify(warn.mock.calls)).not.toContain('PRIVATE')
+})
 it.each(['quotation','source','criterion'])('identifies the rejected %s without exposing content or relaxing grounding',kind=>{
  const warn=vi.spyOn(console,'warn').mockImplementation(()=>{})
  const valid=misuReviewSchema.parse({semanticAcceptance:'met',demonstrated:['Explain the approved idea.'],unresolved:[],reason:'The learner describes the approved idea.',sourceRefs:['source-1'],learnerQuotes:['It is canonical.'],transcriptionUncertainty:[],interactionState:'correct'})

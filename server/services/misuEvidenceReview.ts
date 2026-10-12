@@ -47,10 +47,13 @@ const labels: Record<string, string> = {
   interactionState: 'interaction status',
 }
 type ReviewIssue = { field: string; reason: string; minimum?: number; maximum?: number; unit?: string }
-export function misuReviewFailure(detail: string, issues: ReviewIssue[], issueCount = issues.length) {
-  const reference = randomUUID()
+export function misuReviewFailure(detail: string, issues: ReviewIssue[], issueCount = issues.length, diagnostic?: {reference?:unknown;providerReason?:unknown}) {
+  const reference = typeof diagnostic?.reference === 'string' && /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(diagnostic.reference)
+    ? diagnostic.reference : randomUUID()
+  const providerReason = typeof diagnostic?.providerReason === 'string' && ['guardrail_intervened','content_filtered','malformed_model_output','malformed_tool_use','model_context_window_exceeded','unknown'].includes(diagnostic.providerReason)
+    ? diagnostic.providerReason : undefined
   const data = { code: 'MISU_REVIEW_INVALID', stage: 'EVIDENCE_REVIEW', savedAnswer: true,
-    reference, validationIssues: issues.slice(0, 4), validationIssueCount: issueCount }
+    reference, ...(providerReason ? {providerReason} : {}), validationIssues: issues.slice(0, 4), validationIssueCount: issueCount }
   // Application-owned codes/fields only; no model output, learner content or source text.
   console.warn('Misu evidence review rejected', data)
   return createError({ statusCode: 502,

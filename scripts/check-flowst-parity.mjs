@@ -8,6 +8,7 @@ export const files = [
   "server/services/studyModelBudget.ts",
   "server/services/studyElevenAgent.ts",
   "tests/study-bedrock-transport.test.ts",
+  "tests/study-bedrock-result.test.ts",
   "tests/amina-live-model.test.ts",
   "server/services/studyPlanningInventory.ts",
   "tests/study-planning-inventory.test.ts",

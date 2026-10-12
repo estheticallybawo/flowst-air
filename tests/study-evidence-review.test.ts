@@ -129,6 +129,25 @@ it('atomically rejects a stale research claim even when it has the newest conver
 
 
 
+it.each(['malformed_tool_use','malformed_model_output','unknown'])('preserves the Bedrock %s diagnostic through Misu without repeating dispatch or losing the saved answer',async providerReason=>{
+ await setup();await turn("I'm ready",'INTRO');
+ const warn=vi.spyOn(console,'warn').mockImplementation(()=>{})
+ const key=randomUUID(),reference=randomUUID(),answer='It is the authoritative reference for the system design.';
+ vi.mocked(groqStudyText).mockRejectedValueOnce(createError({statusCode:502,statusMessage:'PRIVATE provider prose',data:{code:'AGENT_RESULT_INVALID',providerReason,reference,privateOutput:'PRIVATE unusable output'}}));
+ const failure=await prepare(answer,'PRACTICE',key).catch(cause=>cause);
+ expect(failure).toMatchObject({statusCode:502,data:{code:'MISU_REVIEW_INVALID',stage:'EVIDENCE_REVIEW',savedAnswer:true,reference,providerReason}});
+ expect(failure.statusMessage).toContain(reference);
+ expect(warn).toHaveBeenCalledWith('Misu evidence review rejected',expect.objectContaining({reference,providerReason}));
+ expect(JSON.stringify(failure)+JSON.stringify(warn.mock.calls)).not.toMatch(/PRIVATE|authoritative reference/);
+ expect(groqStudyText).toHaveBeenCalledTimes(1);
+ const saved=await getStudyConversation(owner,id),pending=await getStudyObjectiveOperation(owner,id,key);
+ expect(saved.turns.filter(turn=>turn.role==='USER'&&turn.text===answer)).toHaveLength(1);
+ expect(saved.objectiveFlow?.error).toBe(failure.statusMessage);
+ expect(saved.objectiveFlow?.ledger[0]?.targets[0]?.attempts).toBe(0);
+ expect(pending?.status).toBe('PENDING');expect(pending?.reviewLeaseUntil).toBeUndefined();
+ warn.mockRestore();
+});
+
 it.each(['invalid JSON','missing interaction state','reason above 500 characters','empty reason','more than four learner quotes','unsupported quotation','insufficient evidence'])('explains %s and retries the saved answer without consuming another attempt',async name=>{
  await setup({pacing:true});await turn("I'm ready",'INTRO');
  const warn=vi.spyOn(console,'warn').mockImplementation(()=>{});

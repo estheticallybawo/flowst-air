@@ -3,7 +3,7 @@
   "files": [
     {
       "path": "server/services/studyBedrockTransport.ts",
-      "sha256": "c2808b93262bc4f3bbf83924c3e5ef5abe0604bbc7cfae0e6dc2c2c3886adbd0"
+      "sha256": "f2cb7d01aca7b9b72c9e312f013a926d0ac63e8859aaa6be30b2f88da9634deb"
     },
     {
       "path": "server/services/studyModelBudget.ts",
@@ -15,7 +15,11 @@
     },
     {
       "path": "tests/study-bedrock-transport.test.ts",
-      "sha256": "e5a6ac3e8bc03348e3bf97e78e55c00ec1531dc144997faef1950f1864ea7862"
+      "sha256": "f6d334ae8cc1352d147f2cd0423d92f8c828ce6ebc38ef0ff7ac6312188bc3e6"
+    },
+    {
+      "path": "tests/study-bedrock-result.test.ts",
+      "sha256": "d121855d185ed489c3dec24c108f2fe355393d81baec3ae8120dbb4ca12bffd7"
     },
     {
       "path": "tests/amina-live-model.test.ts",
@@ -415,7 +419,7 @@
     },
     {
       "path": "server/services/studyMisu.ts",
-      "sha256": "4c456e22cee4c9887ab7288a05d92ccac9b589a1b30431a999b0ec5baa094c3d"
+      "sha256": "d561895c373601d6e427acbbe4c814e1af06a82cf21563a382b358ccfc38e4d5"
     },
     {
       "path": "server/services/studyAmina.ts",
@@ -459,7 +463,7 @@
     },
     {
       "path": "server/services/misuEvidenceReview.ts",
-      "sha256": "4e1b47ae860355b7f2da7d93ea5ce32fed6dc553801678fe97605b74016719b3"
+      "sha256": "4aac22a42ee5a4069e50a85c125af280e1495ca63373932a6c56876f4f1a9aa2"
     },
     {
       "path": "server/services/studyRelatedResearch.ts",
@@ -475,11 +479,11 @@
     },
     {
       "path": "tests/study-evidence-review.test.ts",
-      "sha256": "10d0f97ba5932536ada70b4c5821a5afdb7059b3e1ae257d17a233f208615966"
+      "sha256": "d775ae450aec3024cd14157262e6aaae54940302cb0281d4d29b4f6d4d5fc8c3"
     },
     {
       "path": "tests/misu-evidence-contract.test.ts",
-      "sha256": "abdcb3468b8660fd48c25db92977dc0e5344cd67c29f248cb9af3bda67634460"
+      "sha256": "93fe9b19c97771f19787bef5776881a658e141b95f295e20a35c10d6d5d86baa"
     },
     {
       "path": "tests/source-e2e/saved-response-recovery.spec.ts",

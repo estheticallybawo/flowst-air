@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-12T18:15:22.243Z",
+  "createdAt": "2026-10-12T22:42:09.586Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -415,8 +415,8 @@
     },
     {
       "path": "docs/generated/shared-parity.json",
-      "bytes": 21561,
-      "sha256": "1d53daefeb5bc5f9a44398f91b079a479fb8fa801a2cdd38848ce6df45572709"
+      "bytes": 21709,
+      "sha256": "6498240938dd4e746a11e78a5bb89df521151877975695adaba3483af1ac4587"
     },
     {
       "path": "docs/index.md",
@@ -461,7 +461,7 @@
     {
       "path": "docs/references/development-and-verification.md",
       "bytes": 1975,
-      "sha256": "d622b3d46db1dfbd5ac96495ab9cb9405696ebaf54a155efd5950488178584fd"
+      "sha256": "0751cf16ec988cf117f3b6f1a575638375d5b10c5d7be8fb7a27a0e2c41f5b06"
     },
     {
       "path": "docs/references/identity-migration.md",
@@ -495,8 +495,8 @@
     },
     {
       "path": "docs/references/verification.md",
-      "bytes": 82743,
-      "sha256": "75fcc291259073b716cc5ea97bb67057deeaf3b25a16d56120b4c30f36034a2c"
+      "bytes": 85740,
+      "sha256": "fc0ce817d0609f3771b310ce71dff8caa93073e571f8bd0e8ba577f3a0d5b67c"
     },
     {
       "path": "docs/references/voice-turn-preflight.md",
@@ -790,8 +790,8 @@
     },
     {
       "path": "scripts/check-flowst-parity.mjs",
-      "bytes": 13649,
-      "sha256": "98d32edfff95bf659a9fb34b9a962751f2e901606820ee51f8427088d3577436"
+      "bytes": 13689,
+      "sha256": "6b3915b7642ce0ccafaf605da16e763f6068edbbc2eb879e8c3ae4ef48295d6a"
     },
     {
       "path": "scripts/check-public-export.mjs",
@@ -1180,8 +1180,8 @@
     },
     {
       "path": "server/services/misuEvidenceReview.ts",
-      "bytes": 5698,
-      "sha256": "7680fc700e006660640dc5e97cc25a5f3a0fc895ac1d2b44ff139f78b37ff0d7"
+      "bytes": 6263,
+      "sha256": "368bfc0c8ca67ef8cea1a2c81010a1febd7e79ba0ae9836c9c35aeda5ca3f1ae"
     },
     {
       "path": "server/services/misuPlanFailure.ts",
@@ -1230,8 +1230,8 @@
     },
     {
       "path": "server/services/studyBedrockTransport.ts",
-      "bytes": 5836,
-      "sha256": "5861465160ee1b7841c06ec0d615401ded65cfa6eafe74490ccb773d72527ed3"
+      "bytes": 7319,
+      "sha256": "d7b7ca1a4e65c7470c566128765afbeb99a9d8b3f3f14e92aa91724a0b3bbfbb"
     },
     {
       "path": "server/services/studyElevenAgent.ts",
@@ -1255,8 +1255,8 @@
     },
     {
       "path": "server/services/studyMisu.ts",
-      "bytes": 34448,
-      "sha256": "70b93406f5572c49259ba336991cd93fbb6b3955729c9d3f6d677097c5f4b19a"
+      "bytes": 34526,
+      "sha256": "fe8719b87a9c49d1c45fb4f548a51c9463a73063fb39f6f4bd4010715b1b1a81"
     },
     {
       "path": "server/services/studyModelBudget.ts",
@@ -1610,8 +1610,8 @@
     },
     {
       "path": "tests/misu-evidence-contract.test.ts",
-      "bytes": 5848,
-      "sha256": "831bbb664081873263b08f4905e034969ae9c19a00ceecde04516b2bd75b68ee"
+      "bytes": 6959,
+      "sha256": "f714c981bf91530c3ab2602ac57eeadc68f6f5aed5becb640a69b38498679ecf"
     },
     {
       "path": "tests/misu-plan-errors.test.ts",
@@ -1695,8 +1695,8 @@
     },
     {
       "path": "tests/study-bedrock-transport.test.ts",
-      "bytes": 10136,
-      "sha256": "822b2a5440769d14ff51250848902c0ac07ad0f02336a49c118acf324d1d1196"
+      "bytes": 10138,
+      "sha256": "529a03c28a295c00c5845dc20827c7b1655c3041827a07b2ad2d443c309c73e8"
     },
     {
       "path": "tests/study-companion.test.ts",
@@ -1720,8 +1720,8 @@
     },
     {
       "path": "tests/study-evidence-review.test.ts",
-      "bytes": 16670,
-      "sha256": "710b078b3227a989304466078224d000cb19a6e98797e06675d89c29756389b0"
+      "bytes": 18321,
+      "sha256": "e69939f44ad3ae6f7ac90496e4b84a1e1d86fad027c2d55a59791782f977bb23"
     },
     {
       "path": "tests/study-live-lease.test.ts",
@@ -1927,6 +1927,11 @@
       "path": "vitest.config.ts",
       "bytes": 421,
       "sha256": "e0a3895d66cd71bb2a2339ff44fdd4de0991858415f05a7537d57a3388ad1dba"
+    },
+    {
+      "path": "tests/study-bedrock-result.test.ts",
+      "bytes": 3658,
+      "sha256": "de5e724fecd1239bd58c46f357b5ce2089e508d7b4ea379ee397d5c590be0b8f"
     }
   ],
   "updatedAt": "2026-10-10T00:44:09.227Z"

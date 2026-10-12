@@ -73,7 +73,7 @@ describe('Bedrock testing transport', () => {
     vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ stopReason: 'max_tokens', output: { message: { content: [{ text: 'incomplete' }] } } })))
     await expect(groqStudyText('', [{ role: 'user', content: 'Answer' }], 600)).rejects.toMatchObject({ data: { code: 'AGENT_OUTPUT_INCOMPLETE' } })
     vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ stopReason: 'guardrail_intervened', output: { message: { content: [{ text: 'blocked' }] } } })))
-    await expect(requestStudyBedrock(request)).rejects.toMatchObject({ data: { code: 'AGENT_RESULT_INVALID' } })
+    await expect(requestStudyBedrock(request)).rejects.toMatchObject({ data: { code: 'AGENT_RESPONSE_BLOCKED' } })
   })
   it('supports workload identity with SDK retries disabled', async () => {
     vi.stubGlobal('useRuntimeConfig', () => ({ studyTextProvider: 'aws' }))
