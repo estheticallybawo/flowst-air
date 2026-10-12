@@ -273,7 +273,7 @@
     },
     {
       "path": "components/AirConversation.vue",
-      "sha256": "337c9a8ea93f5e3d097e9d08aa28a69bd8c9faa47c65c109b30f406160c123ce"
+      "sha256": "a035542fd864e881f04e1d43f2aac20aa0c2b2cef8d9a77daf9d7841ab3dc6a3"
     },
     {
       "path": "components/AgentAvatar.vue",
