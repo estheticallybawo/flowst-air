@@ -6,6 +6,7 @@ export function useStudyPacing(id: Ref<string>) {
     error = ref(""),
     now = ref(0);
   let receivedAt = 0,
+    requestVersion = 0,
     ticker: ReturnType<typeof setInterval> | undefined,
     disposed = false;
   const current = computed(() =>
@@ -35,10 +36,11 @@ export function useStudyPacing(id: Ref<string>) {
     now.value = receivedAt;
   }
   async function refresh() {
+    const request = ++requestVersion;
     const result = await auth.authorizedFetch<{
       pacing: StudyPacingState | null;
     }>(`/api/study/conversations/${id.value}/pacing`);
-    receive(result.pacing);
+    if (request === requestVersion) receive(result.pacing);
   }
   async function change(
     action: "START" | "BREAK" | "SKIP_BREAK" | "RESUME" | "PAUSE" | "RECORD",
@@ -46,6 +48,8 @@ export function useStudyPacing(id: Ref<string>) {
   ) {
     if (busy.value) return false;
     busy.value = true;
+    // Discard reads begun before or during this mutation once it commits.
+    requestVersion++;
     error.value = "";
     try {
       const result = await auth.authorizedFetch<{
@@ -58,6 +62,7 @@ export function useStudyPacing(id: Ref<string>) {
           ...(recordingId ? { recordingId } : {}),
         },
       });
+      requestVersion++;
       receive(result.pacing);
       return true;
     } catch (cause: any) {

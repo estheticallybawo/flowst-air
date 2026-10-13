@@ -3,7 +3,7 @@
   "files": [
     {
       "path": "server/services/studyBedrockTransport.ts",
-      "sha256": "c2808b93262bc4f3bbf83924c3e5ef5abe0604bbc7cfae0e6dc2c2c3886adbd0"
+      "sha256": "f2cb7d01aca7b9b72c9e312f013a926d0ac63e8859aaa6be30b2f88da9634deb"
     },
     {
       "path": "server/services/studyModelBudget.ts",
@@ -15,7 +15,11 @@
     },
     {
       "path": "tests/study-bedrock-transport.test.ts",
-      "sha256": "e5a6ac3e8bc03348e3bf97e78e55c00ec1531dc144997faef1950f1864ea7862"
+      "sha256": "147cecbc7b704410e5a61a021cd84a67adbd08a662394fad00934f5c33a0d039"
+    },
+    {
+      "path": "tests/study-bedrock-result.test.ts",
+      "sha256": "d121855d185ed489c3dec24c108f2fe355393d81baec3ae8120dbb4ca12bffd7"
     },
     {
       "path": "tests/amina-live-model.test.ts",
@@ -109,7 +113,7 @@
     },
     {
       "path": "shared/studyObjectiveOperation.ts",
-      "sha256": "d6fffda5f063fc1213719d2f74b20e36ced2aeead92ec7e24b93d6b6d7ef0390"
+      "sha256": "5f48b0a9702ad129577f5a4308feb845ffb101746833aeead907ab29f65c068c"
     },
     {
       "path": "shared/studyPedagogy.ts",
@@ -121,7 +125,7 @@
     },
     {
       "path": "server/services/studyObjectiveFlow.ts",
-      "sha256": "ea7c63885c4f9bf6fbf5852f9d30e2137f834dd96d5f8586cc5ad01594b59727"
+      "sha256": "92276fea07c1455bd1a7cc681e4313c8a5b44f15755a6f5c637dac1d5de848d3"
     },
     {
       "path": "server/services/airsContext.ts",
@@ -153,7 +157,7 @@
     },
     {
       "path": "tests/study-objective-flow.test.ts",
-      "sha256": "e6c76aec384deabd150c46cbad40f4e415bace0e73d01f1c457acc0c0581ddc8"
+      "sha256": "046352373d8a0f56283f027164c1086223af00aa0b8ffb58e08f2c55e10dce8a"
     },
     {
       "path": "tests/amina-live-client.test.ts",
@@ -213,7 +217,7 @@
     },
     {
       "path": "assets/css/air-call-room.css",
-      "sha256": "6acd144dd073c00084e63d1be6e1d84adb72c852a0b6aa89977b9f0fb938d340"
+      "sha256": "f4df83973857a092649d4ef873ef8fc0028db6c490521d408a8eee142fca18b3"
     },
     {
       "path": "shared/studyPacing.ts",
@@ -222,6 +226,14 @@
     {
       "path": "shared/studySpeech.ts",
       "sha256": "dca23d1696a3879397e61a282c591885287e86a62b53b55e19e73b469bec6327"
+    },
+    {
+      "path": "shared/studySpeechAudio.ts",
+      "sha256": "2249b5bc20c47d0cc499726e3bf8e874e7a76268c0284708cc9b5c3155632912"
+    },
+    {
+      "path": "tests/study-speech-audio.test.ts",
+      "sha256": "de8bb99b810f008be1078ac7093f03bd5ccc92c8d51bee4d7299cfddcd971e6e"
     },
     {
       "path": "server/services/studyPreferences.ts",
@@ -261,11 +273,11 @@
     },
     {
       "path": "composables/useStudyPacing.ts",
-      "sha256": "4c8dc5b0ae022feef199cc467ffbbc19f165b2fc239a79730dc3765e43b0dc6d"
+      "sha256": "dd7ea4ebaa83d6118e70ba67276f801ca5feff894508980d66f758a28a7f9a08"
     },
     {
       "path": "components/AirConversation.vue",
-      "sha256": "8d6eff65db38d4d234c63fbeb524fe25d74c721e2312e80faaec639e14d88ea2"
+      "sha256": "a035542fd864e881f04e1d43f2aac20aa0c2b2cef8d9a77daf9d7841ab3dc6a3"
     },
     {
       "path": "components/AgentAvatar.vue",
@@ -277,8 +289,8 @@
     },
     {
       "path": "server/services/studyRepository.ts",
-      "sha256": "2266687d4c3db31568643261e59f49f739cfd0c606d1659aee41e288a276beab",
-      "standaloneSha256": "d077e56f75ff5bd5a0332c4f31651ba0b5035632259780cd7fe1c42ca9b2f3da"
+      "sha256": "688ca7e7c4f9ede70fccfc922d35d1d2ff0240fc33c5ade515080ba92cb87c54",
+      "standaloneSha256": "ffcd07b16e6d04d2510358de3e1d4cd2a0557cd47f81786cc26d76b54a4e38c1"
     },
     {
       "path": "server/api/study/context.put.ts",
@@ -341,8 +353,8 @@
     },
     {
       "path": "components/AirAppShell.vue",
-      "sha256": "6f54f8dbe17f2fb6c2f74ac0179333ad12084d381450b683d1a6991d037a2b64",
-      "standaloneSha256": "5108d9e5eda41557d799f647ab11bdb5f684abca7632582d42cd28a79a275c9d"
+      "sha256": "2699457f92ac6b4ef7ceaf4c3c5f661d42fe33aede9e34049499f487a0d74bbd",
+      "standaloneSha256": "f865f51a7aadb16f5343f19f283c1c0adc6d9bed8902f98ffec5337639589d54"
     },
     {
       "path": "pages/home/index.vue",
@@ -358,8 +370,8 @@
     },
     {
       "path": "pages/home/[id].vue",
-      "sha256": "5741b54340e33588b55c7b5c8f04ffb0fe69a870ca1df5d523ec3553dc465cda",
-      "standaloneSha256": "bbb49958133a77e3baa3ce637a5e3ffc236fb2b5e525c3331f99ec6e13a74912"
+      "sha256": "bf4646dcba41a437cfa7caa05e67919d291b32e3111f50b805a90e412360edbd",
+      "standaloneSha256": "77d44bd8a1b19e3ac714fd5ea1673259bae7204ee20e62d95a96280772ed3d11"
     },
     {
       "path": "shared/airsOrchestration.ts",
@@ -367,11 +379,11 @@
     },
     {
       "path": "shared/study.ts",
-      "sha256": "d19c8031e57397dec3853d6e0ce359691c3061c98a6a13564e67f14313065493"
+      "sha256": "2d287330a38d4647efcb37a85fa8115f15f7760853c03b693cf997bfe57a74cd"
     },
     {
       "path": "server/services/airsAgentRunner.ts",
-      "sha256": "f56aa200a7fb1b1827ba434369f870874b3742f7713406d6db478ba9c717f793"
+      "sha256": "72679b875e687cb27730560edf903a631a98e199a922e5a94848cae2d0124103"
     },
     {
       "path": "server/services/airsProviderFailure.ts",
@@ -391,7 +403,7 @@
     },
     {
       "path": "tests/airs-kai-recovery.test.ts",
-      "sha256": "68e4b210d1a54e21c5b96e81ee7aa7b6adf5f0b90053604dd6415df12a9bb02b"
+      "sha256": "99b3a35af61e5b70124110970371edb3795a887b25b2254798809b8989a7e12a"
     },
     {
       "path": "server/services/airsPlanning.ts",
@@ -403,11 +415,11 @@
     },
     {
       "path": "server/services/airsKai.ts",
-      "sha256": "e3f05c5fd88ffd86502f68ccfcbaba372fc1200ab87f6be03cc45099f2256057"
+      "sha256": "7638fcf4414650392f282f73ad5a5dc01741b16bf72758b005dc466c11dd1ac3"
     },
     {
       "path": "server/services/studyMisu.ts",
-      "sha256": "b2bbb103d93a89a137351387d518cf9d56db1fd30214c12f9f2ea824d73c9060"
+      "sha256": "d561895c373601d6e427acbbe4c814e1af06a82cf21563a382b358ccfc38e4d5"
     },
     {
       "path": "server/services/studyAmina.ts",
@@ -451,7 +463,15 @@
     },
     {
       "path": "server/services/misuEvidenceReview.ts",
-      "sha256": "f329986da2a6ab2e4bb4425bf7f3b5068a2728720234fe8e931d4e6daae95da4"
+      "sha256": "4aac22a42ee5a4069e50a85c125af280e1495ca63373932a6c56876f4f1a9aa2"
+    },
+    {
+      "path": "server/services/studyRelatedResearch.ts",
+      "sha256": "28c775dcb9bbd92e7d07528bfa0847e3420cfb3c5ffa2907e849db970c6d651e"
+    },
+    {
+      "path": "tests/study-related-research.test.ts",
+      "sha256": "e8c3513926eef97d7f2d04a360ecc94aca869b6ecaa9ddb5066a861a05804afd"
     },
     {
       "path": "shared/studySessionRecovery.ts",
@@ -459,16 +479,16 @@
     },
     {
       "path": "tests/study-evidence-review.test.ts",
-      "sha256": "4b371efe0e7740b1437b0c2c178431bd16ffb0f9f0b3972edd7ef38227018b75"
+      "sha256": "d775ae450aec3024cd14157262e6aaae54940302cb0281d4d29b4f6d4d5fc8c3"
     },
     {
       "path": "tests/misu-evidence-contract.test.ts",
-      "sha256": "52751ef61dc3493953c7c99f29ecd8fedfbe6e96b4c973f08ad2f0a783c56962"
+      "sha256": "93fe9b19c97771f19787bef5776881a658e141b95f295e20a35c10d6d5d86baa"
     },
     {
       "path": "tests/source-e2e/saved-response-recovery.spec.ts",
-      "sha256": "83539a676e445c33390b047ab8a9da59849cf738d3b1c8ee72c644b473d98d88",
-      "standaloneSha256": "99809b36b68084d824fd453f15032d509b417fc6472a219283becda683ad4d6f"
+      "sha256": "d8dccec7afd89b5484a627f7470cadf100ca0396755b4bdaedd62651d934f8ba",
+      "standaloneSha256": "e20666b746311c6d7db7e046db9bfffcebd57333a9df3dca6aa374fa4b50316f"
     }
   ],
   "intentionalDifferences": {
@@ -489,8 +509,8 @@
     },
     "assets/css/air-call-room.css": {
       "reason": "Standalone audio failure layout and short-screen scrolling",
-      "flowst": "5de0cc99c74c7e4cd3f16427497f4a23b81f150bbb17c72367a69b0c7900f539",
-      "standalone": "6acd144dd073c00084e63d1be6e1d84adb72c852a0b6aa89977b9f0fb938d340"
+      "flowst": "90fdd307c1d8286cb7bec950a094c0bbe2395d2f8644b2f8066c84d65a181530",
+      "standalone": "f4df83973857a092649d4ef873ef8fc0028db6c490521d408a8eee142fca18b3"
     },
     "components/AirStudyShell.vue": {
       "reason": "Standalone mobile keyboard viewport handling",

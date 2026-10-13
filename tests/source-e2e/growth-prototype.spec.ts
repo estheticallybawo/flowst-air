@@ -18,6 +18,74 @@ async function openGrowth(page: Page) {
     { timeout: 90000 },
   );
 }
+
+async function assertGrowthArtworkGeometry(page: Page) {
+  const geometry = await page.evaluate(() => {
+    const visible = (element: Element) => {
+      const box = element.getBoundingClientRect();
+      return box.width > 0 && box.height > 0 && getComputedStyle(element).visibility !== "hidden";
+    };
+    const sizeDifference = (element: Element) => {
+      const box = element.getBoundingClientRect();
+      return Math.abs(box.width - box.height);
+    };
+    const centerDifference = (outer: Element, inner: Element) => {
+      const a = outer.getBoundingClientRect(), b = inner.getBoundingClientRect();
+      return Math.max(Math.abs(a.x + a.width / 2 - b.x - b.width / 2), Math.abs(a.y + a.height / 2 - b.y - b.height / 2));
+    };
+    return {
+      rings: [...document.querySelectorAll(".growth-ring")].filter(visible).map((ring) => {
+        const art = ring.querySelector(".growth-ring-art")!;
+        const track = ring.querySelector(".growth-ring-track")!;
+        const box = ring.getBoundingClientRect(), artBox = art.getBoundingClientRect();
+        return {
+          label: ring.getAttribute("aria-label"),
+          position: getComputedStyle(art).position,
+          ringSquare: sizeDifference(ring),
+          artSquare: sizeDifference(art),
+          centered: centerDifference(ring, art),
+          trackCentered: centerDifference(ring, track),
+          widthRatio: artBox.width / box.width,
+          heightRatio: artBox.height / box.height,
+        };
+      }),
+      artworks: [...document.querySelectorAll(".growth-art")].filter(visible).map((art) => {
+        const medallion = art.querySelector(".art-medallion")!;
+        const image = art.querySelector(".art-image");
+        return {
+          stage: art.getAttribute("data-badge-stage"),
+          artSquare: sizeDifference(art),
+          medallionSquare: sizeDifference(medallion),
+          centered: centerDifference(art, medallion),
+          imageCentered: image ? centerDifference(medallion, image) : 0,
+          imageSquare: image ? sizeDifference(image) : 0,
+          imageLoaded: image instanceof HTMLImageElement ? image.complete && image.naturalWidth > 0 && image.naturalHeight > 0 : true,
+          imageFit: image ? getComputedStyle(image).objectFit : "contain",
+        };
+      }),
+    };
+  });
+  expect(geometry.artworks.length).toBeGreaterThan(0);
+  for (const ring of geometry.rings) {
+    expect(ring.position, ring.label || "Growth ring").toBe("absolute");
+    expect(ring.ringSquare).toBeLessThan(2);
+    expect(ring.artSquare).toBeLessThan(2);
+    expect(ring.centered).toBeLessThan(2);
+    expect(ring.trackCentered).toBeLessThan(2);
+    expect(ring.widthRatio).toBeCloseTo(.8, 2);
+    expect(ring.heightRatio).toBeCloseTo(.8, 2);
+  }
+  for (const art of geometry.artworks) {
+    expect(art.artSquare).toBeLessThan(2);
+    expect(art.medallionSquare).toBeLessThan(2);
+    expect(art.centered).toBeLessThan(2);
+    expect(art.imageCentered).toBeLessThan(2);
+    expect(art.imageSquare).toBeLessThan(2);
+    expect(art.imageLoaded).toBe(true);
+    expect(art.imageFit).toBe("contain");
+  }
+}
+
 const capabilityArtwork = {
   "Verbal Retrieval": "/growth/verbal-retrieval-3d.png",
   "Clear Explanation": "/growth/clear-explanation-3d.png",
@@ -71,6 +139,7 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
       .toBe(true);
   }
   await expect(page.locator(".capability-card .art-placeholder")).toHaveCount(0);
+  await assertGrowthArtworkGeometry(page);
   expect(
     await page
       .locator(".growth-home")
@@ -110,6 +179,7 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
     ).toBeVisible();
     await expect(detail).toContainText("Evidence this cycle");
     await expect(detail).toContainText("Cycle history");
+    await assertGrowthArtworkGeometry(page);
     const artwork = Object.entries(capabilityArtwork).find(
       ([capability]) => capability === name,
     )?.[1];
@@ -177,6 +247,7 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
   await expect(
     page.getByRole("dialog").locator("[data-badge-stage]"),
   ).toHaveAttribute("data-badge-stage", "3");
+  await assertGrowthArtworkGeometry(page);
   await expect(
     page.getByRole("dialog").locator(".growth-art img"),
   ).toHaveAttribute("src", capabilityArtwork["Reasoning Aloud"]);
@@ -229,6 +300,7 @@ test("Growth walkthrough keeps sample updates single-use and creates one evolved
   await expect(
     page.getByRole("dialog").locator(".share-brand"),
   ).toBeInViewport();
+  await assertGrowthArtworkGeometry(page);
   await page.screenshot({
     path: `test-results/growth-tide-${test.info().project.name}.png`,
   });
@@ -279,7 +351,7 @@ test("Growth scenarios preserve established sample progress and reset the walkth
 });
 
 test("Growth retains app-memory state across navigation, resets on reload, and keeps New session", async ({
-  page,
+  page, isMobile,
 }) => {
   await openGrowth(page);
   if (!(await page.locator(".growth-example-tools").evaluate(el => el.hasAttribute("open"))))
@@ -288,17 +360,22 @@ test("Growth retains app-memory state across navigation, resets on reload, and k
   await page
     .getByRole("button", { name: "Back to growth", exact: true })
     .click();
+  if (isMobile) await page.getByRole("button", { name: "Open menu", exact: true }).click();
   await page
     .getByRole("navigation", { name: "Flowst Airs navigation" })
     .getByRole("link", { name: "Settings", exact: true })
     .click();
+  if (isMobile) await page.getByRole("button", { name: "Open menu", exact: true }).click();
   await page
     .getByRole("navigation", { name: "Flowst Airs navigation" })
     .getByRole("link", { name: "Home", exact: true })
     .click();
   await expect(card(page, "Clear Explanation")).toContainText("84%");
+  await assertGrowthArtworkGeometry(page);
   await page.reload();
   await expect(card(page, "Clear Explanation")).toContainText("72%");
+  await assertGrowthArtworkGeometry(page);
+  if (isMobile) await page.getByRole("button", { name: "Open menu", exact: true }).click();
   await page
     .getByRole("navigation", { name: "Flowst Airs navigation" })
     .getByRole("link", { name: "New session", exact: true })
@@ -318,6 +395,7 @@ test("Growth dashboard and dialogs are accessible, responsive, and respect reduc
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   for (const width of isMobile ? [320, 390, 768] : [900, 1280, 1600]) {
     await page.setViewportSize({ width, height: 900 });
+    await assertGrowthArtworkGeometry(page);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,

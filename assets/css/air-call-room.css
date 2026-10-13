@@ -1060,3 +1060,72 @@
   .with-side-controls .call-presence { gap: 6px; }
   .with-side-controls .call-state .call-detail { margin-top: 4px; }
 }
+
+/* Keep voice controls and microphone state available while reading on a phone. */
+@media (max-width: 767px) {
+  .air-call-room.conversation-open {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+  .conversation-open .call-stage {
+    visibility: visible;
+    gap: 8px;
+  }
+  .conversation-open .call-stage.with-side-controls {
+    grid-template-rows: auto auto auto;
+  }
+  .conversation-open .call-presence {
+    flex: none;
+    min-height: 0;
+    gap: 4px;
+  }
+  .conversation-open .call-portrait,
+  .conversation-open .call-state .call-detail {
+    display: none;
+  }
+  .conversation-open .call-state h2 {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0 0 3px;
+  }
+  .conversation-open .call-control-area {
+    padding: 0;
+  }
+  .conversation-open .call-conversation {
+    grid-row: 2;
+  }
+  .conversation-open .call-timing {
+    grid-row: 3;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 950px) and (max-height: 500px) {
+  .air-call-room .call-presence {
+    flex: none;
+    min-height: 0;
+    padding-top: 0;
+    gap: 4px;
+  }
+  .air-call-room .call-portrait,
+  .air-call-room .call-state .call-detail {
+    display: none;
+  }
+  .air-call-room .call-state h2 {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0 0 3px;
+  }
+  .air-call-room .call-stage {
+    gap: 8px;
+  }
+  .air-call-room :deep(.call-actions) {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .air-call-room :deep(.recorded-practice) {
+    width: auto;
+  }
+  .air-call-room :deep(.record-controls) {
+    padding: 0;
+  }
+}

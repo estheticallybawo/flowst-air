@@ -5,7 +5,8 @@ import {
   BookOpen,
   Settings,
   LogOut,
-  ArrowUpRight,
+  Menu,
+  X,
 } from "lucide-vue-next";
 const props = defineProps<{ session?: boolean; focusMode?: boolean }>();
 const route = useRoute();
@@ -13,6 +14,12 @@ const auth = useAuth();
 const signingOut = ref(false);
 const logoutError = ref("");
 const accountMenu = ref<HTMLDetailsElement>();
+const header = ref<HTMLElement>();
+const menuTrigger = ref<HTMLButtonElement>();
+const productNavigation = ref<HTMLElement>();
+const menuOpen = ref(false);
+const navigationReady = ref(false);
+const navigationId = "air-product-navigation-" + useId();
 const navigation = [
   { label: "Home", to: "/home", icon: Home },
   { label: "New session", to: "/home/new", icon: Plus },
@@ -23,17 +30,92 @@ const displayName = computed(
   () => auth.me.value?.profile.displayName || "Your account",
 );
 function active(to: string) {
-  return (
-    route.fullPath === to ||
-    (to === "/home" && route.path === "/home" && !route.hash)
-  );
+  return route.path === to;
 }
-function closeMenu(event: PointerEvent) {
+function closeAccountMenu(event: PointerEvent) {
   if (!accountMenu.value?.contains(event.target as Node) && accountMenu.value)
     accountMenu.value.open = false;
 }
-onMounted(() => document.addEventListener("pointerdown", closeMenu));
-onBeforeUnmount(() => document.removeEventListener("pointerdown", closeMenu));
+async function closeMenu(restoreFocus = true) {
+  if (!menuOpen.value) return;
+  menuOpen.value = false;
+  if (restoreFocus) {
+    await nextTick();
+    menuTrigger.value?.focus({ preventScroll: true });
+  }
+}
+async function toggleMenu() {
+  if (menuOpen.value) return closeMenu();
+  if (accountMenu.value) accountMenu.value.open = false;
+  menuOpen.value = true;
+  await nextTick();
+  productNavigation.value?.querySelector<HTMLAnchorElement>("a")?.focus({ preventScroll: true });
+}
+function onNavigationClick(event: MouseEvent) {
+  if ((event.target as Element | null)?.closest("a")) void closeMenu();
+}
+watch(() => route.fullPath, () => {
+  void closeMenu(false);
+  if (accountMenu.value) accountMenu.value.open = false;
+});
+onMounted(() => {
+  navigationReady.value = true;
+  const desktop = window.matchMedia("(min-width: 900px)");
+  const compact = window.matchMedia("(max-width: 899px) and (max-height: 500px)");
+  let lastHeaderFocus: Element | null = null;
+  const focusedHeaderControl = () => document.activeElement === document.body
+    ? lastHeaderFocus
+    : document.activeElement;
+  const onCompact = () => {
+    if (!compact.matches || !props.focusMode) return;
+    // CSS can hide and blur the control before the media-query event fires.
+    const focused = focusedHeaderControl();
+    if (accountMenu.value) accountMenu.value.open = false;
+    if (focused && header.value?.contains(focused) && !productNavigation.value?.contains(focused) && focused !== menuTrigger.value) {
+      menuTrigger.value?.focus({ preventScroll: true });
+    }
+  };
+  const onDesktop = () => {
+    const focused = focusedHeaderControl();
+    if (desktop.matches) {
+      void closeMenu(false);
+      if (focused === menuTrigger.value || (props.focusMode && focused && header.value?.contains(focused))) {
+        if (props.focusMode) document.getElementById("main-content")?.focus({ preventScroll: true });
+        else productNavigation.value?.querySelector<HTMLAnchorElement>("a")?.focus({ preventScroll: true });
+      }
+    } else if (!menuOpen.value && focused && productNavigation.value?.contains(focused)) {
+      menuTrigger.value?.focus({ preventScroll: true });
+    }
+  };
+  const onKeydown = (event: KeyboardEvent) => {
+    if (event.key !== "Escape" || !menuOpen.value) return;
+    event.preventDefault();
+    void closeMenu();
+  };
+  const onOutsideClick = (event: MouseEvent) => {
+    if (!menuOpen.value || !header.value || event.composedPath().includes(header.value) || !(event.target instanceof Node)) return;
+    const interactive = event.target instanceof Element && event.target.closest('a[href],button,input,select,textarea,label,[tabindex],[contenteditable]:not([contenteditable="false"])');
+    void closeMenu(!interactive);
+  };
+  const onFocus = (event: FocusEvent) => {
+    lastHeaderFocus = event.target instanceof Element && header.value?.contains(event.target) ? event.target : null;
+    if (menuOpen.value && event.target instanceof Node && !header.value?.contains(event.target)) void closeMenu(false);
+  };
+  desktop.addEventListener("change", onDesktop);
+  compact.addEventListener("change", onCompact);
+  document.addEventListener("pointerdown", closeAccountMenu);
+  document.addEventListener("keydown", onKeydown);
+  document.addEventListener("click", onOutsideClick);
+  document.addEventListener("focusin", onFocus);
+  onBeforeUnmount(() => {
+    desktop.removeEventListener("change", onDesktop);
+    compact.removeEventListener("change", onCompact);
+    document.removeEventListener("pointerdown", closeAccountMenu);
+    document.removeEventListener("keydown", onKeydown);
+    document.removeEventListener("click", onOutsideClick);
+    document.removeEventListener("focusin", onFocus);
+  });
+});
 async function signOut() {
   if (signingOut.value) return;
   // The study room registers this guard to handle unsent recordings and stop media.
@@ -53,8 +135,8 @@ async function signOut() {
 </script>
 
 <template>
-  <div class="air-app" :class="{ 'call-shell': props.session }">
-    <header v-if="!focusMode" class="air-app-header">
+  <div class="air-app" :class="{ 'call-shell': props.session, 'air-focus-mode': focusMode }">
+    <header ref="header" class="air-app-header">
       <NuxtLink
         v-if="props.session"
         to="/"
@@ -71,9 +153,12 @@ async function signOut() {
         <slot name="session-navigation" />
       </div>
       <nav
-        v-else
+        :id="navigationId"
+        ref="productNavigation"
         class="air-top-navigation"
+        :class="{ 'air-product-navigation-open': menuOpen, 'air-session-product-navigation': props.session }"
         aria-label="Flowst Airs navigation"
+        @click="onNavigationClick"
       >
         <NuxtLink
           v-for="item in navigation"
@@ -91,7 +176,7 @@ async function signOut() {
         class="air-account"
         @keydown.esc="accountMenu && (accountMenu.open = false)"
       >
-        <summary :aria-label="`Open ${displayName}'s account menu`">
+        <summary :aria-label="`Open ${displayName}'s account menu`" @click="closeMenu(false)">
           {{
             auth.me.value?.profile.initials ||
             displayName.slice(0, 1).toUpperCase()
@@ -107,6 +192,19 @@ async function signOut() {
           <p v-if="logoutError" role="alert">{{ logoutError }}</p>
         </div>
       </details>
+      <button
+        ref="menuTrigger"
+        type="button"
+        class="air-product-menu-trigger"
+        :aria-label="menuOpen ? 'Close menu' : 'Open menu'"
+        :aria-expanded="menuOpen"
+        :aria-controls="navigationId"
+        :disabled="!navigationReady"
+        @click="toggleMenu"
+      >
+        <X v-if="menuOpen" :size="22" aria-hidden="true" />
+        <Menu v-else :size="22" aria-hidden="true" />
+      </button>
     </header>
     <div class="air-app-layout">
       <main id="main-content" class="air-app-content" tabindex="-1">
@@ -117,6 +215,90 @@ async function signOut() {
 </template>
 
 <style scoped>
+.air-app-header { position: relative; z-index: 40; }
+.air-product-menu-trigger,
+.air-session-product-navigation,
+.air-focus-mode > .air-app-header { display: none; }
+@media (max-width: 899px) {
+  .air-app .air-app-header {
+    flex-wrap: nowrap;
+    gap: 10px;
+    min-height: 68px;
+    height: auto;
+    padding: 10px 12px;
+  }
+  .air-app.air-focus-mode > .air-app-header {
+    display: flex;
+    min-height: 44px;
+    height: 44px;
+    flex: none;
+    padding: 0;
+    margin-bottom: 8px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .air-app-header .air-account { margin-left: auto; }
+  .air-product-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid #c7e4f5;
+    border-radius: 50%;
+    background: #e0f2fe;
+    color: #102b3f;
+  }
+  .air-app-header .air-top-navigation {
+    display: none;
+    position: absolute;
+    inset: calc(100% + 8px) 0 auto;
+    margin: 0;
+    padding: 10px;
+    border: 1px solid #c7e4f5;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 16px 36px rgb(2 60 95 / 12%);
+    max-height: calc(var(--study-viewport-height, 100dvh) - 110px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .air-app-header .air-product-navigation-open {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+  }
+  .air-app-header .air-top-navigation a {
+    min-height: 48px;
+    padding: 10px 14px;
+    font-size: 1rem;
+  }
+  .air-app-header .air-top-navigation a svg { display: block; }
+  .air-product-menu-trigger:focus-visible,
+  .air-top-navigation a:focus-visible { outline: 3px solid #0369a1; outline-offset: 3px; }
+  .air-top-navigation a:focus-visible { background: #eef8ff; }
+  .call-navigation { display: none; }
+  .air-focus-mode :deep(.setup-nav) { display: none; }
+}
+/* Share the existing workspace toolbar when a phone is held in landscape. */
+@media (max-width: 899px) and (max-height: 500px) {
+  .air-app.air-focus-mode > .air-app-header {
+    height: 0;
+    min-height: 0;
+    margin-bottom: 0;
+  }
+  .air-focus-mode > .air-app-header > :not(.air-product-menu-trigger):not(.air-top-navigation) { display: none; }
+  .air-focus-mode .air-product-menu-trigger { position: absolute; top: 0; right: 0; }
+  .air-focus-mode .air-app-header .air-top-navigation { top: 52px; }
+  .air-focus-mode :deep(.session-toolbar),
+  .air-focus-mode :deep(.setup-room-nav) { padding-inline-end: 52px; }
+  .air-focus-mode :deep(.setup-nav) { display: flex; min-height: 44px; padding-inline-end: 52px; }
+}
 .call-brand {
   display: flex;
   align-items: center;

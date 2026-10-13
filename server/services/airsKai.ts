@@ -21,9 +21,80 @@ import {
 import { runAirsAgent, noArgs } from "./airsAgentRunner";
 import { studySessionReviewReady } from "../../shared/studyCompletion";
 import {
-  KAI_ASSESSMENT_VERSION, unassessedKaiSession, validateKaiLearnerQuotes,
+  KAI_ASSESSMENT_VERSION, KAI_VERBAL_DOMAINS, unassessedKaiSession, validateKaiLearnerQuotes,
   validateKaiSessionAssessment, validateKaiTextObservation, type KaiAssessmentEvidence,
 } from '../../shared/kaiAssessment';
+
+/** Nova's constrained tool decoder receives only a root object and primitive columns.
+ * Reconstruct the stored review on the server, then apply the existing rich validators. */
+function kaiReviewOutput(evidenceIds: string[], criterionIds: string[]) {
+  const evidenceId = z.enum(evidenceIds);
+  const kind = z.enum(['observation', 'inference']);
+  const shape: Record<string, z.ZodType> = {
+    observationCriterionIds: z.array(z.enum(criterionIds)).max(6),
+    observationKinds: z.array(kind).max(6),
+    observationEvidenceIds: z.array(evidenceId).max(6),
+    nextPracticeEvidenceIds: z.array(evidenceId).min(1).max(5),
+  };
+  for (const domain of KAI_VERBAL_DOMAINS) {
+    shape[domain + 'Status'] = z.enum(['observed', 'partial', 'not_assessed']);
+    shape[domain + 'Kind'] = kind;
+    shape[domain + 'EvidenceIds'] = z.array(evidenceId).max(5);
+  }
+  // Keep long text at the end of the flat schema, outside nested objects.
+  shape.observationTexts = z.array(z.string().min(1).max(500)).max(6);
+  shape.observationUncertainties = z.array(z.string().trim().max(300)).max(6);
+  shape.observationLearnerQuotes = z.array(z.string().min(1).max(1000)).max(6);
+  for (const domain of KAI_VERBAL_DOMAINS) {
+    shape[domain + 'Summary'] = z.string().trim().min(1).max(500);
+    shape[domain + 'Uncertainty'] = z.string().trim().max(300);
+    shape[domain + 'LearnerQuotes'] = z.array(z.string().min(1).max(1000)).max(5);
+  }
+  shape.notAssessed = z.array(z.string().max(250)).max(6);
+  shape.nextPracticeGoal = z.string().min(1).max(300);
+  shape.nextPracticeExercise = z.string().min(1).max(500);
+  const schema = z.object(shape).strict();
+  return {
+    parameters: z.toJSONSchema(schema) as Record<string, unknown>,
+    parse(args: unknown) {
+      const wire = schema.parse(args);
+      const column = (key: string) => wire[key] as string[];
+      const text = (key: string) => wire[key] as string;
+      const aligned = (keys: string[]) => {
+        if (keys.some(key => column(key).length !== column(keys[0]!).length))
+          throw createError({
+            statusCode: 502,
+            statusMessage: 'Kai could not format this review. Your practice is saved; retry the review.',
+            data: { code: 'KAI_REVIEW_FORMAT_INVALID' },
+          });
+      };
+      aligned(['observationTexts', 'observationCriterionIds', 'observationKinds', 'observationUncertainties', 'observationEvidenceIds', 'observationLearnerQuotes']);
+      const domains = KAI_VERBAL_DOMAINS.map(domain => {
+        aligned([domain + 'EvidenceIds', domain + 'LearnerQuotes']);
+        const ids = column(domain + 'EvidenceIds');
+        return {
+          domain, status: text(domain + 'Status'), kind: text(domain + 'Kind'),
+          summary: text(domain + 'Summary'),
+          ...(text(domain + 'Uncertainty') ? { uncertainty: text(domain + 'Uncertainty') } : {}),
+          evidenceIds: [...new Set(ids)],
+          learnerQuotes: column(domain + 'LearnerQuotes').map((quote, index) => ({ evidenceId: ids[index]!, text: quote })),
+        };
+      });
+      return kaiReviewV03Schema.parse({
+        observations: column('observationTexts').map((observation, index) => ({
+          text: observation, criterionId: column('observationCriterionIds')[index],
+          kind: column('observationKinds')[index],
+          ...(column('observationUncertainties')[index] ? { uncertainty: column('observationUncertainties')[index] } : {}),
+          evidenceIds: [column('observationEvidenceIds')[index]!],
+          learnerQuotes: [{ evidenceId: column('observationEvidenceIds')[index]!, text: column('observationLearnerQuotes')[index]! }],
+        })),
+        sessionAssessment: { scope: 'THIS_SESSION', basis: 'SAVED_LEARNER_TEXT', domains },
+        notAssessed: column('notAssessed'),
+        nextPractice: { goal: text('nextPracticeGoal'), exercise: text('nextPracticeExercise'), evidenceIds: column('nextPracticeEvidenceIds') },
+      });
+    },
+  };
+}
 
 export function kaiReviewCacheKey(id: string, planVersion: number, basedOnTurnId: string, version?: '0.3') {
   return `REVIEW#${id}#${planVersion}#${basedOnTurnId}${version ? '#assessment-' + version : ''}`;
@@ -104,6 +175,7 @@ export async function createKaiReview(
     ];
     const evidenceIds = new Set(evidence.map((item) => item.id));
     const criterionIds = new Set(criteria.map((item) => item.id));
+    const reviewOutput = kaiReviewOutput([...evidenceIds], [...criterionIds]);
     function validateKaiEvidence(review: z.infer<typeof kaiReviewV03Schema>) {
       try {
         validateReviewEvidence(review, evidenceIds, criterionIds);
@@ -166,7 +238,7 @@ export async function createKaiReview(
         }
       : await runAirsAgent(
           "KAI",
-          "Review saved learner explanations against approved criteria and the objective ledger. Provide evidence-based verbal skills feedback for THIS_SESSION using SAVED_LEARNER_TEXT: exactly four domains, understanding, clarity, vocabulary, reasoning. This is feedback on observable expression, not a standardized score, level, grade, intelligence test or durable mastery claim. Stay compact within 2000 output tokens: one or two short sentences and at most two short quotes per domain, at most three short approved-focus observations, and one concise future exercise. For each domain choose observed, partial or not_assessed and cite exact learnerQuotes {evidenceId,text} from saved attempts. Every cited evidence ID needs its own exact learner quote. Understanding must respect the supplied semantic review and remaining gaps; when historical semantic review is missing, label interpretation as inference with uncertainty. Faithful paraphrase and ordinary vocabulary count; do not penalize everyday wording or demand technical terms unless the approved source-fidelity objective explicitly requires them. Clarity concerns how the saved explanation is organized; vocabulary concerns precise, source-appropriate word choice, never native-speaker rankings. Reasoning can be assessed only from a cited activity marked reasoningEligible and a quote actually showing an explanation or connection; otherwise mark not_assessed. Material transcription uncertainty requires an inference with its uncertainty, or not_assessed. For not_assessed use empty evidenceIds and learnerQuotes and explain what was not elicited. Do not invent extra learning requirements, assess deferred objectives as completed, or demand another immediate attempt. Separate observations from inferences using kind and uncertainty. Historical prompts/hints may be unknown, never invent counts or claim unaided performance. Even zero recorded app hints do not prove the learner had no other support. Coaching is tentative data, not ground truth. Do not infer pronunciation, voice, accent, pauses, pace, tempo, volume or audible delivery from text; no audio-quality data is supplied. Cite evidence for the future-practice suggestion and state missing evidence. Use only allowedEvidenceIds from the approved evaluation context; these are the exact item.id values in get_session_evidence, not source, target, turn or trace IDs. Every criterionId must be one of approvedCriterionIds. Suggest one future exercise tied to the goal, not an approved plan, new requirement, norm-based score or immediate repeat of a met target.",
+          "Review saved learner explanations against approved criteria and the objective ledger. Provide evidence-based verbal skills feedback for THIS_SESSION using SAVED_LEARNER_TEXT: exactly four domains, understanding, clarity, vocabulary, reasoning. This is feedback on observable expression, not a standardized score, level, grade, intelligence test or durable mastery claim. Stay compact: one or two short sentences and at most two short quotes per domain, at most three short approved-focus observations, and one concise future exercise. For each domain choose observed, partial or not_assessed and cite exact learner quotes from saved attempts. Use the flat function columns: pair each domain’s EvidenceIds and LearnerQuotes arrays by index, repeating an evidence ID if you quote it twice. All observation columns must have the same length and order: one approved criterion, one exact learner quote and its evidence ID per observation. Use an empty string for unused uncertainty; an inference needs explicit uncertainty. Every cited evidence ID needs its own exact learner quote. Understanding must respect the supplied semantic review and remaining gaps; when historical semantic review is missing, label interpretation as inference with uncertainty. Faithful paraphrase and ordinary vocabulary count; do not penalize everyday wording or demand technical terms unless the approved source-fidelity objective explicitly requires them. Clarity concerns how the saved explanation is organized; vocabulary concerns precise, source-appropriate word choice, never native-speaker rankings. Reasoning can be assessed only from a cited activity marked reasoningEligible and a quote actually showing an explanation or connection; otherwise mark not_assessed. Material transcription uncertainty requires an inference with its uncertainty, or not_assessed. For not_assessed use empty evidenceIds and learnerQuotes and explain what was not elicited. Do not invent extra learning requirements, assess deferred objectives as completed, or demand another immediate attempt. Separate observations from inferences using kind and uncertainty. Historical prompts/hints may be unknown, never invent counts or claim unaided performance. Even zero recorded app hints do not prove the learner had no other support. Coaching is tentative data, not ground truth. Do not infer pronunciation, voice, accent, pauses, pace, tempo, volume or audible delivery from text; no audio-quality data is supplied. Cite evidence for the future-practice suggestion and state missing evidence. Use only allowedEvidenceIds from the approved evaluation context; these are the exact item.id values in get_session_evidence, not source, target, turn or trace IDs. Every observationCriterionIds entry must be one of approvedCriterionIds. Suggest one future exercise tied to the goal, not an approved plan, new requirement, norm-based score or immediate repeat of a met target.",
           [
             {
               name: "get_approved_evaluation_context",
@@ -198,12 +270,9 @@ export async function createKaiReview(
               name: "propose_evidence_review",
               description:
                 "Propose evidence-linked feedback and one next exercise.",
-              parameters: z.toJSONSchema(kaiReviewV03Schema) as Record<
-                string,
-                unknown
-              >,
+              parameters: reviewOutput.parameters,
               run: (args) =>
-                validateKaiEvidence(kaiReviewV03Schema.parse(args)),
+                validateKaiEvidence(reviewOutput.parse(args)),
             },
           ],
           "propose_evidence_review",

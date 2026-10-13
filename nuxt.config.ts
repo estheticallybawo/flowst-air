@@ -102,6 +102,7 @@ export default defineNuxtConfig({
       airEnv("AIR_TEXT_PROVIDER", "AMINA_TEXT_PROVIDER") || "groq",
     studyObjectiveFlowEnabled:
       process.env.AIR_OBJECTIVE_FLOW_ENABLED !== "false",
+    studyRelatedResearchEnabled: process.env.AIR_RELATED_RESEARCH_ENABLED !== "false",
     studyVoiceProvider:
       airEnv("AIR_VOICE_PROVIDER", "AMINA_VOICE_PROVIDER") || "elevenlabs",
     elevenLabsStudyAgentId: process.env.ELEVENLABS_STUDY_AGENT_ID || "",

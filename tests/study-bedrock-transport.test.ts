@@ -50,7 +50,9 @@ describe('Bedrock testing transport', () => {
     expect(sent.toolConfig.toolChoice).toEqual({ tool: { name } })
     expect(sent.messages.at(-1).content[0].toolResult.content[0].text).toContain('Saved source.')
     expect(sent.toolConfig.tools.at(-1).toolSpec.inputSchema.json).not.toHaveProperty('$schema')
+    expect(sent.inferenceConfig).toMatchObject({ maxTokens: 4000, temperature: agent === 'KAI' ? 0 : 0.2 })
     expect(fetch).toHaveBeenCalledTimes(1)
+    expect(state.ledger.requests).toBe(1)
   })
   it('maps tool results and merges adjacent user messages without losing content', () => {
     const payload = bedrockConverseInput({ ...request, messages: [{ role: 'system', content: 'Policy' }, { role: 'user', content: 'Source' }, { role: 'user', content: 'Question' }, { role: 'assistant', content: null, tool_calls: [{ id: 'one', function: { name: 'read_source_passage', arguments: '{"sourceId":"p1"}' } }] }, { role: 'tool', tool_call_id: 'one', content: '{"text":"Evidence"}' }] })
@@ -73,7 +75,7 @@ describe('Bedrock testing transport', () => {
     vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ stopReason: 'max_tokens', output: { message: { content: [{ text: 'incomplete' }] } } })))
     await expect(groqStudyText('', [{ role: 'user', content: 'Answer' }], 600)).rejects.toMatchObject({ data: { code: 'AGENT_OUTPUT_INCOMPLETE' } })
     vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ stopReason: 'guardrail_intervened', output: { message: { content: [{ text: 'blocked' }] } } })))
-    await expect(requestStudyBedrock(request)).rejects.toMatchObject({ data: { code: 'AGENT_RESULT_INVALID' } })
+    await expect(requestStudyBedrock(request)).rejects.toMatchObject({ data: { code: 'AGENT_RESPONSE_BLOCKED' } })
   })
   it('supports workload identity with SDK retries disabled', async () => {
     vi.stubGlobal('useRuntimeConfig', () => ({ studyTextProvider: 'aws' }))

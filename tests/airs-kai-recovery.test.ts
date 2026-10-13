@@ -88,19 +88,39 @@ function validProposal(evidenceId: string): z.infer<typeof kaiReviewV03Schema> {
     nextPractice: { goal: 'Explain the idea to another audience', exercise: 'Use a source-backed example in a future session.', evidenceIds: [evidenceId] },
   }
 }
-function proposalResponse(proposal: z.infer<typeof kaiReviewV03Schema>) {
+function proposalResponse(proposal: z.infer<typeof kaiReviewV03Schema>, change?: (wire: Record<string, unknown>) => void) {
+  const wire: Record<string, unknown> = {
+    observationTexts: proposal.observations.map(item => item.text),
+    observationCriterionIds: proposal.observations.map(item => item.criterionId),
+    observationKinds: proposal.observations.map(item => item.kind || 'observation'),
+    observationUncertainties: proposal.observations.map(item => item.uncertainty || ''),
+    observationEvidenceIds: proposal.observations.map(item => item.evidenceIds[0]),
+    observationLearnerQuotes: proposal.observations.map(item => item.learnerQuotes[0]!.text),
+    notAssessed: proposal.notAssessed, nextPracticeGoal: proposal.nextPractice.goal,
+    nextPracticeExercise: proposal.nextPractice.exercise, nextPracticeEvidenceIds: proposal.nextPractice.evidenceIds,
+  }
+  for (const item of proposal.sessionAssessment.domains) {
+    wire[item.domain + 'Status'] = item.status
+    wire[item.domain + 'Kind'] = item.kind
+    wire[item.domain + 'Summary'] = item.summary
+    wire[item.domain + 'Uncertainty'] = item.uncertainty || ''
+    wire[item.domain + 'EvidenceIds'] = item.learnerQuotes.map(quote => quote.evidenceId)
+    wire[item.domain + 'LearnerQuotes'] = item.learnerQuotes.map(quote => quote.text)
+  }
+  change?.(wire)
   return new Response(JSON.stringify({ choices: [{ message: {
-    role: 'assistant', tool_calls: [{ id: 'review-proposal', type: 'function', function: { name: 'propose_evidence_review', arguments: JSON.stringify(proposal) } }],
+    role: 'assistant', tool_calls: [{ id: 'review-proposal', type: 'function', function: { name: 'propose_evidence_review', arguments: JSON.stringify(wire) } }],
   } }] }), { status: 200, headers: { 'Content-Type': 'application/json' } })
 }
 
-it.each(['observation evidence', 'criterion', 'next-practice evidence'] as const)(
+it.each(['observation evidence', 'criterion', 'next-practice evidence', 'domain evidence'] as const)(
   'rejects unavailable %s with a recoverable 502, preserves practice and releases the review lock', async invalidReference => {
     const before = await savedCompletedPractice()
     const invalid = validProposal(before.evidenceId)
     if (invalidReference === 'observation evidence') invalid.observations[0]!.evidenceIds = ['unavailable-evidence']
     if (invalidReference === 'criterion') invalid.observations[0]!.criterionId = 'CLARITY'
     if (invalidReference === 'next-practice evidence') invalid.nextPractice.evidenceIds = ['unavailable-evidence']
+    if (invalidReference === 'domain evidence') invalid.sessionAssessment.domains[0]!.learnerQuotes[0]!.evidenceId = 'unavailable-evidence'
     const fetchMock = vi.fn(async () => {
       expect(await readAirsArtifact(owner, 'LOCK#' + before.key)).toBeTypeOf('number')
       return proposalResponse(invalid)
@@ -109,8 +129,8 @@ it.each(['observation evidence', 'criterion', 'next-practice evidence'] as const
 
     await expect(createKaiReview(owner, id)).rejects.toMatchObject({
       statusCode: 502,
-      statusMessage: 'Kai could not link this review to your saved evidence. Your practice is saved; retry the review.',
-      data: { code: 'KAI_EVIDENCE_INVALID' },
+      statusMessage: 'The learning service could not prepare a valid plan or review. Retry this step.',
+      data: { code: 'AGENT_RESULT_INVALID' },
     })
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(await getStudyConversation(owner, id)).toEqual(before.study)
@@ -134,23 +154,36 @@ it.each(['observation evidence', 'criterion', 'next-practice evidence'] as const
 
 it('supplies the exact allowed evidence and criterion IDs to the model', async () => {
   const before = await savedCompletedPractice()
+  let outputSchemaDepth = 0
   const fetchMock = vi.fn(async (_url: unknown, init: RequestInit) => {
     const request = JSON.parse(String(init.body))
     const context = JSON.parse(request.messages.find((message: { role: string; tool_call_id?: string }) => message.role === 'tool' && message.tool_call_id === 'bootstrap-get_approved_evaluation_context').content)
     const evidence = JSON.parse(request.messages.find((message: { role: string; tool_call_id?: string }) => message.role === 'tool' && message.tool_call_id === 'bootstrap-get_session_evidence').content)
     expect(context.approvedCriterionIds).toEqual(['ACCURACY'])
     expect(context.allowedEvidenceIds).toEqual([before.evidenceId])
+    const schema = request.tools.find((tool: { function: { name: string } }) => tool.function.name === 'propose_evidence_review').function.parameters
+    const containerDepth = (node: any): number => {
+      if (node.type === 'object') return 1 + Math.max(0, ...Object.values(node.properties || {}).map(containerDepth))
+      if (node.type === 'array') return 1 + containerDepth(node.items || {})
+      return 0
+    }
+    outputSchemaDepth = containerDepth(schema)
+    expect(schema.properties.observationCriterionIds.items.enum).toEqual(['ACCURACY'])
+    expect(schema.properties.understandingEvidenceIds.items.enum).toEqual([before.evidenceId])
+    expect(schema.properties.nextPracticeEvidenceIds.items.enum).toEqual([before.evidenceId])
+    expect(schema.required).toEqual(Object.keys(schema.properties))
     expect(evidence.map((item: { id: string }) => item.id)).toEqual(context.allowedEvidenceIds)
     expect(request.messages[0].content).toContain('not source, target, turn or trace IDs')
-    expect(request.messages[0].content).toContain('Every criterionId must be one of approvedCriterionIds')
+    expect(request.messages[0].content).toContain('Every observationCriterionIds entry must be one of approvedCriterionIds')
     expect(request.messages[0].content).toContain('ordinary vocabulary count')
-    expect(request.messages[0].content).toContain('within 2000 output tokens')
+    expect(request.messages[0].content).toContain('Use the flat function columns')
     expect(request.messages[0].content).toContain('Even zero recorded app hints do not prove')
     expect(evidence[0].reasoningEligible).toBe(false)
     return proposalResponse(validProposal(before.evidenceId))
   })
   vi.stubGlobal('fetch', fetchMock)
   await createKaiReview(owner, id)
+  expect(outputSchemaDepth).toBeLessThanOrEqual(2)
   expect(fetchMock).toHaveBeenCalledTimes(1)
 })
 
@@ -158,6 +191,54 @@ function legacyReview(before: Awaited<ReturnType<typeof savedCompletedPractice>>
   const {sessionAssessment, ...proposal}=validProposal(before.evidenceId)
   return {...proposal,observations:proposal.observations.map(({learnerQuotes,...observation})=>observation),id:randomUUID(),conversationId:id,planVersion:before.study.plan.version,basedOnTurnId:before.history.evidence[0]!.learnerTurnId,createdAt:new Date().toISOString(),nextPracticeStatus:'PROPOSED',evidence:[{id:before.evidenceId,attempt:before.study.turns.find(turn=>turn.id===before.history.evidence[0]!.learnerTurnId)!.text}]}
 }
+
+it('reconstructs multiple observations and paired quotes without changing the stored review contract', async () => {
+  const before = await savedCompletedPractice(), proposal = validProposal(before.evidenceId)
+  const understanding = proposal.sessionAssessment.domains[0]!
+  understanding.kind = 'inference'
+  understanding.uncertainty = 'This interpretation covers only this saved explanation.'
+  understanding.learnerQuotes.push({ evidenceId: before.evidenceId, text: 'understanding the system design.' })
+  proposal.observations.push({ text: 'This interpretation is limited to the saved explanation.', kind: 'inference', uncertainty: 'Later use was not assessed.', criterionId: 'ACCURACY', evidenceIds: [before.evidenceId], learnerQuotes: [{ evidenceId: before.evidenceId, text: 'authoritative reference' }] })
+  const fetcher = vi.fn(async () => proposalResponse(proposal)); vi.stubGlobal('fetch', fetcher)
+  const review = await createKaiReview(owner, id)
+  expect(review.sessionAssessment).toEqual(proposal.sessionAssessment)
+  expect(review.observations).toEqual(proposal.observations)
+  expect(review.nextPractice).toEqual(proposal.nextPractice)
+  expect((await readSavedKaiReview(owner, id))?.id).toBe(review.id)
+  expect((await createKaiReview(owner, id)).id).toBe(review.id)
+  expect(fetcher).toHaveBeenCalledTimes(1)
+  expect(await getStudyConversation(owner, id)).toEqual(before.study)
+  expect(await readAirsArtifact(owner, 'LOCK#' + before.key)).toBeUndefined()
+})
+
+it.each(['observation columns', 'domain quote columns'] as const)('rejects mismatched %s without discarding saved practice', async problem => {
+  const before = await savedCompletedPractice()
+  const fetcher = vi.fn(async () => proposalResponse(validProposal(before.evidenceId), wire => {
+    if (problem === 'observation columns') wire.observationUncertainties = []
+    else wire.understandingLearnerQuotes = []
+  })); vi.stubGlobal('fetch', fetcher)
+  await expect(createKaiReview(owner, id)).rejects.toMatchObject({ statusCode: 502, data: { code: 'KAI_REVIEW_FORMAT_INVALID' } })
+  expect(fetcher).toHaveBeenCalledTimes(1)
+  expect(await readAirsArtifact(owner, before.key)).toBeUndefined()
+  expect(await readAirsArtifact(owner, 'LATEST_REVIEW')).toBeUndefined()
+  expect(await readAirsArtifact(owner, 'LOCK#' + before.key)).toBeUndefined()
+  expect(await getStudyConversation(owner, id)).toEqual(before.study)
+  expect(await getStudyPedagogyHistory(owner, id)).toEqual(before.history)
+})
+
+it.each(['missing assessed quotes', 'inference without uncertainty', 'unassessed evidence claim'] as const)('retains rich validation for %s after reconstruction', async problem => {
+  const before = await savedCompletedPractice()
+  const fetcher = vi.fn(async () => proposalResponse(validProposal(before.evidenceId), wire => {
+    if (problem === 'missing assessed quotes') { wire.understandingEvidenceIds = []; wire.understandingLearnerQuotes = [] }
+    if (problem === 'inference without uncertainty') { wire.understandingKind = 'inference'; wire.understandingUncertainty = '' }
+    if (problem === 'unassessed evidence claim') wire.understandingStatus = 'not_assessed'
+  })); vi.stubGlobal('fetch', fetcher)
+  await expect(createKaiReview(owner, id)).rejects.toMatchObject({ statusCode: 502, data: { code: 'AGENT_RESULT_INVALID' } })
+  expect(fetcher).toHaveBeenCalledTimes(1)
+  expect(await readAirsArtifact(owner, before.key)).toBeUndefined()
+  expect(await readAirsArtifact(owner, 'LOCK#' + before.key)).toBeUndefined()
+  expect(await getStudyConversation(owner, id)).toEqual(before.study)
+})
 
 it('loads and reuses a legacy review without automatically requesting richer feedback',async()=>{
   const before=await savedCompletedPractice(), legacy=legacyReview(before)
