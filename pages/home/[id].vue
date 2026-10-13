@@ -20,6 +20,7 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import { studySpeechOutcome, studyTranscriptionOutcome } from "~/shared/studySpeechOutcome";
+import { studySpeechPlaybackBlob } from "~/shared/studySpeechAudio";
 import {
   spokenCaption,
   validSpeechAlignment,
@@ -291,6 +292,7 @@ const inputLevel = computed(() =>
 async function startLiveCall() {
   if (
     !canStudy.value ||
+    objectiveCommandBusy.value ||
     busy.value ||
     planBusy.value ||
     microphoneRequesting.value ||
@@ -784,6 +786,11 @@ async function load() {
     `/api/study/conversations/${id.value}`,
   );
   if (disposed || (study.value && loaded.revision < study.value.revision)) return;
+  // Objective controls and replies can change the persisted clock together with
+  // the conversation. Refresh it before exposing the new practice state.
+  if (loaded.plan.status === "APPROVED" && loaded.plan.pacing)
+    await pacing.refresh();
+  if (disposed || (study.value && loaded.revision < study.value.revision)) return;
   study.value = loaded;
   await nextTick();
   transcript.value?.scrollTo({ top: transcript.value.scrollHeight });
@@ -1195,7 +1202,7 @@ async function startRecording() {
     live.status.value = "IDLE";
     live.error.value = "";
   }
-  if (!canStudy.value || disposed || live.running.value || pacingBlocked.value)
+  if (!canStudy.value || disposed || live.running.value || objectiveCommandBusy.value || pacingBlocked.value)
     return;
   if (
     !readyToPractice.value ||
@@ -1495,7 +1502,9 @@ async function playSpeech(turnId: string, automatic = false, retry = false) {
       const data = Uint8Array.from(atob(packet.audioBase64), (character) =>
         character.charCodeAt(0),
       );
-      url = URL.createObjectURL(new Blob([data], { type: packet.mimeType }));
+      const playbackBlob = await studySpeechPlaybackBlob(data, packet.mimeType);
+      if (request !== playbackRequest || disposed) return;
+      url = URL.createObjectURL(playbackBlob);
       packet.alignment = validSpeechAlignment(packet.alignment);
       packet.audioBase64 = "";
       speechPackets.set(turnId, packet);
@@ -2297,6 +2306,8 @@ async function remove() {
                     recorderStatus !== 'IDLE' ||
                     busy ||
                     planBusy ||
+                    objectiveCommandBusy ||
+                    pacingBlocked ||
                     microphoneRequesting
                   "
                   @click="startLiveCall"
@@ -2451,6 +2462,7 @@ async function remove() {
                         recorderStatus === 'SENDING' ||
                         recorderStatus === 'REVIEW' ||
                         busy ||
+                        objectiveCommandBusy ||
                         !!voiceFailureTurnId ||
                         (pacingBlocked && recorderStatus !== 'RECORDING') ||
                         !!preparingSpeechTurnId

@@ -1,4 +1,4 @@
-import type { StudyPlan, StudyTurn } from './study'
+import type { StudyPlan, StudyTurn, StudySource } from './study'
 import type { StudyExecutionTrace, StudyLearningEvidence } from './studyPedagogy'
 import type { ObjectiveControl, ObjectiveDirective, ObjectiveFlowState, SemanticEvidence } from './studyObjectivePolicy'
 import type { StudyPacingState } from './studyPacing'
@@ -11,6 +11,7 @@ export interface StudyObjectiveOperation {
   control?: ObjectiveControl; semantic?: SemanticEvidence; directive?: ObjectiveDirective
   pauseClock?: StudyPacingState
   interruptsOperationId?: string
+  relatedResearch?: {status:'STARTED'|'COMPLETE'|'UNAVAILABLE';startedAt:string;sources:StudySource[]}
   flowAfter?: ObjectiveFlowState; planAfter?: StudyPlan; trace?: StudyExecutionTrace; evidence?: StudyLearningEvidence; agentTurn?: StudyTurn
   error?: string; createdAt: string
 }

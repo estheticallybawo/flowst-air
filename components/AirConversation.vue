@@ -23,6 +23,9 @@ function time(value: string) {
     ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     : "";
 }
+function referenceUrl(value?: string) {
+  try {const url = new URL(value || '');return url.protocol === 'https:' && !url.username && !url.password ? url.href : ''} catch {return ''}
+}
 watch(
   () => [props.turns.at(-1)?.id, props.liveCaption],
   async () => {
@@ -83,10 +86,13 @@ watch(
             <small v-if="turn.provenance === 'GENERAL'"
               >General knowledge · no document match</small
             ><small v-else-if="turn.provenance === 'MIXED'"
-              >Document + general knowledge</small
+              >{{ turn.sources.some(source => source.origin === 'RELATED_WEB') ? 'Approved source + related web references' : 'Document + general knowledge' }}</small
             >
-            <p v-for="source in turn.sources" :key="source.id">
-              <strong>{{ source.label }}</strong> {{ source.excerpt }}
+            <p v-for="source in turn.sources" :key="source.id" :class="{'related-reference':source.origin==='RELATED_WEB'}">
+              <small v-if="source.origin === 'RELATED_WEB'">Related web reference · supplemental context</small>
+              <a v-if="source.origin === 'RELATED_WEB' && referenceUrl(source.location?.url)" :href="referenceUrl(source.location?.url)" target="_blank" rel="noopener noreferrer">{{ source.label }}</a>
+              <strong v-else>{{ source.label }}</strong> {{ source.excerpt }}
+              <small v-if="source.origin === 'RELATED_WEB' && source.retrievedAt">Retrieved {{ new Date(source.retrievedAt).toLocaleDateString() }}</small>
             </p>
           </details>
           <button
@@ -272,6 +278,20 @@ watch(
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
+.related-reference > small,
+.related-reference > a {
+  display: block;
+}
+.related-reference > small {
+  color: #475569;
+}
+.related-reference > a {
+  min-height: 44px;
+  padding: 6px 0;
+  color: #066b9f;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 .turn-support button {
   display: inline-flex;
@@ -304,7 +324,7 @@ watch(
   color: #464a53;
 }
 
-:is(button, summary, .saved-turns):focus-visible {
+:is(button, summary, .saved-turns, .related-reference a):focus-visible {
   outline: 3px solid #337ba9;
   outline-offset: 2px;
 }

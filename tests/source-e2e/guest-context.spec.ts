@@ -86,7 +86,9 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   await expect(
     page.getByRole("region", { name: "Your learning context" }),
   ).toBeVisible({ timeout: 90000 });
-  await expect(page.locator(".flowst-topbar, .flowst-bottom-nav, .air-app-header")).toHaveCount(0);
+  await expect(page.locator(".flowst-topbar, .flowst-bottom-nav")).toHaveCount(0);
+  if (isMobile) await expect(page.locator(".air-app-header")).toBeVisible();
+  else await expect(page.locator(".air-app-header")).toBeHidden();
   expect(await page.locator("iframe").count()).toBe(0);
   await expect(page.getByLabel("Public source link")).toHaveCount(0);
   await expect(
@@ -373,7 +375,9 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     fullPage: true,
   });
   await expectPrimaryInWorkspace(page, "Start recording");
-  await expect(page.locator(".flowst-topbar, .flowst-bottom-nav, .air-app-header")).toHaveCount(0);
+  await expect(page.locator(".flowst-topbar, .flowst-bottom-nav")).toHaveCount(0);
+  if (isMobile) await expect(page.locator(".air-app-header")).toBeVisible();
+  else await expect(page.locator(".air-app-header")).toBeHidden();
   await expect(page.locator(".session-navigation")).toHaveCount(1);
   const stageBox = await page.locator(".call-stage").boundingBox();
   const timingBox = await page.locator(".call-timing").boundingBox();
@@ -688,9 +692,9 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
   expect(layout.panel.overflow).toBe("hidden");
   expect(layout.controls.overflow).toBe("visible");
   if (isMobile) {
-    // Mobile conversation replaces the voice stage. Its hidden content may
-    // exceed a short screen; the visible transcript must remain the scroller.
-    await expect(page.locator(".call-stage")).toBeHidden();
+    // Voice controls stay available alongside the mobile transcript.
+    await expect(page.locator(".call-stage")).toBeVisible();
+    await expectPrimaryInWorkspace(page, "Start recording");
     const conversation = await page.locator(".call-conversation").boundingBox();
     expect(conversation!.y).toBeGreaterThanOrEqual(0);
     expect(conversation!.y + conversation!.height).toBeLessThanOrEqual(await page.evaluate(() => innerHeight));

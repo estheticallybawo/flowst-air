@@ -10,6 +10,36 @@ export const misuReviewOutput = {
   description: 'Submit the evidence review of the saved answer against the approved target.',
   parameters: z.toJSONSchema(misuReviewSchema) as Record<string, unknown>,
 }
+export function objectiveReviewOutput(requiredMeaning: string[], sourceIds: string[]) {
+  const parameters = structuredClone(misuReviewOutput.parameters) as Record<string, unknown> & {
+    properties: Record<string, { items: Record<string, unknown> }>
+  }
+  // Selecting supplied values is more reliable than asking the model to recopy them.
+  parameters.properties.sourceRefs!.items.enum = sourceIds
+  parameters.properties.demonstrated!.items.enum = requiredMeaning
+  parameters.properties.unresolved!.items.enum = requiredMeaning
+  return { ...misuReviewOutput, parameters }
+}
+
+/** Only typography and whitespace may differ; words and their order must match. */
+function savedQuotation(quote: string, text: string) {
+  if (text.includes(quote)) return quote
+  const pattern = [...quote.trim().replace(/\s+/gu,' ')].map(char => /\s/u.test(char) ? '\\s+'
+    : /['‘’]/u.test(char) ? "['‘’]" : /["“”]/u.test(char) ? '["“”]'
+    : char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('')
+  return pattern ? new RegExp(pattern, 'u').exec(text)?.[0] : undefined
+}
+
+export function groundMisuReview(evidence: z.infer<typeof misuReviewSchema>, answers: Array<{text:string}>, requiredMeaning: string[], sourceIds: string[]) {
+  const quotations = evidence.learnerQuotes.map(quote => answers.map(answer => savedQuotation(quote, answer.text)).find(Boolean))
+  const issues: ReviewIssue[] = []
+  if (quotations.some(quote => quote === undefined)) issues.push({field:'learnerQuotes',reason:'UNAVAILABLE_QUOTATION'})
+  if (evidence.sourceRefs.some(id => !sourceIds.includes(id))) issues.push({field:'sourceRefs',reason:'UNAVAILABLE_SOURCE'})
+  for (const field of ['demonstrated','unresolved'] as const) if (evidence[field].some(meaning => !requiredMeaning.includes(meaning))) issues.push({field,reason:'UNAVAILABLE_CRITERION'})
+  if (issues.length) throw misuReviewFailure(issues[0]!.field === 'learnerQuotes' ? 'a review quotation could not be matched to your saved transcript'
+    : issues[0]!.field === 'sourceRefs' ? 'the review used an unavailable source reference' : 'the review changed an approved assessment criterion', issues)
+  return {...evidence,learnerQuotes:quotations as string[]}
+}
 const labels: Record<string, string> = {
   semanticAcceptance: 'acceptance decision', demonstrated: 'demonstrated meanings',
   unresolved: 'remaining meanings', reason: 'explanation', sourceRefs: 'source references',
@@ -17,10 +47,13 @@ const labels: Record<string, string> = {
   interactionState: 'interaction status',
 }
 type ReviewIssue = { field: string; reason: string; minimum?: number; maximum?: number; unit?: string }
-export function misuReviewFailure(detail: string, issues: ReviewIssue[], issueCount = issues.length) {
-  const reference = randomUUID()
+export function misuReviewFailure(detail: string, issues: ReviewIssue[], issueCount = issues.length, diagnostic?: {reference?:unknown;providerReason?:unknown}) {
+  const reference = typeof diagnostic?.reference === 'string' && /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(diagnostic.reference)
+    ? diagnostic.reference : randomUUID()
+  const providerReason = typeof diagnostic?.providerReason === 'string' && ['guardrail_intervened','content_filtered','malformed_model_output','malformed_tool_use','model_context_window_exceeded','unknown'].includes(diagnostic.providerReason)
+    ? diagnostic.providerReason : undefined
   const data = { code: 'MISU_REVIEW_INVALID', stage: 'EVIDENCE_REVIEW', savedAnswer: true,
-    reference, validationIssues: issues.slice(0, 4), validationIssueCount: issueCount }
+    reference, ...(providerReason ? {providerReason} : {}), validationIssues: issues.slice(0, 4), validationIssueCount: issueCount }
   // Application-owned codes/fields only; no model output, learner content or source text.
   console.warn('Misu evidence review rejected', data)
   return createError({ statusCode: 502,

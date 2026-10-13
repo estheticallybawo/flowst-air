@@ -65,7 +65,7 @@ defineProps<{
   height: 100%;
   display: block;
 }
-.growth-ring-art {
+.growth-ring > .growth-ring-art {
   position: absolute;
   inset: 10%;
   width: 80%;

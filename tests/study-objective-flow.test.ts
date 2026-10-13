@@ -31,10 +31,10 @@ beforeEach(()=>{
 })
 afterEach(async()=>{if(leaseId)await releaseStudyLiveLease(id,leaseId);leaseId=undefined;if(id)await deleteStudyConversation(owner,id);id='';vi.useRealTimers();vi.unstubAllGlobals()})
 
-async function setup(options:{pacing?:boolean;targets?:boolean;legacy?:boolean}={}) {
+async function setup(options:{pacing?:boolean;targets?:boolean;legacy?:boolean;sourceText?:string}={}) {
  owner='objective-policy-'+randomUUID()
  const study=await createStudyConversation(owner,'design.txt','text/plain',Buffer.from('fixture'),{
-  kind:'WEB',sections:[{id:'design',label:'Design · lines 1–8',text:'This is the canonical reference for the system design. Misu plans, Amina guides verbal practice and Kai reviews saved evidence.'}],excerpt:'System design',provenance:{fixture:false,url:'https://example.com/design',provider:'Local test',retrievedAt:new Date().toISOString(),hash:'fixture',omissions:[]}})
+  kind:'WEB',sections:[{id:'design',label:'Design · lines 1–8',text:options.sourceText || 'This is the canonical reference for the system design. Misu plans, Amina guides verbal practice and Kai reviews saved evidence.'}],excerpt:'System design',provenance:{fixture:false,url:'https://example.com/design',provider:'Local test',retrievedAt:new Date().toISOString(),hash:'fixture',omissions:[]}})
  id=study.id;source=(await getStudyChunks(owner,id))[0]!
  const first={id:'purpose',title:'Document purpose',outcome:'Explain the purpose of the canonical reference.',sources:[source]}
  const policy=defaultObjectivePolicy(first)
@@ -46,6 +46,46 @@ async function setup(options:{pacing?:boolean;targets?:boolean;legacy?:boolean}=
 const draft=JSON.stringify({acknowledgement:'You described the reference’s purpose.',explanation:'',sourceIds:[]})
 async function prepare(text:string,kind:StudyTurn['kind']='PRACTICE',operationId=randomUUID(),control?:ObjectiveControl){return prepareObjectiveOperation(owner,id,text,{id:randomUUID(),role:'USER',text,kind,mode:'DISCUSSION',sources:[],createdAt:new Date().toISOString()},undefined,operationId,undefined,control)}
 async function turn(text:string,kind:StudyTurn['kind']='PRACTICE',control?:ObjectiveControl){const prepared=await prepare(text,kind,randomUUID(),control);const reply=await finishObjectiveOperation(owner,id,prepared,draft);return {prepared,reply,study:await getStudyConversation(owner,id)}}
+
+it.each(['malformed', 'oversized'])('saves a complete source sentence when the %s worked-example draft needs a fallback',async(reason)=>{
+ const complete='This reference records the approved purpose of the design. A team uses it to compare an implementation with the agreed behavior.'
+ const unfinished='A longer explanation considers '+ 'the relationship between the approved design and implementation '.repeat(12)
+ await setup({sourceText:complete+' '+unfinished+'.'})
+ await turn("I'm ready",'INTRO')
+ const prepared=await prepare('Explain that again','CONTROL',randomUUID(),'EXPLAIN_AGAIN')
+ const raw=reason==='malformed' ? 'An incomplete model draft' : JSON.stringify({acknowledgement:'',explanation:'x'.repeat(901),sourceIds:[source.id]})
+ const reply=await finishObjectiveOperation(owner,id,prepared,raw)
+ expect(reply.text).toContain('The approved source ('+source.label+') says: '+complete)
+ expect(reply.text).not.toContain('A longer explanation')
+ expect(reply.nextPrompt).toBeUndefined()
+ const saved=await getStudyConversation(owner,id)
+ expect(saved.turns.at(-1)?.text).toBe(reply.text)
+ expect(saved.objectiveFlow?.ledger[0]?.targets[0]).toMatchObject({attempts:0,promptsUsed:1})
+})
+
+it('labels a bounded source fragment instead of presenting a mid-sentence cutoff as a complete explanation',async()=>{
+ await setup({sourceText:'A long source sentence describes '+ 'the approved design and its implementation '.repeat(20)+'.'})
+ const prepared=await prepare('Explain that again','CONTROL',randomUUID(),'EXPLAIN_AGAIN')
+ const reply=await finishObjectiveOperation(owner,id,prepared,'Invalid draft')
+ expect(reply.text).toContain('This is a shortened source excerpt.')
+ const quoted=reply.text.match(/says: “(.+?)”/u)?.[1]
+ expect(quoted).toBeTruthy()
+ expect(quoted!.length).toBeLessThanOrEqual(500)
+ expect(quoted).toMatch(/\S…$/u)
+ expect(source.excerpt.startsWith(quoted!.slice(0,-1))).toBe(true)
+ expect(source.excerpt.charAt(quoted!.length-1)).toMatch(/\s/u)
+ expect(reply.text).not.toContain('?')
+})
+
+it('does not turn a question-only source into another practice question when an explanation fallback is unavailable',async()=>{
+ await setup({sourceText:'What is the design for? How would you implement it?'})
+ const prepared=await prepare('Explain that again','CONTROL',randomUUID(),'EXPLAIN_AGAIN')
+ const reply=await finishObjectiveOperation(owner,id,prepared,'Invalid draft')
+ expect(reply.text).toContain('I couldn’t prepare a complete explanation from this source excerpt.')
+ expect(reply.text).not.toContain('says:')
+ expect(reply.text).not.toContain('?')
+ expect(reply.nextPrompt).toBeUndefined()
+})
 
 it('accepts a faithful paraphrase, acknowledges it and moves forward without a Continue or timer',async()=>{
  await setup({pacing:true});await turn("I'm ready",'INTRO')

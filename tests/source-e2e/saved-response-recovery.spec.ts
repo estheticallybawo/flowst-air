@@ -1,6 +1,6 @@
 import {expect,test} from '@playwright/test'
 
-test('retries a saved response directly without recording or sending audio again',async({page,context})=>{
+test('retries a saved response across browser contexts without recording or sending audio again',async({page,context,browser})=>{
  test.setTimeout(300000)
  const headers={authorization:'Bearer mock:member'},api=context.request
  await context.route('https://fonts.googleapis.com/**',route=>route.fulfill({status:200,contentType:'text/css',body:''}))
@@ -38,9 +38,20 @@ test('retries a saved response directly without recording or sending audio again
   await recovery.getByRole('button',{name:'Retry saved response',exact:true}).click()
   await expect(recovery.getByRole('button',{name:'Retry saved response',exact:true})).toBeEnabled();expect(retries).toBe(1)
   await expect(page.locator('.call-actions').getByText(failure,{exact:true})).toBeVisible()
-  await recovery.getByRole('button',{name:'Retry saved response',exact:true}).click()
-  await expect(recovery).toHaveCount(0);expect(retries).toBe(2);expect(recordings).toBe(0)
-  await expect(page.locator('.call-actions').getByText(failure,{exact:true})).toHaveCount(0)
+  const other=await browser.newContext({baseURL:'http://127.0.0.1:4322',storageState:await context.storageState(),extraHTTPHeaders:headers,viewport:page.viewportSize()!.width<600?{width:1280,height:900}:{width:390,height:844}})
+  try {
+   await other.route('https://fonts.googleapis.com/**',route=>route.fulfill({status:200,contentType:'text/css',body:''}))
+   await other.addInitScript(()=>{(window as any).__recoveryMic=0;Object.defineProperty(navigator,'mediaDevices',{value:{getUserMedia:async()=>{(window as any).__recoveryMic++;throw new Error('Unexpected microphone request')}}})})
+   await other.route('**'+base,route=>route.fulfill({json:{...saved,revision:saved.revision+(pending?0:1),objectiveFlow:{...saved.objectiveFlow,pendingOperationId:pending?'fixture-saved-operation':undefined,pendingReview:pending,error:pending?failure:undefined}}}))
+   await other.route('**'+base+'/objective/retry',route=>{retries++;pending=false;return route.fulfill({json:{}})})
+   await other.route('**'+base+'/recorded-turn',route=>{if(route.request().method()==='POST')recordings++;return route.fulfill({status:500,json:{}})})
+   const laptop=await other.newPage();await laptop.goto('/home/'+study.id,{waitUntil:'domcontentloaded'})
+   const savedRecovery=laptop.getByTestId('saved-response-recovery');await expect(savedRecovery).toBeVisible({timeout:90000})
+   await savedRecovery.getByRole('button',{name:'Retry saved response',exact:true}).click()
+   await expect(savedRecovery).toHaveCount(0);expect(retries).toBe(2);expect(recordings).toBe(0)
+   await expect(laptop.locator('.call-actions').getByText(failure,{exact:true})).toHaveCount(0)
+   expect(await laptop.evaluate(()=>(window as any).__recoveryMic)).toBe(0)
+  } finally {await other.close()}
   expect(await page.evaluate(()=>(window as any).__recoveryMic)).toBe(0)
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
  }catch(cause){console.log(JSON.stringify({browserDiagnostics:diagnostics,inFlight:[...inFlight]}));throw cause}finally{await api.post(base+'/abandon',{headers,data:{confirmAbandon:true},timeout:10000}).catch(()=>{});await api.delete(base,{headers,timeout:10000}).catch(()=>{})}

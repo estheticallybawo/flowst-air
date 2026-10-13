@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { BedrockRuntimeClient, ConverseCommand, type ConverseCommandInput, type Message, type ContentBlock } from '@aws-sdk/client-bedrock-runtime'
 import { createError, type H3Event } from 'h3'
 import { awsClientConfig } from './awsClientConfig'
@@ -57,6 +58,7 @@ export async function requestStudyBedrock(request: StudyBedrockRequest, event?: 
   const body = JSON.stringify(payload)
   await reserveBedrockTestingBudget(Buffer.byteLength(body, 'utf8'), request.max_completion_tokens, event)
   let result: any
+  let requestId: unknown
   const apiKey = String(config.studyBedrockApiKey || '')
   if (apiKey) {
     const response = await fetch(`https://bedrock-runtime.${region}.amazonaws.com/model/${encodeURIComponent(model)}/converse`, {
@@ -64,6 +66,7 @@ export async function requestStudyBedrock(request: StudyBedrockRequest, event?: 
       signal: AbortSignal.timeout(timeoutMs),
     })
     if (!response.ok) return new Response(null, { status: response.status, headers: response.headers.get('retry-after') ? { 'retry-after': response.headers.get('retry-after')! } : {} })
+    requestId = response.headers.get('x-amzn-requestid') || response.headers.get('x-amzn-request-id')
     result = await response.json()
   } else {
     const client = new BedrockRuntimeClient({ ...awsClientConfig(region), maxAttempts: 1 })
@@ -74,9 +77,24 @@ export async function requestStudyBedrock(request: StudyBedrockRequest, event?: 
       throw error
     } finally { client.destroy() }
   }
+  requestId ||= result.$metadata?.requestId
   const blocks = result.output?.message?.content || []
-  if (!['end_turn', 'tool_use', 'max_tokens', 'stop_sequence'].includes(result.stopReason))
-    throw createError({ statusCode: 502, statusMessage: 'The learning service could not prepare a usable response. Your saved work remains available.', data: { code: 'AGENT_RESULT_INVALID' } })
+  if (!['end_turn', 'tool_use', 'max_tokens', 'stop_sequence'].includes(result.stopReason)) {
+    // Provider-controlled text and unusable content must never reach logs or a review.
+    const providerReason = ['guardrail_intervened', 'content_filtered', 'malformed_model_output', 'malformed_tool_use', 'model_context_window_exceeded'].includes(result.stopReason) ? result.stopReason : 'unknown'
+    const blocked = ['guardrail_intervened', 'content_filtered'].includes(providerReason)
+    const tooLarge = providerReason === 'model_context_window_exceeded'
+    const code = blocked ? 'AGENT_RESPONSE_BLOCKED' : tooLarge ? 'AGENT_CONTEXT_TOO_LARGE' : 'AGENT_RESULT_INVALID'
+    const reference = randomUUID()
+    const providerRequestId = typeof requestId === 'string' && /^[A-Za-z0-9-]{1,128}$/.test(requestId) ? requestId : undefined
+    console.error('Study model response unusable', { code, provider: 'bedrock', model, providerReason, reference, ...(providerRequestId ? { providerRequestId } : {}) })
+    const message = blocked
+      ? 'The learning service could not provide a response for this material. Your saved work remains available.'
+      : tooLarge
+        ? 'The learning service could not review this much material at once. Your saved work remains available.'
+        : 'The learning service could not format a usable response. Your saved work remains available; retry this step.'
+    throw createError({ statusCode: tooLarge ? 413 : 502, statusMessage: message + ' Reference: ' + reference, data: { code, providerReason, reference } })
+  }
   return new Response(JSON.stringify({ choices: [{ finish_reason: result.stopReason === 'max_tokens' ? 'length' : 'stop', message: {
     role: 'assistant', content: blocks.map((part: any) => part.text || '').join(''),
     ...(blocks.some((part: any) => part.toolUse) ? { tool_calls: blocks.filter((part: any) => part.toolUse).map((part: any) => ({ id: part.toolUse.toolUseId, type: 'function', function: { name: part.toolUse.name, arguments: JSON.stringify(part.toolUse.input) } })) } : {}),
