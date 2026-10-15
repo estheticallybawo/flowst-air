@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 async function saveContext(page: Page) {
-  await page.goto('/home/new', { waitUntil: 'domcontentloaded' });
+  await page.goto('/home/new?mode=study', { waitUntil: 'domcontentloaded' });
   const context = page.getByLabel('Share context about yourself', { exact: true });
   await expect(context).toBeVisible({ timeout: 90000 });
   await context.fill('Synthetic layout check. I want to explain ideas clearly.');
@@ -45,7 +45,7 @@ test('Misu keeps context and link entry reachable when the mobile visual viewpor
     }).toBe(true);
     await expect.poll(() => page.locator('.air-study-frame').evaluate(el => Math.round(el.getBoundingClientRect().height))).toBe(height);
   };
-  await page.goto('/home/new', { waitUntil: 'domcontentloaded' });
+  await page.goto('/home/new?mode=study', { waitUntil: 'domcontentloaded' });
   const context = page.getByLabel('Share context about yourself', { exact: true });
   await expect(context).toBeVisible({ timeout: 90000 });
   await context.focus();

@@ -194,6 +194,16 @@ const hash = (p, file, standalone = false) => {
 };
 
 export const intentionalDifferences = {
+  "components/AirAppShell.vue": {
+    reason: "Standalone Airs includes opt-in mode demonstrations in its existing authenticated navigation",
+    flowst: "2699457f92ac6b4ef7ceaf4c3c5f661d42fe33aede9e34049499f487a0d74bbd",
+    standalone: "0707b4de30079e23d44c97a920a73df7e2c6425cf34acbf0319641774c2ce066",
+  },
+  "pages/home/new.vue": {
+    reason: "Standalone Airs presents a mode picker while preserving the existing Study setup behind an explicit Study query",
+    flowst: "1af03a0c32da2c6a931dee021fd058111473b54c10f2612e2b893861e8115d56",
+    standalone: "81be2cc2676fc504c3624fe35c3b5d8c25256926fd1ec66ebc3d501c0b0ebde6",
+  },
   "composables/useStudyRetry.ts": {
     reason: "Owner formatting only; retry tokens and behavior match Flowst",
     flowst: "3ccc25f72f887b7c51110074a4a52b097850cb44300e6cc51d7cd704e76e145c",

@@ -3,6 +3,7 @@ import {
   Home,
   Plus,
   BookOpen,
+  PanelsTopLeft,
   Settings,
   LogOut,
   Menu,
@@ -24,6 +25,7 @@ const navigation = [
   { label: "Home", to: "/home", icon: Home },
   { label: "New session", to: "/home/new", icon: Plus },
   { label: "Library", to: "/home/library", icon: BookOpen },
+  { label: "Mode demos", to: "/home/modes", icon: PanelsTopLeft },
   { label: "Settings", to: "/home/settings", icon: Settings },
 ];
 const displayName = computed(

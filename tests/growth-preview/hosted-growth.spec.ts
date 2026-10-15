@@ -369,6 +369,39 @@ test("signed-in navigation shows Continue and opens integrated Growth and Tides"
   await expect(page).toHaveURL(/\/home$/);
   await expect(page.locator('.growth-home[data-growth-ready="true"]')).toBeVisible();
   await expect(page.locator(".capability-card")).toHaveCount(7);
+
+  const assertHostedGrowthArtwork = async () => {
+    await expect.poll(() => page.locator(".growth-ring .art-image").evaluateAll(images =>
+      images.every(image => image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0 && image.naturalHeight > 0),
+    )).toBe(true);
+    const geometry = await page.locator(".growth-ring").evaluateAll(rings => rings
+      .filter(ring => ring.getBoundingClientRect().width > 0)
+      .map(ring => {
+        const art = ring.querySelector(".growth-ring-art")!, medallion = art.querySelector(".art-medallion")!, image = art.querySelector(".art-image")!;
+        const a = ring.getBoundingClientRect(), b = art.getBoundingClientRect(), c = medallion.getBoundingClientRect(), d = image.getBoundingClientRect();
+        const centerGap = (outer: DOMRect, inner: DOMRect) => Math.max(
+          Math.abs(outer.x + outer.width / 2 - inner.x - inner.width / 2),
+          Math.abs(outer.y + outer.height / 2 - inner.y - inner.height / 2),
+        );
+        return {
+          label: ring.getAttribute("aria-label"), position: getComputedStyle(art).position,
+          squares: [a, b, c, d].map(box => Math.abs(box.width - box.height)),
+          centers: [centerGap(a, b), centerGap(b, c), centerGap(c, d)],
+          widthRatio: b.width / a.width, heightRatio: b.height / a.height,
+          fit: getComputedStyle(image).objectFit,
+        };
+      }));
+    expect(geometry).toHaveLength(isMobile ? 7 : 8);
+    for (const item of geometry) {
+      expect(item.position, item.label || "Growth ring").toBe("absolute");
+      for (const difference of [...item.squares, ...item.centers]) expect(difference).toBeLessThan(2);
+      expect(item.widthRatio).toBeCloseTo(.8, 2);
+      expect(item.heightRatio).toBeCloseTo(.8, 2);
+      expect(item.fit).toBe("contain");
+    }
+  };
+  await assertHostedGrowthArtwork();
+
   await expect(page.locator(".growth-home")).toContainText("You earn Tides as you progress.");
   await expect(page.locator(".growth-data-note")).toContainText("Example growth data");
   await expect(page.locator(".air-account")).toBeVisible();
@@ -396,6 +429,7 @@ test("signed-in navigation shows Continue and opens integrated Growth and Tides"
   await expect(page.locator(".air-hero").getByRole("link", { name: "Continue", exact: true })).toBeVisible();
   await page.locator(".air-public-header").getByRole("link", { name: "Continue", exact: true }).click();
   await expect(page.getByRole("button", { name: "Explore Clear Explanation", exact: true })).toContainText("84%");
+  await assertHostedGrowthArtwork();
   expect((await page.context().cookies()).some(c => c.name === "airs_guest")).toBe(false);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   expect(mutations).toEqual([]); expect(errors).toEqual([]);
