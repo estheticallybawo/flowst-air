@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-15T06:39:32.014Z",
+  "createdAt": "2026-10-15T07:02:38.201Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -100,8 +100,8 @@
     },
     {
       "path": "app.vue",
-      "bytes": 2027,
-      "sha256": "556e88bc6dcf082c78a5074523f5c01b8f36007f6d815b1a444f73f5c3a348cb"
+      "bytes": 2061,
+      "sha256": "9b296b36a25dae33db1b16250584f5eddf99ff812d3f2a3cb6fbff72efa7b5c7"
     },
     {
       "path": "assets/css/air-call-room.css",
@@ -115,8 +115,8 @@
     },
     {
       "path": "assets/css/amina-modes-demo.css",
-      "bytes": 30613,
-      "sha256": "dc422e0fd48cba3933d738f2cc1f6ab982f8509debb65e512e7eadb27d319652"
+      "bytes": 28893,
+      "sha256": "cd9321bf2ad7237c2445b63b36555277f6bc9e82b29f855d452a840676a0c737"
     },
     {
       "path": "assets/css/flowst-app.css",
@@ -326,7 +326,7 @@
     {
       "path": "components/demo/AirsAgentPresence.vue",
       "bytes": 3599,
-      "sha256": "7b081dfae40b06c349a41483bd713bb8f16671b5b37817119223ba4633da47e6"
+      "sha256": "16159e005ae85d25b87c1e734bfc618d4661481a23bec56e829828c380b56177"
     },
     {
       "path": "components/demo/AirsMilestoneUnlocks.vue",
@@ -395,8 +395,8 @@
     },
     {
       "path": "docs/amina-experience-release.md",
-      "bytes": 3159,
-      "sha256": "8ca04f736929643fd66263aa275048be696f688adb5694bcc44beb3a800d40a8"
+      "bytes": 3937,
+      "sha256": "21befee2fe2b1f73eac202ff91926d2f33b73d6323a1ed044519ddf7d17c358b"
     },
     {
       "path": "docs/amina-room-environments.md",
@@ -675,8 +675,8 @@
     },
     {
       "path": "pages/home/modes.vue",
-      "bytes": 34598,
-      "sha256": "472af280e6a62476579bbbe0d66f9c30eeaf5d0a7a682931366606ccfa25647f"
+      "bytes": 30396,
+      "sha256": "8534894ea286739df51f9c13fc5814956be01f50177bc16627edd06e4c744980"
     },
     {
       "path": "pages/home/new.vue",
@@ -1715,13 +1715,13 @@
     },
     {
       "path": "tests/source-e2e/airs-experiences.spec.ts",
-      "bytes": 19869,
-      "sha256": "398e8e3a3fb0e128a3225985ac92c8c9df02f84f056bf56be205cf293841199b"
+      "bytes": 21299,
+      "sha256": "a08faeb4037064f5dcba48f76da1342858bbdf8214e0967ddfc2e96930396e4f"
     },
     {
       "path": "tests/source-e2e/amina-modes.spec.ts",
-      "bytes": 7106,
-      "sha256": "04ab6c80dfff7bdd4038841467dead6b5c01b74bfb80136328704ce7af3bd4a0"
+      "bytes": 6758,
+      "sha256": "2142bb7cd9fa4b2610f5319274f74982cb4cf5a205fc9f297978ce8a6e52d2ed"
     },
     {
       "path": "tests/source-e2e/bring-source.spec.ts",

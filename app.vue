@@ -6,7 +6,7 @@ const sourceFixtureMode = useRuntimeConfig().public.studySourceFixtureMode;
 const demoError = ref("");
 const route = useRoute();
 const workspace = computed(
-  () => route.path === "/home/new" || /^\/home\/[a-f0-9-]+$/.test(route.path),
+  () => (route.path === "/home/new" && route.query.mode === "study") || /^\/home\/[a-f0-9-]+$/.test(route.path),
 );
 async function startSourceDemo() {
   try {

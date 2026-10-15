@@ -115,7 +115,7 @@ const studyAgents = [
   margin: 20px 0 0;
   padding-top: 15px;
   border-top: 1px solid #e8edf0;
-  color: #6a7b88;
+  color: #526b7a;
   font-size: 11px;
   line-height: 1.6;
 }

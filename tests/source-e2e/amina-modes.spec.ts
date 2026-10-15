@@ -78,7 +78,7 @@ test('all four settings remain usable without media access or study-provider req
   expect(runtimeErrors).toEqual([])
 })
 
-test('animation exploration respects reduced motion and keeps clip previews local', async ({ page }) => {
+test('animation exploration respects reduced motion and omits developer setup controls', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   const uploads: string[] = []
   page.on('request', request => { if (request.method() !== 'GET') uploads.push(request.url()) })
@@ -95,13 +95,10 @@ test('animation exploration respects reduced motion and keeps clip previews loca
   expect(motion).toBe('none')
   await lab.getByRole('checkbox', { name: /Animate the illustration/ }).uncheck()
   await expect(lab.locator('.amina-demo-avatar')).toHaveAttribute('data-active', 'false')
-  await lab.locator('input[type="file"]').setInputFiles({ name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('A local file') })
-  await expect(lab.getByRole('alert')).toContainText('Choose an MP4 or WebM')
-  await lab.locator('input[type="file"]').setInputFiles({ name: 'sample.mp4', mimeType: 'video/mp4', buffer: Buffer.from('An intentionally unplayable local clip') })
-  await expect(lab.locator('video')).toHaveAttribute('src', /^blob:/)
-  await expect(lab).toContainText('Your local video · not a live stream')
-  await lab.getByRole('button', { name: 'Remove clip', exact: true }).click()
+  await expect(lab.locator('input[type="file"]')).toHaveCount(0)
   await expect(lab.locator('video')).toHaveCount(0)
+  await expect(lab.locator('.lab-next-step, .lab-provider-trial, .lab-video-trial')).toHaveCount(0)
+  await expect(lab).not.toContainText(/agora|lemonslice|credentials|integration guide/i)
   await expect(lab.locator('.amina-demo-avatar__artwork')).toBeVisible()
   expect(uploads.filter(url => !url.includes('/api/auth/') && !url.includes('/_nuxt/'))).toEqual([])
 })

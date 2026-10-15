@@ -19,7 +19,6 @@ import {
   Play,
   RotateCcw,
   Sparkles,
-  Upload,
   VideoOff,
   Volume2,
 } from "lucide-vue-next";
@@ -83,10 +82,6 @@ const milestonesHeading = ref<HTMLElement>();
 const localVoices = ref<SpeechSynthesisVoice[]>([]);
 const voiceEnabled = ref(false);
 const voiceNotice = ref("");
-const videoUrl = ref("");
-const videoName = ref("");
-const videoError = ref("");
-const clipView = ref(false);
 const synthesisAvailable = ref(false);
 let sampleTimer: ReturnType<typeof setTimeout> | undefined;
 let clockTimer: ReturnType<typeof setInterval> | undefined;
@@ -316,32 +311,6 @@ async function closeExperience(
     )
     ?.focus({ preventScroll: true });
 }
-function loadClip(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  videoError.value = "";
-  if (!file) return;
-  if (
-    !["video/mp4", "video/webm"].includes(file.type) ||
-    file.size > 50 * 1024 * 1024
-  ) {
-    videoError.value = "Choose an MP4 or WebM video smaller than 50 MB.";
-    input.value = "";
-    return;
-  }
-  if (videoUrl.value) URL.revokeObjectURL(videoUrl.value);
-  videoUrl.value = URL.createObjectURL(file);
-  videoName.value = file.name;
-  clipView.value = true;
-  input.value = "";
-}
-function removeClip() {
-  if (videoUrl.value) URL.revokeObjectURL(videoUrl.value);
-  videoUrl.value = "";
-  videoName.value = "";
-  clipView.value = false;
-  videoError.value = "";
-}
 onMounted(() => {
   synthesisAvailable.value = "speechSynthesis" in window;
   const updateVoices = () => {
@@ -357,10 +326,7 @@ onMounted(() => {
     );
   }
 });
-onBeforeUnmount(() => {
-  stopPlayback();
-  if (videoUrl.value) URL.revokeObjectURL(videoUrl.value);
-});
+onBeforeUnmount(stopPlayback);
 </script>
 
 <template>
@@ -830,27 +796,12 @@ onBeforeUnmount(() => {
         </header>
         <div class="lab-layout">
           <div class="lab-stage" :data-background="labBackground">
-            <video
-              v-if="clipView && videoUrl"
-              :src="videoUrl"
-              controls
-              playsinline
-              :aria-label="'Local avatar clip: ' + videoName"
-              @error="
-                videoError =
-                  'This browser could not play the clip. Try an MP4 or WebM video.'
-              "
-            /><AminaDemoAvatar
-              v-else
+            <AminaDemoAvatar
               :state="labState"
               :active="motionEnabled"
               :expression="labExpression"
               :dark="labBackground === 'night'"
-            /><span class="lab-stage-caption">{{
-              clipView && videoUrl
-                ? "Your local video · not a live stream"
-                : "Animated expression sample · simulated speech"
-            }}</span>
+            /><span class="lab-stage-caption">Animated expression sample · simulated speech</span>
           </div>
           <div class="lab-controls">
             <h3>Try her conversation states</h3>
@@ -864,12 +815,11 @@ onBeforeUnmount(() => {
                 v-for="state in labStates"
                 :key="state"
                 :aria-pressed="
-                  labState === state && labExpression === 'auto' && !clipView
+                  labState === state && labExpression === 'auto'
                 "
                 @click="
                   labState = state;
                   labExpression = 'auto';
-                  clipView = false;
                 "
               >
                 {{ state }}
@@ -880,7 +830,6 @@ onBeforeUnmount(() => {
                 :aria-pressed="labExpression === 'wave'"
                 @click="
                   labExpression = 'wave';
-                  clipView = false;
                 "
               >
                 A little hello</button
@@ -888,7 +837,6 @@ onBeforeUnmount(() => {
                 :aria-pressed="labExpression === 'celebrate'"
                 @click="
                   labExpression = 'celebrate';
-                  clipView = false;
                 "
               >
                 Celebrate together
@@ -898,66 +846,8 @@ onBeforeUnmount(() => {
               ><input v-model="motionEnabled" type="checkbox" /> Animate the
               illustration <span>Respects reduced motion</span></label
             >
-            <div class="lab-video-trial">
-              <h4>Compare a talking-avatar clip</h4>
-              <p>
-                Have a sample generated from Amina’s artwork? Preview it here.
-                The file stays in this browser and is not uploaded.
-              </p>
-              <label class="modes-outline-button lab-upload"
-                ><Upload :size="17" /> Choose a local video<input
-                  type="file"
-                  accept="video/mp4,video/webm"
-                  @change="loadClip"
-              /></label>
-              <div v-if="videoUrl" class="loaded-clip">
-                <button @click="clipView = !clipView">
-                  {{
-                    clipView ? "Show illustration instead" : "Show video clip"
-                  }}</button
-                ><button @click="removeClip">Remove clip</button
-                ><small>{{ videoName }}</small>
-              </div>
-              <p v-if="videoError" role="alert" class="lab-error">
-                {{ videoError }}
-              </p>
-            </div>
-            <details class="lab-next-step">
-              <summary>How we can test a real live avatar</summary>
-              <p>
-                Agora’s LemonSlice integration can turn an image into a talking
-                avatar stream. That trial needs separate Agora and LemonSlice
-                credentials, server-managed sessions, and a fidelity check with
-                this artwork.
-              </p>
-              <p>
-                The next comparison is appearance, interruption recovery,
-                voice/video timing, and cost. This demonstration does not
-                connect to either service.
-              </p>
-              <a
-                href="https://docs.agora.io/en/ai/models/avatar/lemonslice"
-                target="_blank"
-                rel="noopener noreferrer"
-                >Read the official integration guide
-                <ArrowRight :size="14" /></a
-              ><a href="/mascots/amina.png" download="amina-avatar-source.png"
-                >Download Amina’s source artwork <ArrowDown :size="14"
-              /></a>
-            </details>
           </div>
         </div>
-        <details class="lab-provider-trial">
-          <summary>Live talking-avatar setup</summary>
-          <p>
-            The LemonSlice and Agora integration is being prepared separately.
-            This release does not connect to either provider or request
-            microphone access.
-          </p>
-          <button type="button" class="modes-outline-button" disabled>
-            Live avatar calling is not enabled
-          </button>
-        </details>
       </section>
 
       <section

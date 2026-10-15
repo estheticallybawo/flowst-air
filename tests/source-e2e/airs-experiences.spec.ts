@@ -118,6 +118,31 @@ test("Study stays prominent while New session, Library, Settings, and mode previ
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
+test("New session picker scrolls in short viewports while Study keeps its bounded workspace", async ({ page, isMobile }) => {
+  const viewport = { width: isMobile ? 393 : 1360, height: 565 };
+  await page.setViewportSize(viewport);
+  await page.goto("/home/new", { waitUntil: "domcontentloaded" });
+  await waitForExperienceHydration(page);
+  const picker = page.locator(".session-mode-picker");
+  await expect(picker).toBeVisible();
+  await page.mouse.move(viewport.width / 2, viewport.height / 2);
+  await page.mouse.wheel(0, 5000);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await expect(picker.getByRole("link", { name: "Preview language practice", exact: true })).toBeInViewport();
+  await expect(page.locator(".app-shell")).not.toHaveClass(/workspace-host/);
+  await picker.getByRole("link", { name: "Start a study session", exact: true }).click();
+  await expect(page.locator(".misu-setup")).toBeVisible();
+  await expect(page.locator(".app-shell")).toHaveClass(/workspace-host/);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/home\/new$/);
+  await expect(picker).toBeVisible();
+  await page.mouse.move(viewport.width / 2, viewport.height / 2);
+  await page.mouse.wheel(0, 5000);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await expect(picker.getByRole("link", { name: "Preview language practice", exact: true })).toBeInViewport();
+  await page.screenshot({ path: test.info().outputPath("new-session-scroll.png"), fullPage: true });
+});
+
 test("animation, character looks, and milestones expand independently with focus restored", async ({ page }) => {
   await openExperiences(page);
   const entries = page.getByRole("navigation", { name: "Explore the Airs experience" });
@@ -139,9 +164,8 @@ test("animation, character looks, and milestones expand independently with focus
   await expect(animationPanel.locator(".amina-demo-avatar")).toHaveAttribute("data-active", "false");
   await expect(characterPanel).toHaveCount(0);
   await expect(milestonePanel).toHaveCount(0);
-  await animationPanel.getByText("Live talking-avatar setup", { exact: true }).click();
-  await expect(animationPanel.getByRole("button", { name: "Live avatar calling is not enabled", exact: true })).toBeDisabled();
-  await expect(animationPanel.getByRole("button", { name: "Check live trial setup", exact: true })).toHaveCount(0);
+  await expect(animationPanel.locator(".lab-provider-trial, .lab-next-step, input[type=file]")).toHaveCount(0);
+  await expect(animationPanel).not.toContainText(/agora|lemonslice|credentials|integration guide/i);
   await characterEntry.click();
   await expect(page.locator("#character-unlocks-heading")).toBeFocused();
   await expect(characterPanel.locator(".amina-demo-avatar")).toHaveAttribute("data-active", "true");
@@ -210,7 +234,7 @@ test("stable cosmetic rooms and presets honor sample thresholds and keep Misu an
   await expect(character).toHaveAttribute("data-active", "true");
   await expect(scene.locator(".amina-demo-avatar__character")).toHaveCSS("animation-name", "none");
   const agents = rewards.getByRole("group", { name: "Choose a companion for the cosmetic concept" });
-  for (const [agentName, agentId, portrait] of [["Misu", "MIRO", "/optimized/v1/mascots/misu/portrait.webp"], ["Kai", "KAI", "/optimized/v1/mascots/kai/portrait.webp"]]) {
+  for (const [agentName, agentId, portrait] of [["Misu", "MIRO", "/optimized/v1/mascots/misu/portrait.webp"], ["Kai", "KAI", "/optimized/v1/mascots/kai/portrait.webp"]] as const) {
     await agents.getByRole("button", { name: agentName, exact: true }).click();
     await expect(scene).toHaveAttribute("data-agent", agentId);
     await expect(scene.locator(".cosmetic-static-agent")).toHaveAttribute("src", portrait);
