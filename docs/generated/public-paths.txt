@@ -21,6 +21,7 @@
 :(literal)app.vue
 :(literal)assets/css/air-call-room.css
 :(literal)assets/css/air.css
+:(literal)assets/css/amina-modes-demo.css
 :(literal)assets/css/flowst-app.css
 :(literal)assets/css/main.css
 :(literal)components/AgentActivity.vue
@@ -37,6 +38,7 @@
 :(literal)components/AirLibraryView.vue
 :(literal)components/AirPublicShell.vue
 :(literal)components/AirScrollStory.vue
+:(literal)components/AirSessionModePicker.vue
 :(literal)components/AirSessionNavigation.vue
 :(literal)components/AirSkeleton.vue
 :(literal)components/AirSourcePicker.vue
@@ -61,6 +63,10 @@
 :(literal)components/GrowthProgressRing.vue
 :(literal)components/MisuPlanGuide.vue
 :(literal)components/PasswordField.vue
+:(literal)components/demo/AirsAgentPresence.vue
+:(literal)components/demo/AirsMilestoneUnlocks.vue
+:(literal)components/demo/AirsTideUnlocks.vue
+:(literal)components/demo/AminaDemoAvatar.vue
 :(literal)composables/useAgentHandoff.ts
 :(literal)composables/useAirAccess.ts
 :(literal)composables/useAirGrowth.ts
@@ -70,6 +76,9 @@
 :(literal)composables/useStudyPacing.ts
 :(literal)composables/useStudyRetry.ts
 :(literal)docs/AIRS_FOCUSED_PRACTICE_VERIFICATION.md
+:(literal)docs/amina-avatar-expression-assets.md
+:(literal)docs/amina-experience-release.md
+:(literal)docs/amina-room-environments.md
 :(literal)docs/design-docs/amina-objective-flow.md
 :(literal)docs/design-docs/context-aware-practice.md
 :(literal)docs/design-docs/core-beliefs.md
@@ -125,6 +134,7 @@
 :(literal)pages/home/about.vue
 :(literal)pages/home/index.vue
 :(literal)pages/home/library.vue
+:(literal)pages/home/modes.vue
 :(literal)pages/home/new.vue
 :(literal)pages/home/pricing.vue
 :(literal)pages/home/settings.vue
@@ -135,6 +145,9 @@
 :(literal)public/air-voice-capture.js
 :(literal)public/amira-icon.png
 :(literal)public/brand/flowst-mark-blue.png
+:(literal)public/environments/amina-cafe-v1.webp
+:(literal)public/environments/amina-garden-v1.webp
+:(literal)public/environments/amina-workspace-v1.webp
 :(literal)public/growth/clear-explanation-3d.png
 :(literal)public/growth/conceptual-precision-3d.png
 :(literal)public/growth/conversation-flow-3d.png
@@ -143,6 +156,7 @@
 :(literal)public/growth/transfer-3d.png
 :(literal)public/growth/verbal-retrieval-3d.png
 :(literal)public/mascots/amina-avatar.png
+:(literal)public/mascots/amina-expression-atlas-v1.png
 :(literal)public/mascots/amina.png
 :(literal)public/optimized/v1/mascots/amina/avatar.webp
 :(literal)public/optimized/v1/mascots/amina/portrait.webp
@@ -150,7 +164,6 @@
 :(literal)public/optimized/v1/mascots/kyla-avatar.webp
 :(literal)public/optimized/v1/mascots/kyla.webp
 :(literal)public/optimized/v1/mascots/miro-avatar.webp
-:(literal)public/optimized/v1/mascots/miro/portrait.webp
 :(literal)public/optimized/v1/mascots/misu-avatar.webp
 :(literal)public/optimized/v1/mascots/misu/portrait.webp
 :(literal)public/optimized/v1/mascots/neo/avatar.webp
@@ -275,12 +288,14 @@
 :(literal)shared/airGrowth.ts
 :(literal)shared/airGrowthCapabilities.ts
 :(literal)shared/airGrowthPrototype.ts
+:(literal)shared/airMilestoneDemo.ts
 :(literal)shared/airNavigation.ts
 :(literal)shared/airSurface.ts
 :(literal)shared/airsHandoff.ts
 :(literal)shared/airsJourney.ts
 :(literal)shared/airsMessage.ts
 :(literal)shared/airsOrchestration.ts
+:(literal)shared/aminaModeDemo.ts
 :(literal)shared/aminaWelcome.ts
 :(literal)shared/auth.ts
 :(literal)shared/community.ts
@@ -305,6 +320,7 @@
 :(literal)shared/userErrors.ts
 :(literal)tests/air-access.test.ts
 :(literal)tests/air-live-home-route.test.ts
+:(literal)tests/air-milestone-demo.test.ts
 :(literal)tests/airs-feedback.test.ts
 :(literal)tests/airs-handoff.test.ts
 :(literal)tests/airs-kai-recovery.test.ts
@@ -326,6 +342,8 @@
 :(literal)tests/misu-plan-errors.test.ts
 :(literal)tests/misu-plan-recovery.test.ts
 :(literal)tests/shared-parity.test.ts
+:(literal)tests/source-e2e/airs-experiences.spec.ts
+:(literal)tests/source-e2e/amina-modes.spec.ts
 :(literal)tests/source-e2e/bring-source.spec.ts
 :(literal)tests/source-e2e/growth-prototype.spec.ts
 :(literal)tests/source-e2e/guest-context.spec.ts

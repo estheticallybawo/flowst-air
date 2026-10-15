@@ -3,6 +3,8 @@
 .air-app,
 .air-public,
 body.air-surface {
+  --air-raised-shadow: 0 4px 0 #d0dfeb, 8px 12px 24px #4975941c, inset 0 1px 0 #fff;
+  --air-soft-shadow: 5px 7px 16px #648ba521, -4px -4px 12px #ffffffd9, inset 0 1px 0 #fff;
   --air-accent: #0284c7;
   --air-accent-strong: #0369a1;
   --air-accent-soft: #e0f2fe;
@@ -24,6 +26,40 @@ body.air-surface {
   background: #eef8ff;
   color: var(--ink);
   font-family: "Albert Sans", system-ui, sans-serif;
+}
+.air-surface .air-app :is(.air-panel, .study-mode, .upcoming-card, .agent-presence, .mode-workspace, .tide-unlocks, .milestone-unlocks, .desktop-detail, .walkthrough, .tide-tile, .chat-card, .upload-card) {
+  box-shadow: var(--air-raised-shadow);
+}
+.air-surface .air-app :is(.air-panel, .upcoming-card, .agent-presence, .desktop-detail, .tide-unlocks, .milestone-unlocks) {
+  background: rgb(255 255 255 / 92%);
+  border-color: #fafdff;
+  border-bottom-color: #c9dbe8;
+}
+.air-surface .air-app .capability-card {
+  box-shadow: var(--air-soft-shadow);
+  border-bottom-width: 3px;
+}
+.air-surface .air-app .capability-card.selected {
+  box-shadow: 0 0 0 1px var(--card-color), var(--air-soft-shadow);
+}
+.air-surface .air-app .air-app-header {
+  background: rgb(255 255 255 / 86%);
+  border: 1px solid #fff;
+  box-shadow: 0 4px 0 #d2e4ef, 0 12px 28px -18px #3f73944d, inset 0 1px 0 #fff;
+}
+.air-surface .air-library :is(.air-panel, .chat-card, .upload-card, .intro) {
+  box-shadow: var(--air-raised-shadow);
+}
+.air-surface .session-mode-picker > .agent-presence {
+  margin-top: 24px;
+}
+.air-surface .growth-home > .agent-presence {
+  margin-bottom: 28px;
+}
+@supports (backdrop-filter: blur(10px)) {
+  .air-surface .air-app .air-app-header {
+    backdrop-filter: blur(10px);
+  }
 }
 body.air-surface::before {
   display: none;

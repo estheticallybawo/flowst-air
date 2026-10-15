@@ -8,6 +8,7 @@ import {
 } from "lucide-vue-next";
 import type { GrowthDimensionId, GrowthScenario } from "~/shared/airGrowth";
 import { growthDate } from "~/shared/airGrowth";
+import AirsAgentPresence from "~/components/demo/AirsAgentPresence.vue";
 
 const growth = useAirGrowth();
 const { snapshot: state, selected, selectedDimension, capabilities, examples } = growth;
@@ -111,11 +112,12 @@ const dialogTitle = computed(
             You earn Tides as you progress. Each completed growth cycle earns a Tide.
           </p>
         </div>
-        <NuxtLink class="air-button growth-primary" to="/home/new"
-          >Start a new session <ArrowUpRight :size="17" :stroke-width="1.5"
+        <NuxtLink class="air-button growth-primary" to="/home/new?mode=study"
+          >Start a study session <ArrowUpRight :size="17" :stroke-width="1.5"
         /></NuxtLink>
       </header>
 
+      <AirsAgentPresence />
       <p v-if="state.source === 'example'" class="growth-data-note">Example growth data · Your sessions continue as usual.</p>
 
       <section

@@ -82,7 +82,7 @@ test("Misu guides setup and prepares Amina without starting a microphone or voic
     await new Promise((done) => setTimeout(done, 500));
     await route.fulfill({ response });
   });
-  await page.goto("/home/new", { waitUntil: "domcontentloaded" });
+  await page.goto("/home/new?mode=study", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("region", { name: "Your learning context" }),
   ).toBeVisible({ timeout: 90000 });

@@ -381,6 +381,8 @@ test("Growth retains app-memory state across navigation, resets on reload, and k
     .getByRole("link", { name: "New session", exact: true })
     .click();
   await expect(page).toHaveURL(/\/home\/new$/);
+  await page.getByRole("link", { name: "Start a study session", exact: true }).click();
+  await expect(page).toHaveURL(/\/home\/new\?mode=study$/);
   await expect(
     page.getByLabel("Share context about yourself", { exact: true }),
   ).toBeVisible({ timeout: 90000 });
