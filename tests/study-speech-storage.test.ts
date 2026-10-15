@@ -8,6 +8,7 @@ vi.mock("../server/services/studyRepository", () => ({
 vi.mock("../server/services/studyElevenSpeech", () => ({ elevenSynthesizeTimedStudySpeech: mocks.voice }));
 vi.mock("../server/services/studyAwsSpeech", () => ({ synthesizeStudySpeech: mocks.voice }));
 import { getOrPrepareStudySpeech } from "../server/services/studySpeechCache";
+import { DEFAULT_AGENT_PRESENTATION } from "../shared/agentPresentation";
 const text = "Explain the source.", owner = "owner", id = "study", turnId = "turn";
 const record = (status: "READY" | "PENDING" | "FAILED" = "READY") => ({ ownerId: owner, revision: "saved", objectKey: "study-speech/owner/study/turn.json", status, textHash: createHash("sha256").update(text).digest("hex") });
 beforeEach(() => {
@@ -44,4 +45,42 @@ it("rejects another owner's cache metadata before any object lookup", async () =
   mocks.db.mockResolvedValue({ Item: { ...record(), ownerId: "other" } });
   await expect(getOrPrepareStudySpeech(owner, id, turnId)).rejects.toMatchObject({ statusCode: 409 });
   expect(mocks.s3).not.toHaveBeenCalled(); expect(mocks.voice).not.toHaveBeenCalled();
+});
+it("does not replay default-voice audio for a session with an explicit voice selection", async () => {
+  mocks.get.mockResolvedValue({ ownerId: owner, turns: [{ id: turnId, role: "AMIRA", text }], agentPresentation: {
+    ...DEFAULT_AGENT_PRESENTATION,
+    agents: { ...DEFAULT_AGENT_PRESENTATION.agents, AMIRA: { ...DEFAULT_AGENT_PRESENTATION.agents.AMIRA, voiceId: "2vbhUP8zyKg4dEZaTWGn" } },
+  } });
+  await expect(getOrPrepareStudySpeech(owner, id, turnId, true)).rejects.toMatchObject({ statusCode: 409 });
+  expect(mocks.s3).not.toHaveBeenCalled(); expect(mocks.voice).not.toHaveBeenCalled();
+});
+it("reuses explicitly selected voice audio only when its saved voice identity matches", async () => {
+  const voiceId = "2vbhUP8zyKg4dEZaTWGn";
+  mocks.get.mockResolvedValue({ ownerId: owner, turns: [{ id: turnId, role: "AMIRA", text }], agentPresentation: {
+    ...DEFAULT_AGENT_PRESENTATION,
+    agents: { ...DEFAULT_AGENT_PRESENTATION.agents, AMIRA: { ...DEFAULT_AGENT_PRESENTATION.agents.AMIRA, voiceId } },
+  } });
+  mocks.db.mockResolvedValue({ Item: { ...record(), voiceId } });
+  const packet = { audioBase64: "YXVkaW8=", mimeType: "audio/mpeg", spokenText: text, alignment: null };
+  mocks.s3.mockResolvedValue({ ContentLength: 100, Body: (async function* () { yield Buffer.from(JSON.stringify(packet)); })() });
+  expect(await getOrPrepareStudySpeech(owner, id, turnId)).toEqual(packet);
+  expect(mocks.voice).not.toHaveBeenCalled();
+});
+it("does not substitute the current server transport for an explicit unsupported voice", async () => {
+  const voiceId = "2vbhUP8zyKg4dEZaTWGn";
+  mocks.get.mockResolvedValue({ ownerId: owner, turns: [{ id: turnId, role: "AMIRA", text }], agentPresentation: {
+    ...DEFAULT_AGENT_PRESENTATION,
+    agents: { ...DEFAULT_AGENT_PRESENTATION.agents, AMIRA: { ...DEFAULT_AGENT_PRESENTATION.agents.AMIRA, voiceId } },
+  } });
+  mocks.db.mockResolvedValue({});
+  vi.stubGlobal("useRuntimeConfig", () => ({ studyVoiceProvider: "aws" }));
+  try {
+    await expect(getOrPrepareStudySpeech(owner, id, turnId)).rejects.toMatchObject({ statusCode: 503, data: { code: "SPEECH_VOICE_NOT_CONFIGURED", retryable: false } });
+    expect(mocks.s3).not.toHaveBeenCalled(); expect(mocks.voice).not.toHaveBeenCalled();
+    const reservation = mocks.db.mock.calls[1]?.[0].input.TransactItems[1].Put.Item;
+    expect(reservation.voiceId).toBe(voiceId);
+    expect(reservation.objectKey).toContain(`/${turnId}/${voiceId}.json`);
+  } finally {
+    vi.unstubAllGlobals();
+  }
 });

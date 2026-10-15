@@ -6,6 +6,7 @@ import { createError } from "h3";
 import type { H3Event } from "h3";
 import type { StudyConversation } from "../../shared/study";
 import { reserveStudyVoiceUsage } from "./studyRepository";
+import { resolveAminaVoice } from "./studyAminaVoice";
 
 function key(event?: H3Event) {
   const config = useRuntimeConfig(event);
@@ -245,13 +246,7 @@ export async function elevenSynthesizeStudySpeech(
 ) {
   const config = key(event);
   const spoken = text.slice(0, 3000);
-  if (!config.elevenLabsVoiceId)
-    throw createError({
-      statusCode: 503,
-      statusMessage:
-        "Amina’s voice is not selected on this server. Your saved reply remains available.",
-      data: { code: "SPEECH_NOT_CONFIGURED", retryable: false },
-    });
+  const voiceId = resolveAminaVoice(conversation, config.elevenLabsVoiceId);
   await reserveStudyVoiceUsage(
     ownerId,
     conversation.id,
@@ -260,7 +255,7 @@ export async function elevenSynthesizeStudySpeech(
   );
   const response = await checked(
     await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(String(config.elevenLabsVoiceId))}`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`,
       {
         method: "POST",
         headers: {
@@ -288,13 +283,7 @@ export async function elevenSynthesizeTimedStudySpeech(
 ): Promise<TimedStudySpeech> {
   const config = key(event),
     spoken = text.slice(0, 3000);
-  if (!config.elevenLabsVoiceId)
-    throw createError({
-      statusCode: 503,
-      statusMessage:
-        "Amina’s voice is not selected on this server. Your saved reply remains available.",
-      data: { code: "SPEECH_NOT_CONFIGURED", retryable: false },
-    });
+  const voiceId = resolveAminaVoice(conversation, config.elevenLabsVoiceId);
   await reserveStudyVoiceUsage(
     ownerId,
     conversation.id,
@@ -303,7 +292,7 @@ export async function elevenSynthesizeTimedStudySpeech(
   );
   const response = await checked(
     await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(String(config.elevenLabsVoiceId))}/with-timestamps`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}/with-timestamps`,
       {
         method: "POST",
         headers: {

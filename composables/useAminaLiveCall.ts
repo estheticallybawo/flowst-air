@@ -243,6 +243,7 @@ export function useAminaLiveCall(
           conversationToken: string;
           studyToken: string;
           maxSeconds: number;
+          voiceId: string | null;
         }>("/api/study/conversations/" + id.value + "/live/start", {
           method: "POST",
         });
@@ -263,6 +264,7 @@ export function useAminaLiveCall(
         const session = await Conversation.startSession({
           conversationToken: connection.conversationToken,
           connectionType: "webrtc",
+          ...(connection.voiceId ? { overrides: { tts: { voiceId: connection.voiceId } } } : {}),
           customLlmExtraBody: { studyToken },
           onConnect: () => {
             if (request === epoch) {

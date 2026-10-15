@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-15",
+  "mode": "registered semantic-mask edits; original face artwork retained",
+  "records": [
+    {
+      "name": "amina",
+      "source": "exec-62f25b07-4857-4bfe-8187-6dd539fdf214.png",
+      "mask": "exec-3316c5d8-6fe1-4f41-a860-fab75cfe1627.png",
+      "tool": "built-in image_gen",
+      "prompt": "EDIT TARGET: this existing 1024 by 1536 pixel face animation sprite sheet. Produce a PIXEL-REGISTERED SEMANTIC REGION MASK of this exact sheet, NOT new artwork. Preserve the exact canvas aspect ratio, 4 columns by 6 rows, each original head position, silhouette, pose, hairstyle, expression and facial feature boundary. No movement, crop, rescale, rearrangement, extra heads, labels, grid, lighting or shading. Every head's exposed skin only (including ears and eyelids) should be flat pure GREEN #00FF00. Every head's HAIR only should be flat pure RED #FF0000. Irises only should be flat pure BLUE #0000FF, preserving pupils and catchlights as black/unselected. Glasses, frames, eyebrows, eyelashes, pupils, teeth, whites of eyes, lips, jewelry, background and colored glows must be black/unselected or transparent. No skin-colored glow outside a head should become a selected region. True transparent background where possible. This is a technical 3-channel mask for recoloring the UNCHANGED original artwork, so exact registration and separating hair from skin/eyes are critical. Uniform flat colors, no gradients within masks. Keep ALL TWENTY-FOUR original face states intact in the exact same grid. Character: amina. Hair, skin, and iris regions must match this character's exact original edges.",
+      "atlas": "public/mascots/amina-motion-atlas-v1.webp",
+      "segmentationMap": "scripts/assets/agent-appearance/amina-motion-regions.png",
+      "width": 1024,
+      "height": 1536,
+      "columns": 4,
+      "rows": 6
+    },
+    {
+      "name": "misu",
+      "source": "exec-63ad36cc-9a6a-4e24-aea3-98a449938064.png",
+      "mask": "exec-b5ff9109-d700-4c2e-9f90-6dfd005909f0.png",
+      "tool": "built-in image_gen",
+      "prompt": "EDIT TARGET: this existing 1024 by 1536 pixel face animation sprite sheet. Produce a PIXEL-REGISTERED SEMANTIC REGION MASK of this exact sheet, NOT new artwork. Preserve the exact canvas aspect ratio, 4 columns by 6 rows, each original head position, silhouette, pose, hairstyle, expression and facial feature boundary. No movement, crop, rescale, rearrangement, extra heads, labels, grid, lighting or shading. Every head's exposed skin only (including ears and eyelids) should be flat pure GREEN #00FF00. Every head's HAIR only should be flat pure RED #FF0000. Irises only should be flat pure BLUE #0000FF, preserving pupils and catchlights as black/unselected. Glasses, frames, eyebrows, eyelashes, pupils, teeth, whites of eyes, lips, jewelry, background and colored glows must be black/unselected or transparent. No skin-colored glow outside a head should become a selected region. True transparent background where possible. This is a technical 3-channel mask for recoloring the UNCHANGED original artwork, so exact registration and separating hair from skin/eyes are critical. Uniform flat colors, no gradients within masks. Keep ALL TWENTY-FOUR original face states intact in the exact same grid. Character: misu. Hair, skin, and iris regions must match this character's exact original edges.",
+      "atlas": "public/mascots/misu-motion-atlas-v1.webp",
+      "segmentationMap": "scripts/assets/agent-appearance/misu-motion-regions.png",
+      "width": 1024,
+      "height": 1536,
+      "columns": 4,
+      "rows": 6
+    },
+    {
+      "name": "kai",
+      "source": "exec-a3e35bce-9b0c-40d3-a432-ba5c672016b4.png",
+      "mask": "exec-73dfcede-2029-44f1-b846-349026fdcf2e.png",
+      "tool": "built-in image_gen",
+      "prompt": "EDIT TARGET: this existing 1024 by 1536 pixel face animation sprite sheet. Produce a PIXEL-REGISTERED SEMANTIC REGION MASK of this exact sheet, NOT new artwork. Preserve the exact canvas aspect ratio, 4 columns by 6 rows, each original head position, silhouette, pose, hairstyle, expression and facial feature boundary. No movement, crop, rescale, rearrangement, extra heads, labels, grid, lighting or shading. Every head's exposed skin only (including ears and eyelids) should be flat pure GREEN #00FF00. Every head's HAIR only should be flat pure RED #FF0000. Irises only should be flat pure BLUE #0000FF, preserving pupils and catchlights as black/unselected. Glasses, frames, eyebrows, eyelashes, pupils, teeth, whites of eyes, lips, jewelry, background and colored glows must be black/unselected or transparent. No skin-colored glow outside a head should become a selected region. True transparent background where possible. This is a technical 3-channel mask for recoloring the UNCHANGED original artwork, so exact registration and separating hair from skin/eyes are critical. Uniform flat colors, no gradients within masks. Keep ALL TWENTY-FOUR original face states intact in the exact same grid. Character: kai. Hair, skin, and iris regions must match this character's exact original edges.",
+      "atlas": "public/mascots/kai-motion-atlas-v1.webp",
+      "segmentationMap": "scripts/assets/agent-appearance/kai-motion-regions.png",
+      "width": 1024,
+      "height": 1536,
+      "columns": 4,
+      "rows": 6
+    },
+    {
+      "name": "misu",
+      "kind": "main portrait region map",
+      "tool": "built-in image_gen",
+      "prompt": "EDIT TARGET: exact existing misu character portrait. Produce a REGISTERED SEMANTIC REGION MASK, not new art. Preserve exact canvas composition, pose, every facial feature location, silhouette and clothing edges. Flat pure GREEN #00FF00 selects exposed SKIN only (face, ears, neck, hands). Flat RED #FF0000 selects HAIR only. Flat BLUE #0000FF selects IRISES only. All other pixels/clothing/eyebrows/lashes/pupils/catchlights/teeth/eye whites/jewelry must be transparent or black/unselected. True transparent background. No new pose, changing size, adding objects, text, shading, glow, gradients or moving any feature. Exact pixel registration after proportional scaling to original dimensions is essential. This is a technical alpha-mask source for selective skin/hair/iris recoloring of the unchanged original picture.",
+      "source": "public/optimized/v1/mascots/misu/portrait.webp",
+      "segmentationMap": "scripts/assets/agent-appearance/misu-portrait-regions.png",
+      "output": "public/mascots/appearance-v1/misu-{skin,hair,eyes}.png",
+      "note": "Generated map is proportionally normalized to the unchanged original portrait; selected source colors protect pupils, catchlights, clothes, and shading."
+    },
+    {
+      "name": "kai",
+      "kind": "main portrait region map",
+      "tool": "built-in image_gen",
+      "prompt": "EDIT TARGET: exact existing kai character portrait. Produce a REGISTERED SEMANTIC REGION MASK, not new art. Preserve exact canvas composition, pose, every facial feature location, silhouette and clothing edges. Flat pure GREEN #00FF00 selects exposed SKIN only (face, ears, neck, hands). Flat RED #FF0000 selects HAIR only. Flat BLUE #0000FF selects IRISES only. All other pixels/clothing/eyebrows/lashes/pupils/catchlights/teeth/eye whites/jewelry must be transparent or black/unselected. True transparent background. No new pose, changing size, adding objects, text, shading, glow, gradients or moving any feature. Exact pixel registration after proportional scaling to original dimensions is essential. This is a technical alpha-mask source for selective skin/hair/iris recoloring of the unchanged original picture.",
+      "source": "public/optimized/v1/mascots/kai/portrait.webp",
+      "segmentationMap": "scripts/assets/agent-appearance/kai-portrait-regions.png",
+      "output": "public/mascots/appearance-v1/kai-{skin,hair,eyes}.png",
+      "note": "Generated map is proportionally normalized to the unchanged original portrait; selected source colors protect pupils, catchlights, clothes, and shading."
+    },
+    {
+      "name": "amina",
+      "kind": "deployed half-body interaction region map",
+      "tool": "built-in image_gen",
+      "prompt": "Use case: precise-object-edit. EDIT TARGET: the attached existing Amina half-body expression sprite sheet, exactly 1448 by 1086 pixels, four columns by two rows. Produce a PIXEL-REGISTERED TECHNICAL SEMANTIC REGION MAP of this exact image, not new character artwork. All eight half-body figures MUST retain their exact original canvas coordinates, 362-by-543 tile positions, silhouettes, head sizes, faces, hair, mouth expressions, hand positions, shoulders and clothing edges. No movement, redrawing, cropping, new background, labels or grid. Select EXPOSED SKIN ONLY in pure flat GREEN #00FF00: faces, ears, necks, forearms, hands and fingers including the thinking hand, both celebration hands and waving hand. Select HAIR ONLY in pure flat RED #FF0000: original dark curls and locks. All clothing, especially the ORANGE VEST and WHITE SHIRT, MUST be completely unselected black or transparent, never green or red. Glasses, brows, eyelashes, irises, pupils, teeth, eye whites, lips, jewelry, background and alpha-fringe speckles must be unselected black/transparent. Preserve source facial details as unselected; this map is only for selective skin/hair recoloring while the unchanged original artwork will always be displayed underneath. Return the same 4-column 2-row layout and same aspect ratio, with transparent background. Flat technical primaries without lighting or gradients. Do not render or enhance Amina herself.",
+      "source": "public/mascots/amina-expression-atlas-v1.png",
+      "sourceSha256": "db74da7a1fe1e1fb56ec567ff99c97b1ba7fda8389d97b4d2556895c9256bfc5",
+      "deployedReference": "4ab7361f47b38c41bb897559e79f58d89eae542c",
+      "segmentationMap": "scripts/assets/agent-appearance/amina-interaction-regions.png",
+      "outputs": [
+        "public/mascots/appearance-interaction-v1/amina-skin.png",
+        "public/mascots/appearance-interaction-v1/amina-hair.png"
+      ],
+      "width": 1448,
+      "height": 1086,
+      "columns": 4,
+      "rows": 2,
+      "note": "Only technical masks were generated; the deployed half-body artwork bytes are unchanged."
+    }
+  ]
+}

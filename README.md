@@ -1,23 +1,120 @@
-# Flowst Airs — Bring Your Source
+# Flowst Airs
 
-Airs is an independent-learning slice of Flowst focused on retention, understanding and verbal development over time, including explaining AI-assisted code. Bring one document, public repository, readable page, or supported video transcript. Review the included material, approve Misu's plan, explain the idea aloud, and apply it in a new situation.
+Flowst Airs is a conversation and feedback application for practising how you explain what you know with a multi agent design to make learning have an engaging and immersive learning experience. Bring a source, agree on a plan with Misu, practise with Amina, and reflect on Kai's feedback before your next attempt.
 
-Built with Nuxt/Vue, Groq, ElevenLabs, Cognito, DynamoDB, and S3. The source connector normalizes attributed text; it never gives Misu unrestricted platform access. A development-only MCP uses the same read-only GitHub adapter.
+The focus is verbal intelligence: recalling ideas, organising an explanation, choosing words with care, and reasoning aloud. Airs is designed for recent graduates preparing for interviews, people preparing to create content around their knowledge, and learners who want space to talk through something they are still unsure about.
 
-Flowst Airs is the product; Misu plans, Amina conducts verbal practice, and Kai provides a separate evidence-linked review. The interface, routes, package and source-service configuration use Flowst Airs. Amina remains the verbal learning agent. See [product intent](docs/product-specs/product-brief.md), [the knowledge base](docs/index.md) and [system responsibilities](docs/design-docs/flowst-air-system-design.md) for the full separation and implementation status.
+[Visit Flowst Airs](https://airs.useflowst.com/) to explore the product direction, or [run the local demonstration](#run-a-local-demonstration).
+
+## Why I built Airs
+
+I'm Esther Bawo Tsotso, a research, product and software engineer interested in how educational products should be designed, particularly for teenagers and secondary-school learners.
+
+I first implemented this as an experiment in June because I wanted feedback on what I already knew and what I was learning at school. I wanted to find out whether I could explain an idea clearly, stay faithful to the material, and recognise where my understanding needed more work.
+
+My time at Miva Open University, including my final-year thesis on this implementation, helped shape that question. It led me to explore how AI could give learners useful feedback on their understanding and give educators a clearer view of where support is needed.
+
+For the hackathon, I focused Airs on verbal practice and communication. Preparing for an interview, explaining something you have built, or sharing what you know can feel consequential. I wanted to create a place where people could rehearse those conversations, receive suggestions, and return with a clearer idea of what to practise.
+
+## How a session works
+
+1. Choose what you want to focus on and share your background, goal, audience and available time.
+2. Bring one source: a document, selected files from a public repository, a readable webpage, or a supported video transcript. Review the material that will guide the session.
+3. Planner Agent Misu reviews that context and proposes a plan with learning objectives and evaluation criteria. You can adjust the scope or time before approving it.
+4. Voice Practice Agent Amina guides the conversation within the approved source and objectives. You practise explaining ideas in your own words, work through questions, and apply what you understand.
+5. Assessor Agent Kai reviews saved explanations against the approved criteria and suggests a useful next exercise. Its current session feedback covers understanding, clarity, vocabulary and word choice, and reasoning.
+
+The learning loop is **source → reviewed plan → learner approval → guided practice → saved evidence → feedback**. Kai's observations describe the evidence available from that session; they do not establish intelligence or lasting mastery.
+
+## Why I made these product decisions
+
+### Give each agent a clear responsibility
+
+The first orchestration I could think of was to separate planning, conversation and assessment. Misu helps decide what to practise. Amina helps the learner engage with it. Kai reflects on the saved evidence afterward.
+
+This was an approach I could build and experiment with at the time. It gives me distinct responsibilities to investigate and refine as I learn from users. The application backend controls permissions, handoffs and saved state; agent responses propose actions within those boundaries.
+
+### Ground the conversation in a source and an approved goal
+
+I wanted feedback to connect to the material the learner brought especially for independent learners and the understanding they wanted to develop. Reviewing the source and approving Misu's plan gives the conversation a clear direction.
+
+Amina receives those objectives so practice stays guided and can reach a useful conclusion. The learner can review the proposed plan before committing to it. That choice matters to me because the experience should help people develop agency over their learning.
+
+### Make consequential conversations feel approachable
+
+I chose illustrated 3D cartoon companions and animations because I wanted to ease some of the tension around career-defining conversations. New graduates can feel anxious about whether they are ready for the next stage of their lives.
+
+My intention is for practice to feel like talking with a friendly companion that supports your growth. Feedback should give you something useful to work on and room to try again. Confidence and personal agency are goals I want the product to support as it develops.
+
+### Make progress something people can return to
+
+I was inspired by the year-end reflections from products such as YouTube and Spotify. Seeing a record of how you have spent your time on an app can make an experience feel personal. I wanted to explore what that could mean for learning: being able to look back, recognise your efforts, and see what to work on next.
+
+Airs uses the idea of growth **cycles** and **Tides**, collectible milestones associated with areas of verbal practice. The intended experience lets learners close cycles, collect Tides and unlock rewards as they continue. I want those moments to make the learning journey interesting and give people reasons to look forward to their next session.
+
+The growth circles and Tides are also part of a planned Easter egg system. Completing tasks and reaching milestones would progressively unlock new agent animations, different states and expressions, and additional personalisation options. I want continued practice to reveal more of the companion experience and give learners something to look forward to.
+
+The current Growth dashboard uses labelled example evidence, cycles and Tides. It demonstrates that experience; durable rewards and progress based on real learning evidence still need backend implementation.
+
+### Leave room for personal choice
+
+People should have some control over how they practise and how the application feels. The learning journey lets them set their context, goals and pacing. Personalisation and customization is part of making that interaction feel like their own.
+
+## How Airs connects to Flowst
+
+Airs is an independent-learning part of the parent product, Flowst. The broader Flowst direction is to give young people early experiences of learning with AI, connect classroom work with practice at home, and help educators understand students'understanding through learners' feedback.
+
+I want to keep refining the agent orchestration through user feedback. Over time, I would like these companions to be easier to reach on the go, support learning with friends, and help make learning continuous and enjoyable. The classroom, educator and teenage-learning direction is part of the wider product vision.
+
+Using ChatGPT helped me reconsider the limits I had placed on what I could build. I hope to give young people opportunities to explore their own potential with AI early in their lives, with room to ask questions, practise and see themselves develop.
+
+### Live conversations in a 3D environment
+
+I plan to use Agora to build live calls with the agent in a 3D environment. The companion would respond to the learner's inputs in real time, so they could talk through their learning source and reflect on their journey in a live conversation.
+
+This would remain part of the same Misu, Amina and Kai orchestration, with the approved source and learning objectives guiding the interaction. The interactive 3D experience and Agora integration are planned work.
 
 ## Run a local demonstration
 
-Use Node 22.12+ (Node 24 recommended):
+Use Node.js 22.12 or newer and npm. From this project directory, run:
 
 ```sh
 npm ci
 npm run demo
 ```
 
-Open `http://127.0.0.1:4322/home` for Growth, then select **New session**. Share your context with Misu, edit and confirm her understanding, then choose **Link or transcript** and a labelled fixture. Review the source, choose your goal, 5–15 minutes per topic and a 3- or 5-minute break, review or adjust the plan, and approve it. Misu prepares the handoff; Amina welcomes you with the microphone off. **Start conversation** opens practice; **Start recording** explicitly requests microphone access. Voice turns are the default. The workspace keeps primary actions in view. Longer source text and adjustments open in focused panels. Conversation starts closed and is the only transcript/caption panel. Amina’s captions follow actual playback. Her prepared replies are stored privately for Replay without another synthesis; microphone recordings are not saved as audio. Recovery breaks are optional. Checkpoint celebrations and Kai’s review require confirmed saved evidence. The ten-second ready handoff can be shortened with Continue now. Demo sources and their plans are deterministic, local samples; live voice is not simulated. Mock authentication and fixture mode are disabled in production. Local records are in memory and disappear on restart.
+Open [the local Airs home](http://127.0.0.1:4322/home) and select **New session**. Share your context with Misu, confirm her understanding, choose **Link or transcript**, and select a labelled fixture. Review the source, choose your goal and pacing, adjust the plan if needed, and approve it to continue to Amina.
 
-Canonical study routes are `/home`, `/home/new`, `/home/library` and `/home/:id`. Existing `/airs` and `/air` bookmarks redirect to `/home` while retaining their destination. Existing `/amira` bookmarks redirect while preserving the destination, query and hash.
+The demonstration uses deterministic sample sources and plans, local authentication, and in-memory records that disappear on restart. It strips provider credentials and does not load `.env.local`; you do not need provider keys for this walkthrough. Live voice is not simulated. Keep the fixture server on loopback.
+
+Canonical study routes are `/home`, `/home/new`, `/home/library` and `/home/:id`. Older `/airs`, `/air` and `/amira` bookmarks redirect while retaining their destination; `/amira` also preserves its query and hash.
+
+## Accounts and voice operation
+
+Open the public landing and select **Sign in**, or **Continue** when your account session has been restored. Protected `/home` routes redirect signed-out visitors to the existing sign-in form and retain their destination. Open `/home/new` to start learning. Save your background, goals and audience. Bring a source, review learning and evaluation goals, and approve practice with Amina. Kai reviews saved attempts and proposes a next exercise. Observations do not establish intelligence, mastery or longitudinal improvement.
+
+
+For voice practice with your own providers, follow [Configure live operation](#configure-live-operation) and run `npm run dev`. **Start conversation** opens practice and **Start recording** explicitly requests microphone access. Amina starts with the microphone off. Captions follow playback, and Replay uses privately stored replies without another synthesis request. Learner microphone recordings are not saved as audio. Recovery breaks are optional; celebrations and Kai's review require confirmed saved evidence.
+
+Airs has no cumulative per-study voice quota or daily guest voice-start quota. Paid provider charges continue to accrue; private usage accounting is retained. Recorded takes are bounded to two minutes, synthesized replies to 3,000 characters, and optional live calls retain individual duration, lease and output bounds. Saved audio Replay does not dispatch or account for a second synthesis request. Topic practice timing is separate. Development guests retain the deployment-wide model-task allowance (default 30 per day), bounded agent functions, source limits and separate video ingestion ceilings.
+
+Run npx playwright test --config playwright.airs.config.ts for the local development guest journey. Public submission: [estheticallybawo/flowst-air](https://github.com/estheticallybawo/flowst-air). The product remains Flowst Airs.
+
+## Growth in Airs
+
+In the Growth design, each completed growth cycle earns one **Tide** for its capability. Cards show Tides earned and progress toward the next cycle; the collection and completion views explain the evidence behind each Tide.
+
+Growth currently reads example evidence, cycle progress and Tides through `useAirGrowth`. One small indicator identifies the example data. **Explore example progress** holds optional scenario, reflection and completion controls. The data stays in app memory and never consumes real Kai scores or writes rewards. The source-independent snapshot lets owned backend records replace this adapter later; real assessment and durable progression still require backend implementation. See [the implementation record](docs/exec-plans/completed/growth-home-prototype.md).
+
+The regular application uses its existing Cognito sign-in, storage and providers. Preview does not inherit Production variables and has no separate backend configuration. Disabling product navigation is not a substitute for backend settings. The normal development server uses separate `.nuxt-air-dev` artifacts so builds/type checks do not overwrite its runtime.
+
+Run `npm run build` then `npm run test:growth-preview:e2e` to verify the integrated production build locally. The harness deliberately supplies obsolete guest/auth-bypass flags and a fresh test-only signing key to verify that production still requires sign-in. Real anonymous requests check redirects, session status, protected API denial and CSRF. Browser account responses and owned data reads are intercepted to check Continue, Growth/Tides and normal app navigation without provider credentials. This does not verify a live Cognito login or learning providers.
+
+## Technical implementation
+
+Built with Nuxt/Vue, Groq, ElevenLabs, Cognito, DynamoDB, and S3. Source connectors normalise attributed text and give the agents a bounded snapshot of the selected material. A development-only MCP uses the same read-only GitHub adapter.
+
+The implementation separates retrieved data from system instructions, preserves source attribution, and prevents automatic repetition of an uncertain paid request. See [system responsibilities](docs/design-docs/flowst-air-system-design.md) for the application and agent boundaries.
 
 ## Configure live operation
 
@@ -56,39 +153,24 @@ npm run build
 
 The MCP review makes real read-only requests against `octocat/Hello-World` and compares a pinned file hash with the production reader. It does not write to GitHub or register a global MCP server.
 
-## Built with Codex
-
-Codex assisted planning, repository inspection, implementation, test creation, and public-export preparation. The implementation separates retrieved data from system instructions, preserves snapshot attribution, and prevents automatic repetition of an uncertain paid request. See `VALIDATION.md` for checks actually run, results, and unresolved provider/deployment checks. Do not describe unperformed checks as passed.
-
-This submission builds on an existing Amina deployment. See `PRODUCT_BRIEF.md`, `CAPSTONE_SPEC.md`, and `DEMO_SCRIPT.md` for the new slice and demonstration boundaries. MIT licensed; preserve source attribution and any imported repository notices.
-
-Persisted `AMIRA`/`MIRO` role IDs and existing `AMIRA_*` recovery codes are compatibility contracts, not product branding. Agent-facing modules use Amina; product shells and access modules use Air.
-
 ## Documentation and public repository
 
 Start with [AGENTS.md](AGENTS.md), [ARCHITECTURE.md](ARCHITECTURE.md) and [docs/](docs/index.md). DESIGN.md, FRONTEND.md, PLANS.md and PRODUCT_SENSE.md route readers to detail. Design/implementation/verification status remain distinct. Run npm run docs:generate, npm run docs:check and npm run repo:check after relevant changes.
 
 See [public-repository preparation](docs/references/public-repository.md). The independently reviewed slice is published at estheticallybawo/flowst-air. The product aim extends beyond the one-session proof of concept; longitudinal views remain target work.
-# flowst-air
 
-## Context-aware career conversation
+Persisted `AMIRA`/`MISU` role IDs and existing `AMIRA_*` recovery codes are compatibility contracts, not product branding. Agent-facing modules use Amina; product shells and access modules use Air.
 
-Open the public landing and select **Sign in**, or **Continue** when your account session has been restored. Protected `/home` routes redirect signed-out visitors to the existing sign-in form and retain their destination. Open `/home/new` to start learning. Save your background, goals and audience. Bring a source, review learning and evaluation goals, and approve practice with Amina. Kai reviews saved attempts and proposes a next exercise. Observations do not establish intelligence, mastery or longitudinal improvement.
+## Creator and acknowledgments
 
-Production requires the existing Cognito account configuration, storage and model/speech providers. It neither creates nor accepts private guest sessions, including previously issued cookies and bearer tokens. Guest records are not deleted or reassigned. Local fixtures need no provider secrets and retain development guest access; paid video transcription is unavailable to those guests.
+The product idea, research direction and design decisions are mine. I built Airs with Codex from start to finish: fast prototyping, research engineering around the agent orchestration, implementation, testing, and refinement of the prototype and demo. I also used GPT and Codex to brainstorm agent behaviour and develop imagery and animation.
 
-Airs has no cumulative per-study voice quota or daily guest voice-start quota. Paid provider charges continue to accrue; private usage accounting is retained. Recorded takes are bounded to two minutes, synthesized replies to 3,000 characters, and optional live calls retain individual duration, lease and output bounds. Saved audio Replay does not dispatch or account for a second synthesis request. Topic practice timing is separate. Development guests retain the deployment-wide model-task allowance (default 30 per day), bounded agent functions, source limits and separate video ingestion ceilings.
+Thank you to OpenAI for ChatGPT and Codex, and to the Andela team for organising the hackathon and giving me the opportunity to build and share this project with a wider audience.
 
-Run npx playwright test --config playwright.airs.config.ts for the local development guest journey. Public submission: [estheticallybawo/flowst-air](https://github.com/estheticallybawo/flowst-air). The product remains Flowst Airs.
+Thank you to Miva Open University. My studies and final-year thesis inspired this exploration of feedback on understanding and the educational questions behind Flowst.
 
-## Growth in Airs
+This submission builds on an existing Amina deployment. See [the product brief](PRODUCT_BRIEF.md), [the capstone specification](CAPSTONE_SPEC.md) and [the demo script](DEMO_SCRIPT.md) for its foundation and scope. [Validation](VALIDATION.md) records the checks actually run and remaining provider or deployment work.
 
-Growth is the default Airs Home in both development and production, using the normal shell, account and learning routes. Run `npm run dev` and open `http://localhost:3000/home`; no special Growth mode is needed. `npm run demo` still supplies local source fixtures on port 4322. Set `AIR_GROWTH_ENABLED=false` only to roll Home back to setup. The previous `AIR_GROWTH_PREVIEW_MODE` branch variable is a presentation-only migration alias. **New session** always opens Misu at `/home/new`.
+## License
 
-You earn **Tides** as you progress: each completed growth cycle earns one Tide for its capability. Cards show Tides earned and progress toward the next cycle; the collection and completion views explain the evidence behind each Tide.
-
-Growth currently reads example evidence, cycle progress and Tides through `useAirGrowth`. One small indicator identifies the example data. **Explore example progress** holds optional scenario, reflection and completion controls. The data stays in app memory and never consumes real Kai scores or writes rewards. The source-independent snapshot lets owned backend records replace this adapter later; real assessment and durable progression still require backend implementation. See [the implementation record](docs/exec-plans/completed/growth-home-prototype.md).
-
-The owner authorized releasing Growth Home to the existing configured production Airs app. The regular application uses its existing Cognito sign-in, storage and providers. Preview does not inherit Production variables and has no separate backend configuration. Disabling product navigation is not a substitute for backend settings. The normal development server uses separate `.nuxt-air-dev` artifacts so builds/type checks do not overwrite its runtime.
-
-Run `npm run build` then `npm run test:growth-preview:e2e` to verify the integrated production build locally. The harness deliberately supplies obsolete guest/auth-bypass flags and a fresh test-only signing key to verify that production still requires sign-in. Real anonymous requests check redirects, session status, protected API denial and CSRF. Browser account responses and owned data reads are intercepted to check Continue, Growth/Tides and normal app navigation without provider credentials. This does not verify a live Cognito login or learning providers.
+Airs is [MIT licensed](LICENSE). Preserve source attribution and any imported repository notices.

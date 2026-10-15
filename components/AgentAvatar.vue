@@ -13,10 +13,8 @@ const props = withDefaults(defineProps<{
   portrait: false,
 })
 
-const failed = ref(false)
 const identity = computed(() => FLOWST_AGENTS[props.agent === 'MISU' ? 'MIRO' : props.agent])
 const accessibleLabel = computed(() => props.labelled ? undefined : identity.value.name)
-const imageSource = computed(() => props.portrait ? identity.value.portrait : identity.value.avatar)
 </script>
 
 <template>
@@ -28,15 +26,7 @@ const imageSource = computed(() => props.portrait ? identity.value.portrait : id
     :aria-label="accessibleLabel"
     data-agent-avatar
   >
-    <img
-      v-if="imageSource && !failed"
-      :src="imageSource"
-      alt=""
-      loading="lazy"
-      decoding="async"
-      @error="failed = true"
-    >
-    <span v-else aria-hidden="true">{{ identity.name[0] }}</span>
+    <AgentPortrait :agent="agent" :avatar="!portrait" fit="cover" alt="" />
   </span>
 </template>
 

@@ -39,6 +39,8 @@ import { microphoneError } from "~/shared/userErrors";
 import { learnerStudyError } from "~/shared/studyPresentation";
 import type { AirAccess } from "~/shared/airAccess";
 import type { KaiReview } from "~/shared/airsOrchestration";
+import { normalizeAgentPresentation } from "~/shared/agentPresentation";
+import { AGENT_PRESENTATION_KEY } from "~/composables/useAgentPresentation";
 
 const route = useRoute();
 const router = useRouter();
@@ -110,6 +112,7 @@ async function refreshStudyAccess() {
 const id = computed(() => String(route.params.id || ""));
 const planRetry = useStudyRetry(computed(() => `airs-plan-retry:${id.value}`));
 const study = ref<StudyConversation | null>(null);
+provide(AGENT_PRESENTATION_KEY, computed(() => normalizeAgentPresentation(study.value?.agentPresentation)));
 const voiceInputUsed = computed(() => study.value?.voiceUsage?.transcribeSeconds || 0);
 const voiceOutputUsed = computed(() => study.value?.voiceUsage?.pollyCharacters || 0);
 const pacing = useStudyPacing(id);

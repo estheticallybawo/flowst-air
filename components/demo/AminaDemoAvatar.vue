@@ -1,5 +1,10 @@
 <script setup lang="ts">
-withDefaults(defineProps<{
+import { AGENT_PRESENTATION_KEY } from '~/composables/useAgentPresentation'
+import { skinToneFilter, hairColorFilter } from '~/shared/agentAppearanceAssets'
+import { normalizeAgentPresentation } from '~/shared/agentPresentation'
+import { FLOWST_AGENTS } from '~/shared/agents'
+
+const props = withDefaults(defineProps<{
   state: 'idle' | 'listening' | 'thinking' | 'speaking'
   active?: boolean
   compact?: boolean
@@ -9,43 +14,114 @@ withDefaults(defineProps<{
   active: true,
   compact: false,
   dark: false,
-  expression: 'auto'
+  expression: 'auto',
+})
+const atlas = '/mascots/amina-expression-atlas-v1.png'
+const originalPortrait = FLOWST_AGENTS.AMIRA.portrait
+const provided = inject(AGENT_PRESENTATION_KEY, undefined)
+const account = provided ? undefined : useAgentPresentation()
+const presentation = computed(() => normalizeAgentPresentation(provided?.value || account?.presentation.value))
+const appearance = computed(() => presentation.value.agents.AMIRA)
+const layers = computed(() => [
+  { id: 'skin', source: '/mascots/appearance-interaction-v1/amina-skin.png', selected: appearance.value.skinTone !== 'original', filter: skinToneFilter('AMIRA', appearance.value.skinTone) },
+  { id: 'hair', source: '/mascots/appearance-interaction-v1/amina-hair.png', selected: appearance.value.hairColor !== 'original', filter: hairColorFilter('AMIRA', appearance.value.hairColor) },
+].filter(layer => layer.selected))
+const customized = computed(() => layers.value.length > 0)
+const assetSources = computed(() => [atlas, ...layers.value.map(layer => layer.source)])
+const rootElement = ref<HTMLElement | null>(null)
+const loadedAssets = ref<Record<string, { width: number; height: number; failed: boolean }>>({})
+const maskSupported = ref(true)
+const assetReady = (source: string) => {
+  const image = loadedAssets.value[source]
+  return Boolean(image && !image.failed && image.width === 1448 && image.height === 1086)
+}
+const atlasReady = computed(() => assetReady(atlas))
+const artworkReady = computed(() => atlasReady.value && (!customized.value || maskSupported.value) && layers.value.every(layer => assetReady(layer.source)))
+const unavailable = computed(() => (customized.value && !maskSupported.value) || assetSources.value.some(source => {
+  const image = loadedAssets.value[source]
+  return Boolean(image && !assetReady(source))
+}))
+const artworkLabel = computed(() => {
+  const state = props.expression === 'auto' ? props.state : props.expression === 'wave' ? 'greeting' : 'celebration'
+  const label = `Amina · ${state} illustration sample${state === 'speaking' ? ', not live lip sync' : ''}`
+  return customized.value && !artworkReady.value ? `${label}. Original colors preview.` : label
+})
+const notice = computed(() => {
+  if (!atlasReady.value) return unavailable.value ? 'Animation unavailable · original portrait preview' : 'Loading animation · original portrait preview'
+  if (customized.value && !artworkReady.value) return unavailable.value ? 'Chosen colors unavailable · original colors shown' : 'Loading chosen colors · original colors preview'
+  return ''
+})
+
+function layerStyle(source: string, filter: string) {
+  return { maskImage: `url("${source}")`, WebkitMaskImage: `url("${source}")`, filter }
+}
+
+function recordAsset(source: string, image: HTMLImageElement) {
+  loadedAssets.value = { ...loadedAssets.value, [source]: { width: image.naturalWidth, height: image.naturalHeight, failed: !image.naturalWidth || !image.naturalHeight } }
+}
+
+function markAssetReady(source: string, event: Event) {
+  recordAsset(source, event.target as HTMLImageElement)
+}
+
+function markAssetUnavailable(source: string) {
+  loadedAssets.value = { ...loadedAssets.value, [source]: { width: 0, height: 0, failed: true } }
+}
+
+function reconcileProbeImages() {
+  rootElement.value?.querySelectorAll<HTMLImageElement>('.amina-demo-avatar__probe').forEach(image => {
+    const source = image.getAttribute('src')
+    if (source && assetSources.value.includes(source) && image.complete) recordAsset(source, image)
+  })
+}
+
+watch(assetSources, () => { void nextTick(reconcileProbeImages) }, { flush: 'post' })
+onMounted(() => {
+  maskSupported.value = CSS.supports('mask-image', 'linear-gradient(#000, #000)') || CSS.supports('-webkit-mask-image', 'linear-gradient(#000, #000)')
+  reconcileProbeImages()
 })
 </script>
 
 <template>
   <div
+    ref="rootElement"
     class="amina-demo-avatar"
+    data-framing="half-body"
     :data-state="state"
     :data-active="active"
     :data-compact="compact"
     :data-dark="dark"
     :data-expression="expression"
+    :data-ready="artworkReady"
+    :data-customized="customized"
+    :data-atlas-ready="atlasReady"
   >
+    <img v-for="source in assetSources" :key="source" class="amina-demo-avatar__probe" :src="source" alt="" aria-hidden="true" @load="markAssetReady(source, $event)" @error="markAssetUnavailable(source)" />
     <div class="amina-demo-avatar__presence" aria-hidden="true" />
     <div class="amina-demo-avatar__shadow" aria-hidden="true" />
     <div class="amina-demo-avatar__character">
-      <div class="amina-demo-avatar__artwork" role="img" aria-label="Amina, your animated AI practice companion" />
+      <div class="amina-demo-avatar__artwork" role="img" :aria-label="artworkLabel">
+        <template v-if="atlasReady">
+          <span class="amina-demo-avatar__sprite" aria-hidden="true" />
+          <span v-for="layer in artworkReady ? layers : []" :key="layer.id" class="amina-demo-avatar__layer" :data-layer="layer.id" :style="layerStyle(layer.source, layer.filter)" aria-hidden="true" />
+        </template>
+        <img v-else class="amina-demo-avatar__fallback" :src="originalPortrait" alt="" aria-hidden="true" />
+      </div>
     </div>
-    <div
-      v-if="state === 'speaking' && active && !compact"
-      class="amina-demo-avatar__waveform"
-      aria-hidden="true"
-    >
+    <div v-if="state === 'speaking' && active && !compact" class="amina-demo-avatar__waveform" aria-hidden="true">
       <span v-for="bar in 7" :key="bar" :style="{ '--amina-bar': bar }" />
     </div>
-    <div
-      v-else-if="state === 'thinking' && active && !compact"
-      class="amina-demo-avatar__thoughts"
-      aria-hidden="true"
-    >
+    <div v-else-if="state === 'thinking' && active && !compact" class="amina-demo-avatar__thoughts" aria-hidden="true">
       <span v-for="dot in 3" :key="dot" :style="{ '--amina-dot': dot }" />
     </div>
+    <span v-if="notice" class="amina-demo-avatar__notice" role="status">{{ notice }}</span>
   </div>
 </template>
 
 <style scoped>
 .amina-demo-avatar {
+  --amina-frame-x: 0%;
+  --amina-frame-y: 0%;
   --amina-presence-color: rgb(87 145 168 / 12%);
   --amina-indicator-color: #376d88;
   position: relative;
@@ -102,26 +178,51 @@ withDefaults(defineProps<{
 }
 
 .amina-demo-avatar__artwork {
+  position: relative;
   display: block;
   width: min(100cqw, calc(100cqh * 2 / 3));
   height: min(100cqh, calc(100cqw * 1.5));
   aspect-ratio: 2 / 3;
+  user-select: none;
+}
+.amina-demo-avatar__sprite,
+.amina-demo-avatar__layer {
+  position: absolute;
+  inset: 0;
+  display: block;
   background-image: url('/mascots/amina-expression-atlas-v1.png');
   background-repeat: no-repeat;
   background-size: 400% 200%;
-  background-position: 0% 0%;
-  user-select: none;
+  background-position: var(--amina-frame-x) var(--amina-frame-y);
+  animation-play-state: inherit;
 }
-.amina-demo-avatar[data-state="speaking"][data-active="true"] .amina-demo-avatar__artwork { animation: amina-demo-mouth 780ms steps(1, end) infinite; }
-.amina-demo-avatar[data-state="listening"] .amina-demo-avatar__artwork { background-position: 0% 100%; }
-.amina-demo-avatar[data-state="thinking"] .amina-demo-avatar__artwork { background-position: 33.333333% 100%; }
-.amina-demo-avatar[data-expression="celebrate"] .amina-demo-avatar__artwork { animation: none !important; background-position: 66.666667% 100%; }
-.amina-demo-avatar[data-expression="wave"] .amina-demo-avatar__artwork { animation: none !important; background-position: 100% 100%; }
+
+.amina-demo-avatar__layer {
+  pointer-events: none;
+  mask-repeat: no-repeat;
+  mask-size: 400% 200%;
+  mask-position: var(--amina-frame-x) var(--amina-frame-y);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 400% 200%;
+  -webkit-mask-position: var(--amina-frame-x) var(--amina-frame-y);
+}
+
+.amina-demo-avatar__fallback { display: block; width: 100%; height: 100%; object-fit: contain; }
+.amina-demo-avatar__probe { display: none; }
+.amina-demo-avatar__notice { position: absolute; right: 8%; bottom: 7%; left: 8%; padding: 6px 9px; border: 1px solid #d5e4ee; border-radius: 6px; color: #35566b; background: #fff; font: 12px/1.4 'Albert Sans', sans-serif; text-align: center; }
+
+.amina-demo-avatar[data-state="listening"] { --amina-frame-x: 0%; --amina-frame-y: 100%; }
+.amina-demo-avatar[data-state="thinking"] { --amina-frame-x: 33.333333%; --amina-frame-y: 100%; }
+.amina-demo-avatar[data-expression="celebrate"] { --amina-frame-x: 66.666667%; --amina-frame-y: 100%; }
+.amina-demo-avatar[data-expression="wave"] { --amina-frame-x: 100%; --amina-frame-y: 100%; }
+.amina-demo-avatar[data-state="speaking"][data-expression="auto"] .amina-demo-avatar__artwork { animation: amina-demo-mouth 780ms steps(1, end) infinite; animation-play-state: paused; }
+.amina-demo-avatar[data-state="speaking"][data-expression="auto"][data-active="true"][data-atlas-ready="true"] .amina-demo-avatar__artwork { animation-play-state: running; }
+
 @keyframes amina-demo-mouth {
-  0%, 100% { background-position: 0% 0%; }
-  20%, 80% { background-position: 33.333333% 0%; }
-  40% { background-position: 66.666667% 0%; }
-  60% { background-position: 100% 0%; }
+  0%, 100% { --amina-frame-x: 0%; --amina-frame-y: 0%; }
+  20%, 80% { --amina-frame-x: 33.333333%; --amina-frame-y: 0%; }
+  40% { --amina-frame-x: 66.666667%; --amina-frame-y: 0%; }
+  60% { --amina-frame-x: 100%; --amina-frame-y: 0%; }
 }
 
 .amina-demo-avatar[data-state="listening"] .amina-demo-avatar__character {
@@ -183,10 +284,11 @@ withDefaults(defineProps<{
   inset: 1% 2% 0;
 }
 
-.amina-demo-avatar[data-active="false"] .amina-demo-avatar__character {
-  animation: none;
+.amina-demo-avatar[data-active="false"] .amina-demo-avatar__character,
+.amina-demo-avatar[data-atlas-ready="false"] .amina-demo-avatar__character {
+  animation-play-state: paused;
 }
-.amina-demo-avatar[data-active="false"] .amina-demo-avatar__artwork { animation: none; }
+.amina-demo-avatar[data-active="false"] .amina-demo-avatar__artwork { animation-play-state: paused; }
 
 .amina-demo-avatar[data-active="false"] .amina-demo-avatar__presence {
   opacity: .35;

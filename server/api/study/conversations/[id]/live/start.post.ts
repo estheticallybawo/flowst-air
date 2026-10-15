@@ -9,13 +9,15 @@ import {
 import { buildAminaLiveContext } from "../../../../../services/studyAmina";
 import { getAminaAgent } from "../../../../../services/studyElevenAgent";
 import { signStudyVoiceToken } from "../../../../../services/studyVoice";
+import { selectedAminaVoice } from "../../../../../services/studyAminaVoice";
 
 export default defineEventHandler(async (event) => {
   const identity = await requireIdentity(event);
   const id = getRouterParam(event, "id") || "";
   await assertAirStudyAccess(identity.userId, "PRACTISE", event);
   const { conversation } = await buildAminaLiveContext(identity.userId, id);
-  const { maxSeconds } = await getAminaAgent();
+  const voiceId = selectedAminaVoice(conversation);
+  const { maxSeconds } = await getAminaAgent(voiceId);
   const config = useRuntimeConfig(event);
   // Bound this provider connection independently of earlier study usage.
   const lease = await acquireStudyLiveLease(
@@ -65,6 +67,7 @@ export default defineEventHandler(async (event) => {
         lease.leaseId,
       ),
       maxSeconds,
+      voiceId,
     };
   } catch (cause) {
     await releaseStudyLiveLease(id, lease.leaseId);

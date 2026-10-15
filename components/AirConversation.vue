@@ -57,11 +57,11 @@ watch(
       :class="{ 'is-user': turn.role === 'USER' }"
     >
       <div class="speaker-avatar">
-        <UserRound v-if="turn.role === 'USER'" :size="21" /><img
+        <UserRound v-if="turn.role === 'USER'" :size="21" /><AgentPortrait
           v-else
-          src="/optimized/v1/mascots/amina/avatar.webp"
-          width="36"
-          height="36"
+          agent="AMIRA"
+          avatar
+          fit="cover"
           alt=""
         />
       </div>

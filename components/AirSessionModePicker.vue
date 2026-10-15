@@ -10,6 +10,13 @@ import {
   LockKeyhole,
   MessagesSquare,
 } from "lucide-vue-next";
+defineEmits<{ customize: [] }>();
+const heading = ref<HTMLElement | null>(null);
+const ready = ref(false);
+onMounted(() => {
+  ready.value = true;
+  heading.value?.focus({ preventScroll: true });
+});
 
 const upcomingModes = [
   {
@@ -41,8 +48,9 @@ const upcomingModes = [
     <div class="session-mode-picker">
       <header class="mode-heading">
         <p class="mode-eyebrow">New session</p>
-        <h1>What would you like to practise?</h1>
+        <h1 ref="heading" tabindex="-1">What would you like to practise?</h1>
         <p>Start a study session today, or take a look at the other experiences we are exploring.</p>
+        <button class="mode-customize-team" type="button" :disabled="!ready" @click="$emit('customize')">Customize your team</button>
       </header>
 
       <section class="study-mode" aria-labelledby="study-mode-title">
@@ -61,7 +69,7 @@ const upcomingModes = [
         </div>
         <div class="study-action">
           <p class="study-label">Your next step</p>
-          <p>Choose what you want to study. You will review your session plan before the conversation starts.</p>
+          <p>Customize your team or keep the defaults. Misu will then help you set up your study session.</p>
           <NuxtLink class="start-study" to="/home/new?mode=study">
             Start a study session <ArrowRight :size="18" aria-hidden="true" />
           </NuxtLink>
@@ -101,6 +109,8 @@ const upcomingModes = [
 </template>
 
 <style scoped>
+.mode-customize-team{margin-top:14px;min-height:44px;padding:8px 14px;border:1px solid #bfd5e2;border-radius:9px;background:#fff;color:#205b7b;font:inherit;font-size:14px;cursor:pointer}
+.mode-customize-team:focus-visible{outline:3px solid #0284c7;outline-offset:3px}
 .session-mode-picker {
   max-width: 1160px;
   margin: 0 auto;

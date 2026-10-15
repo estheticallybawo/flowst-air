@@ -78,11 +78,11 @@ const shortStatus = computed(() =>
       />
       <div v-else class="call-presence">
         <div class="call-portrait">
-          <img
-            src="/optimized/v1/mascots/amina/avatar.webp"
+          <AgentPortrait
+            agent="AMIRA"
+            avatar
+            fit="cover"
             alt="Amina, your AI study assistant"
-            width="400"
-            height="400"
           />
         </div>
         <AirVoiceMeter :level="level" :active="microphoneActive" />

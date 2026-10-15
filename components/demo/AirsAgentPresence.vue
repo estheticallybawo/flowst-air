@@ -21,7 +21,7 @@ const studyAgents = [
     <ol class="agent-presence-journey" aria-label="Study session roles">
       <li v-for="(agent, index) in studyAgents" :key="agent.id" class="agent-presence-step">
         <div class="agent-presence-identity">
-          <img v-if="agent.avatar" :src="agent.avatar" alt="" loading="lazy" />
+          <AgentPortrait class="agent-presence-portrait" :agent="agent.id" avatar fit="cover" alt="" />
           <div><h3>{{ agent.name }}</h3><span>{{ agent.action }}</span></div>
           <ArrowRight v-if="index < studyAgents.length - 1" class="agent-presence-arrow" :size="17" aria-hidden="true" />
         </div>
@@ -33,6 +33,7 @@ const studyAgents = [
 </template>
 
 <style scoped>
+.agent-presence-portrait{width:40px;height:40px;flex:none;overflow:hidden;border-radius:50%}
 .agent-presence {
   padding: 24px;
   border: 1px solid #dce5e9;

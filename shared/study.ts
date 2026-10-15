@@ -1,6 +1,7 @@
 import type { ContextSnapshot, AirsOperation } from "./airsOrchestration";
 import type { StudyFunctionRef } from "./studyPedagogy";
 import type { ObjectivePolicy, ObjectiveFlowState } from "./studyObjectivePolicy";
+import type { AgentPresentation } from "./agentPresentation";
 import type {
   StudyLocation,
   StudyMaterialKind,
@@ -191,6 +192,7 @@ export interface StudyConversation {
   document: StudyDocument;
   /** Older saved conversations may predate learner-selected planning context. */
   preferences?: StudyPreferences;
+  agentPresentation?: AgentPresentation;
   /** Explicitly ended early; saved records remain readable and deletable. */
   abandonedAt?: string;
   mode: StudyMode;

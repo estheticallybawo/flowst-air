@@ -44,6 +44,8 @@ import { objectiveSessionClosed } from '../../shared/studyObjectivePolicy';
 import type { StudyObjectiveOperation } from '../../shared/studyObjectiveOperation';
 import type { StudyPacingState } from '../../shared/studyPacing';
 import { commitMockAirsArtifact } from './airsContext';
+import { getAgentPresentation } from './agentPresentation';
+import { normalizeAgentPresentation } from '../../shared/agentPresentation';
 
 interface StudyRecord extends Omit<
   StudyConversation,
@@ -741,6 +743,7 @@ function publicRecord(
   };
   return {
     ...conversation,
+    agentPresentation: normalizeAgentPresentation(conversation.agentPresentation),
     plan,
     turns,
     progression: deriveStudyProgression({
@@ -796,6 +799,7 @@ export async function createStudyConversation(
   const pilot = standalonePilot(event);
   if (pilot) await assertStudyUploadAvailable(ownerId, event, new Date(now));
   const marker = pilot ? pilotMarker(ownerId) : undefined;
+  const agentPresentation = (await getAgentPresentation(ownerId, event)).presentation;
   const record: StudyRecord = {
     id,
     ownerId,
@@ -823,6 +827,7 @@ export async function createStudyConversation(
     },
     plan: { status: "PENDING", version: 0, objectives: [] },
     preferences: preferences || { ...DEFAULT_STUDY_PREFERENCES },
+    agentPresentation,
     createdAt: now,
     updatedAt: now,
     revision: 0,

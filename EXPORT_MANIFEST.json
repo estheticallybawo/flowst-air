@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-15T07:02:38.201Z",
+  "createdAt": "2026-10-15T17:52:29.571Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -90,13 +90,18 @@
     },
     {
       "path": "README.md",
-      "bytes": 12555,
-      "sha256": "eff812c38ab0795e1048071a81527e98086f248475f711fb788608c1a9104643"
+      "bytes": 19064,
+      "sha256": "387da32e04fe78e801cdc953c764f663f724ed278e78cf44f912ee21da8aadb5"
     },
     {
       "path": "VALIDATION.md",
       "bytes": 148,
       "sha256": "f20161346de48d3fd8cd263b0bc292da3732015b1ec836f57e107946ca5037e8"
+    },
+    {
+      "path": "WHERE-TO-EDIT.md",
+      "bytes": 1046,
+      "sha256": "e27a3c672a6cf4bd03ef6a866b29dae3fdb84365887ed4c738e8490680e74eef"
     },
     {
       "path": "app.vue",
@@ -115,8 +120,8 @@
     },
     {
       "path": "assets/css/amina-modes-demo.css",
-      "bytes": 28893,
-      "sha256": "cd9321bf2ad7237c2445b63b36555277f6bc9e82b29f855d452a840676a0c737"
+      "bytes": 29648,
+      "sha256": "a8d333546ab92d66c49697bf89fe2f7331a3fa0bf6f4f5ad8fed20d611eb7675"
     },
     {
       "path": "assets/css/flowst-app.css",
@@ -135,13 +140,23 @@
     },
     {
       "path": "components/AgentAvatar.vue",
-      "bytes": 1760,
-      "sha256": "1af215584107940fe53c19b568e2cb3f3e42a1145c8fb308ce763f291278114f"
+      "bytes": 1481,
+      "sha256": "084f25ee3cba2fadf117ab53a652f4bc000692be54a097616e9d22b3fcd0c466"
+    },
+    {
+      "path": "components/AgentCustomizer.vue",
+      "bytes": 17700,
+      "sha256": "2f13a673cbb3f83e8ed904e63ad6c471c1b50489d29a2718897f5e32fa8a098b"
     },
     {
       "path": "components/AgentOrb.vue",
       "bytes": 2658,
       "sha256": "96e07b8e0d34e95e3695e7c3194cb51864eb641cc898db8eed619461814751cf"
+    },
+    {
+      "path": "components/AgentPortrait.vue",
+      "bytes": 4850,
+      "sha256": "d6afdc8f447aecceb96be1385c6e7e9d49701fa64bc7a7758c315bd8c92bdaab"
     },
     {
       "path": "components/AirAppShell.vue",
@@ -155,8 +170,8 @@
     },
     {
       "path": "components/AirCallRoom.vue",
-      "bytes": 6044,
-      "sha256": "61d5e7e2ae488b1718e32a66e4017b5110911ccead228319364f8cc32afd6934"
+      "bytes": 6016,
+      "sha256": "5805b58090e7b39a523263fbfb0de37b9a2e3cab56f44de7b01c4c806e626f4a"
     },
     {
       "path": "components/AirCitation.vue",
@@ -165,8 +180,8 @@
     },
     {
       "path": "components/AirConversation.vue",
-      "bytes": 9201,
-      "sha256": "3bb28e3996fde951c22d3a6f8e4ef8457b62876860d937aeddf74860b6860790"
+      "bytes": 9175,
+      "sha256": "204459cc9ff647f7df57cd85e766508553a1cb5bdf0d72696d9a20fdbb0d2ebc"
     },
     {
       "path": "components/AirFocusDialog.vue",
@@ -185,8 +200,8 @@
     },
     {
       "path": "components/AirLibraryView.vue",
-      "bytes": 32959,
-      "sha256": "72158762c33d90c2d613011564d226a72b6e7191afd01c2a3c38cdf25bb38c5e"
+      "bytes": 32785,
+      "sha256": "481704465f24fb8a783548a28b4e51f1e64bb66fb94ee277573a5674b22a530c"
     },
     {
       "path": "components/AirPublicShell.vue",
@@ -200,8 +215,8 @@
     },
     {
       "path": "components/AirSessionModePicker.vue",
-      "bytes": 9965,
-      "sha256": "dc410baaf8ccb3240b94f49eae74617bb3abe34386cd5710339de115b10265d7"
+      "bytes": 10591,
+      "sha256": "19b7ff86a9ab1e64bad7d72775647bdf8fc1a023a43c851c5894d1bad1d44092"
     },
     {
       "path": "components/AirSessionNavigation.vue",
@@ -285,8 +300,8 @@
     },
     {
       "path": "components/AirsSetup.vue",
-      "bytes": 17411,
-      "sha256": "a482e0b75c6fea8d8c8fdf09951e0cd73092c2ba0de5d79dd675d8052efaa180"
+      "bytes": 18458,
+      "sha256": "e80625d6eeac87cfc180a4aa1d7fb607a1f8cc4dee1ff976706d3391c44d593b"
     },
     {
       "path": "components/AuthShell.vue",
@@ -325,8 +340,8 @@
     },
     {
       "path": "components/demo/AirsAgentPresence.vue",
-      "bytes": 3599,
-      "sha256": "16159e005ae85d25b87c1e734bfc618d4661481a23bec56e829828c380b56177"
+      "bytes": 3716,
+      "sha256": "f2db55d0b57acc11174faa31f65ef429ad055327d46913dbd90a96ba5d844629"
     },
     {
       "path": "components/demo/AirsMilestoneUnlocks.vue",
@@ -335,18 +350,28 @@
     },
     {
       "path": "components/demo/AirsTideUnlocks.vue",
-      "bytes": 18896,
-      "sha256": "2b552612cfc1a7decc751a97373fe3c35eca0521c0a1516902f819686a0e65ca"
+      "bytes": 21176,
+      "sha256": "5bb4085422be7dd21788a633ef049b684f5a4cb653edb00cc3d291746bfb2c8a"
     },
     {
       "path": "components/demo/AminaDemoAvatar.vue",
-      "bytes": 6829,
-      "sha256": "0461ce6938773ccfaec1affc28e54c784aef8f522e58d035747d77ff45a7a8ef"
+      "bytes": 4725,
+      "sha256": "4145dec7bff847f6032ab8bc0eba44e73867e077c66315e861736ed2f4dc90bb"
+    },
+    {
+      "path": "components/demo/CompanionMotionAvatar.vue",
+      "bytes": 10581,
+      "sha256": "bed6d276db08f5e001db4fc2a4b04e7c8ec04a6614468aa85ea1d832d9b8ac5a"
     },
     {
       "path": "composables/useAgentHandoff.ts",
       "bytes": 1465,
       "sha256": "c879943590b31dee6b29bca0ecb8d630020580947461b1632bdaaa3dbbd65ef8"
+    },
+    {
+      "path": "composables/useAgentPresentation.ts",
+      "bytes": 4966,
+      "sha256": "56b9ca92467a344ca45f2e5a1ca948984b667f033e42dadeeeef5ce673ba597a"
     },
     {
       "path": "composables/useAirAccess.ts",
@@ -365,8 +390,8 @@
     },
     {
       "path": "composables/useAminaLiveCall.ts",
-      "bytes": 17689,
-      "sha256": "590d24326c4e990c6464cf14b45f790c5391e6409335251301a1e61315fd22cc"
+      "bytes": 17821,
+      "sha256": "4d8ec5e12d74ac0f381d81a679bea902d59304d13fe620c5918ee5b0485f48b3"
     },
     {
       "path": "composables/useAuth.ts",
@@ -389,6 +414,11 @@
       "sha256": "98664bc3b6aad05b289b4ce08143953bdfba82e97865cc3b096a11c9ee9ca7d3"
     },
     {
+      "path": "docs/agent-customization.md",
+      "bytes": 2797,
+      "sha256": "5f1bb87eb0498888b8a1eccc871bb7fd9e73bd3866ee1ed864b91069922200d1"
+    },
+    {
       "path": "docs/amina-avatar-expression-assets.md",
       "bytes": 1740,
       "sha256": "ea735b3188d3d0c69598975cab14ff242ad99066c845576e91a2a7de6d785dc0"
@@ -402,6 +432,11 @@
       "path": "docs/amina-room-environments.md",
       "bytes": 4359,
       "sha256": "7f78532a0268a647fc5d0bfffc62a7af44b8771fcf9fc6f4be586cb71d63be96"
+    },
+    {
+      "path": "docs/avatar-animation-recovery.md",
+      "bytes": 4370,
+      "sha256": "add69ac2e068a5cd36b87df36c207179de98b8a1f1233928d203c167481dac35"
     },
     {
       "path": "docs/design-docs/amina-objective-flow.md",
@@ -491,7 +526,7 @@
     {
       "path": "docs/generated/db-schema.md",
       "bytes": 8670,
-      "sha256": "4d5b826125600e324fd86bea98e38b4c7f918dd0f7979fb7f136ea573ed7f38a"
+      "sha256": "b11063b25d5fdd5bb8df3584b1584e3372a84ea0c765c07168d85b429945b1c4"
     },
     {
       "path": "docs/generated/index.md",
@@ -500,13 +535,13 @@
     },
     {
       "path": "docs/generated/shared-parity.json",
-      "bytes": 22372,
-      "sha256": "3b47bd8c7919bc8fffd91c7965767ea3a167512b181e922c54b1b59d13509703"
+      "bytes": 25902,
+      "sha256": "b4c1a45fc83e06ca3a4b0e4ac2577e8217e43b8cb1c3749a835a8ee5991345b0"
     },
     {
       "path": "docs/index.md",
-      "bytes": 927,
-      "sha256": "92a3cafc1df1cf40cecd32541eef415f04eea50c2e925379b2af5c743bbc18f3"
+      "bytes": 1042,
+      "sha256": "4390b171c5f2cd4dfe6b742821162f0ed771ada047b68e829f9fc557de40b555"
     },
     {
       "path": "docs/product-specs/bring-your-source.md",
@@ -655,8 +690,8 @@
     },
     {
       "path": "pages/home/[id].vue",
-      "bytes": 138956,
-      "sha256": "6e37312677bfb8e19c26973b1f8209cc9521becd351a2bce2747d975dd6010db"
+      "bytes": 139215,
+      "sha256": "66093101d49cbc945d53324b4619426a366d31431af19b3036a1bd48cceb3ba7"
     },
     {
       "path": "pages/home/about.vue",
@@ -675,13 +710,13 @@
     },
     {
       "path": "pages/home/modes.vue",
-      "bytes": 30396,
-      "sha256": "8534894ea286739df51f9c13fc5814956be01f50177bc16627edd06e4c744980"
+      "bytes": 27179,
+      "sha256": "77412db47eabfd7fa509dc05329ef185fabe5ce0abf24b1ead76141c3ffb5c85"
     },
     {
       "path": "pages/home/new.vue",
-      "bytes": 256,
-      "sha256": "04c87879a9a82b4594282ae248ffb82fee20334c6461dfbb478f62706c66db00"
+      "bytes": 2167,
+      "sha256": "c4e02a0213f5cb4d23b8319bd8758dd98a9fe72f0569f6e08da93b8bed8f0d26"
     },
     {
       "path": "pages/home/pricing.vue",
@@ -690,8 +725,8 @@
     },
     {
       "path": "pages/home/settings.vue",
-      "bytes": 5149,
-      "sha256": "709e64622b14cc9be3f323e476ca531bee771f3620f61c8e874452a90c774265"
+      "bytes": 5201,
+      "sha256": "bb03671a10c4109c4c8c15fd1e1f080b32fb0d774ed41adf21a5b1b90989f945"
     },
     {
       "path": "pages/index.vue",
@@ -722,6 +757,211 @@
       "path": "public/amira-icon.png",
       "bytes": 49543,
       "sha256": "2363f346f2fca5f0e72f7fca8c1d6aadd862d75c5c1c883d5d7e2761ad6a9cc4"
+    },
+    {
+      "path": "public/audio/amina/2vbhUP8zyKg4dEZaTWGn/preview.mp3",
+      "bytes": 111220,
+      "sha256": "cd28b63744bb4c076156b7d772e49055799a278ec67ee8166a2228afad0c01fa"
+    },
+    {
+      "path": "public/audio/amina/FGY2WhTYpPnrIDTdsKH5/conversation-0.mp3",
+      "bytes": 58139,
+      "sha256": "9552005757b384f61125a80a4ea32fc91f7e65b0ee1a8ee0d83efb525cc7c38e"
+    },
+    {
+      "path": "public/audio/amina/FGY2WhTYpPnrIDTdsKH5/conversation-1.mp3",
+      "bytes": 67752,
+      "sha256": "53c827552b41d6ed3f50d9d0ab1f948ab3303293c6a611f5f37cbfef8b8be1fd"
+    },
+    {
+      "path": "public/audio/amina/FGY2WhTYpPnrIDTdsKH5/conversation-2.mp3",
+      "bytes": 62736,
+      "sha256": "1685557fd431e200d05e4de8c330d3c2c05e879d5611586f78f0f1a0194e7c08"
+    },
+    {
+      "path": "public/audio/amina/FGY2WhTYpPnrIDTdsKH5/interview-0.mp3",
+      "bytes": 98263,
+      "sha256": "d0accbeaf5604a498fccffffb4a019a33f87cd7d74532760a16a72bae86db05d"
+    },
+    {
+      "path": "public/audio/amina/FGY2WhTYpPnrIDTdsKH5/interview-1.mp3",
+      "bytes": 50198,
+      "sha256": "a7de141cbd49f01740223a4fd27bd60d57bff19a97ca283abc397215db0fd37c"
+    },
+    {
+      "path": "public/audio/amina/FGY2WhTYpPnrIDTdsKH5/interview-2.mp3",
+      "bytes": 47272,
+      "sha256": "e2052120006c5a8f545297b796ef892a78c4750a0bcefd2c1f58a9beec00c62a"
+    },
+    {
+      "path": "public/audio/amina/FGY2WhTYpPnrIDTdsKH5/language-0.mp3",
+      "bytes": 31390,
+      "sha256": "48b9c05cd15ef122b6ae95cfa1abc3479d96f76e6fb8a1b02fc4d8a4ed75e6bb"
+    },
+    {
+      "path": "public/audio/amina/FGY2WhTYpPnrIDTdsKH5/language-1.mp3",
+      "bytes": 43510,
+      "sha256": "58b1b6c1d7203050cab3432f62eef04805f96ed9d27798342bc1b0e8e8015d3c"
+    },
+    {
+      "path": "public/audio/amina/FGY2WhTYpPnrIDTdsKH5/language-2.mp3",
+      "bytes": 37659,
+      "sha256": "68f6e84da6720e6daa67fc794405ae2a026c1443259ee3138a58135289b9e9c3"
+    },
+    {
+      "path": "public/audio/amina/FGY2WhTYpPnrIDTdsKH5/preview.mp3",
+      "bytes": 92412,
+      "sha256": "4e3a78220f91e07bec4090657847affe71ee1d0228d6d32d0f8bc3033921ba75"
+    },
+    {
+      "path": "public/audio/amina/FGY2WhTYpPnrIDTdsKH5/study-0.mp3",
+      "bytes": 74439,
+      "sha256": "109b6b092191dbc23daad48269fc7d15bbb2148f430868b007b328099c082ccf"
+    },
+    {
+      "path": "public/audio/amina/FGY2WhTYpPnrIDTdsKH5/study-1.mp3",
+      "bytes": 77783,
+      "sha256": "8d510159f63275aef4212d5a00883ed9967874cdffe77bffc3d76dd2aae4b2b7"
+    },
+    {
+      "path": "public/audio/amina/FGY2WhTYpPnrIDTdsKH5/study-2.mp3",
+      "bytes": 58975,
+      "sha256": "f9b2c2f0a78dd2da43417dcde0a7074bf79acb8387aad8b390bc03e9eba12ea1"
+    },
+    {
+      "path": "public/audio/amina/Obry8zWnqii5oX5Qsllx/preview.mp3",
+      "bytes": 82798,
+      "sha256": "7a7252d47121cc3a5e93ace0887d2ca06f2a63c29c03c1f8eaf7481b043b5ade"
+    },
+    {
+      "path": "public/audio/amina/XlDdozLmuTofIxK4BjPD/preview.mp3",
+      "bytes": 119997,
+      "sha256": "da3789eaf020650672f7f4d58dbb2b12ccd6937c8fad769e822d4183af499cca"
+    },
+    {
+      "path": "public/audio/amina/XrExE9yKIg1WjnnlVkGX/conversation-0.mp3",
+      "bytes": 63572,
+      "sha256": "21d4f3dacbd1cdb839c4c9c7eeef5621fb4d1363e90b8647dd0b3e4b567de9c9"
+    },
+    {
+      "path": "public/audio/amina/XrExE9yKIg1WjnnlVkGX/conversation-1.mp3",
+      "bytes": 76947,
+      "sha256": "56b3bd1ba7319b10e99ae91416803c82ca6b6deeb9a09f22d1a637b8f74f3931"
+    },
+    {
+      "path": "public/audio/amina/XrExE9yKIg1WjnnlVkGX/conversation-2.mp3",
+      "bytes": 67334,
+      "sha256": "61cece9d605b2a8827d8fda7473b1acfa85a7c5b568dde74acfa5360054a6ca6"
+    },
+    {
+      "path": "public/audio/amina/XrExE9yKIg1WjnnlVkGX/interview-0.mp3",
+      "bytes": 104950,
+      "sha256": "703bddad6387181595236d910286a0a028d5187a118a192e7b01333dec6b7d4b"
+    },
+    {
+      "path": "public/audio/amina/XrExE9yKIg1WjnnlVkGX/interview-1.mp3",
+      "bytes": 51452,
+      "sha256": "5cb9697a7c89d2b0d8a5167ec5c0ba57c15536769b19317e87cdc14b9ac1a225"
+    },
+    {
+      "path": "public/audio/amina/XrExE9yKIg1WjnnlVkGX/interview-2.mp3",
+      "bytes": 54377,
+      "sha256": "d711e8bf4e29ae2f002967fc61d09fd1e53b974e86fcb50f371cbf339a966278"
+    },
+    {
+      "path": "public/audio/amina/XrExE9yKIg1WjnnlVkGX/preview.mp3",
+      "bytes": 125012,
+      "sha256": "5841e30a3a21cc851bcbf2595eece32b2c6a8b5b0e36d1953cf5ccd75c25e0d7"
+    },
+    {
+      "path": "public/audio/amina/XrExE9yKIg1WjnnlVkGX/study-0.mp3",
+      "bytes": 74021,
+      "sha256": "457bf8ec9c5515ae8abc07878070f8870b783875f309abfa1f8da2fabc19ef10"
+    },
+    {
+      "path": "public/audio/amina/XrExE9yKIg1WjnnlVkGX/study-1.mp3",
+      "bytes": 78201,
+      "sha256": "2b6fbafe4b1c6a7b6d2a3393068f662d5d58d99113ae67945047be00fb28aa71"
+    },
+    {
+      "path": "public/audio/amina/XrExE9yKIg1WjnnlVkGX/study-2.mp3",
+      "bytes": 59811,
+      "sha256": "6b92b253e044c98ed8207cd5c2540d3f016afd2ba6ef3404a0b6a29050358231"
+    },
+    {
+      "path": "public/audio/amina/cgSgspJ2msm6clMCkdW9/preview.mp3",
+      "bytes": 94083,
+      "sha256": "759a6ae21448144f7e31828c1d35eaa3844db658be716e1534e16c8cbe8d64e4"
+    },
+    {
+      "path": "public/audio/amina/hpp4J3VqNfWAUOO0d1Us/conversation-0.mp3",
+      "bytes": 65662,
+      "sha256": "0d9448c13bc11b07eae28ff985a8e5e191972c5189b19e25a7d04f98fa4ffe86"
+    },
+    {
+      "path": "public/audio/amina/hpp4J3VqNfWAUOO0d1Us/conversation-1.mp3",
+      "bytes": 73185,
+      "sha256": "4f4ab37e56debee11b89c842a3e00c5c88e5f18bf2fdfdf05f357924a5d18014"
+    },
+    {
+      "path": "public/audio/amina/hpp4J3VqNfWAUOO0d1Us/conversation-2.mp3",
+      "bytes": 64826,
+      "sha256": "a098886cb774a87c56dcb360f53e8dac10f0b1514f83bd8e8ce4149fde507d83"
+    },
+    {
+      "path": "public/audio/amina/hpp4J3VqNfWAUOO0d1Us/interview-0.mp3",
+      "bytes": 100771,
+      "sha256": "7f834f19cb92a237de2fd3415e0119c5c7838238516510f9d22ea54d7fd9757c"
+    },
+    {
+      "path": "public/audio/amina/hpp4J3VqNfWAUOO0d1Us/interview-1.mp3",
+      "bytes": 54377,
+      "sha256": "01afd584e49155c3e14aeabe08cf0247cce4a8e61eb5ed4c2dea0c49b1dc861c"
+    },
+    {
+      "path": "public/audio/amina/hpp4J3VqNfWAUOO0d1Us/interview-2.mp3",
+      "bytes": 51452,
+      "sha256": "409ba185014b74153af38b8f428258cb88316a8f902dd7a906a808b3098d5218"
+    },
+    {
+      "path": "public/audio/amina/hpp4J3VqNfWAUOO0d1Us/language-0.mp3",
+      "bytes": 39749,
+      "sha256": "2da0016984bc74efb72660e70443a840e1539478a7a7b85566dd09705595e01d"
+    },
+    {
+      "path": "public/audio/amina/hpp4J3VqNfWAUOO0d1Us/language-1.mp3",
+      "bytes": 51452,
+      "sha256": "0a4215751797108c06283f3fe97c6624542c89153890458e0d1430b309cdc0c3"
+    },
+    {
+      "path": "public/audio/amina/hpp4J3VqNfWAUOO0d1Us/language-2.mp3",
+      "bytes": 44346,
+      "sha256": "c2f31340017807a0d1ff186ffab82caa2f6d891786b66e0e73944b176ca76720"
+    },
+    {
+      "path": "public/audio/amina/hpp4J3VqNfWAUOO0d1Us/preview.mp3",
+      "bytes": 103696,
+      "sha256": "dc58f6a42ba5e0c41bfd76ed71bf6750318c72915969c2539ec1e719322d46e5"
+    },
+    {
+      "path": "public/audio/amina/hpp4J3VqNfWAUOO0d1Us/study-0.mp3",
+      "bytes": 81127,
+      "sha256": "9b69a3e781cbc000efc1e980eced577ad24e3e8a9ac08f39151b03d001cabf13"
+    },
+    {
+      "path": "public/audio/amina/hpp4J3VqNfWAUOO0d1Us/study-1.mp3",
+      "bytes": 76947,
+      "sha256": "0c457641942006183ac58a5db87e5052ff3d149ff75dc3497d398dfe8a95215f"
+    },
+    {
+      "path": "public/audio/amina/hpp4J3VqNfWAUOO0d1Us/study-2.mp3",
+      "bytes": 65662,
+      "sha256": "43f1aa8dbc1493025734f0a5560bb0b115cf0e869657eafaee9213740ad615b8"
+    },
+    {
+      "path": "public/audio/amina/zmcVlqmyk3Jpn5AVYcAL/preview.mp3",
+      "bytes": 125012,
+      "sha256": "e966529553a61cb688d6bb0d64702b06c22d4fa69c88ad43c52ab3ea01483724"
     },
     {
       "path": "public/brand/flowst-mark-blue.png",
@@ -789,9 +1029,104 @@
       "sha256": "db74da7a1fe1e1fb56ec567ff99c97b1ba7fda8389d97b4d2556895c9256bfc5"
     },
     {
+      "path": "public/mascots/amina-motion-atlas-v1.webp",
+      "bytes": 1756706,
+      "sha256": "7bbf70b9bd4657bbc283c417bd45602c55988a57952717d72094fa57de9af2c8"
+    },
+    {
       "path": "public/mascots/amina.png",
       "bytes": 240288,
       "sha256": "29e093882a828579b173d84db236a10fbaa9a0ee7e273c3daa7a04fd3522ecef"
+    },
+    {
+      "path": "public/mascots/appearance-motion-v1/amina-hair.png",
+      "bytes": 316962,
+      "sha256": "bf57194666bb573566b8ec7b6b7e2a9dfb2b208f58c3c5b8b3339a14d1ab6932"
+    },
+    {
+      "path": "public/mascots/appearance-motion-v1/amina-skin.png",
+      "bytes": 236015,
+      "sha256": "1384534e6dfd2d72bf0e20f43ce65f425003cf94fd32df3744db3d98945d31ba"
+    },
+    {
+      "path": "public/mascots/appearance-motion-v1/kai-eyes.png",
+      "bytes": 53212,
+      "sha256": "b82587bc09a84f5f689e28aafa0c2f78623d1f70ca5dca1fc7059975716085f6"
+    },
+    {
+      "path": "public/mascots/appearance-motion-v1/kai-hair.png",
+      "bytes": 312865,
+      "sha256": "70493a5f3df844d94b2459c4c0474acbff23e31f85ef3158f79974d30ce3bfe2"
+    },
+    {
+      "path": "public/mascots/appearance-motion-v1/kai-skin.png",
+      "bytes": 183857,
+      "sha256": "8772a518e98a43e29a97ccc1af2d150a708a8b45084ff5ccc117cc090bb8657a"
+    },
+    {
+      "path": "public/mascots/appearance-motion-v1/misu-eyes.png",
+      "bytes": 49546,
+      "sha256": "3df42a65f3300bfba4a08bba4c07ec14fd532eec3f55fbbdfb0b7241b3d3b807"
+    },
+    {
+      "path": "public/mascots/appearance-motion-v1/misu-hair.png",
+      "bytes": 251727,
+      "sha256": "98f870755d993468036934a47bbc13e45052d0b30ac952188777d19d83984b89"
+    },
+    {
+      "path": "public/mascots/appearance-motion-v1/misu-skin.png",
+      "bytes": 154030,
+      "sha256": "4b7203e9b99695afc38c457bc07bad94693d4d91756fcfad5f5a271f36b4bffd"
+    },
+    {
+      "path": "public/mascots/appearance-v1/amina-hair.png",
+      "bytes": 28653,
+      "sha256": "8f08d70631ac01e1927cf2ef903caeeaa592209a63a943518063348ca4730aeb"
+    },
+    {
+      "path": "public/mascots/appearance-v1/amina-skin.png",
+      "bytes": 32374,
+      "sha256": "1d4da6018836655860c1aa600d8fcd7a56b61520b7079292c94468daf9094447"
+    },
+    {
+      "path": "public/mascots/appearance-v1/kai-eyes.png",
+      "bytes": 7007,
+      "sha256": "a5021775915cc9d2108a215ab73710a65064ae4b6b032db3a4597ea4e3aee96e"
+    },
+    {
+      "path": "public/mascots/appearance-v1/kai-hair.png",
+      "bytes": 12749,
+      "sha256": "c7bed08fba25ace2778ff4ed709e125a3d7cdd7d525be634ff84526398d7b087"
+    },
+    {
+      "path": "public/mascots/appearance-v1/kai-skin.png",
+      "bytes": 11513,
+      "sha256": "086c2377a0ec5481de0ed0ad2518eaacec4bf7b1112235b0c7009ae28db01aa7"
+    },
+    {
+      "path": "public/mascots/appearance-v1/misu-eyes.png",
+      "bytes": 6771,
+      "sha256": "5a3917ea1e2c6f1248f169c017b11508972858b486146f260fa178c6f4519809"
+    },
+    {
+      "path": "public/mascots/appearance-v1/misu-hair.png",
+      "bytes": 12360,
+      "sha256": "90149816e4dbc2085ef93c64ae183b14c37a03504b714189537d8a30345ab4b3"
+    },
+    {
+      "path": "public/mascots/appearance-v1/misu-skin.png",
+      "bytes": 9876,
+      "sha256": "876d5ae006553625085c38c89d5f396ddf037be95db0d87c7032fe71cb3d3b9d"
+    },
+    {
+      "path": "public/mascots/kai-motion-atlas-v1.webp",
+      "bytes": 1724972,
+      "sha256": "47fa8a3e26949c7b6621d113f54d43871e88ed837fb80a5ceaa96222a9e5e108"
+    },
+    {
+      "path": "public/mascots/misu-motion-atlas-v1.webp",
+      "bytes": 1881586,
+      "sha256": "b36f352047735099b78a172f4b6a912f7522929c7db95fb21f1c951d269e4841"
     },
     {
       "path": "public/optimized/v1/mascots/amina/avatar.webp",
@@ -854,14 +1189,44 @@
       "sha256": "bcebbd173a14f3dc1e413675c1a6ddec63dbc273635df5a090582bc4d9d9b9cf"
     },
     {
+      "path": "scripts/assets/agent-appearance/amina-motion-regions.png",
+      "bytes": 2066699,
+      "sha256": "0d35308390d67c5af7bd682c3f3f8e9fb25f88867e6960eabff9bea343f4f381"
+    },
+    {
+      "path": "scripts/assets/agent-appearance/kai-motion-regions.png",
+      "bytes": 2044419,
+      "sha256": "23ce32b23a736894ce01a34fdce48e13de03f5ba30306f753a4689af418ba07d"
+    },
+    {
+      "path": "scripts/assets/agent-appearance/kai-portrait-regions.png",
+      "bytes": 314639,
+      "sha256": "affce2d5e5858b31da7a36f19096766c002ed65191c2635d61bf0dbf58eaec11"
+    },
+    {
+      "path": "scripts/assets/agent-appearance/misu-motion-regions.png",
+      "bytes": 1708543,
+      "sha256": "a7fc1012495f72073f9d21e9d4152f35bbef70aaa5e0e6bf524353855d7fb568"
+    },
+    {
+      "path": "scripts/assets/agent-appearance/misu-portrait-regions.png",
+      "bytes": 286853,
+      "sha256": "e06495d53fe026be901db3ed78cc2ff0def0b99c62e0859abd21f0ca7579bb49"
+    },
+    {
+      "path": "scripts/assets/agent-appearance/provenance.json",
+      "bytes": 8031,
+      "sha256": "a1585b8178e5daa97438180e9251aa0641462d46bf8c613bd5ffe7d2addc4f8d"
+    },
+    {
       "path": "scripts/check-docs.mjs",
       "bytes": 1610,
       "sha256": "89f08f0600e4104a8336fd7b4a53e24e9014224c7abd10d94cda0cd3dd513c06"
     },
     {
       "path": "scripts/check-flowst-parity.mjs",
-      "bytes": 14322,
-      "sha256": "d6506366c8d36aaa238b245439867ab9ab0674dbca54e426a0b72baa1593a23d"
+      "bytes": 17702,
+      "sha256": "8dd698456929324b9a95ba3a8aeb7730161a5043042a2fb0641c09bdc8a64ba4"
     },
     {
       "path": "scripts/check-public-export.mjs",
@@ -872,6 +1237,21 @@
       "path": "scripts/generate-docs.mjs",
       "bytes": 3587,
       "sha256": "3f76110fc990b5b14fd9b59a49e7b88fbad7d45670cb14789752caf62ed66b92"
+    },
+    {
+      "path": "scripts/prepare-agent-motion-frames.mjs",
+      "bytes": 6812,
+      "sha256": "5b1bf35d906cfe8b762e6093fe5f92d10147b54a19fb6fc5010d438a602f02f6"
+    },
+    {
+      "path": "scripts/prepare-agent-motion-masks.mjs",
+      "bytes": 7530,
+      "sha256": "1f6a17147d361231680413bbfd1fcc80569146033a8b223ac21c8d66092335eb"
+    },
+    {
+      "path": "scripts/prepare-agent-portrait-masks.mjs",
+      "bytes": 4036,
+      "sha256": "1294bc1ba25d961e489503a7ea2582fe463d5bdce42fac7c49d00d9b24da4a65"
     },
     {
       "path": "scripts/review-source-mcp.mjs",
@@ -1000,8 +1380,8 @@
     },
     {
       "path": "server/api/study/conversations/[id]/live/start.post.ts",
-      "bytes": 2547,
-      "sha256": "d5b02c9e97cee368534ed0f16963c0707ac702afab432dcbbfa1764fd519ec32"
+      "bytes": 2699,
+      "sha256": "04ff3563bbaddaef0498a912b59b8bfd198661bb0247feb3636f4f40d2faea5d"
     },
     {
       "path": "server/api/study/conversations/[id]/mode.post.ts",
@@ -1124,6 +1504,16 @@
       "sha256": "79d81d5f13b37076134bd00a01d5be7b635fa6d5573931725c324525395f7947"
     },
     {
+      "path": "server/api/study/presentation.get.ts",
+      "bytes": 337,
+      "sha256": "f62d92e216c28bb8cb7cea42fffffbabd1c9e9cb3cddf32ebc86f8ecba1148da"
+    },
+    {
+      "path": "server/api/study/presentation.put.ts",
+      "bytes": 450,
+      "sha256": "1177324375fcc93ab4a16573a76761650d5ca3aa2c9c0503734fccfd7582ad9f"
+    },
+    {
       "path": "server/api/study/sources/[id].delete.ts",
       "bytes": 309,
       "sha256": "25b8ce249109a70e6a42792c18f278ff01f42ae3c5951dee10a18db0964a52a5"
@@ -1187,6 +1577,11 @@
       "path": "server/middleware/study-live-lease.ts",
       "bytes": 755,
       "sha256": "1753bce71f76e26e03347e3f9b511e3b2cc01ec7d5c034a8c4cb99ceafb79dce"
+    },
+    {
+      "path": "server/services/agentPresentation.ts",
+      "bytes": 2926,
+      "sha256": "a057a93b36b0540107c0b152b48e45f226aecf22858d94230ec171086f4c01f0"
     },
     {
       "path": "server/services/airAccess.ts",
@@ -1294,6 +1689,11 @@
       "sha256": "79a59f45b5eb9085ad7ffcafafc2d07ef584f9de531f1dded86936bb9ac2d7c0"
     },
     {
+      "path": "server/services/studyAminaVoice.ts",
+      "bytes": 1150,
+      "sha256": "37d1387d8eb6a3159d92501953b134f329ff53f92415ccbd22d7a6c9899760cd"
+    },
+    {
       "path": "server/services/studyAwsSpeech.ts",
       "bytes": 5109,
       "sha256": "b7ef6d739918a15cdcb30fbf55f7c0bf25b8d197b027e1f35d595894e621164b"
@@ -1305,13 +1705,13 @@
     },
     {
       "path": "server/services/studyElevenAgent.ts",
-      "bytes": 2675,
-      "sha256": "260a86af2d52aeb264420a60535c1220819b891aaac5e561395f93fd74363276"
+      "bytes": 3085,
+      "sha256": "7638ebf54b15ee60812da277b74764f2dae42fd2e51a2d755c1905d2d2adead0"
     },
     {
       "path": "server/services/studyElevenSpeech.ts",
-      "bytes": 12161,
-      "sha256": "9c75ed8b519a0808283fda5b8234b07268a5c4a9f125d5b10f08ff6d3a745e5d"
+      "bytes": 11782,
+      "sha256": "d3e85cf2d076009e7e5cbca2baeacc18fecd5486729931b7b244c0eeea3cd68d"
     },
     {
       "path": "server/services/studyExtraction.ts",
@@ -1365,8 +1765,8 @@
     },
     {
       "path": "server/services/studyRepository.ts",
-      "bytes": 77447,
-      "sha256": "dff7837076e2c1a202ceeeb80bc5b305539aa7f2f30e4ffa0f3760c8a7f81601"
+      "bytes": 77777,
+      "sha256": "d45a583a13b92b30092cbec30011c8bef127e8018869603fe78444d839388d8a"
     },
     {
       "path": "server/services/studyRetrieval.ts",
@@ -1385,8 +1785,8 @@
     },
     {
       "path": "server/services/studySpeechCache.ts",
-      "bytes": 11933,
-      "sha256": "d60810807f482c94539aac91427b662d881b88b21d1e51776b4bc32ec84a53b1"
+      "bytes": 12502,
+      "sha256": "8e25ba02ced4e14df94f16191743fc8c28c639448fc34b7173b8bb780c0d5850"
     },
     {
       "path": "server/services/studyVoice.ts",
@@ -1417,6 +1817,16 @@
       "path": "server/utils/sourceBody.ts",
       "bytes": 942,
       "sha256": "0cefc3d9de4b032059b58b7f223ff18496fe39e849ae7b2affc4c5ffd4d17c9b"
+    },
+    {
+      "path": "shared/agentAppearanceAssets.ts",
+      "bytes": 2582,
+      "sha256": "8e12df7da1d971e457739806ee7b555ea26f2eb2a06b524031d5dddfef3292a5"
+    },
+    {
+      "path": "shared/agentPresentation.ts",
+      "bytes": 4027,
+      "sha256": "a298d14fe270389456e07aa85744929f1feda5f87ebd6f4112ee1366edfd8756"
     },
     {
       "path": "shared/agents.ts",
@@ -1484,6 +1894,21 @@
       "sha256": "e50917b7ae6c51e00503480b0ce4fc9496cca80838eea1a45e4c678e1ee3b0b2"
     },
     {
+      "path": "shared/aminaVoiceAssets.generated.ts",
+      "bytes": 4200,
+      "sha256": "ccf8e90a7e43499b54bb50bef9e4c4187937e0368c2d35353f49fdb6af14367b"
+    },
+    {
+      "path": "shared/aminaVoiceAssets.ts",
+      "bytes": 1163,
+      "sha256": "f6ddb10edbb8788bf20888bbed981b3ad50e18b13ba2745bb29fce405f95bfc0"
+    },
+    {
+      "path": "shared/aminaVoices.ts",
+      "bytes": 2427,
+      "sha256": "850ccfbd6e5054c63f2bb3cc21bffe47741cb622f8a1b3d05f3e9e5d9e82b06d"
+    },
+    {
       "path": "shared/aminaWelcome.ts",
       "bytes": 6848,
       "sha256": "53bbc77d0cc5a5f0d6c9f40fe6854d02594631e9ce8278ccc22eb73e7623b27a"
@@ -1499,14 +1924,24 @@
       "sha256": "f8bb1f5ccaf05d5d2ec7930f9b4c0b88dae36f04c167093859bfa5d5bea7bf91"
     },
     {
+      "path": "shared/companionMotion.ts",
+      "bytes": 3719,
+      "sha256": "591f75729fc2814e590605954dfae69457c6f69375183066a0c0835cc1a76086"
+    },
+    {
+      "path": "shared/companionMotionFrames.generated.ts",
+      "bytes": 7686,
+      "sha256": "a0d43c95753571c9f62a797bc7658655d17f8ab693fd239b4d398bac866b15ce"
+    },
+    {
       "path": "shared/kaiAssessment.ts",
       "bytes": 5485,
       "sha256": "b310f846b43621c3e0c90d8ace258a9dbabd04bbb734857bee01dba1929fdc51"
     },
     {
       "path": "shared/study.ts",
-      "bytes": 5841,
-      "sha256": "27c87727dda14f6e41fd402dc199ae098b8d361ea106c0866b4492179bc530e6"
+      "bytes": 5944,
+      "sha256": "088d886c6dd1d7e86231845e7476fe583f37cf052fffd7d5c0f7b2012f357d4d"
     },
     {
       "path": "shared/studyCompletion.ts",
@@ -1594,6 +2029,16 @@
       "sha256": "7abcce7054baeadef66a777bda5e2ee8ba882a94a4f45392ddde67cb1dc894a4"
     },
     {
+      "path": "tests/agent-portrait-assets.test.ts",
+      "bytes": 1659,
+      "sha256": "5564420673dbff0c85cd4328e9dbfe8f5adb9faf185f60c883081a33b4df0bb1"
+    },
+    {
+      "path": "tests/agent-presentation.test.ts",
+      "bytes": 9414,
+      "sha256": "41e258353587dbcc0e992c914ab3c92ce46085fb70e5b62fb32191a9ed013f62"
+    },
+    {
       "path": "tests/air-access.test.ts",
       "bytes": 5813,
       "sha256": "a47dadddf2ecbb2e87ab215021edff2bd9a1c75473f7e71545d46ae0644e9462"
@@ -1669,9 +2114,29 @@
       "sha256": "819d5d6e12dbe65d9518ccef3013559b46d00007f4b97baebcbae9cb64ca4a4f"
     },
     {
+      "path": "tests/amina-voice-selection-api.test.ts",
+      "bytes": 5193,
+      "sha256": "aa59b5e22342734cee995603f6b3e9e339671339a8dcccf2431ea22d0dd43388"
+    },
+    {
+      "path": "tests/amina-voice-selection.test.ts",
+      "bytes": 4997,
+      "sha256": "363236dc038a9b43b712df0ae1788a6f59050e92e1573f8c87bd7009a6070472"
+    },
+    {
       "path": "tests/amina-welcome.test.ts",
       "bytes": 8883,
       "sha256": "867c204ebd598e6751f5043415d8391cf127f722f26773ec49388a3f4184e56c"
+    },
+    {
+      "path": "tests/avatar-motion-assets.test.ts",
+      "bytes": 4151,
+      "sha256": "4b01bfc05ceb6d5aefab35057a201b0ef2ea358a396db8744e2598e6ca61a550"
+    },
+    {
+      "path": "tests/companion-motion-frames.test.ts",
+      "bytes": 4287,
+      "sha256": "998f4d538e21ebbf13723481a0c47b2eccee825e7d1db488dc7bf33947690291"
     },
     {
       "path": "tests/growth-data.test.ts",
@@ -1714,14 +2179,24 @@
       "sha256": "422a0424b39a927dcd5d8d31f07c23488c8e5a526d79e21ca4944255e2aa4b03"
     },
     {
+      "path": "tests/source-e2e/agent-customization.spec.ts",
+      "bytes": 21608,
+      "sha256": "50b70f4c35d5d962fbf74a55de653955d33fd221ef1f7e1b9bbbb265b389b680"
+    },
+    {
       "path": "tests/source-e2e/airs-experiences.spec.ts",
-      "bytes": 21299,
-      "sha256": "a08faeb4037064f5dcba48f76da1342858bbdf8214e0967ddfc2e96930396e4f"
+      "bytes": 21014,
+      "sha256": "a63e37bb48c7071273b03e7d9fff3fe2131aa0f4c210bbbee0645e81f11f3511"
     },
     {
       "path": "tests/source-e2e/amina-modes.spec.ts",
-      "bytes": 6758,
-      "sha256": "2142bb7cd9fa4b2610f5319274f74982cb4cf5a205fc9f297978ce8a6e52d2ed"
+      "bytes": 7753,
+      "sha256": "9aa38f82592d09daebcf96a2c6f7566ac57f5e4266d9ae4121f31836daa22fed"
+    },
+    {
+      "path": "tests/source-e2e/avatar-recovery.spec.ts",
+      "bytes": 17196,
+      "sha256": "025469c5fb6f5fba4e2fb39418e818bca5140a9c659cd44d617549c78549e563"
     },
     {
       "path": "tests/source-e2e/bring-source.spec.ts",
@@ -1920,8 +2395,8 @@
     },
     {
       "path": "tests/study-speech-storage.test.ts",
-      "bytes": 3645,
-      "sha256": "3294ffe27e3af64a16f9fbf63b22fe7c3a50a206c8b3719cd0d0b0da9dc3941d"
+      "bytes": 6224,
+      "sha256": "466439c9add6bef645870abe54167e4e3b0641758dcda8906645ae180a3175db"
     },
     {
       "path": "tests/study-upload-limit.test.ts",

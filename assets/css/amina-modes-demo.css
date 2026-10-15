@@ -328,3 +328,10 @@
 @media (prefers-reduced-motion: reduce) {
   .amina-modes *, .amina-modes *::before, .amina-modes *::after { transition: none !important; scroll-behavior: auto !important; }
 }
+.demo-voice-choice { padding: 8px 24px 4px; color: #52616c; font-size: .76rem; }
+.demo-voice-choice label { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; color: #263b49; font-weight: 600; }
+.demo-voice-choice select { max-width: 100%; min-height: 38px; padding: 7px 30px 7px 10px; border: 1px solid #cbd5df; border-radius: 8px; background: #fff; color: #263b49; font: inherit; }
+.demo-voice-choice select:focus-visible { outline: 2px solid #287b9c; outline-offset: 3px; }
+.demo-voice-choice p { margin: 7px 0; line-height: 1.55; }
+.demo-voice-choice button { min-height: 36px; margin-left: 6px; text-decoration: underline; }
+.demo-voice-choice select:disabled, .room-secondary-controls button:disabled { opacity: .55; cursor: default; }

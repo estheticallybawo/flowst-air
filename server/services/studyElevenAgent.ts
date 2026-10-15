@@ -1,7 +1,7 @@
 import { createError } from 'h3'
 import { assertStudyVoiceAgentReady } from './studyVoice'
 
-export async function getAminaAgent() {
+export async function getAminaAgent(selectedVoiceId: string | null = null) {
   const config = useRuntimeConfig()
   if (!config.elevenLabsApiKey || !config.elevenLabsStudyAgentId || (config.studyTextProvider !== 'aws' && !config.groqApiKey) || String(config.elevenLabsStudyLlmSecret).length < 32 || !/^https:\/\//.test(String(config.elevenLabsStudyLlmUrl))) {
     throw createError({ statusCode: 503, statusMessage: 'Live calls are not configured on this server yet.' })
@@ -27,5 +27,10 @@ export async function getAminaAgent() {
   }
   if (prompt.backup_llm_config?.preference !== 'disabled') throw createError({ statusCode: 503, statusMessage: 'Disable fallback models for Amina’s study agent before testing.' })
   if (agent.platform_settings?.overrides?.custom_llm_extra_body !== true || agent.platform_settings?.overrides?.conversation_config_override?.conversation?.max_duration_seconds === true) throw createError({ statusCode: 503, statusMessage: 'Allow the study session token and disable call-duration overrides on Amina’s agent.' })
+  if (selectedVoiceId && agent.platform_settings?.overrides?.conversation_config_override?.tts?.voice_id !== true) throw createError({
+    statusCode: 503,
+    statusMessage: 'Amina’s live voice selection needs to be enabled before using your chosen voice. Your saved replies remain available.',
+    data: { code: 'LIVE_VOICE_OVERRIDE_DISABLED', retryable: false },
+  })
   return { maxSeconds: duration as number }
 }

@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { expect, test, type Page } from "@playwright/test";
+import { DEFAULT_AGENT_PRESENTATION, normalizeAgentPresentation } from "../../shared/agentPresentation";
 
 interface ExperienceRuntime {
   __airsExperienceDevices: { microphone: number; screen: number };
@@ -57,6 +58,9 @@ test.beforeEach(async ({ page }) => {
     if (providerApiPattern.test(new URL(request.url()).pathname) || !["GET", "HEAD", "OPTIONS"].includes(request.method())) return route.abort("blockedbyclient");
     return route.continue();
   });
+  await page.route("**/api/study/presentation", route => route.request().method() === "GET"
+    ? route.fulfill({ json: { presentation: normalizeAgentPresentation(DEFAULT_AGENT_PRESENTATION), revision: "experience-saved-team" } })
+    : route.abort("blockedbyclient"));
 });
 
 test.afterEach(async ({ page }) => {
@@ -114,6 +118,8 @@ test("Study stays prominent while New session, Library, Settings, and mode previ
   await navigateProduct(page, "New session");
   await picker.getByRole("link", { name: "Start a study session", exact: true }).click();
   await expect(page).toHaveURL(/\/home\/new\?mode=study$/);
+  await expect(page.locator(".team-customizer")).toBeVisible();
+  await page.getByRole("button", { name: "Keep current team", exact: true }).click();
   await expect(page.locator(".misu-setup")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
@@ -131,6 +137,8 @@ test("New session picker scrolls in short viewports while Study keeps its bounde
   await expect(picker.getByRole("link", { name: "Preview language practice", exact: true })).toBeInViewport();
   await expect(page.locator(".app-shell")).not.toHaveClass(/workspace-host/);
   await picker.getByRole("link", { name: "Start a study session", exact: true }).click();
+  await expect(page.locator(".team-customizer")).toBeVisible();
+  await page.getByRole("button", { name: "Keep current team", exact: true }).click();
   await expect(page.locator(".misu-setup")).toBeVisible();
   await expect(page.locator(".app-shell")).toHaveClass(/workspace-host/);
   await page.goBack();
@@ -168,7 +176,7 @@ test("animation, character looks, and milestones expand independently with focus
   await expect(animationPanel).not.toContainText(/agora|lemonslice|credentials|integration guide/i);
   await characterEntry.click();
   await expect(page.locator("#character-unlocks-heading")).toBeFocused();
-  await expect(characterPanel.locator(".amina-demo-avatar")).toHaveAttribute("data-active", "true");
+  await expect(characterPanel.locator(".cosmetic-preview-agent .companion-motion")).toHaveAttribute("data-active", "true");
   await expect(milestonePanel).toHaveCount(0);
   await milestoneEntry.click();
   await expect(page.locator("#milestones-heading")).toBeFocused();
@@ -191,72 +199,65 @@ test("animation, character looks, and milestones expand independently with focus
   for (const entry of [animationEntry, characterEntry, milestoneEntry]) await expect(entry).toHaveAttribute("aria-expanded", "false");
 });
 
-test("stable cosmetic rooms and presets honor sample thresholds and keep Misu and Kai static", async ({ page }) => {
+test("facial unlocks honor sample thresholds for all companions and keep rooms optional", async ({ page }) => {
   await openExperiences(page);
   await page.getByRole("navigation", { name: "Explore the Airs experience" }).getByRole("button", { name: /Character unlocks/ }).click();
   const rewards = page.locator("#airs-character-unlocks .tide-unlocks");
   const scene = rewards.locator(".cosmetic-preview-scene");
   const counts = rewards.getByRole("group", { name: "Choose a sample Tide count" });
-  const environment = scene.locator(".cosmetic-preview-environment");
-  const character = scene.locator(".amina-demo-avatar");
-  await expect(scene).toHaveAttribute("data-background", "studio");
-  await expect(environment).toHaveAttribute("src", "/environments/amina-workspace-v1.webp");
-  await expect(rewards.getByRole("button", { name: /Workspace, available/ })).toBeEnabled();
-  for (const room of ["Café", "Garden", "Night"]) await expect(rewards.getByRole("button", { name: new RegExp(`^${room}, locked`) })).toBeDisabled();
-  await expect(rewards.getByRole("button", { name: /^Thoughtful, .*locked/ })).toBeDisabled();
-  await expect(rewards.getByRole("button", { name: /^Celebrate, .*locked/ })).toBeDisabled();
-  await counts.getByRole("button", { name: "1", exact: true }).click();
-  await rewards.getByRole("button", { name: /Café, available/ }).click();
-  await expect(scene).toHaveAttribute("data-background", "cafe");
-  await expect(environment).toHaveAttribute("src", "/environments/amina-cafe-v1.webp");
-  await rewards.getByRole("button", { name: /^Thoughtful, .*available/ }).click();
-  await expect(character).toHaveAttribute("data-state", "thinking");
-  await expect(rewards.getByRole("button", { name: /Garden, locked/ })).toBeDisabled();
-  await counts.getByRole("button", { name: "3", exact: true }).click();
-  await rewards.getByRole("button", { name: /Garden, available/ }).click();
-  await expect(scene).toHaveAttribute("data-background", "garden");
-  await expect(environment).toHaveAttribute("src", "/environments/amina-garden-v1.webp");
-  await rewards.getByRole("button", { name: /^Celebrate, .*available/ }).click();
-  await expect(character).toHaveAttribute("data-expression", "celebrate");
-  await expect(scene.locator(".amina-demo-avatar__artwork")).toHaveCSS("background-position", /66\.666\d*% 100%/);
-  await expect(rewards.getByRole("button", { name: /Night, locked/ })).toBeDisabled();
-  await counts.getByRole("button", { name: "5", exact: true }).click();
-  await rewards.getByRole("button", { name: /Night, available/ }).click();
-  await expect(scene).toHaveAttribute("data-background", "night");
-  await expect(character).toHaveAttribute("data-dark", "true");
-  await expect(rewards.locator(".accessory-concept")).toHaveAttribute("data-unlocked", "true");
-  await expect(rewards.locator(".accessory-concept")).toContainText("artwork not available yet");
-  const motion = rewards.getByRole("checkbox", { name: "Animate Amina", exact: true });
-  await motion.uncheck();
-  await expect(character).toHaveAttribute("data-active", "false");
-  await expect(scene.locator(".amina-demo-avatar__character")).toHaveCSS("animation-name", "none");
-  await motion.check();
-  await expect(character).toHaveAttribute("data-active", "true");
-  await expect(scene.locator(".amina-demo-avatar__character")).toHaveCSS("animation-name", "none");
-  const agents = rewards.getByRole("group", { name: "Choose a companion for the cosmetic concept" });
-  for (const [agentName, agentId, portrait] of [["Misu", "MIRO", "/optimized/v1/mascots/misu/portrait.webp"], ["Kai", "KAI", "/optimized/v1/mascots/kai/portrait.webp"]] as const) {
+  const motions = rewards.getByRole("group", { name: "Choose an illustrated motion" });
+  await expect(scene).toHaveAttribute("data-background", "neutral");
+  await expect(scene.locator(".cosmetic-preview-environment")).toHaveCount(0);
+  await expect(rewards.locator(".optional-room-settings")).not.toHaveAttribute("open", "");
+  for (const state of ["idle", "listening"]) await expect(motions.locator(`.companion-motion-option[data-state="${state}"]`)).toBeEnabled();
+  for (const state of ["greeting", "thinking", "celebrate", "dance"]) await expect(motions.locator(`.companion-motion-option[data-state="${state}"]`)).toBeDisabled();
+  for (const [threshold, state] of [[1, "greeting"], [3, "thinking"], [5, "celebrate"], [10, "dance"]] as const) {
+    await counts.getByRole("button", { name: String(threshold), exact: true }).click();
+    await motions.locator(`.companion-motion-option[data-state="${state}"]`).click();
+    await expect(scene).toHaveAttribute("data-state", state);
+  }
+  const agents = rewards.getByRole("group", { name: "Choose a companion for the motion preview" });
+  for (const [agentName, agentId] of [["Amina", "AMIRA"], ["Misu", "MIRO"], ["Kai", "KAI"]] as const) {
     await agents.getByRole("button", { name: agentName, exact: true }).click();
     await expect(scene).toHaveAttribute("data-agent", agentId);
-    await expect(scene.locator(".cosmetic-static-agent")).toHaveAttribute("src", portrait);
-    await expect.poll(() => scene.locator(".cosmetic-static-agent").evaluate(image => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
-    await expect(scene.locator(".amina-demo-avatar")).toHaveCount(0);
-    await expect(rewards.getByRole("group", { name: "Try a presence preset" })).toHaveCount(0);
-    await expect(rewards.getByRole("checkbox", { name: "Animate Amina", exact: true })).toHaveCount(0);
-    await expect(rewards.locator(".cosmetic-agent-preview")).toContainText("this character stays still");
+    const character = scene.locator(".companion-motion");
+    await expect(character).toHaveAttribute("data-ready", "true");
+    await expect(character.locator(".companion-motion__frame")).toHaveCount(4);
+    await expect(scene.locator(".cosmetic-static-agent")).toHaveCount(0);
+    for (const state of ["idle", "listening", "greeting", "thinking", "celebrate", "dance"]) {
+      await motions.locator(`.companion-motion-option[data-state="${state}"]`).click();
+      await expect(character).toHaveAttribute("data-state", state);
+    }
+    const face = await character.locator(".companion-motion__face").boundingBox();
+    expect(face).not.toBeNull();
+    expect(Math.abs(face!.width - face!.height)).toBeLessThan(1);
+    await expect(rewards.locator('.motion-thumbnail .companion-motion[data-thumbnail="true"]')).toHaveCount(6);
+    const motion = rewards.getByRole("checkbox", { name: `Animate ${agentName}`, exact: true });
+    await motion.uncheck();
+    await expect(character).toHaveAttribute("data-active", "false");
+    await motion.check();
+    await expect(character).toHaveAttribute("data-active", "true");
   }
-  await agents.getByRole("button", { name: "Amina", exact: true }).click();
-  await expect(character).toHaveAttribute("data-state", "idle");
-  await rewards.getByRole("button", { name: /^Celebrate, .*available/ }).click();
+  await expect(rewards.locator(".accessory-concept")).toHaveCount(0);
+  await rewards.getByText("Optional room settings", { exact: true }).click();
   await counts.getByRole("button", { name: "0", exact: true }).click();
-  await expect(scene).toHaveAttribute("data-background", "studio");
-  await expect(character).toHaveAttribute("data-state", "idle");
-  await expect(character).toHaveAttribute("data-expression", "auto");
-  await expect(character).toHaveAttribute("data-dark", "false");
-  await expect(rewards.locator(".accessory-concept")).toHaveAttribute("data-unlocked", "false");
-  for (const image of await rewards.locator(".background-swatch img").all()) {
-    await image.scrollIntoViewIfNeeded();
-    await expect.poll(() => image.evaluate(element => (element as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+  await expect(scene).toHaveAttribute("data-state", "idle");
+  await expect(rewards.getByRole("button", { name: /Workspace, available/ })).toBeEnabled();
+  for (const room of ["Café", "Garden", "Night"]) await expect(rewards.getByRole("button", { name: new RegExp(`^${room}, locked`) })).toBeDisabled();
+  for (const [threshold, room, background, image] of [
+    [0, "Workspace", "studio", "amina-workspace-v1.webp"],
+    [1, "Café", "cafe", "amina-cafe-v1.webp"],
+    [3, "Garden", "garden", "amina-garden-v1.webp"],
+    [5, "Night", "night", "amina-workspace-v1.webp"],
+  ] as const) {
+    await counts.getByRole("button", { name: String(threshold), exact: true }).click();
+    await rewards.getByRole("button", { name: new RegExp(`^${room}, available`) }).click();
+    await expect(scene).toHaveAttribute("data-background", background);
+    await expect(scene.locator(".cosmetic-preview-environment")).toHaveAttribute("src", `/environments/${image}`);
   }
+  await counts.getByRole("button", { name: "0", exact: true }).click();
+  await expect(scene).toHaveAttribute("data-background", "neutral");
+  await expect(scene).toHaveAttribute("data-state", "idle");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 

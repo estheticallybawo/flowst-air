@@ -8,6 +8,10 @@ import type { SourceDraft } from "~/shared/studyMaterial";
 import { learnerStudyError } from "~/shared/studyPresentation";
 const auth = useAuth(),
   standalone = ["air", "amira"].includes(useRuntimeConfig().public.appSurface);
+const team = useAgentPresentation();
+const editTeam = ref(false);
+watch(team.ownerId, () => { editTeam.value = false; });
+function continueWithTeam() { editTeam.value = false; }
 const {
   access,
   loading: accessLoading,
@@ -235,7 +239,10 @@ async function createPlan() {
         ><NuxtLink to="/home/settings">Account access</NuxtLink>
       </section>
       <template v-else
-        ><AirsContextCard
+        ><div class="setup-team-strip">
+          <span class="setup-team-portraits" aria-hidden="true"><AgentAvatar agent="MISU" size="compact" /><AgentAvatar agent="AMIRA" size="compact" /><AgentAvatar agent="KAI" size="compact" /></span>
+          <span>Your study team</span><button type="button" :disabled="busy || sourceBusy" @click="editTeam = true">Customize</button>
+        </div><AirsContextCard
           v-if="step === 'context'"
           @continue="step = 'source'"
         />
@@ -433,7 +440,7 @@ async function createPlan() {
             </button>
           </footer>
           <p v-if="error" role="alert">{{ error }}</p>
-        </section></template
+        </section><AirFocusDialog :open="editTeam" title="Customize your team" @close="editTeam = false"><AgentCustomizer v-if="editTeam" @continue="continueWithTeam" /></AirFocusDialog></template
       >
     </main></AirStudyShell
   >
@@ -451,6 +458,9 @@ async function createPlan() {
   border-radius: 18px;
   background: #fff;
 }
+.setup-team-strip { display:flex; flex:none; align-items:center; gap:10px; color:#526b7b; font-size:.78rem; }
+.setup-team-portraits { display:inline-flex; gap:3px; }
+.setup-team-strip button { margin-left:auto; min-height:36px; padding:6px 11px; color:#246080; background:#fff; border-color:#c7dce7; font-size:.78rem; }
 .setup-body {
   flex: 1;
   min-height: 0;

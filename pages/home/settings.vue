@@ -35,6 +35,7 @@ onMounted(() => {
       <p>Know what you can use, what is saved, and what you control.</p>
     </header>
     <div class="air-settings-grid">
+      <AgentCustomizer class="air-wide" settings />
       <section class="air-panel">
         <h2>Your account</h2>
         <AirSkeleton

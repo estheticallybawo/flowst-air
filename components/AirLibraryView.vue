@@ -320,16 +320,10 @@ async function replaceCurrentDocument() {
           </p>
         </div>
         <div class="intro-image">
-          <img
-            :src="
-              standaloneAir
-                ? '/mascots/amina.png'
-                : '/optimized/v1/mascots/amina/portrait.webp'
-            "
+          <AgentPortrait
+            agent="AMIRA"
+            fit="cover"
             alt="Amina, your voice study companion"
-            width="768"
-            height="1024"
-            decoding="async"
           />
         </div>
       </header>
@@ -788,7 +782,7 @@ async function replaceCurrentDocument() {
   background: linear-gradient(90deg, #e0f2fe 0%, transparent 29%);
   content: "";
 }
-.intro-image img {
+.intro-image :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;

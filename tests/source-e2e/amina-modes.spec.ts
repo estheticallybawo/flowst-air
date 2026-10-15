@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { DEFAULT_AGENT_PRESENTATION, normalizeAgentPresentation } from '../../shared/agentPresentation'
 
 async function waitForModeHydration(page: Page) {
   await page.waitForFunction(() => Boolean((document.getElementById('__nuxt') as (HTMLElement & { __vue_app__?: unknown }) | null)?.__vue_app__), undefined, { timeout: 60_000 })
@@ -19,6 +20,9 @@ test.beforeEach(async ({ page }) => {
   })
   const session = await page.request.post('/api/auth/dev-session', { data: { scenario: 'member' } })
   expect(session.ok()).toBe(true)
+  await page.route('**/api/study/presentation', route => route.request().method() === 'GET'
+    ? route.fulfill({ json: { presentation: normalizeAgentPresentation(DEFAULT_AGENT_PRESENTATION), revision: 'mode-test-team' } })
+    : route.abort('blockedbyclient'))
 })
 
 test('all four settings remain usable without media access or study-provider requests', async ({ page }) => {
@@ -26,7 +30,7 @@ test('all four settings remain usable without media access or study-provider req
   const runtimeErrors: string[] = []
   page.on('pageerror', error => runtimeErrors.push(error.message))
   page.on('request', request => {
-    if (/\/api\/study\/|agora\.io|lemonslice\.com/.test(request.url())) providerRequests.push(request.url())
+    if ((/\/api\/study\//.test(request.url()) && new URL(request.url()).pathname !== '/api/study/presentation') || /agora\.io|lemonslice\.com|api\.elevenlabs\.io/.test(request.url())) providerRequests.push(request.url())
   })
   await page.goto('/home/modes', { waitUntil: 'domcontentloaded' })
   await waitForModeHydration(page)
@@ -45,9 +49,14 @@ test('all four settings remain usable without media access or study-provider req
     await expect(modeNavigation.getByRole('button').nth(index)).toHaveAttribute('aria-pressed', 'true')
     await expect(page.locator('.room-caption')).toContainText('sample prompt')
     await expect(page.locator('.room-caption > p').first()).not.toBeEmpty()
-    const illustration = page.locator('.mode-room .amina-demo-avatar__artwork')
+    const illustration = page.locator('.mode-room .amina-demo-avatar')
     await expect(illustration).toBeVisible()
-    expect(await illustration.evaluate(element => getComputedStyle(element).backgroundImage)).toContain('amina-expression-atlas-v1.png')
+    await expect(illustration).toHaveAttribute('data-framing', 'half-body')
+    await expect(illustration).toHaveAttribute('data-ready', 'true')
+    await expect(illustration.locator('.companion-motion')).toHaveCount(0)
+    expect(await illustration.locator('.amina-demo-avatar__sprite').evaluate(element => getComputedStyle(element).backgroundImage)).toContain('amina-expression-atlas-v1.png')
+    const artwork = await illustration.locator('.amina-demo-avatar__artwork').boundingBox()
+    expect(artwork!.width / artwork!.height).toBeCloseTo(2 / 3, 2)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await page.screenshot({ path: test.info().outputPath(modeId + '.png'), fullPage: true })
   }
@@ -58,6 +67,7 @@ test('all four settings remain usable without media access or study-provider req
   await page.clock.install()
   await page.getByRole('button', { name: 'Play sample', exact: true }).click()
   await expect(page.getByRole('button', { name: 'Pause preview', exact: true })).toBeVisible()
+  await expect.poll(() => page.locator('.room-controls audio').evaluate((element: HTMLAudioElement) => element.currentTime)).toBeGreaterThan(0)
   await page.clock.runFor(1200)
   await expect(page.locator('.sample-clock')).not.toContainText('00:00')
   await page.getByRole('button', { name: 'Pause preview', exact: true }).click()
@@ -91,8 +101,14 @@ test('animation exploration respects reduced motion and omits developer setup co
   await lab.getByRole('button', { name: 'thinking', exact: true }).click()
   await expect(lab.getByRole('button', { name: 'thinking', exact: true })).toHaveAttribute('aria-pressed', 'true')
   await expect(lab.locator('.amina-demo-avatar')).toHaveAttribute('data-state', 'thinking')
-  const motion = await lab.locator('.amina-demo-avatar__character').evaluate(element => getComputedStyle(element).animationName)
-  expect(motion).toBe('none')
+  const avatar = lab.locator('.amina-demo-avatar')
+  await expect(avatar).toHaveAttribute('data-framing', 'half-body')
+  await expect(avatar).toHaveAttribute('data-ready', 'true')
+  const reduced = await avatar.locator('.amina-demo-avatar__artwork, .amina-demo-avatar__character').evaluateAll(elements => elements.every(element => {
+    const style = getComputedStyle(element)
+    return style.animationName === 'none' || style.animationPlayState.split(',').every(state => state.trim() === 'paused')
+  }))
+  expect(reduced).toBe(true)
   await lab.getByRole('checkbox', { name: /Animate the illustration/ }).uncheck()
   await expect(lab.locator('.amina-demo-avatar')).toHaveAttribute('data-active', 'false')
   await expect(lab.locator('input[type="file"]')).toHaveCount(0)

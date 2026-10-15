@@ -194,15 +194,65 @@ const hash = (p, file, standalone = false) => {
 };
 
 export const intentionalDifferences = {
+  "server/services/studyElevenAgent.ts": {
+    reason: "Standalone saved-session voice selection checks remote TTS override permission before acquiring a live lease",
+    flowst: "f4c4dccab40bd2f57d684e38a2a6d012087ae0cfbebb8012ab3130dac8e08f53",
+    standalone: "4c1a12825fda842d4165eda6f52a16bd7d909cc234917682748f102b7fdb409c",
+  },
+  "server/services/studySpeechCache.ts": {
+    reason: "Standalone immutable-session voice choices form cache identity and unsupported transports fail without voice substitution",
+    flowst: "35e0107e63af2881f9d3ddbd5ce39d0299dc09c535dbcea743c1e6f9dd611848",
+    standalone: "3650f4d106de6266c4031449eb5fb8bc64f51f9b602b97a9c1e73abcc1670546",
+  },
+  "server/services/studyElevenSpeech.ts": {
+    reason: "Standalone synthesis uses the approved saved-session voice while retaining configured legacy defaults and setup errors",
+    flowst: "ed6ef31ea2b5e4c650ddc45b496c084b4b55f29e91731cff9b764d95ebaec168",
+    standalone: "0c89496394afece1d3181b344b01a1e3a8cc655f82ef4bf2c6f0766ee877bbb3",
+  },
+  "components/AirConversation.vue": {
+    reason: "Standalone conversation portraits render saved-session cosmetic preferences without changing learning turns",
+    flowst: "a035542fd864e881f04e1d43f2aac20aa0c2b2cef8d9a77daf9d7841ab3dc6a3",
+    standalone: "1a136998e2b9cffdf184db90f9c393b96105ae5e16701f4b0182a2df1cb839af",
+  },
+  "components/AgentAvatar.vue": {
+    reason: "Standalone companion thumbnails render learner-selected cosmetic preferences",
+    flowst: "f4109681d6cf8b633f2acfa3d22dec13c6b019995f62c4713a85495522c2edaa",
+    standalone: "dbe2c529cbe940fef15259bfd2340381683ce8f0dc7802d8fe15d2ff189a74b0",
+  },
+  "server/services/studyRepository.ts": {
+    reason: "Standalone sessions capture an immutable presentation snapshot and normalize legacy cosmetic defaults without changing study policy",
+    flowst: "688ca7e7c4f9ede70fccfc922d35d1d2ff0240fc33c5ade515080ba92cb87c54",
+    standalone: "82b5a9920011488733b7f69f5d71e50fdf7374bc6b59db95c3fb87e8cca789bf",
+  },
+  "components/AirsSetup.vue": {
+    reason: "Standalone optional team customization is available before Misu while retaining upload and plan approval controls",
+    flowst: "34e08a6a9964177b3ef9f330e5abe635ed47c798ec1c1bee13098c5e0fee00e7",
+    standalone: "71bcce9b568e0f497ae10a1457abf3ccfd91fd2a6eeb937392b9821b70bd9196",
+  },
+  "components/AirLibraryView.vue": {
+    reason: "Standalone library cards preview each saved session's companion presentation",
+    flowst: "48293d6897a23dd1e7eed7a8bc434ba14690fe144aa64d1c577901c00ac973d7",
+    standalone: "9837cd6a6780efe0e190acd0bb4dfae05e335b6bf565a2fa9eb8dfe1c34fc26d",
+  },
+  "pages/home/[id].vue": {
+    reason: "Standalone session views provide the saved companion presentation while preserving existing learning and recovery guards",
+    flowst: "bf4646dcba41a437cfa7caa05e67919d291b32e3111f50b805a90e412360edbd",
+    standalone: "4b6c275b443574bac8751b538afe5cb37fd9c97bf2c64642eb2d9a17f8b30378",
+  },
+  "shared/study.ts": {
+    reason: "Standalone study records optionally carry the persisted cosmetic presentation snapshot",
+    flowst: "2d287330a38d4647efcb37a85fa8115f15f7760853c03b693cf997bfe57a74cd",
+    standalone: "279457a849f5ec44af323e04c3174d48d66d6940113afdd7fb9ec75a8aa4d297",
+  },
   "components/AirAppShell.vue": {
     reason: "Standalone Airs includes opt-in mode demonstrations in its existing authenticated navigation",
     flowst: "2699457f92ac6b4ef7ceaf4c3c5f661d42fe33aede9e34049499f487a0d74bbd",
     standalone: "0707b4de30079e23d44c97a920a73df7e2c6425cf34acbf0319641774c2ce066",
   },
   "pages/home/new.vue": {
-    reason: "Standalone Airs presents a mode picker while preserving the existing Study setup behind an explicit Study query",
+    reason: "Standalone mode selection offers optional companion appearance and voice choices before Misu while preserving the explicit Study entry",
     flowst: "1af03a0c32da2c6a931dee021fd058111473b54c10f2612e2b893861e8115d56",
-    standalone: "81be2cc2676fc504c3624fe35c3b5d8c25256926fd1ec66ebc3d501c0b0ebde6",
+    standalone: "0420a7a848d4dab8d90b12436384c89f1f847febc8f751dba383420114fa2c3f",
   },
   "composables/useStudyRetry.ts": {
     reason: "Owner formatting only; retry tokens and behavior match Flowst",
@@ -217,10 +267,10 @@ export const intentionalDifferences = {
       "319d6f6e7658803b9fcde452d2ca7268e652d242dc9c4e084e862768c2b00aaf",
   },
   "components/AirCallRoom.vue": {
-    reason: "Standalone audio failure layout and short-screen scrolling",
+    reason: "Standalone audio failure layout and short-screen scrolling also render the saved session's customized companion portrait",
     flowst: "635ea038c70a364175fd0c7c7039f23195b3a2a98b64a84f17cf9893454b183b",
     standalone:
-      "4fb0443434df2e979819612a89750853578b7f538609f5e87b2828da19ec07a9",
+      "8c775108c63a672e4f949205ba02e42fbd9b1fc9ed27f444f842b09099ebf3ad",
   },
   "assets/css/air-call-room.css": {
     reason: "Standalone audio failure layout and short-screen scrolling",
@@ -234,9 +284,9 @@ export const intentionalDifferences = {
       "2d3414ae2ed95dcb73b9acaa30e150eaa27132bee15c86cd0d02f00838c333c6",
   },
   "composables/useAminaLiveCall.ts": {
-    reason: "Standalone canonical /home recovery routes are accepted by the live client while retaining legacy /air compatibility",
+    reason: "Standalone canonical /home recovery compatibility also forwards the immutable-session voice override while retaining live lifecycle safeguards",
     flowst: "8099cbe764c21ff8354f5ea67a63b6ee885557435f24dc893afe4d8d2db648dc",
-    standalone: "eb00811ea2cc54b3669ee070344fb6775baab81a2e55b5e8564afa15592c936f",
+    standalone: "a22e87be282881019359325bbc37da5e3ed3ee99180065ac7abe63d3014a1b2b",
   },
 };
 const baselinePath = "docs/generated/shared-parity.json";

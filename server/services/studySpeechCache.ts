@@ -14,6 +14,7 @@ import type { TimedStudySpeech } from "../../shared/studySpeech";
 import { getStudyConversation, studyStorageResources } from "./studyRepository";
 import { synthesizeStudySpeech } from "./studyAwsSpeech";
 import { elevenSynthesizeTimedStudySpeech } from "./studyElevenSpeech";
+import { selectedAminaVoice } from "./studyAminaVoice";
 
 interface CachedSpeech {
   ownerId: string;
@@ -21,6 +22,7 @@ interface CachedSpeech {
   status: "PENDING" | "READY" | "FAILED";
   objectKey: string;
   textHash: string;
+  voiceId?: string | null;
   failure?: string;
   failureCode?: string;
   failureStatus?: number;
@@ -30,8 +32,8 @@ interface CachedSpeech {
 const records = new Map<string, CachedSpeech>(),
   packets = new Map<string, TimedStudySpeech>();
 const hash = (text: string) => createHash("sha256").update(text).digest("hex");
-const storageKey = (owner: string, id: string, turnId: string) =>
-  `study-speech/${hash(owner)}/${id}/${turnId}.json`;
+const storageKey = (owner: string, id: string, turnId: string, voiceId: string | null) =>
+  `study-speech/${hash(owner)}/${id}/${turnId}/${voiceId || "default"}.json`;
 
 async function readRecord(id: string, turnId: string, event?: H3Event) {
   const storage = studyStorageResources(event);
@@ -166,7 +168,8 @@ export async function getOrPrepareStudySpeech(
       data: { code: 'SPEECH_RESPONSE_NOT_FOUND', retryable: false },
     });
   const previous = await readRecord(id, turnId, event),
-    textHash = hash(turn.text);
+    textHash = hash(turn.text),
+    voiceId = selectedAminaVoice(study);
   if (
     previous?.expiresAt &&
     previous.expiresAt <= Math.floor(Date.now() / 1000)
@@ -178,7 +181,7 @@ export async function getOrPrepareStudySpeech(
     });
   if (
     previous &&
-    (previous.ownerId !== owner || previous.textHash !== textHash)
+    (previous.ownerId !== owner || previous.textHash !== textHash || (previous.voiceId || null) !== voiceId)
   )
     throw createError({
       statusCode: 409,
@@ -211,8 +214,9 @@ export async function getOrPrepareStudySpeech(
     ownerId: owner,
     revision: randomUUID(),
     status: "PENDING",
-    objectKey: storageKey(owner, id, turnId),
+    objectKey: storageKey(owner, id, turnId, voiceId),
     textHash,
+    voiceId,
     ...(owner.startsWith("guest-")
       ? { expiresAt: Math.floor(Date.now() / 1000) + 86400 }
       : {}),
@@ -221,6 +225,11 @@ export async function getOrPrepareStudySpeech(
   let audioSaved = false;
   try {
     const config = useRuntimeConfig(event);
+    if (voiceId && config.studyVoiceProvider === "aws") throw createError({
+      statusCode: 503,
+      statusMessage: "This session’s selected Amina voice is not supported by the server’s current speech setup. Your saved reply remains available.",
+      data: { code: "SPEECH_VOICE_NOT_CONFIGURED", retryable: false },
+    });
     const packet =
       config.studyVoiceProvider === "aws"
         ? {
