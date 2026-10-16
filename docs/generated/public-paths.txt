@@ -207,6 +207,8 @@
 :(literal)public/mascots/amina-expression-atlas-v1.png
 :(literal)public/mascots/amina-motion-atlas-v1.webp
 :(literal)public/mascots/amina.png
+:(literal)public/mascots/appearance-interaction-v1/amina-hair.png
+:(literal)public/mascots/appearance-interaction-v1/amina-skin.png
 :(literal)public/mascots/appearance-motion-v1/amina-hair.png
 :(literal)public/mascots/appearance-motion-v1/amina-skin.png
 :(literal)public/mascots/appearance-motion-v1/kai-eyes.png
@@ -237,6 +239,7 @@
 :(literal)public/optimized/v1/mascots/neo/portrait.webp
 :(literal)public/optimized/v1/mascots/nyles-avatar.webp
 :(literal)public/optimized/v1/mascots/nyles.webp
+:(literal)scripts/assets/agent-appearance/amina-interaction-regions.png
 :(literal)scripts/assets/agent-appearance/amina-motion-regions.png
 :(literal)scripts/assets/agent-appearance/kai-motion-regions.png
 :(literal)scripts/assets/agent-appearance/kai-portrait-regions.png
@@ -250,6 +253,7 @@
 :(literal)scripts/prepare-agent-motion-frames.mjs
 :(literal)scripts/prepare-agent-motion-masks.mjs
 :(literal)scripts/prepare-agent-portrait-masks.mjs
+:(literal)scripts/prepare-amina-interaction-masks.mjs
 :(literal)scripts/review-source-mcp.mjs
 :(literal)scripts/run-growth-preview.mjs
 :(literal)scripts/run-source-fixtures.mjs
@@ -419,6 +423,7 @@
 :(literal)tests/airs-provider-failure.test.ts
 :(literal)tests/airs-quota.test.ts
 :(literal)tests/airs-setup.test.ts
+:(literal)tests/amina-interaction-assets.test.ts
 :(literal)tests/amina-live-client.test.ts
 :(literal)tests/amina-live-model.test.ts
 :(literal)tests/amina-plan-approval.test.ts

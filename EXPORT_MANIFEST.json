@@ -1,6 +1,6 @@
 {
   "generator": "flowst-air-public-export-v1",
-  "createdAt": "2026-10-15T17:52:29.571Z",
+  "createdAt": "2026-10-16T03:06:48.623Z",
   "history": "Independent standalone workspace; no original Git history copied",
   "files": [
     {
@@ -90,8 +90,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 19064,
-      "sha256": "387da32e04fe78e801cdc953c764f663f724ed278e78cf44f912ee21da8aadb5"
+      "bytes": 27681,
+      "sha256": "95141495c7e879ce18dd3615bd9f2fa9e4af99215d2d2e655dfb7ddfc315fafa"
     },
     {
       "path": "VALIDATION.md",
@@ -100,8 +100,8 @@
     },
     {
       "path": "WHERE-TO-EDIT.md",
-      "bytes": 1046,
-      "sha256": "e27a3c672a6cf4bd03ef6a866b29dae3fdb84365887ed4c738e8490680e74eef"
+      "bytes": 1257,
+      "sha256": "dd985ecdb4f91282dfc225da73618c84e4e290c7a095121ca0ee1cf902bf23e6"
     },
     {
       "path": "app.vue",
@@ -355,8 +355,8 @@
     },
     {
       "path": "components/demo/AminaDemoAvatar.vue",
-      "bytes": 4725,
-      "sha256": "4145dec7bff847f6032ab8bc0eba44e73867e077c66315e861736ed2f4dc90bb"
+      "bytes": 12891,
+      "sha256": "dd0798fe5bb49c74e727cb9dc5e5f2eb0709b94e13fee88b2eb34133e036ce07"
     },
     {
       "path": "components/demo/CompanionMotionAvatar.vue",
@@ -415,8 +415,8 @@
     },
     {
       "path": "docs/agent-customization.md",
-      "bytes": 2797,
-      "sha256": "5f1bb87eb0498888b8a1eccc871bb7fd9e73bd3866ee1ed864b91069922200d1"
+      "bytes": 3018,
+      "sha256": "d9ad84e4beeefd36d600412c92574b3803553fc4087227263c9c283a3cc04e7d"
     },
     {
       "path": "docs/amina-avatar-expression-assets.md",
@@ -435,8 +435,8 @@
     },
     {
       "path": "docs/avatar-animation-recovery.md",
-      "bytes": 4370,
-      "sha256": "add69ac2e068a5cd36b87df36c207179de98b8a1f1233928d203c167481dac35"
+      "bytes": 7593,
+      "sha256": "08ffba984143920aacbf2cb3daf961c0fbb7ca54a8738d858d8313c75033a0c8"
     },
     {
       "path": "docs/design-docs/amina-objective-flow.md",
@@ -710,8 +710,8 @@
     },
     {
       "path": "pages/home/modes.vue",
-      "bytes": 27179,
-      "sha256": "77412db47eabfd7fa509dc05329ef185fabe5ce0abf24b1ead76141c3ffb5c85"
+      "bytes": 27201,
+      "sha256": "2875eb8d437626758c70e3a765af60facb439abe0b2034b00f9ddde43bb1c21e"
     },
     {
       "path": "pages/home/new.vue",
@@ -1039,6 +1039,16 @@
       "sha256": "29e093882a828579b173d84db236a10fbaa9a0ee7e273c3daa7a04fd3522ecef"
     },
     {
+      "path": "public/mascots/appearance-interaction-v1/amina-hair.png",
+      "bytes": 121566,
+      "sha256": "6e36c28c569467b6ba553dbde1ee4ff90c17980a9b315b06e83077aac1d69714"
+    },
+    {
+      "path": "public/mascots/appearance-interaction-v1/amina-skin.png",
+      "bytes": 141399,
+      "sha256": "f11f5d2bfe255b9dfa706eef18059cca682c3bccbf16b4c7fe48a957b2ef92ab"
+    },
+    {
       "path": "public/mascots/appearance-motion-v1/amina-hair.png",
       "bytes": 316962,
       "sha256": "bf57194666bb573566b8ec7b6b7e2a9dfb2b208f58c3c5b8b3339a14d1ab6932"
@@ -1189,6 +1199,11 @@
       "sha256": "bcebbd173a14f3dc1e413675c1a6ddec63dbc273635df5a090582bc4d9d9b9cf"
     },
     {
+      "path": "scripts/assets/agent-appearance/amina-interaction-regions.png",
+      "bytes": 1154378,
+      "sha256": "2899d3e6d5af64f99ab078cce9f587d6a45f90992fe195cd2dbb2d95ab4d16fc"
+    },
+    {
       "path": "scripts/assets/agent-appearance/amina-motion-regions.png",
       "bytes": 2066699,
       "sha256": "0d35308390d67c5af7bd682c3f3f8e9fb25f88867e6960eabff9bea343f4f381"
@@ -1215,8 +1230,8 @@
     },
     {
       "path": "scripts/assets/agent-appearance/provenance.json",
-      "bytes": 8031,
-      "sha256": "a1585b8178e5daa97438180e9251aa0641462d46bf8c613bd5ffe7d2addc4f8d"
+      "bytes": 10270,
+      "sha256": "958e51852807d8ff497c483d2dfc787829b452eb5aac04a356e058dec6a58311"
     },
     {
       "path": "scripts/check-docs.mjs",
@@ -1252,6 +1267,11 @@
       "path": "scripts/prepare-agent-portrait-masks.mjs",
       "bytes": 4036,
       "sha256": "1294bc1ba25d961e489503a7ea2582fe463d5bdce42fac7c49d00d9b24da4a65"
+    },
+    {
+      "path": "scripts/prepare-amina-interaction-masks.mjs",
+      "bytes": 4280,
+      "sha256": "43f753abf624713c97e7c6a387af36c24c431cf4b5afa6e88ba6ef7b1dd7fa8e"
     },
     {
       "path": "scripts/review-source-mcp.mjs",
@@ -2099,6 +2119,11 @@
       "sha256": "59702117d249620cea2a9c9ebe8d70651ac7cf4dbbad8163b1663ee3daa69c89"
     },
     {
+      "path": "tests/amina-interaction-assets.test.ts",
+      "bytes": 2689,
+      "sha256": "0455e19f5b0f97fb44fdf28ba98ddcfd972cc2b555ef0b3b53776e4a787c8615"
+    },
+    {
       "path": "tests/amina-live-client.test.ts",
       "bytes": 4426,
       "sha256": "8f940689a0688dd851b0d275b17e45595f48eafbd12b6c6daef587fca4522246"
@@ -2190,13 +2215,13 @@
     },
     {
       "path": "tests/source-e2e/amina-modes.spec.ts",
-      "bytes": 7753,
-      "sha256": "9aa38f82592d09daebcf96a2c6f7566ac57f5e4266d9ae4121f31836daa22fed"
+      "bytes": 8164,
+      "sha256": "b4bf39bf7517f7e7e13dc7961d0970afe1712b868ddb4cff6f889d02ce2363a8"
     },
     {
       "path": "tests/source-e2e/avatar-recovery.spec.ts",
-      "bytes": 17196,
-      "sha256": "025469c5fb6f5fba4e2fb39418e818bca5140a9c659cd44d617549c78549e563"
+      "bytes": 24130,
+      "sha256": "74d1fb71e8ac19c05806ff18efedcce787c004e4d029c004302959168028a46c"
     },
     {
       "path": "tests/source-e2e/bring-source.spec.ts",

@@ -6,6 +6,8 @@ The focus is verbal intelligence: recalling ideas, organising an explanation, ch
 
 [Visit Flowst Airs](https://airs.useflowst.com/) to explore the product direction, or [run the local demonstration](#run-a-local-demonstration).
 
+[Browse all project documentation](#documentation-index).
+
 ## Why I built Airs
 
 I'm Esther Bawo Tsotso, a research, product and software engineer interested in how educational products should be designed, particularly for teenagers and secondary-school learners.
@@ -15,6 +17,29 @@ I first implemented this as an experiment in June because I wanted feedback on w
 My time at Miva Open University, including my final-year thesis on this implementation, helped shape that question. It led me to explore how AI could give learners useful feedback on their understanding and give educators a clearer view of where support is needed.
 
 For the hackathon, I focused Airs on verbal practice and communication. Preparing for an interview, explaining something you have built, or sharing what you know can feel consequential. I wanted to create a place where people could rehearse those conversations, receive suggestions, and return with a clearer idea of what to practise.
+
+## Inspiration
+
+Three things came together in the direction for Airs: seeing AI become part of interview processes and the preparation around them, the year-end feedback from YouTube and Spotify, and "lock-in culture."
+
+I see these as connected questions about how people prepare, reflect and commit to their own development. A year-end recap gives people a record of their activity to look back on. For me, locking in means committing time and focused effort to something you want to improve. With AI entering career-defining conversations, I want to explore how people can practise while developing their own ability to explain, reason and respond.
+
+Together, these ideas inspired a product where people could assess their understanding, make their progress visible and measurable over time, and eventually share parts of that journey with friends.
+
+## What I want to investigate with learners
+
+Once Airs is live and ready to accommodate users, I want to investigate how people interact with the agents, how well each agent performs its responsibilities, and whether the feedback gives learners something useful to carry into their next attempt.
+
+The questions I want to explore include:
+
+- Can learners assess their own understanding and recognise progress through continued practice?
+- Do they become more confident in career-defining conversations, including discussions without an AI agent present?
+- Do they feel more comfortable putting themselves out there: explaining projects, building in public, or creating videos around what they know?
+- What benefits do people get from returning to Airs, and how does sharing parts of their learning journey with friends affect that experience?
+
+These are questions for future user research. I want to understand what works, for whom, and what needs to change. The current prototype does not establish those outcomes.
+
+People are our greatest priority. Supporting human growth and evolution is why I build. Learning and development are already natural parts of our lives; I want to provide tools that use AI to support and accelerate that process. The direction of Airs should follow what helps people develop their understanding, confidence and agency.
 
 ## How a session works
 
@@ -48,7 +73,7 @@ My intention is for practice to feel like talking with a friendly companion that
 
 ### Make progress something people can return to
 
-I was inspired by the year-end reflections from products such as YouTube and Spotify. Seeing a record of how you have spent your time on an app can make an experience feel personal. I wanted to explore what that could mean for learning: being able to look back, recognise your efforts, and see what to work on next.
+I want learners to have a record of their practice that they can return to, reflect on and use to choose what to work on next.
 
 Airs uses the idea of growth **cycles** and **Tides**, collectible milestones associated with areas of verbal practice. The intended experience lets learners close cycles, collect Tides and unlock rewards as they continue. I want those moments to make the learning journey interesting and give people reasons to look forward to their next session.
 
@@ -160,6 +185,119 @@ Start with [AGENTS.md](AGENTS.md), [ARCHITECTURE.md](ARCHITECTURE.md) and [docs/
 See [public-repository preparation](docs/references/public-repository.md). The independently reviewed slice is published at estheticallybawo/flowst-air. The product aim extends beyond the one-session proof of concept; longitudinal views remain target work.
 
 Persisted `AMIRA`/`MISU` role IDs and existing `AMIRA_*` recovery codes are compatibility contracts, not product branding. Agent-facing modules use Amina; product shells and access modules use Air.
+
+## Documentation index
+
+Use this README as the starting point for the project. The links below cover every other project Markdown file, grouped by folder. Expand a group to open a guide directly.
+
+<details>
+<summary>Root project guides (13)</summary>
+
+- [AGENTS.md](AGENTS.md): Working on Flowst Airs
+- [ARCHITECTURE.md](ARCHITECTURE.md): Flowst Airs architecture map
+- [CAPSTONE_SPEC.md](CAPSTONE_SPEC.md): CAPSTONE SPEC
+- [DESIGN.md](DESIGN.md): Flowst Air experience design
+- [FLOWST_AIR_SYSTEM_DESIGN.md](FLOWST_AIR_SYSTEM_DESIGN.md): FLOWST AIR SYSTEM DESIGN
+- [FRONTEND.md](FRONTEND.md): Frontend map
+- [PLANS.md](PLANS.md): Execution plans
+- [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md): PRODUCT BRIEF
+- [PRODUCT_SENSE.md](PRODUCT_SENSE.md): Product sense
+- [VALIDATION.md](VALIDATION.md): VALIDATION
+- [WHERE-TO-EDIT.md](WHERE-TO-EDIT.md): Main Airs source
+
+</details>
+
+<details>
+<summary>Knowledge base and companion design (7)</summary>
+
+- [docs/agent-customization.md](docs/agent-customization.md): Agent customization
+- [docs/AIRS_FOCUSED_PRACTICE_VERIFICATION.md](docs/AIRS_FOCUSED_PRACTICE_VERIFICATION.md): Focused Airs practice verification: 2026-10-05
+- [docs/amina-avatar-expression-assets.md](docs/amina-avatar-expression-assets.md): Amina expression sample
+- [docs/amina-experience-release.md](docs/amina-experience-release.md): Airs experience release
+- [docs/amina-room-environments.md](docs/amina-room-environments.md): Amina room environment assets
+- [docs/avatar-animation-recovery.md](docs/avatar-animation-recovery.md): Avatar animation recovery
+- [docs/index.md](docs/index.md): Flowst Airs knowledge base
+
+</details>
+
+<details>
+<summary>Product specifications (4)</summary>
+
+- [docs/product-specs/bring-your-source.md](docs/product-specs/bring-your-source.md): Capstone specification: Flowst Airs source-learning slice
+- [docs/product-specs/index.md](docs/product-specs/index.md): Product specifications
+- [docs/product-specs/new-user-onboarding.md](docs/product-specs/new-user-onboarding.md): New-user onboarding
+- [docs/product-specs/product-brief.md](docs/product-specs/product-brief.md): Flowst Airs: Bring Your Source
+
+</details>
+
+<details>
+<summary>System and learning design (10)</summary>
+
+- [docs/design-docs/amina-objective-flow.md](docs/design-docs/amina-objective-flow.md): Amina objective-driven session flow: policy v0.2
+- [docs/design-docs/context-aware-practice.md](docs/design-docs/context-aware-practice.md): Context-aware first conversation
+- [docs/design-docs/core-beliefs.md](docs/design-docs/core-beliefs.md): Core beliefs
+- [docs/design-docs/flowst-air-system-design.md](docs/design-docs/flowst-air-system-design.md): Flowst Airs: product, system and agent responsibilities
+- [docs/design-docs/focused-practice-and-replay.md](docs/design-docs/focused-practice-and-replay.md): Focused practice, optional recovery and replay
+- [docs/design-docs/index.md](docs/design-docs/index.md): Design documents
+- [docs/design-docs/misu-led-setup.md](docs/design-docs/misu-led-setup.md): Misu-led setup and prepared handoff
+- [docs/design-docs/objective-based-practice.md](docs/design-docs/objective-based-practice.md): Objective-based Amina practice
+- [docs/design-docs/source-ingestion.md](docs/design-docs/source-ingestion.md): Flowst Airs slice: implemented source and learning architecture
+- [docs/design-docs/topic-pacing-and-voice.md](docs/design-docs/topic-pacing-and-voice.md): Topic pacing and synchronized voice turns
+
+</details>
+
+<details>
+<summary>Execution plans and technical debt (7)</summary>
+
+- [docs/exec-plans/active/flowst-air-orchestration.md](docs/exec-plans/active/flowst-air-orchestration.md): Flowst Airs responsibility migration
+- [docs/exec-plans/completed/flowst-air-identity.md](docs/exec-plans/completed/flowst-air-identity.md): Flowst Airs product identity
+- [docs/exec-plans/completed/growth-home-prototype.md](docs/exec-plans/completed/growth-home-prototype.md): Growth Home prototype
+- [docs/exec-plans/completed/related-practice-references.md](docs/exec-plans/completed/related-practice-references.md): Related practice references and saved-answer review reliability
+- [docs/exec-plans/completed/source-and-misu-foundation.md](docs/exec-plans/completed/source-and-misu-foundation.md): Source and Misu foundation
+- [docs/exec-plans/index.md](docs/exec-plans/index.md): Execution plan index
+- [docs/exec-plans/tech-debt-tracker.md](docs/exec-plans/tech-debt-tracker.md): Technical debt and verification gaps
+
+</details>
+
+<details>
+<summary>Setup, verification and reference guides (12)</summary>
+
+- [docs/references/demo-script.md](docs/references/demo-script.md): Demo script
+- [docs/references/deployed-video-checklist.md](docs/references/deployed-video-checklist.md): Test video imports yourself
+- [docs/references/design-system-reference.md](docs/references/design-system-reference.md): Existing interface reference
+- [docs/references/development-and-verification.md](docs/references/development-and-verification.md): Development and verification
+- [docs/references/identity-migration.md](docs/references/identity-migration.md): Flowst Airs identity and compatibility
+- [docs/references/index.md](docs/references/index.md): References
+- [docs/references/misu-provider-reliability.md](docs/references/misu-provider-reliability.md): Misu provider reliability
+- [docs/references/objective-flow-verification.md](docs/references/objective-flow-verification.md): Objective-driven session flow v0.2 verification
+- [docs/references/provider-reference.md](docs/references/provider-reference.md): Provider references
+- [docs/references/public-repository.md](docs/references/public-repository.md): Publishing Flowst Airs
+- [docs/references/verification.md](docs/references/verification.md): Implementation and validation record
+- [docs/references/voice-turn-preflight.md](docs/references/voice-turn-preflight.md): Owner preflight: topic pacing and voice turns
+
+</details>
+
+<details>
+<summary>Generated references (2)</summary>
+
+- [docs/generated/db-schema.md](docs/generated/db-schema.md): Generated storage access-pattern catalog
+- [docs/generated/index.md](docs/generated/index.md): Generated references
+
+</details>
+
+<details>
+<summary>Vendor documentation (1)</summary>
+
+- [vendor/thinking-orbs/README.md](vendor/thinking-orbs/README.md): Thinking Orbs attribution and local adaptations
+
+</details>
+
+<details>
+<summary>Local agent workflow (1)</summary>
+
+- [.agents/skills/air-source-review/SKILL.md](.agents/skills/air-source-review/SKILL.md): Flowst Air source review
+
+</details>
 
 ## Creator and acknowledgments
 

@@ -39,6 +39,12 @@ color mask is labelled, rather than silently replacing the body with a head.
 Small avatar portraits remain face-framed. Facial unlocks are a labelled local
 preview, not earned or persisted rewards or an applied account animation.
 
+| Context | Presentation | Purpose |
+| --- | --- | --- |
+| Study, interview, conversation and language interaction rooms | Transparent half body | Speaking mouth shapes and conversational poses |
+| Animation experience | Same half-body sheet | Explore listening, thinking, greeting and celebration |
+| Small avatars and facial unlock collection | Faces | Compact identity and separate cosmetic expression samples |
+
 ## Facial unlock rendering
 
 `components/demo/CompanionMotionAvatar.vue` renders four fixed frame groups per
@@ -100,5 +106,23 @@ public-export scan pass. The separate private cross-repository release check
 still retains its 33 pre-existing differences; those were not silently accepted.
 Nuxt type checking and the production build pass. A strict tuple-type issue in
 one updated browser assertion was corrected before those checks were repeated.
-No commit, push, deployment, paid media generation or live avatar call is part
-of this recovery.
+No commit, push, deployment, speech synthesis or live avatar call was initiated
+by this recovery. Native image generation was used for technical region maps,
+not to replace the deployed character artwork.
+
+## Half-body follow-up — 16 October 2026
+
+The restored interaction is verified against the source in existing Git commit
+`c1b9d4b`, without changing its original atlas. All 22 desktop/mobile browser
+cases pass in one combined run, covering four interaction rooms, mouth and
+gesture frames, matching skin/hair colors, true pause, reduced motion, face
+unlock separation, scrolling and no device/provider or persistence requests.
+The focused half-body desktop/mobile run also passes both cases. Screenshots
+confirm the previous body-based presentation and separate small face avatar.
+The final unit suite passes 521 tests in 60 files. Nuxt type checking and the
+production build pass. All original interaction atlas bytes and registered
+skin/hair masks validate, as do documentation links and the unchanged local
+120-file shared snapshot. The export manifest is refreshed for the two new
+interaction masks, their technical source map, generator and asset tests.
+Concurrent owner README changes are preserved. Source availability in Git and
+local build success do not certify a production deployment.

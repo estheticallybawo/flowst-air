@@ -16,5 +16,5 @@ lives here. That separate experiment remains a backup, not the source to edit.
 
 Run ` here and open `http://127.0.0.1:4322/home/new`.
 The safe local fixture needs no provider credentials and is not a deployment.
-The recovered sources are uncommitted main-folder changes; no new release has
-been published by this recovery.
+Recovery source is now in this Git checkout. Use `git status` to see any pending
+follow-ups; source availability does not establish production deployment status.
