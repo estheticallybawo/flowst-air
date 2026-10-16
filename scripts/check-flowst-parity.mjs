@@ -230,9 +230,9 @@ export const intentionalDifferences = {
     standalone: "71bcce9b568e0f497ae10a1457abf3ccfd91fd2a6eeb937392b9821b70bd9196",
   },
   "components/AirLibraryView.vue": {
-    reason: "Standalone library cards preview each saved session's companion presentation",
+    reason: "Standalone library cards preview saved companion presentation; hero image and colour masks share contain/bottom framing",
     flowst: "48293d6897a23dd1e7eed7a8bc434ba14690fe144aa64d1c577901c00ac973d7",
-    standalone: "9837cd6a6780efe0e190acd0bb4dfae05e335b6bf565a2fa9eb8dfe1c34fc26d",
+    standalone: "391d063646ad173ddfe7b59eea811c7d7e56e85c2cf7f4cffd7bf3c1d6691dcd",
   },
   "pages/home/[id].vue": {
     reason: "Standalone session views provide the saved companion presentation while preserving existing learning and recovery guards",
@@ -261,10 +261,10 @@ export const intentionalDifferences = {
   },
   "pages/home/index.vue": {
     reason:
-      "Growth Home rollout uses the normal Airs shell, authentication and setup routes",
+      "Growth Home keeps the normal authenticated shell and adds only an opt-in, memory-only companion preview slot",
     flowst: "1af03a0c32da2c6a931dee021fd058111473b54c10f2612e2b893861e8115d56",
     standalone:
-      "319d6f6e7658803b9fcde452d2ca7268e652d242dc9c4e084e862768c2b00aaf",
+      "df6bf64c09bd03482379ac0c0e15227487b1e38e52af6b90d49277d4b345008b",
   },
   "components/AirCallRoom.vue": {
     reason: "Standalone audio failure layout and short-screen scrolling also render the saved session's customized companion portrait",

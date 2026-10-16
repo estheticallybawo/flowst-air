@@ -126,3 +126,15 @@ skin/hair masks validate, as do documentation links and the unchanged local
 interaction masks, their technical source map, generator and asset tests.
 Concurrent owner README changes are preserved. Source availability in Git and
 local build success do not certify a production deployment.
+
+## Library portrait follow-up — 16 October 2026
+
+Library's legacy descendant-image styles overrode the portrait's image framing
+without changing its skin/hair masks. The hero now supplies `contain` and bottom
+alignment through the portrait's shared image/mask variables. Legacy image
+rules target direct children only, not the component's internal colour layers.
+The original Amina body artwork and both registered static masks are unchanged.
+This is a framing correction, not a replacement with a face-only avatar.
+Both focused desktop/mobile Library regressions pass using saved honey-skin and
+blonde-hair fixtures, with matching image/mask geometry and no writes, provider
+calls or device requests. Mobile retains its intentionally hidden hero portrait.

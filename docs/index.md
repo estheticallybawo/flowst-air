@@ -6,6 +6,7 @@ Start small: [AGENTS.md](../AGENTS.md) supplies rules; [ARCHITECTURE.md](../ARCH
 - Policy/system: [design documents](design-docs/index.md), [core beliefs](design-docs/core-beliefs.md).
 - Interface: [DESIGN.md](../DESIGN.md), [FRONTEND.md](../FRONTEND.md).
 - Personalization: [agent customization](agent-customization.md), [avatar recovery](avatar-animation-recovery.md).
+- Prototype: [Home website companion](website-companion-prototype.md).
 - Work: [PLANS.md](../PLANS.md), [execution plans](exec-plans/index.md), [technical debt](exec-plans/tech-debt-tracker.md).
 - Records: [generated docs](generated/index.md).
 - Evidence/setup: [references](references/index.md).

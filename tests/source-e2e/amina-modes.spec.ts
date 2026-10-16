@@ -94,7 +94,7 @@ test('animation exploration respects reduced motion and omits developer setup co
   page.on('request', request => { if (request.method() !== 'GET') uploads.push(request.url()) })
   await page.goto('/home/modes?mode=interview', { waitUntil: 'domcontentloaded' })
   await waitForModeHydration(page)
-  await page.getByRole('button', { name: 'Explore her animation', exact: true }).click()
+  await page.locator('.experience-disclosures').getByRole('button', { name: 'Animation experience', exact: true }).click()
   const lab = page.locator('#amina-animation-lab')
   await expect(lab).toBeVisible()
   await expect(lab).toContainText('Animated expression sample · simulated speech')

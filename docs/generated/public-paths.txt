@@ -22,6 +22,7 @@
 :(literal)app.vue
 :(literal)assets/css/air-call-room.css
 :(literal)assets/css/air.css
+:(literal)assets/css/airs-web-companion.css
 :(literal)assets/css/amina-modes-demo.css
 :(literal)assets/css/flowst-app.css
 :(literal)assets/css/main.css
@@ -69,6 +70,7 @@
 :(literal)components/demo/AirsAgentPresence.vue
 :(literal)components/demo/AirsMilestoneUnlocks.vue
 :(literal)components/demo/AirsTideUnlocks.vue
+:(literal)components/demo/AirsWebsiteCompanion.vue
 :(literal)components/demo/AminaDemoAvatar.vue
 :(literal)components/demo/CompanionMotionAvatar.vue
 :(literal)composables/useAgentHandoff.ts
@@ -80,6 +82,7 @@
 :(literal)composables/useAuth.ts
 :(literal)composables/useStudyPacing.ts
 :(literal)composables/useStudyRetry.ts
+:(literal)composables/useWebCompanionDemo.ts
 :(literal)docs/AIRS_FOCUSED_PRACTICE_VERIFICATION.md
 :(literal)docs/agent-customization.md
 :(literal)docs/amina-avatar-expression-assets.md
@@ -124,6 +127,7 @@
 :(literal)docs/references/public-repository.md
 :(literal)docs/references/verification.md
 :(literal)docs/references/voice-turn-preflight.md
+:(literal)docs/website-companion-prototype.md
 :(literal)mcp/codex-config.example.toml
 :(literal)mcp/github-study.ts
 :(literal)middleware/air-only.ts
@@ -139,6 +143,7 @@
 :(literal)pages/auth/verify.vue
 :(literal)pages/home/[id].vue
 :(literal)pages/home/about.vue
+:(literal)pages/home/companion.vue
 :(literal)pages/home/index.vue
 :(literal)pages/home/library.vue
 :(literal)pages/home/modes.vue
@@ -409,6 +414,7 @@
 :(literal)shared/studySpeechAudio.ts
 :(literal)shared/studySpeechOutcome.ts
 :(literal)shared/userErrors.ts
+:(literal)shared/webCompanionDemo.ts
 :(literal)tests/agent-portrait-assets.test.ts
 :(literal)tests/agent-presentation.test.ts
 :(literal)tests/air-access.test.ts
@@ -455,6 +461,7 @@
 :(literal)tests/source-e2e/provider-retry.spec.ts
 :(literal)tests/source-e2e/saved-response-recovery.spec.ts
 :(literal)tests/source-e2e/session-completion.spec.ts
+:(literal)tests/source-e2e/web-companion.spec.ts
 :(literal)tests/study-air-history.test.ts
 :(literal)tests/study-aws-voice.test.ts
 :(literal)tests/study-bedrock-result.test.ts
@@ -486,6 +493,7 @@
 :(literal)tests/study-speech-storage.test.ts
 :(literal)tests/study-upload-limit.test.ts
 :(literal)tests/study-voice-reservation.test.ts
+:(literal)tests/web-companion-demo.test.ts
 :(literal)tsconfig.json
 :(literal)vendor/thinking-orbs/LICENSE
 :(literal)vendor/thinking-orbs/README.md

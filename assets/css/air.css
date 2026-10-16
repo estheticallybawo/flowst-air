@@ -590,7 +590,7 @@ body.air-surface::before {
 .air-surface .air-library .intro-image::before {
   display: none;
 }
-.air-surface .air-library .intro-image img {
+.air-surface .air-library .intro-image > img {
   object-fit: contain;
   object-position: bottom;
 }

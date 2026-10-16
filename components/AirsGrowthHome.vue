@@ -117,6 +117,7 @@ const dialogTitle = computed(
         /></NuxtLink>
       </header>
 
+      <slot name="companion" />
       <AirsAgentPresence />
       <p v-if="state.source === 'example'" class="growth-data-note">Example growth data · Your sessions continue as usual.</p>
 

@@ -33,3 +33,16 @@ The existing rewards branch also contains the Tide artwork positioning correctio
 The private Flowst checkout contains independent uncommitted backend work. A cross-repository comparison reports those pre-existing mismatches; this UI release does not copy, overwrite, or publish that private work. The release snapshot pins only the two intentional standalone navigation/setup adaptations, with unchanged backend files retaining their existing verified hashes.
 
 Artwork provenance: [room environments](amina-room-environments.md) and [Amina expression artwork](amina-avatar-expression-assets.md).
+
+## In-place disclosures — 16 October 2026
+
+The current local Mode demos revision replaces the top experience cards and
+detached jump-to panels with four stacked text-link disclosures below the mode
+workspace. Animation experience, Character unlocks, Milestones & share cards,
+and Companion on Home expand directly after their own triggers, one at a time.
+Opening does not scroll the page or move keyboard focus. Clicking an open
+trigger collapses it; panel Close buttons restore focus to their own trigger.
+The main four mode choices, original half-body interaction artwork and existing
+preview/privacy boundaries remain unchanged. Companion on Home links to the
+separate explicit opt-in launcher rather than enabling the mascot itself.
+This follow-up is local work, not a claim of a new deployment.

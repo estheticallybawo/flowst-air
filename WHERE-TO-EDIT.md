@@ -12,6 +12,8 @@ lives here. That separate experiment remains a backup, not the source to edit.
 - [Interaction renderer](components/demo/AminaDemoAvatar.vue): deployed-style
   transparent half-body speaking and gesture samples, separate from face unlocks.
 - [Mode demonstrations](pages/home/modes.vue): animation and prepared audio.
+- [Home companion launcher](pages/home/companion.vue): enable the optional
+  mascot demo, then choose Go to Home to explore its speech banners.
 - [Recovery details](docs/avatar-animation-recovery.md): assets and boundaries.
 
 Run ` here and open `http://127.0.0.1:4322/home/new`.

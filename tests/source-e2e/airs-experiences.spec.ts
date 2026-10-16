@@ -1,10 +1,11 @@
 import { readFile } from "node:fs/promises";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { DEFAULT_AGENT_PRESENTATION, normalizeAgentPresentation } from "../../shared/agentPresentation";
 
 interface ExperienceRuntime {
   __airsExperienceDevices: { microphone: number; screen: number };
   __airsExperienceRevokedUrls: string[];
+  __airsExperienceNavigation?: { active: boolean; scrollCalls: number; focusCalls: number };
 }
 interface ExperienceRequests {
   mutations: string[];
@@ -74,7 +75,7 @@ test.afterEach(async ({ page }) => {
 async function openExperiences(page: Page) {
   await page.goto("/home/modes?mode=interview", { waitUntil: "domcontentloaded" });
   await waitForExperienceHydration(page);
-  await expect(page.getByRole("navigation", { name: "Explore the Airs experience" })).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator(".experience-disclosures")).toBeVisible({ timeout: 60_000 });
 }
 
 async function waitForExperienceHydration(page: Page) {
@@ -151,57 +152,134 @@ test("New session picker scrolls in short viewports while Study keeps its bounde
   await page.screenshot({ path: test.info().outputPath("new-session-scroll.png"), fullPage: true });
 });
 
-test("animation, character looks, and milestones expand independently with focus restored", async ({ page }) => {
+test("experience accordions open inline one at a time without moving focus, scrolling, or changing the room", async ({ page }) => {
   await openExperiences(page);
-  const entries = page.getByRole("navigation", { name: "Explore the Airs experience" });
-  const animationEntry = entries.getByRole("button", { name: /Animation experience/ });
-  const characterEntry = entries.getByRole("button", { name: /Character unlocks/ });
-  const milestoneEntry = entries.getByRole("button", { name: /Milestones & share cards/ });
+  const entries = page.locator(".experience-disclosures");
+  const animationEntry = entries.getByRole("button", { name: "Animation experience", exact: true });
+  const characterEntry = entries.getByRole("button", { name: "Character unlocks", exact: true });
+  const milestoneEntry = entries.getByRole("button", { name: "Milestones & share cards", exact: true });
+  const companionEntry = entries.getByRole("button", { name: "Companion on Home", exact: true });
   const animationPanel = page.locator("#amina-animation-lab");
   const characterPanel = page.locator("#airs-character-unlocks");
   const milestonePanel = page.locator("#airs-milestone-unlocks");
-  for (const entry of [animationEntry, characterEntry, milestoneEntry]) await expect(entry).toHaveAttribute("aria-expanded", "false");
-  for (const panel of [animationPanel, characterPanel, milestonePanel]) await expect(panel).toHaveCount(0);
-  await animationEntry.focus();
-  await page.keyboard.press("Enter");
-  await expect(animationEntry).toHaveAttribute("aria-expanded", "true");
-  await expect(page.locator("#animation-lab-heading")).toBeFocused();
+  const companionPanel = page.locator("#airs-home-companion-preview");
+  const panels = [animationPanel, characterPanel, milestonePanel, companionPanel];
+  const triggers = [animationEntry, characterEntry, milestoneEntry, companionEntry];
+  await expect(entries.locator(".experience-disclosure-trigger")).toHaveCount(4);
+  for (const entry of triggers) await expect(entry).toHaveAttribute("aria-expanded", "false");
+  for (const panel of panels) await expect(panel).toBeHidden();
+  await page.locator(".context-exchanges button").nth(1).click();
+  const roomText = await page.locator(".mode-workspace").innerText();
+  await page.evaluate(() => {
+    const runtime = window as unknown as ExperienceRuntime;
+    runtime.__airsExperienceNavigation = { active: false, scrollCalls: 0, focusCalls: 0 };
+    for (const method of ["scrollTo", "scrollBy"] as const) {
+      const original = window[method];
+      window[method] = (...args: unknown[]) => {
+        if (runtime.__airsExperienceNavigation!.active) runtime.__airsExperienceNavigation!.scrollCalls += 1;
+        return Reflect.apply(original, window, args);
+      };
+    }
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function (this: Element, options?: boolean | ScrollIntoViewOptions) {
+      if (runtime.__airsExperienceNavigation!.active) runtime.__airsExperienceNavigation!.scrollCalls += 1;
+      return originalScrollIntoView.call(this, options);
+    };
+    const originalFocus = HTMLElement.prototype.focus;
+    HTMLElement.prototype.focus = function (this: HTMLElement, options?: FocusOptions) {
+      if (runtime.__airsExperienceNavigation!.active) runtime.__airsExperienceNavigation!.focusCalls += 1;
+      return originalFocus.call(this, options);
+    };
+  });
+  const toggle = async (entry: Locator, expanded: boolean, key = "Enter", checkPosition = false) => {
+    const viewport = page.viewportSize()!;
+    for (let step = 0; step < 24; step += 1) {
+      const bounds = await entry.boundingBox();
+      if (bounds && bounds.y >= 45 && bounds.y + bounds.height <= viewport.height - 45) break;
+      await page.mouse.move(viewport.width / 2, viewport.height / 2);
+      await page.mouse.wheel(0, bounds && bounds.y < 45 ? -250 : 250);
+      await page.waitForTimeout(50);
+    }
+    await expect(entry).toBeInViewport();
+    await entry.focus();
+    const previousScroll = await page.evaluate(() => {
+      const navigation = (window as unknown as ExperienceRuntime).__airsExperienceNavigation!;
+      navigation.active = true;
+      navigation.scrollCalls = navigation.focusCalls = 0;
+      return window.scrollY;
+    });
+    await page.keyboard.press(key);
+    await expect(entry).toHaveAttribute("aria-expanded", String(expanded));
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+    const navigation = await page.evaluate(() => {
+      const state = (window as unknown as ExperienceRuntime).__airsExperienceNavigation!;
+      state.active = false;
+      return { ...state, scrollY: window.scrollY, maxScroll: Math.max(0, document.documentElement.scrollHeight - innerHeight) };
+    });
+    expect(navigation.scrollCalls, "Accordion toggles must not call scrolling APIs").toBe(0);
+    expect(navigation.focusCalls, "Accordion toggles must not move focus into their content").toBe(0);
+    await expect(entry).toBeFocused();
+    await expect(entry).toBeInViewport();
+    if (checkPosition) expect(navigation.scrollY).toBeCloseTo(Math.min(previousScroll, navigation.maxScroll), 0);
+    await expect(entries.locator('.experience-disclosure-trigger[aria-expanded="true"]')).toHaveCount(expanded ? 1 : 0);
+    if (expanded) expect(await entry.evaluate(element => element.nextElementSibling?.id)).toBe(await entry.getAttribute("aria-controls"));
+  };
+  await toggle(animationEntry, true, "Enter", true);
+  await expect(animationPanel).toBeVisible();
+  await entries.screenshot({ path: test.info().outputPath("mode-experience-animation-inline.png") });
   await animationPanel.getByRole("button", { name: "thinking", exact: true }).click();
   await animationPanel.getByRole("checkbox", { name: /Animate the illustration/ }).uncheck();
   await expect(animationPanel.locator(".amina-demo-avatar")).toHaveAttribute("data-state", "thinking");
   await expect(animationPanel.locator(".amina-demo-avatar")).toHaveAttribute("data-active", "false");
-  await expect(characterPanel).toHaveCount(0);
-  await expect(milestonePanel).toHaveCount(0);
+  await animationPanel.getByRole("checkbox", { name: /Animate the illustration/ }).check();
+  await expect(characterPanel).toBeHidden();
+  await expect(milestonePanel).toBeHidden();
   await expect(animationPanel.locator(".lab-provider-trial, .lab-next-step, input[type=file]")).toHaveCount(0);
   await expect(animationPanel).not.toContainText(/agora|lemonslice|credentials|integration guide/i);
-  await characterEntry.click();
-  await expect(page.locator("#character-unlocks-heading")).toBeFocused();
-  await expect(characterPanel.locator(".cosmetic-preview-agent .companion-motion")).toHaveAttribute("data-active", "true");
-  await expect(milestonePanel).toHaveCount(0);
-  await milestoneEntry.click();
-  await expect(page.locator("#milestones-heading")).toBeFocused();
-  for (const panel of [animationPanel, characterPanel, milestonePanel]) await expect(panel).toBeVisible();
+  await toggle(animationEntry, false, "Space", true);
+  await expect(animationPanel).toBeHidden();
+  await toggle(animationEntry, true);
   await expect(animationPanel.locator(".amina-demo-avatar")).toHaveAttribute("data-state", "thinking");
-  await expect(characterPanel.locator(".sample-tide-label strong")).toHaveText("0");
-  await expect(milestonePanel.locator(".milestone-sample-label strong")).toHaveText("10");
-  await animationPanel.getByRole("button", { name: "Close animation experience", exact: true }).click();
-  await expect(animationPanel).toHaveCount(0);
-  await expect(animationEntry).toBeFocused();
+  await toggle(characterEntry, true);
+  await expect(animationPanel).toBeHidden();
   await expect(characterPanel).toBeVisible();
+  await expect(characterPanel.locator(".cosmetic-preview-agent .companion-motion")).toHaveAttribute("data-active", "true");
+  await expect(milestonePanel).toBeHidden();
+  await expect(characterPanel.locator(".sample-tide-label strong")).toHaveText("0");
+  await entries.screenshot({ path: test.info().outputPath("mode-experience-character-inline.png") });
+  await toggle(milestoneEntry, true);
+  await expect(animationPanel).toBeHidden();
+  await expect(characterPanel).toBeHidden();
   await expect(milestonePanel).toBeVisible();
-  await characterPanel.getByRole("button", { name: "Close character unlocks", exact: true }).click();
-  await expect(characterPanel).toHaveCount(0);
-  await expect(characterEntry).toBeFocused();
-  await expect(milestonePanel).toBeVisible();
-  await milestonePanel.getByRole("button", { name: "Close milestones and share cards", exact: true }).click();
-  await expect(milestonePanel).toHaveCount(0);
-  await expect(milestoneEntry).toBeFocused();
-  for (const entry of [animationEntry, characterEntry, milestoneEntry]) await expect(entry).toHaveAttribute("aria-expanded", "false");
+  await expect(milestonePanel.locator(".milestone-sample-label strong")).toHaveText("10");
+  await entries.screenshot({ path: test.info().outputPath("mode-experience-milestones-inline.png") });
+  await toggle(companionEntry, true);
+  for (const panel of [animationPanel, characterPanel, milestonePanel]) await expect(panel).toBeHidden();
+  await expect(companionPanel).toBeVisible();
+  await expect(companionPanel.locator('a[href="/home/companion"]')).toHaveCount(1);
+  await expect(companionPanel.getByRole("checkbox", { name: "Enable companion demo", exact: true })).toHaveCount(0);
+  await expect(page.getByTestId("web-companion")).toHaveCount(0);
+  await toggle(companionEntry, false, "Space", true);
+  for (const [entry, panel, label] of [
+    [animationEntry, animationPanel, "Close animation experience"],
+    [characterEntry, characterPanel, "Close character unlocks"],
+    [milestoneEntry, milestonePanel, "Close milestones and share cards"],
+  ] as const) {
+    await toggle(entry, true);
+    await panel.getByRole("button", { name: label, exact: true }).click();
+    await expect(panel).toBeHidden();
+    await expect(entry).toBeFocused();
+  }
+  for (const entry of triggers) await expect(entry).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator(".amina-modes")).toHaveAttribute("data-mode", "interview");
+  expect(await page.locator(".mode-workspace").innerText()).toBe(roomText);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await entries.screenshot({ path: test.info().outputPath("mode-experience-accordions.png") });
 });
 
 test("facial unlocks honor sample thresholds for all companions and keep rooms optional", async ({ page }) => {
   await openExperiences(page);
-  await page.getByRole("navigation", { name: "Explore the Airs experience" }).getByRole("button", { name: /Character unlocks/ }).click();
+  await page.locator(".experience-disclosures").getByRole("button", { name: "Character unlocks", exact: true }).click();
   const rewards = page.locator("#airs-character-unlocks .tide-unlocks");
   const scene = rewards.locator(".cosmetic-preview-scene");
   const counts = rewards.getByRole("group", { name: "Choose a sample Tide count" });
@@ -263,7 +341,7 @@ test("facial unlocks honor sample thresholds for all companions and keep rooms o
 
 test("sample milestones unlock and export a self-contained watermarked SVG", async ({ page }) => {
   await openExperiences(page);
-  await page.getByRole("navigation", { name: "Explore the Airs experience" }).getByRole("button", { name: /Milestones & share cards/ }).click();
+  await page.locator(".experience-disclosures").getByRole("button", { name: "Milestones & share cards", exact: true }).click();
   const milestones = page.locator("#airs-milestone-unlocks .milestone-unlocks");
   const counts = milestones.getByRole("group", { name: "Choose a sample Tide count" });
   const cards = milestones.locator(".milestone-card");

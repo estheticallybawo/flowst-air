@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {
-  ArrowDown, ArrowLeft, ArrowRight, BookOpen, BriefcaseBusiness,
+  ArrowLeft, ArrowRight, BookOpen, BriefcaseBusiness,
   Captions, Check, ChevronRight, Coffee, FileText, FlaskConical,
   Languages, Lightbulb, MessageCircle, MicOff, Pause, Play,
   RotateCcw, Sparkles, VideoOff, Volume2,
@@ -18,6 +18,7 @@ import "~/assets/css/amina-modes-demo.css";
 useHead({ title: "Explore Amina's modes · Flowst Airs" });
 const route = useRoute();
 const router = useRouter();
+const { available: companionDemoAvailable } = useWebCompanionDemo();
 const agentPresentation = useAgentPresentation();
 provide(AGENT_PRESENTATION_KEY, agentPresentation.presentation);
 const selectedVoiceId = computed(() => agentPresentation.presentation.value.agents.AMIRA.voiceId);
@@ -39,16 +40,15 @@ const translationsVisible = ref(true);
 const feedbackVisible = ref(false);
 const elapsed = ref(0);
 const motionEnabled = ref(true);
-const labOpen = ref(route.query.avatar === "1");
-const characterUnlocksOpen = ref(false);
-const milestonesOpen = ref(false);
+type ExperiencePanel = 'animation' | 'character' | 'milestones' | 'companion';
+const openExperience = ref<ExperiencePanel | null>(route.query.avatar === "1" ? 'animation' : null);
+const labOpen = computed(() => openExperience.value === 'animation');
+const characterUnlocksOpen = computed(() => openExperience.value === 'character');
+const milestonesOpen = computed(() => openExperience.value === 'milestones');
 const labState = ref<"idle" | "listening" | "thinking" | "speaking">("speaking");
 const labBackground = ref("studio");
 const labExpression = ref<"auto" | "celebrate" | "wave">("auto");
 const labStates = ["idle", "listening", "thinking", "speaking"] as const;
-const labElement = ref<HTMLElement>();
-const characterUnlocksHeading = ref<HTMLElement>();
-const milestonesHeading = ref<HTMLElement>();
 const sampleAudio = ref<HTMLAudioElement>();
 const voiceEnabled = ref(true);
 const voiceNotice = ref("");
@@ -199,7 +199,7 @@ function togglePlayback() {
     elapsed.value = 0;
   }
   ended.value = false;
-  labOpen.value = false;
+  if (labOpen.value) openExperience.value = null;
   playing.value = true;
   feedbackVisible.value = false;
   const expectedGeneration = ++generation;
@@ -223,7 +223,7 @@ function selectMode(id: DemoModeId) {
 }
 watch(selectedId, () => {
   resetPreview();
-  labOpen.value = false;
+  if (labOpen.value) openExperience.value = null;
   voiceNotice.value = "";
 });
 watch(selectedVoiceId, resetPreview);
@@ -232,38 +232,15 @@ function toggleVoice() {
   if (sampleAudio.value) sampleAudio.value.muted = !voiceEnabled.value;
   voiceNotice.value = voiceEnabled.value ? 'Sample audio is on.' : 'Sample audio is muted.';
 }
-async function openLab() {
-  stopPlayback();
-  labOpen.value = !labOpen.value;
-  if (labOpen.value) {
-    await nextTick();
-    labElement.value?.focus({ preventScroll: true });
-    labElement.value?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
-  }
+function toggleExperience(panel: ExperiencePanel) {
+  if (panel === 'animation') stopPlayback();
+  openExperience.value = openExperience.value === panel ? null : panel;
 }
-async function toggleCharacterUnlocks() {
-  characterUnlocksOpen.value = !characterUnlocksOpen.value;
-  if (characterUnlocksOpen.value) {
-    await nextTick();
-    characterUnlocksHeading.value?.focus({ preventScroll: true });
-    characterUnlocksHeading.value?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
-  }
-}
-async function toggleMilestones() {
-  milestonesOpen.value = !milestonesOpen.value;
-  if (milestonesOpen.value) {
-    await nextTick();
-    milestonesHeading.value?.focus({ preventScroll: true });
-    milestonesHeading.value?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
-  }
-}
-async function closeExperience(panel: "animation" | "character" | "milestones") {
-  const panelIds = { animation: "amina-animation-lab", character: "airs-character-unlocks", milestones: "airs-milestone-unlocks" };
-  if (panel === "animation") labOpen.value = false;
-  if (panel === "character") characterUnlocksOpen.value = false;
-  if (panel === "milestones") milestonesOpen.value = false;
+async function closeExperience(panel: ExperiencePanel) {
+  if (openExperience.value !== panel) return;
+  openExperience.value = null;
   await nextTick();
-  document.querySelector<HTMLButtonElement>(`.experience-entry[aria-controls="${panelIds[panel]}"]`)?.focus({ preventScroll: true });
+  document.getElementById(`experience-${panel}-trigger`)?.focus({ preventScroll: true });
 }
 onBeforeUnmount(stopPlayback);
 </script>
@@ -274,7 +251,6 @@ onBeforeUnmount(stopPlayback);
       <div class="modes-demo-notice"><FlaskConical :size="16" /><span>Experience preview</span><span class="modes-notice-detail">Fictional scenarios and illustrated animation samples. No live call is connected.</span></div>
       <header class="modes-heading">
         <div><p class="modes-overline">Same Amina. A new setting.</p><h1>What would you like to practise?</h1><p>Find your voice in the conversations that matter to you.</p></div>
-        <button class="modes-outline-button" :aria-expanded="labOpen" aria-controls="amina-animation-lab" @click="openLab"><Sparkles :size="17" /> Explore her animation <ArrowDown :size="15" /></button>
       </header>
 
       <section class="modes-study-entry" aria-label="Study mode is available now">
@@ -283,12 +259,6 @@ onBeforeUnmount(stopPlayback);
       </section>
 
       <AirsAgentPresence />
-
-      <nav class="experience-entry-grid" aria-label="Explore the Airs experience">
-        <button type="button" class="experience-entry" :aria-expanded="labOpen" aria-controls="amina-animation-lab" @click="openLab"><span class="experience-entry-icon"><Sparkles :size="21" /></span><span class="experience-entry-copy"><strong>Animation experience</strong><small>Meet Amina’s illustrated expressions and conversation states.</small></span><ArrowDown :size="17" /></button>
-        <button type="button" class="experience-entry" :aria-expanded="characterUnlocksOpen" aria-controls="airs-character-unlocks" @click="toggleCharacterUnlocks"><span class="experience-entry-icon"><Coffee :size="21" /></span><span class="experience-entry-copy"><strong>Character unlocks</strong><small>Try companion looks and new places to practise.</small></span><ArrowDown :size="17" /></button>
-        <button type="button" class="experience-entry" :aria-expanded="milestonesOpen" aria-controls="airs-milestone-unlocks" @click="toggleMilestones"><span class="experience-entry-icon"><Check :size="21" /></span><span class="experience-entry-copy"><strong>Milestones &amp; share cards</strong><small>Explore progress moments and a card you could share.</small></span><ArrowDown :size="17" /></button>
-      </nav>
 
       <nav class="modes-switcher" aria-label="Demonstration modes">
         <button v-for="option in aminaDemoModes" :key="option.id" :aria-pressed="selectedId === option.id" :class="{ selected: selectedId === option.id }" :style="{ '--option-accent': option.accent }" @click="selectMode(option.id)">
@@ -362,25 +332,46 @@ onBeforeUnmount(stopPlayback);
         </aside>
       </section>
 
-      <div class="modes-bottom-note"><span><Check :size="16" /> Four settings. One familiar companion.</span><button @click="openLab">See the animation experience <ArrowRight :size="16" /></button></div>
+      <div class="modes-bottom-note"><span><Check :size="16" /> Four settings. One familiar companion.</span></div>
 
-      <section v-if="labOpen" id="amina-animation-lab" class="animation-lab experience-panel" aria-labelledby="animation-lab-heading">
-        <header class="lab-heading"><div><span class="lab-label"><Sparkles :size="17" /> Animation experience</span><h2 id="animation-lab-heading" ref="labElement" tabindex="-1">A little more presence.</h2><p>Explore Amina’s half-body talking simulation and gesture samples.</p></div><button type="button" class="modes-outline-button" @click="closeExperience('animation')">Close animation experience</button></header>
+      <section class="experience-disclosures" aria-label="Explore the Airs experience">
+        <h2>A little more to explore</h2>
+        <div class="experience-disclosure" data-experience="animation">
+          <button id="experience-animation-trigger" type="button" class="experience-disclosure-trigger" :aria-expanded="labOpen" aria-controls="amina-animation-lab" @click="toggleExperience('animation')"><span>Animation experience</span><ChevronRight :size="17" aria-hidden="true" /></button>
+          <section v-if="labOpen" id="amina-animation-lab" class="animation-lab experience-panel" aria-labelledby="animation-lab-heading">
+        <header class="lab-heading"><div><span class="lab-label"><Sparkles :size="17" /> Animation experience</span><h2 id="animation-lab-heading">A little more presence.</h2><p>Explore Amina’s half-body talking simulation and gesture samples.</p></div><button type="button" class="modes-outline-button" @click="closeExperience('animation')">Close animation experience</button></header>
         <div class="lab-layout">
           <div class="lab-stage" :data-background="labBackground"><AminaDemoAvatar :state="labState" :active="motionEnabled" :expression="labExpression" :dark="labBackground === 'night'" /><span class="lab-stage-caption">Animated expression sample · simulated speech</span></div>
           <div class="lab-controls"><h3>Try her conversation states</h3><p>Illustrated mouth shapes and expression frames bring this sample to life. Speech motion is approximate; this is not a connected AI call.</p><div class="lab-state-options" aria-label="Preview animation state"><button v-for="state in labStates" :key="state" :aria-pressed="labState === state && labExpression === 'auto'" @click="labState = state; labExpression = 'auto'">{{ state }}</button></div><div class="lab-gesture-options"><button :aria-pressed="labExpression === 'wave'" @click="labExpression = 'wave'">A little hello</button><button :aria-pressed="labExpression === 'celebrate'" @click="labExpression = 'celebrate'">Celebrate together</button></div><label class="lab-motion-control"><input v-model="motionEnabled" type="checkbox" /> Animate the illustration <span>Respects reduced motion</span></label>
           </div>
         </div>
-      </section>
+          </section>
+        </div>
 
-      <section v-if="characterUnlocksOpen" id="airs-character-unlocks" class="experience-panel" aria-labelledby="character-unlocks-heading">
-        <header class="lab-heading"><div><span class="lab-label"><Coffee :size="17" /> Character unlocks</span><h2 id="character-unlocks-heading" ref="characterUnlocksHeading" tabindex="-1">Make the space yours.</h2><p>Preview expressive faces for small avatars, plus optional room settings. Cosmetic samples only.</p></div><button type="button" class="modes-outline-button" @click="closeExperience('character')">Close character unlocks</button></header>
+        <div class="experience-disclosure" data-experience="character">
+          <button id="experience-character-trigger" type="button" class="experience-disclosure-trigger" :aria-expanded="characterUnlocksOpen" aria-controls="airs-character-unlocks" @click="toggleExperience('character')"><span>Character unlocks</span><ChevronRight :size="17" aria-hidden="true" /></button>
+          <section v-if="characterUnlocksOpen" id="airs-character-unlocks" class="experience-panel" aria-labelledby="character-unlocks-heading">
+        <header class="lab-heading"><div><span class="lab-label"><Coffee :size="17" /> Character unlocks</span><h2 id="character-unlocks-heading">Make the space yours.</h2><p>Preview expressive faces for small avatars, plus optional room settings. Cosmetic samples only.</p></div><button type="button" class="modes-outline-button" @click="closeExperience('character')">Close character unlocks</button></header>
         <AirsTideUnlocks />
-      </section>
+          </section>
+        </div>
 
-      <section v-if="milestonesOpen" id="airs-milestone-unlocks" class="experience-panel" aria-labelledby="milestones-heading">
-        <header class="lab-heading"><div><span class="lab-label"><Check :size="17" /> Milestones &amp; share cards</span><h2 id="milestones-heading" ref="milestonesHeading" tabindex="-1">Give the small steps a moment.</h2><p>Explore milestone examples and a sample share card.</p></div><button type="button" class="modes-outline-button" @click="closeExperience('milestones')">Close milestones and share cards</button></header>
+        <div class="experience-disclosure" data-experience="milestones">
+          <button id="experience-milestones-trigger" type="button" class="experience-disclosure-trigger" :aria-expanded="milestonesOpen" aria-controls="airs-milestone-unlocks" @click="toggleExperience('milestones')"><span>Milestones &amp; share cards</span><ChevronRight :size="17" aria-hidden="true" /></button>
+          <section v-if="milestonesOpen" id="airs-milestone-unlocks" class="experience-panel" aria-labelledby="milestones-heading">
+        <header class="lab-heading"><div><span class="lab-label"><Check :size="17" /> Milestones &amp; share cards</span><h2 id="milestones-heading">Give the small steps a moment.</h2><p>Explore milestone examples and a sample share card.</p></div><button type="button" class="modes-outline-button" @click="closeExperience('milestones')">Close milestones and share cards</button></header>
         <AirsMilestoneUnlocks />
+          </section>
+        </div>
+
+        <div v-if="companionDemoAvailable" class="experience-disclosure" data-experience="companion">
+          <button id="experience-companion-trigger" type="button" class="experience-disclosure-trigger" :aria-expanded="openExperience === 'companion'" aria-controls="airs-home-companion-preview" @click="toggleExperience('companion')"><span>Companion on Home</span><ChevronRight :size="17" aria-hidden="true" /></button>
+          <section v-if="openExperience === 'companion'" id="airs-home-companion-preview" class="experience-panel companion-experience-intro" aria-labelledby="home-companion-heading">
+            <h2 id="home-companion-heading">A little company, right on Home.</h2>
+            <p>Try a floating companion with a gentle study invitation and an optional sample walkthrough. This concept preview stays off until you enable it.</p>
+            <NuxtLink class="modes-companion-link" to="/home/companion">Try your companion on Home <ArrowRight :size="16" aria-hidden="true" /></NuxtLink>
+          </section>
+        </div>
       </section>
       <NuxtLink class="modes-return-link" to="/home"><ArrowLeft :size="16" /> Back to your Airs home</NuxtLink>
     </section>

@@ -322,7 +322,8 @@ async function replaceCurrentDocument() {
         <div class="intro-image">
           <AgentPortrait
             agent="AMIRA"
-            fit="cover"
+            fit="contain"
+            style="--portrait-position: bottom"
             alt="Amina, your voice study companion"
           />
         </div>
@@ -782,7 +783,7 @@ async function replaceCurrentDocument() {
   background: linear-gradient(90deg, #e0f2fe 0%, transparent 29%);
   content: "";
 }
-.intro-image :deep(img) {
+.intro-image > img {
   width: 100%;
   height: 100%;
   object-fit: cover;
